@@ -6,8 +6,10 @@ vdr (1.2.6-10) unstable; urgency=low
     - Added patch for the EPG handling under amd64 (closes: #300702)
     - Fixed small typos in the package descriptions of vdr and 
       vdr-dev (closes: #300042, #300074)
+    - Add user vdr to group cdrom in postinst, so that vdr is able to
+      play dvd's with the dvd-plugin again
 
- -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Mon, 21 Mar 2005 18:16:50 +0100
+ -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Thu, 31 Mar 2005 23:47:37 +0200
 
 vdr (1.2.6-9) experimental; urgency=low
 
