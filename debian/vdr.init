@@ -3,6 +3,8 @@
 # vdr start-stop script
 #
 
+test -x /usr/sbin/runvdr || exit 0
+
 . /usr/lib/vdr/config-loader.sh
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
@@ -13,8 +15,6 @@ test "$ENABLE_SHUTDOWN" = "1" && VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown.wrapper"
 	|| VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown-message"
 
 test "$ENABLED" != "0" || exit 0
-
-test -x /usr/sbin/runvdr || exit 0
 
 startvdr() 
 {
