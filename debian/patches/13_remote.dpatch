@@ -93,7 +93,7 @@ diff -urNad vdr-1.2.6/vdr.c /tmp/dpep.8j05le/vdr-1.2.6/vdr.c
 +	       "            --no-kbd       don't use the keyboard as an input device\n"
 +               "            --rcu[=PATH]   use a remote control device, attached to PATH\n"
 +               "                           (default: " REMOTE_RCU ")\n"
-+               "            --lirc         use a LIRC remote control device, attached to PATH\n"
++               "            --lirc[=PATH]  use a LIRC remote control device, attached to PATH\n"
 +               "                           (default: " REMOTE_LIRC ")\n"
                 "\n",
                 cSIProcessor::GetEpgDataFileName() ? cSIProcessor::GetEpgDataFileName() : "'-'",
