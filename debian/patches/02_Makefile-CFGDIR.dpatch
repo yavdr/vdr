@@ -3,7 +3,7 @@
 ## 01_Makefile-CFGDIR.dpatch by Thomas Schmidt <tschmidt@debian.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+## DP: Allow default config dir to be set as define.
 
 @DPATCH@
 diff -urNad /home/chelli/vdr/test/vdr/Makefile vdr/Makefile

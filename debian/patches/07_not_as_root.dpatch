@@ -3,7 +3,7 @@
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Refuse to run vdr as user root (Note: This patch requires the
-## DP: 05_set_system_time_as_user.dpatch)
+## DP: Don't allow vdr to be run as root
 
 @DPATCH@
 diff -urNad vdr-1.2.6/vdr.c /tmp/dpep.YDJHqf/vdr-1.2.6/vdr.c
