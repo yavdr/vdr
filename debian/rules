@@ -108,10 +108,10 @@ binary-arch: build install
 	dh_testdir -a
 	dh_testroot -a
 	dh_installdebconf -a -pvdr
-	dh_installdocs -a -Nvdr-daemon -Nvdr-kbd -Nvdr-lirc -Nvdr-rcu -Nvdr-plugin-examples
-	dh_installexamples -a -Nvdr-kbd -Nvdr-lirc -Nvdr-rcu -Nvdr-daemon
-	dh_installchangelogs -a -Nvdr-daemon -Nvdr-kbd -Nvdr-lirc -Nvdr-rcu -Nvdr-plugin-examples -Nvdr-plugin-sky -pvdr HISTORY
-	dh_installchangelogs -a -Nvdr-daemon -Nvdr-kbd -Nvdr-lirc -Nvdr-rcu -Nvdr-plugin-examples -Nvdr -pvdr-plugin-sky PLUGINS/src/sky/HISTORY
+	dh_installdocs -a -Nvdr-plugin-examples
+	dh_installexamples -a
+	dh_installchangelogs -a -Nvdr-plugin-examples -Nvdr-plugin-sky -pvdr HISTORY
+	dh_installchangelogs -a -Nvdr-plugin-examples -Nvdr -pvdr-plugin-sky PLUGINS/src/sky/HISTORY
 	dh_installman -a
 	dh_installmenu -a
 	dh_installinit -a -pvdr
