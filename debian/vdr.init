@@ -18,7 +18,10 @@ test -x /usr/sbin/runvdr || exit 0
 
 startvdr() 
 {
-    if ! ps ax | grep "/usr/bin/vdr " | grep -v grep > /dev/null 
+    # only start vdr if there is no other instance running
+    # (Appears as vdr-kbd in the official debian-packages
+    # and just as vdr in the c't-vdr packages)
+    if ! ps ax | grep "/usr/bin/\(vdr\|vdr-kbd\) " | grep -qv grep
     then
 	. /usr/lib/vdr/plugin-loader.sh
 	. /usr/lib/vdr/commands-loader.sh
@@ -37,7 +40,15 @@ startvdr()
 stopvdr()
 {
     killall -q -TERM runvdr
-    killall -q -TERM /usr/bin/vdr
+
+    # check if the running process is /usr/bin/vdr or /usr/bin/vdr-kbd
+    if ps ax | grep "/usr/bin/vdr " | grep -qv grep
+    then
+       killall -q -TERM /usr/bin/vdr > /dev/null 2>&1
+    else
+       # (assume that vdr-kbd is running)
+       killall -q -TERM /usr/bin/vdr-kbd > /dev/null 2>&1
+    fi
 }
 
 case "$1" in
