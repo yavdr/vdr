@@ -1,7 +1,5 @@
 vdr (1.2.6-9) experimental; urgency=low
 
-  * NOT RELEASED YET
-  
   * Thomas Schmidt <tschmidt@debian.org>
     - Change owner of /proc/{av7110_ir,budget_ci_ir} to the uid and 
       gid under which vdr will run in /usr/sbin/runvdr 
@@ -16,7 +14,7 @@ vdr (1.2.6-9) experimental; urgency=low
     - Removed Andreas Müller from uploaders - he does not intend 
       to do uploads anymore
 
- -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sat, 26 Feb 2005 20:35:43 +0100
+ -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sat, 12 Mar 2005 20:05:06 +0100
 
 vdr (1.2.6-8) unstable; urgency=low
 

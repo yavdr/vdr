@@ -38,7 +38,6 @@ case "$1" in
 	if [ ! -z $2 ]; then
 	   if `dpkg --compare-versions $2 lt 1.2.6-9`; then
 	      if [ -x "/etc/init.d/vdr" ]; then
-		 update-rc.d vdr defaults >/dev/null
 		 if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
 		    invoke-rc.d vdr stop || exit 0
 		 else
