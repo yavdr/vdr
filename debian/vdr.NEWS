@@ -1,3 +1,19 @@
+vdr (1.2.6-9) experimental; urgency=low
+
+  This release adds a patch which allows us to have just one binary-
+  package for all four control-methods, so we do not need the 
+  packages vdr-daemon, vdr-kbd, vdr-lirc and vdr-rcu anymore. 
+  You can run vdr with the control-method you want by calling 
+  /usr/bin/vdr-{daemon,kbd,lirc,rcu} or by using 
+  
+  update-alternatives --config vdr
+
+  and setting it to the desired control-method. (lirc is default)
+  After this a call of /usr/bin/vdr will allways use the control-
+  method you selected with update-alternatives.
+
+ -- Thomas Schmidt <tschmidt@debian.org>  Sun, 27 Feb 2005 00:44:05 +0100
+ 
 vdr (1.2.6-6) unstable; urgency=low
 
   The most important change in this release is that vdr from now on

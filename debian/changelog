@@ -1,3 +1,18 @@
+vdr (1.2.6-9) experimental; urgency=low
+
+  * NOT RELEASED YET
+  
+  * Thomas Schmidt <tschmidt@debian.org>
+    - Added 13_remote.dpatch from Darren Salt, this allows to have
+      just 1 binary for all 4 possible control methods, and it should
+      reduce build-time by about 75%
+    - Removed packages vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu because 
+      they are not necessary anymore
+    - Added "Conflicts and Replaces: vdr-daemon, vdr-kbd, vdr-lirc, 
+      vdr-rcu" to debian/control
+
+ -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sat, 26 Feb 2005 20:35:43 +0100
+
 vdr (1.2.6-8) unstable; urgency=low
 
   * Thomas Schmidt <tschmidt@debian.org>

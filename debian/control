@@ -8,7 +8,10 @@ Standards-Version: 3.6.1
 
 Package: vdr
 Architecture: any
-Depends: ${misc:Depends}, vdr-kbd | vdr-lirc | vdr-rcu | vdr-daemon, makedev (>=2.3.1-66), adduser
+Depends: ${misc:Depends}, makedev (>=2.3.1-66), adduser
+Recommends: lirc
+Conflicts: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu
+Replaces: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu
 Description: Video Disk Recorder for DVB cards
  Video Disk Recorder (VDR) is a digital sat-receiver program using
  Linux and DVB technologies. It allows one to record MPEG2 streams,
@@ -34,56 +37,6 @@ Description: Video Disk Recorder for DVB cards
  .
  This package contains the header files of VDR.
  You need this package to be able to build vdr-plugins!
-
-Package: vdr-kbd
-Architecture: any 
-Depends: ${shlibs:Depends}, vdr (= ${Source-Version})
-Description: Video Disk Recorder for DVB cards with keyboard control
- Video Disk Recorder (VDR) is a digital sat-receiver program using
- Linux and DVB-technologies. It allows one to record MPEG2 streams,
- as well as output the stream to TV.
- .
- This package contains the vdr-kbd program which is controlled via the
- PC keyboard. There are also vdr-rcu and vdr-lirc packages which
- contain another VDR versions using RCU or infrared remote control.
-
-Package: vdr-lirc
-Architecture: any 
-Depends: ${shlibs:Depends}, vdr (= ${Source-Version}), lirc
-Description: Video Disk Recorder for DVB cards with IR remote control
- Video Disk Recorder (VDR) is a digital sat-receiver program using
- Linux and DVB technologies. It allows one to record MPEG2 streams,
- as well as output the stream to TV.
- .
- This package contains the vdr-lirc program which is controlled via a
- IR remote control. There are also vdr-kbd and vdr-rcu packages which
- contain another VDR versions using keyboard/rcu control.
-
-Package: vdr-rcu
-Architecture: any 
-Depends: ${shlibs:Depends}, vdr (= ${Source-Version})
-Description: Video Disk Recorder for DVB cards with RCU control
- Video Disk Recorder (VDR) is a digital sat-receiver program using
- Linux and DVB technologies. It allows one to record MPEG2 streams,
- as well as output the stream to TV.
- .
- This package contains the vdr-kbd program which is controlled via the
- the "Remote Control Unit". There are also vdr-kbd and vdr-lirc
- packages which contain another VDR versions using PC keyboard or
- infrared remote control.
-
-Package: vdr-daemon
-Architecture: any 
-Depends: ${shlibs:Depends}, vdr (= ${Source-Version}), debconf
-Description: Server version of Video Disk Recorder for DVB cards
- Video Disk Recorder (VDR) is a digital sat-receiver program using
- Linux and DVB technologies. It allows one to record MPEG2 streams,
- as well as output the stream to TV.
- .
- This package contains a VDR version without any direct control
- capabilities.  Instead, it opens a control port and other programs
- like kvdr (from the kvdr package) can connect to the vdr-daemon and
- use it.
 
 Package: vdr-plugin-sky
 Architecture: any 

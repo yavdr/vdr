@@ -33,24 +33,8 @@ build-stamp:
 
 	# Add here commands to compile the package.
 	
-	# vdr-kbd
 	$(MAKE) VIDEODIR=$(VIDEODIR) VFAT=1 DVBDIR=$(DVBDIR) PLUGINLIBDIR=$(PLUGINDIR) CFGDIR=$(CFGDIR)
-	cp vdr vdr-kbd
-	make clean
-	
-	# vdr-daemon
-	$(MAKE) VIDEODIR=$(VIDEODIR) NO_KBD=1 VFAT=1 DVBDIR=$(DVBDIR) PLUGINLIBDIR=$(PLUGINDIR) CFGDIR=$(CFGDIR)
-	cp vdr vdr-daemon
-	make clean
-	
-	# vdr-lirc
-	$(MAKE) VIDEODIR=$(VIDEODIR) REMOTE=LIRC VFAT=1 DVBDIR=$(DVBDIR) PLUGINLIBDIR=$(PLUGINDIR) CFGDIR=$(CFGDIR)
-	cp vdr vdr-lirc
-	make clean
-	
-	# vdr-rcu
-	$(MAKE) VIDEODIR=$(VIDEODIR) REMOTE=RCU VFAT=1 DVBDIR=$(DVBDIR) PLUGINLIBDIR=$(PLUGINDIR) CFGDIR=$(CFGDIR)
-	cp vdr vdr-rcu
+	ln -f vdr vdr-kbd
 
 	make include-dir
 
@@ -79,7 +63,7 @@ clean-patched:
 	-$(MAKE) plugins-clean 
 	-$(MAKE) clean
 
-	rm -f vdr-kbd vdr-daemon vdr-lirc vdr-rcu
+	rm -f vdr-kbd
 	rm -rf PLUGINS/lib
 	rm -f vdr-newplugin
 	sh debian/patchlevel.sh clean

@@ -8,6 +8,7 @@
 06_default_svdrp_port_0
 07_not_as_root
 08_security_CAN-2005-0071
+13_remote
 
 # The Elchi AIO 4d patch for a nicer OSD, inlcuding the frames and black
 # square fix.

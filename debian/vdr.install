@@ -1,3 +1,8 @@
+vdr-kbd	                  usr/bin/
+debian/scripts/vdr-daemon usr/bin/
+debian/scripts/vdr-lirc   usr/bin/
+debian/scripts/vdr-rcu    usr/bin/
+
 epg2html.pl  usr/lib/vdr/
 svdrpsend.pl usr/lib/vdr/
 
@@ -30,4 +35,3 @@ debian/vdr-shutdown.wrapper usr/lib/vdr/
 debian/S90.custom           etc/vdr/shutdown-hooks/
 
 debian/lintian/vdr usr/share/lintian/overrides/
-

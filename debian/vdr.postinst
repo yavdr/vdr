@@ -127,6 +127,12 @@ case "$1" in
 	[ ! -e /usr/lib/vdr/vdr-shutdown.wrapper ] || \
 	chown root:$GROUP /usr/lib/vdr/vdr-shutdown.wrapper && \
 	chmod 6750 /usr/lib/vdr/vdr-shutdown.wrapper
+
+	# Install alternatives for the different control methods
+	update-alternatives --install /usr/bin/vdr vdr /usr/bin/vdr-lirc   120
+	update-alternatives --install /usr/bin/vdr vdr /usr/bin/vdr-kbd    110
+	update-alternatives --install /usr/bin/vdr vdr /usr/bin/vdr-rcu    105
+	update-alternatives --install /usr/bin/vdr vdr /usr/bin/vdr-daemon 100
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

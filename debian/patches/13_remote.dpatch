@@ -1,0 +1,121 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 01_remote.dpatch by  <ds@flibble.youmustbejoking.demon.co.uk>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Consolidate input device handling.
+
+@DPATCH@
+diff -urNad vdr-1.2.6/Makefile /tmp/dpep.8j05le/vdr-1.2.6/Makefile
+--- vdr-1.2.6/Makefile	2005-02-27 00:02:04.864404216 +0100
++++ /tmp/dpep.8j05le/vdr-1.2.6/Makefile	2005-02-27 00:02:05.231348432 +0100
+@@ -43,11 +43,10 @@
+ OSDFONT = -adobe-helvetica-medium-r-normal--23-*-100-100-p-*-iso8859-1
+ FIXFONT = -adobe-courier-bold-r-normal--25-*-100-100-m-*-iso8859-1
+ 
+-ifndef NO_KBD
+-DEFINES += -DREMOTE_KBD
+-endif
++REMOTE_LIRC ?= /dev/lircd
++REMOTE_RCU ?= /dev/ttyS1
+ 
+-DEFINES += -DREMOTE_$(REMOTE)
++DEFINES += -DREMOTE_RCU=\"$(REMOTE_RCU)\" -DREMOTE_LIRC=\"$(REMOTE_LIRC)\"
+ 
+ DEFINES += -DCMD_SUBMENUS
+ DEFINES += -D_GNU_SOURCE
+diff -urNad vdr-1.2.6/vdr.1 /tmp/dpep.8j05le/vdr-1.2.6/vdr.1
+--- vdr-1.2.6/vdr.1	2003-05-29 13:58:28.000000000 +0200
++++ /tmp/dpep.8j05le/vdr-1.2.6/vdr.1	2005-02-27 00:06:28.218368328 +0100
+@@ -45,8 +45,19 @@
+ Read config files from directory \fIdir\fR
+ (default is to read them from the video directory).
+ .TP
+-.B -d, --daemon
+-Run in daemon mode.
++.B \-d, \-\-daemon
++Run in daemon mode. (This implies \-\-no\-kbd.)
++.TP
++.B \-\-no\-kbd
++Don't use the keyboard as an input device.
++.TP
++.BI \-\-lirc [=DEVICE]
++If this option is present, vdr will use a LIRC remote control device.
++If the device name is omitted, vdr uses \fI/dev/lircd\fR.
++.TP
++.BI \-\-rcu [=DEVICE]
++If this option is present, vdr will use a serial port remote control device.
++If the device name is omitted, vdr uses \fI/dev/ttyS1\fR.
+ .TP
+ .BI -D\  num ,\ --device= num
+ Use only the given DVB device (\fInum\fR = 0, 1, 2...).
+diff -urNad vdr-1.2.6/vdr.c /tmp/dpep.8j05le/vdr-1.2.6/vdr.c
+--- vdr-1.2.6/vdr.c	2005-02-27 00:02:04.889400416 +0100
++++ /tmp/dpep.8j05le/vdr-1.2.6/vdr.c	2005-02-27 00:09:23.444729872 +0100
+@@ -200,6 +200,8 @@
+   int WatchdogTimeout = DEFAULTWATCHDOG;
+   const char *Terminal = NULL;
+   const char *Shutdown = NULL;
++  const char *rcu = NULL, *lirc = NULL;
++  int kbd = 1;
+   cPluginManager PluginManager(DEFAULTPLUGINDIR);
+   const char* username = NULL;
+   const char* groupname = NULL;
+@@ -224,6 +226,9 @@
+       { "watchdog", required_argument, NULL, 'w' },
+       { "user",     required_argument, NULL, 'u' },
+       { "group",    required_argument, NULL, 'g' },
++      { "no-kbd",   no_argument,       NULL, 'k'&31 },
++      { "rcu",      optional_argument, NULL, 'r'&31 },
++      { "lirc",     optional_argument, NULL, 'l'&31 },
+       { NULL }
+     };
+ 
+@@ -322,6 +327,15 @@
+                     break;
+           case 'g': groupname = optarg;
+                     break;
++          case 'k'&31:
++                    kbd = 0;
++                    break;
++          case 'r'&31:
++                    rcu = optarg ? : REMOTE_RCU;
++                    break;
++          case 'l'&31:
++                    lirc = optarg ? : REMOTE_LIRC;
++                    break;
+           default:  return 2;
+           }
+         }
+@@ -383,6 +397,11 @@
+                "                           seconds (default: %d); '0' disables the watchdog\n"
+ 	       "  -u USER,  --user=USER    run as user USER instead of root\n"
+ 	       "  -g GROUP, --group=GROUP  use group GROUP instead of primary group of user\n"
++	       "            --no-kbd       don't use the keyboard as an input device\n"
++               "            --rcu[=PATH]   use a remote control device, attached to PATH\n"
++               "                           (default: " REMOTE_RCU ")\n"
++               "            --lirc         use a LIRC remote control device, attached to PATH\n"
++               "                           (default: " REMOTE_LIRC ")\n"
+                "\n",
+                cSIProcessor::GetEpgDataFileName() ? cSIProcessor::GetEpgDataFileName() : "'-'",
+                DEFAULTPLUGINDIR,
+@@ -555,15 +574,12 @@
+      return 2;
+ 
+   // Remote Controls:
+-#if defined(REMOTE_RCU)
+-  new cRcuRemote("/dev/ttyS1");
+-#elif defined(REMOTE_LIRC)
+-  new cLircRemote("/dev/lircd");
+-#endif
+-#if defined(REMOTE_KBD)
+-  if (!DaemonMode && HasStdin)
++  if (rcu)
++     new cRcuRemote((char*)rcu);
++  if (lirc)
++     new cLircRemote((char*)lirc);
++  if (!DaemonMode && HasStdin && kbd)
+      new cKbdRemote;
+-#endif
+   Interface->LearnKeys();
+ 
+   // External audio:
