@@ -4,7 +4,7 @@ vdr (1.2.6-10) unstable; urgency=low
 
   * Thomas Schmidt <tschmidt@debian.org>
     - Fixed small typos in the package descriptions of vdr and 
-      vdr-dev (closes: #300074)
+      vdr-dev (closes: #300042, #300074)
 
  -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Thu, 17 Mar 2005 16:49:29 +0100
 
