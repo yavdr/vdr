@@ -1,0 +1,148 @@
+#!/usr/bin/make -f
+# Sample debian/rules that uses debhelper.
+# GNU copyright 1997 to 1999 by Joey Hess.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+CFGDIR    := /var/lib/vdr
+DVBDIR    := /usr/include
+PLUGINDIR := /usr/lib/vdr/plugins
+VIDEODIR  := /var/lib/video.00
+
+# include dpatch stuff
+include /usr/share/dpatch/dpatch.make
+
+ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -g
+endif
+ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
+	INSTALL_PROGRAM += -s
+endif
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	
+	touch configure-stamp
+
+build: patch-stamp configure-stamp build-stamp
+
+build-stamp: 
+	dh_testdir
+
+	# Add here commands to compile the package.
+	
+	# vdr-kbd
+	$(MAKE) VIDEODIR=$(VIDEODIR) VFAT=1 DVBDIR=$(DVBDIR) PLUGINLIBDIR=$(PLUGINDIR) CFGDIR=$(CFGDIR)
+	cp vdr vdr-kbd
+	make clean
+	
+	# vdr-daemon
+	$(MAKE) VIDEODIR=$(VIDEODIR) NO_KBD=1 VFAT=1 DVBDIR=$(DVBDIR) PLUGINLIBDIR=$(PLUGINDIR) CFGDIR=$(CFGDIR)
+	cp vdr vdr-daemon
+	make clean
+	
+	# vdr-lirc
+	$(MAKE) VIDEODIR=$(VIDEODIR) REMOTE=LIRC VFAT=1 DVBDIR=$(DVBDIR) PLUGINLIBDIR=$(PLUGINDIR) CFGDIR=$(CFGDIR)
+	cp vdr vdr-lirc
+	make clean
+	
+	# vdr-rcu
+	$(MAKE) VIDEODIR=$(VIDEODIR) REMOTE=RCU VFAT=1 DVBDIR=$(DVBDIR) PLUGINLIBDIR=$(PLUGINDIR) CFGDIR=$(CFGDIR)
+	cp vdr vdr-rcu
+
+	make include-dir
+
+	# plugins
+	mkdir PLUGINS/lib
+	$(MAKE) plugins
+
+	cp newplugin vdr-newplugin
+
+	gcc -o debian/vdr-shutdown.wrapper debian/vdr-shutdown-wrapper.c
+
+	touch build-stamp
+
+patchlevel:
+	chmod +x debian/patchlevel.sh
+	debian/patchlevel.sh make
+
+clean: clean-patched unpatch
+
+clean-patched:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+
+	# Add here commands to clean up after the build process.
+	-$(MAKE) plugins-clean 
+	-$(MAKE) clean
+
+	rm -f vdr-kbd vdr-daemon vdr-lirc vdr-rcu
+	rm -rf PLUGINS/lib
+	rm -f vdr-newplugin
+	sh debian/patchlevel.sh clean
+
+	rm -f debian/vdr-shutdown.wrapper
+	
+	dh_clean
+
+install: build patchlevel
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# patchlevel file:
+	install -D -m644 patchlevel debian/vdr-dev/usr/include/vdr/patchlevel || true
+	
+	# All other files will be installed using dh_install.
+
+# Build architecture-independent files here.
+binary-indep: build install
+	dh_testdir -i
+	dh_testroot -i 
+	dh_installdebconf -i
+	dh_installdocs -i 
+	dh_installexamples -i
+	dh_installman -i 
+	dh_installmenu -i
+	dh_installchangelogs -i
+	dh_install -i
+	dh_link -i
+	dh_strip -i
+	dh_compress -i 
+	dh_fixperms -i
+	dh_installdeb -i
+	dh_gencontrol -i
+	dh_md5sums -i
+	dh_builddeb -i
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir -a
+	dh_testroot -a
+	dh_installdebconf -a -pvdr
+	dh_installdocs -a -Nvdr-daemon -Nvdr-kbd -Nvdr-lirc -Nvdr-rcu -Nvdr-plugin-examples
+	dh_installexamples -a -Nvdr-kbd -Nvdr-lirc -Nvdr-rcu -Nvdr-daemon
+	dh_installchangelogs -a -Nvdr-daemon -Nvdr-kbd -Nvdr-lirc -Nvdr-rcu -Nvdr-plugin-examples -Nvdr-plugin-sky -pvdr HISTORY
+	dh_installchangelogs -a -Nvdr-daemon -Nvdr-kbd -Nvdr-lirc -Nvdr-rcu -Nvdr-plugin-examples -Nvdr -pvdr-plugin-sky PLUGINS/src/sky/HISTORY
+	dh_installman -a
+	dh_installmenu -a
+	dh_installinit -a -pvdr
+	dh_install -a
+	chmod ugo+x $(CURDIR)/debian/vdr/usr/lib/vdr/vdr-*
+	dh_link -a
+	dh_strip -a
+	dh_compress -a
+	dh_fixperms -a
+	dh_installdeb -a
+	dh_shlibdeps -a
+	debian/patchlevel.sh subst
+	dh_gencontrol -a
+	dh_md5sums -a
+	dh_builddeb -a
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install patch  unpatch configure clean-patched

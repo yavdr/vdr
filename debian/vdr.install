@@ -1,0 +1,33 @@
+epg2html.pl  usr/lib/vdr/
+svdrpsend.pl usr/lib/vdr/
+
+debian/runvdr usr/sbin/
+
+debian/order.conf etc/vdr/plugins/
+
+debian/order.commands.conf etc/vdr/command-hooks/
+debian/order.reccmds.conf  etc/vdr/command-hooks/
+
+debian/commands.custom.conf etc/vdr/command-hooks/
+debian/reccmds.custom.conf  etc/vdr/command-hooks/
+
+debian/config-loader.sh   usr/lib/vdr
+debian/plugin-loader.sh   usr/lib/vdr
+debian/commands-loader.sh usr/lib/vdr
+
+ca.conf		etc/vdr/
+diseqc.conf     etc/vdr/
+keymacros.conf  etc/vdr/
+sources.conf    etc/vdr/
+svdrphosts.conf etc/vdr/
+
+debian/vdr-recordingaction usr/lib/vdr/
+debian/R90.custom          etc/vdr/recording-hooks/
+
+debian/vdr-shutdown         usr/lib/vdr/
+debian/vdr-shutdown-message usr/lib/vdr/
+debian/vdr-shutdown.wrapper usr/lib/vdr/
+debian/S90.custom           etc/vdr/shutdown-hooks/
+
+debian/lintian/vdr usr/share/lintian/overrides/
+

@@ -1,0 +1,43 @@
+This package was debianized by Andreas Mueller <amu@debian.org> on
+Sat, 10 Jan 2004 15:25:27 +0100.
+
+It was downloaded from http://www.cadsoft.de/people/kls/vdr/download.htm
+
+Upstream Author: Klaus Schmidinger <kls@cadsoft.de> and others
+
+Patch Authors:
+  ElchiAIO4 - Rolf Ahrenberg, originally written by Andy Grobb
+              (see HISTORY-ElchiAIO for all contributors)
+	      Thomas Günther <tom@toms-cafe.de> ( frames fix )
+              Gerhard Steiner ( black frame fix )
+
+  ttxtsubs  - Ragnar Sundblad <ragge@nada.kth.se>
+              http://www.nada.kth.se/~ragge/vdr/ttxtsubs/
+
+  osdpip    -  Sascha Volkenandt <sascha@akv-soft.de>
+
+  8bitcolor -  Andreas Regel <andreas.regel@gmx.de>
+
+  jumpplay  -  Torsten Kunkel <vdr@tkunkel.de> (initial version)
+               Thomas Günther <tom@toms-cafe.de> (actual version)
+
+
+Copyright:
+
+   This package is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; version 2 dated June, 1991.
+
+   This package is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this package; if not, write to the Free Software
+   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+   02111-1307, USA.
+
+On Debian systems, the complete text of the GNU General
+Public License can be found in `/usr/share/common-licenses/GPL'.
+

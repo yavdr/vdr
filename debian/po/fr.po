@@ -1,0 +1,91 @@
+# translation of fr.po to French
+#
+#    Translators, if you are not familiar with the PO format, gettext
+#    documentation is worth reading, especially sections dedicated to
+#    this format, e.g. by running:
+#         info -n '(gettext)PO Files'
+#         info -n '(gettext)Header Entry'
+#    Some information specific to po-debconf are available at
+#            /usr/share/doc/po-debconf/README-trans
+#         or http://www.debian.org/intl/l10n/po-debconf/README-trans#
+#    Developers do not need to manually edit POT or PO files.
+# Emmanuel le Chevoir <mms@debian.org>, 2004.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: vdr_1.2.6-3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2004-11-14 13:09+0100\n"
+"PO-Revision-Date: 2004-03-18 10:42+0100\n"
+"Last-Translator: Emmanuel le Chevoir <mms@debian.org>\n"
+"Language-Team: French <debian-l10n-french@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.3.1\n"
+
+#. Type: note
+#. Description
+#: ../vdr.templates:3
+msgid "VDR needs DVB kernel modules"
+msgstr "VDR a besoin des modules DVB du noyau pour fonctionner"
+
+#. Type: note
+#. Description
+#: ../vdr.templates:3
+msgid ""
+"VDR needs DVB (Digital Video Broadcasting) kernel modules. You may have to "
+"separately install these modules. Ensure that the correct modules for your "
+"DVB hardware get loaded automatically e.g. by adding them to /etc/modules "
+"otherwise VDR won't work!"
+msgstr ""
+"VDR a besoin des modules DVB (Digital Video Broadcasting) du noyau pour "
+"fonctionner. Il est possible que vous ayez besoin d'installer ces modules "
+"séparément. Assurez-vous que les modules correspondant à votre matériel DVB "
+"sont chargés automatiquement (en les ajoutant dans le fichier /etc/modules, "
+"par exemple), sans quoi VDR ne fonctionnera pas."
+
+#. Type: select
+#. Choices
+#: ../vdr.templates:11
+msgid "Satellite, Terrestrial, Cable"
+msgstr "Satellite, Terrestre, Câble"
+
+#. Type: select
+#. Description
+#: ../vdr.templates:13
+msgid "DVB card type:"
+msgstr "Type de carte DVB :"
+
+#. Type: select
+#. Description
+#: ../vdr.templates:13
+msgid ""
+"VDR needs to know your DVB card type to work correctly. Using your "
+"selection, a channels.conf file will be installed to /var/lib/vdr.  You may "
+"have to change this file depending on your setup."
+msgstr ""
+"VDR a besoin de connaître le type de votre carte DVB pour fonctionner "
+"correctement. Un fichier channels.conf correspondant au type que vous "
+"choisirez sera installé dans le répertoire /var/lib/vdr. En fonction de "
+"votre configuration, il est possible que vous ayez besoin de modifier ce "
+"fichier par la suite."
+
+#. Type: boolean
+#. Description
+#: ../vdr.templates:21
+msgid "Create /var/lib/video.00?"
+msgstr "Créer le répertoire /var/lib/video.00 ?"
+
+#. Type: boolean
+#. Description
+#: ../vdr.templates:21
+msgid ""
+"By default VDR is configured to use /var/lib/video.00 to store recordings. "
+"You can either create this directory now, or change this behavior later  by "
+"modifying the VIDEO_DIR variable in /etc/default/vdr."
+msgstr ""
+"Par défaut, VDR sauvegarde les enregistrements dans le répertoire /var/lib/"
+"video.00. Vous pouvez changer ce répertoire en modifiant la variable "
+"VIDEO_DIR dans le fichier /etc/default/vdr, ou créer ce répertoire "
+"maintenant."

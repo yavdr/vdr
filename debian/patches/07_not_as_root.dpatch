@@ -1,0 +1,74 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 07_not_as_root.dpatch by Thomas Schmidt <thomas.schmidt@in.stud.tu-ilmenau.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Refuse to run vdr as user root (Note: This patch requires the
+## DP: 05_set_system_time_as_user.dpatch)
+
+@DPATCH@
+diff -urNad vdr-1.2.6/vdr.c /tmp/dpep.YDJHqf/vdr-1.2.6/vdr.c
+--- vdr-1.2.6/vdr.c	2005-01-31 23:07:51.000000000 +0100
++++ /tmp/dpep.YDJHqf/vdr-1.2.6/vdr.c	2005-01-31 23:09:10.000000000 +0100
+@@ -35,6 +35,7 @@
+ #include <grp.h>
+ #include <sys/capability.h>
+ #include <sys/prctl.h>
++#include <sys/types.h>
+ #include "audio.h"
+ #include "channels.h"
+ #include "config.h"
+@@ -325,12 +326,30 @@
+           }
+         }
+ 
++  // Check if the program should run as root
++  bool IsRoot=0; 
++  
++  if (username == NULL && groupname == NULL) 
++     IsRoot = !getuid () || !getgid () || !geteuid () || !getegid ();
++  else {
++     if (username != NULL) { 
++     	if (strcmp(username,"root") == 0)
++   		IsRoot = 1;
++     }
++     if (groupname != NULL) {
++     	if (strcmp(groupname,"root") == 0) 
++		IsRoot = 1;
++     }
++  }
++  
+   // Help and version info:
+ 
+   if (DisplayHelp || DisplayVersion) {
+-     if (!PluginManager.HasPlugins())
+-        PluginManager.AddPlugin("*"); // adds all available plugins
+-     PluginManager.LoadPlugins();
++     if (!IsRoot) {
++     	if (!PluginManager.HasPlugins())
++        	PluginManager.AddPlugin("*"); // adds all available plugins
++     	PluginManager.LoadPlugins();
++     }
+      if (DisplayHelp) {
+         printf("Usage: vdr [OPTIONS]\n\n"          // for easier orientation, this is column 80|
+                "  -a CMD,   --audio=CMD    send Dolby Digital audio to stdin of command CMD\n"
+@@ -374,7 +393,7 @@
+         }
+      if (DisplayVersion)
+         printf("vdr (%s) - The Video Disk Recorder\n", VDRVERSION);
+-     if (PluginManager.HasPlugins()) {
++     if (!IsRoot && PluginManager.HasPlugins()) {
+         if (DisplayHelp)
+            printf("Plugins: vdr -P\"name [OPTIONS]\"\n\n");
+         for (int i = 0; ; i++) {
+@@ -394,6 +413,11 @@
+      return 0;
+      }
+ 
++  if (IsRoot) {
++	fprintf (stderr, "%s: sorry, I refuse to run with root privileges\n", argv[0]);
++     	return 0;
++  }
++  
+   // Only try to change capabilities/user when vdr is called by 
+   // root
+   if (!getuid () || !getgid () || !geteuid () || !getegid ()) {

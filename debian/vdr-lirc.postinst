@@ -1,0 +1,14 @@
+#! /bin/sh -e
+
+case "$1" in
+	abort-upgrade)
+		update-alternatives --install /usr/bin/vdr vdr /usr/bin/vdr-lirc 120
+	;;
+	configure)
+		update-alternatives --install /usr/bin/vdr vdr /usr/bin/vdr-lirc 120
+	;;
+esac
+
+#DEBHELPER#
+
+exit 0

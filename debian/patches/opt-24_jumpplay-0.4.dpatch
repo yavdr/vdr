@@ -1,0 +1,252 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+
+## jumpplay patch (version 0.4) by Thomas Günther <tom@toms-cafe.de>
+##
+## * based on jumpplay-0.0 by Torsten Kunkel <vdr@tkunkel.de>
+## * 0.1:
+##   - set play mode after jump
+##   - jump only on even marks
+##   - fixed removing of marks
+## * 0.2:
+##   - fuzzy mark detection (until 3 seconds after mark)
+##   - fixed double jump
+##   - jump without progressbar
+## * 0.3:
+##   - fixed end of playing at last mark
+##   - fixed display frames
+## * 0.4:
+##   - don't play after jump to end
+##   - don't prevent jumping after hide or show
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Patch to automatically jump over cutting marks,
+
+@DPATCH@
+diff -Naur old/config.c new/config.c
+--- old/config.c	Fri Oct 17 16:11:27 2003
++++ new/config.c	Sun Jul 11 14:20:51 2004
+@@ -284,6 +284,8 @@
+   MultiSpeedMode = 0;
+   ShowReplayMode = 0;
+   ResumeID = 0;
++  JumpPlay=0;
++  PlayJump=0;
+   memset(CaCaps, sizeof(CaCaps), 0);
+   CurrentChannel = -1;
+   CurrentVolume = MAXVOLUME;
+@@ -436,6 +438,8 @@
+   else if (!strcasecmp(Name, "MultiSpeedMode"))      MultiSpeedMode     = atoi(Value);
+   else if (!strcasecmp(Name, "ShowReplayMode"))      ShowReplayMode     = atoi(Value);
+   else if (!strcasecmp(Name, "ResumeID"))            ResumeID           = atoi(Value);
++  else if (!strcasecmp(Name, "JumpPlay"))            JumpPlay           = atoi(Value);
++  else if (!strcasecmp(Name, "PlayJump"))            PlayJump           = atoi(Value);
+   else if (!strcasecmp(Name, "CaCaps"))              return ParseCaCaps(Value);
+   else if (!strcasecmp(Name, "CurrentChannel"))      CurrentChannel     = atoi(Value);
+   else if (!strcasecmp(Name, "CurrentVolume"))       CurrentVolume      = atoi(Value);
+@@ -486,6 +490,8 @@
+   Store("MultiSpeedMode",     MultiSpeedMode);
+   Store("ShowReplayMode",     ShowReplayMode);
+   Store("ResumeID",           ResumeID);
++  Store("JumpPlay",           JumpPlay);
++  Store("PlayJump",           PlayJump);
+   StoreCaCaps("CaCaps");
+   Store("CurrentChannel",     CurrentChannel);
+   Store("CurrentVolume",      CurrentVolume);
+diff -Naur old/config.h new/config.h
+--- old/config.h	Fri Nov 14 14:29:13 2003
++++ new/config.h	Sun Jul 11 14:21:10 2004
+@@ -237,6 +237,8 @@
+   int MultiSpeedMode;
+   int ShowReplayMode;
+   int ResumeID;
++  int JumpPlay;
++  int PlayJump;
+   int CaCaps[MAXDEVICES][MAXCACAPS];
+   int CurrentChannel;
+   int CurrentVolume;
+diff -Naur old/i18n.c new/i18n.c
+--- old/i18n.c	Thu Sep 11 15:51:56 2003
++++ new/i18n.c	Sun Jul 11 14:25:31 2004
+@@ -2612,6 +2612,57 @@
+     "Lejátszás ID",
+     "ID de Continuar",
+   },
++  { "Setup.Replay$Play&Jump",
++    "Sprung bei Schnittmarke",
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++  },
++  { "Setup.Replay$Jump&Play",
++    "Play nach Sprung",
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++  },
++  { "progressbar only",
++    "nur bei Anzeige",
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++    "",// TODO
++  },
+   { "Setup.Miscellaneous$Min. event timeout (min)",
+     "Mindest Event Pause (min)",
+     "Najmanjsi cas dogodka (min)",
+diff -Naur old/menu.c new/menu.c
+--- old/menu.c	Fri Oct  3 16:36:20 2003
++++ new/menu.c	Sun Jul 11 14:31:59 2004
+@@ -2232,16 +2232,24 @@
+ // --- cMenuSetupReplay ------------------------------------------------------
+ 
+ class cMenuSetupReplay : public cMenuSetupBase {
++private:
++  const char *playJumpTexts[3];
+ public:
+   cMenuSetupReplay(void);
+   };
+ 
+ cMenuSetupReplay::cMenuSetupReplay(void)
+ {
++  playJumpTexts[0] = tr("no");
++  playJumpTexts[1] = tr("yes");
++  playJumpTexts[2] = tr("progressbar only");
++
+   SetSection(tr("Replay"));
+   Add(new cMenuEditBoolItem(tr("Setup.Replay$Multi speed mode"), &data.MultiSpeedMode));
+   Add(new cMenuEditBoolItem(tr("Setup.Replay$Show replay mode"), &data.ShowReplayMode));
+   Add(new cMenuEditIntItem(tr("Setup.Replay$Resume ID"), &data.ResumeID, 0, 99));
++  Add(new cMenuEditBoolItem(tr("Setup.Replay$Jump&Play"), &data.JumpPlay));
++  Add(new cMenuEditStraItem(tr("Setup.Replay$Play&Jump"), &data.PlayJump, 3, playJumpTexts));
+ }
+ 
+ // --- cMenuSetupMisc --------------------------------------------------------
+@@ -3283,6 +3291,7 @@
+ :cDvbPlayerControl(fileName)
+ {
+   visible = modeOnly = shown = displayFrames = false;
++  playjump = true;
+   lastCurrent = lastTotal = -1;
+   timeoutShow = 0;
+   timeSearchActive = false;
+@@ -3534,8 +3543,12 @@
+         ShowTimed(2);
+         bool Play, Forward;
+         int Speed;
+-        if (GetReplayMode(Play, Forward, Speed) && !Play)
+-           Goto(Current, true);
++        if (GetReplayMode(Play, Forward, Speed) &&
++            (!Play || (Setup.PlayJump && Forward && Speed == -1))) {
++           Goto(Current, !Play);
++           if (!Play)
++              displayFrames = true;
++           }
+         }
+      marks.Save();
+      }
+@@ -3547,10 +3560,20 @@
+      int Current, Total;
+      if (GetIndex(Current, Total)) {
+         cMark *m = Forward ? marks.GetNext(Current) : marks.GetPrev(Current);
+-        if (m)
+-           Goto(m->position, true);
++        if (m) {
++           bool Play2, Forward2;
++           int Speed;
++           if (Setup.JumpPlay && GetReplayMode(Play2, Forward2, Speed) &&
++               Play2 && Forward && m->position < Total - 3 * FRAMESPERSEC) {
++              Goto(m->position);
++              Play();
++              }
++           else {
++              Goto(m->position, true);
++              displayFrames = true;
++              }
++           }
+         }
+-     displayFrames = true;
+      }
+ }
+ 
+@@ -3628,6 +3651,30 @@
+      else
+         shown = ShowProgress(!shown) || shown;
+      }
++  if (marks.Count() && Setup.PlayJump &&
++      (Setup.PlayJump != 2 || (visible && !modeOnly))) {
++     int Current, Total, Speed;
++     bool Play, Forward;
++     if (GetIndex(Current, Total) && Total > 0 &&
++         GetReplayMode(Play, Forward, Speed) && Play && Forward && Speed == -1) {
++        cMark *m = marks.GetPrev(Current + 1);
++        if (m && m->Index() & 1 && Current - m->position < 3 * FRAMESPERSEC) {
++           if (playjump) {
++              if (marks.GetNext(Current))
++                 Goto(marks.GetNext(Current)->position);
++              else {
++                 Hide();
++                 Stop();
++                 return osEnd;
++                 }
++              }
++           }
++        else
++           playjump = true;
++        }
++     }
++  bool old_playjump = playjump;
++  playjump = false;
+   bool DisplayedFrames = displayFrames;
+   displayFrames = false;
+   if (timeSearchActive && Key != kNone) {
+@@ -3676,6 +3723,7 @@
+         case kEditCut:         EditCut(); break;
+         case kEditTest:        EditTest(); break;
+         default: {
++          playjump = old_playjump;
+           displayFrames = DisplayedFrames;
+           switch (Key) {
+             // Menu control:
+diff -Naur old/menu.h new/menu.h
+--- old/menu.h	Sun Aug  3 11:37:18 2003
++++ new/menu.h	Sun Jul 11 14:17:37 2004
+@@ -149,6 +149,7 @@
+ private:
+   cMarks marks;
+   bool visible, modeOnly, shown, displayFrames;
++  bool playjump;
+   int lastCurrent, lastTotal;
+   time_t timeoutShow;
+   bool timeSearchActive, timeSearchHide;  

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ ! -x /usr/bin/dh_make ] ; then
+    echo "If you want to use this script, please install the package dh-make!"
+    exit 1
+fi
+
+VDRVERSION=`dpkg -s vdr-dev | awk '/Version/ { print $2 }'`
+
+/usr/bin/dh_make -t /usr/share/vdr-dev/plugin-template -d -s && \
+perl -pi -e "s/#VDRVERSION#/$VDRVERSION/g" debian/control

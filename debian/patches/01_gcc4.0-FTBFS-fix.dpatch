@@ -1,0 +1,235 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 01_gcc4.0-FTBFS-fix.dpatch by Thomas Schmidt <thomas.schmidt@in.stud.tu-ilmenau.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fix for the FTBFS-Bug with gcc 4.0 (#294041)
+
+@DPATCH@
+diff -urNad vdr/libdtv/libsi/include/libsi.h /tmp/dpep.5cTuoM/vdr/libdtv/libsi/include/libsi.h
+--- vdr/libdtv/libsi/include/libsi.h	2004-04-22 12:49:14.000000000 +0200
++++ /tmp/dpep.5cTuoM/vdr/libdtv/libsi/include/libsi.h	2005-02-09 12:36:18.000000000 +0100
+@@ -380,7 +380,7 @@
+ #define CreateIso639LanguageDescriptor(descr, lc1, lc2, lc3) \
+    do \
+    { \
+-      xCreateNode (((struct Iso639LanguageDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct Iso639LanguageDescriptor *)descr)->Tag = DESCR_ISO_639_LANGUAGE; \
+       ((struct Iso639LanguageDescriptor *)descr)->LanguageCode[0] = lc1; \
+       ((struct Iso639LanguageDescriptor *)descr)->LanguageCode[1] = lc2; \
+@@ -411,7 +411,7 @@
+ #define CreateAc3Descriptor(descr) \
+    do \
+    { \
+-      xCreateNode (((struct Ac3Descriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct Ac3Descriptor *)descr)->Tag = DESCR_AC3; \
+    } while (0)
+ 
+@@ -458,7 +458,7 @@
+ #define CreateAncillaryDataDescriptor(descr, id) \
+    do \
+    { \
+-      xCreateNode (((struct AncillaryDataDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct AncillaryDataDescriptor *)descr)->Tag = DESCR_ANCILLARY_DATA; \
+       ((struct AncillaryDataDescriptor *)descr)->Identifier = id; \
+    } while (0)
+@@ -478,7 +478,7 @@
+ #define CreateBouquetNameDescriptor(descr, text, tag) \
+    do \
+    { \
+-      xCreateNode (((struct BouquetNameDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct NODE *)descr)->Name = text; \
+       ((struct NODE *)descr)->HashKey = xHashKey (text); \
+       ((struct BouquetNameDescriptor *)descr)->Tag = tag; \
+@@ -501,7 +501,7 @@
+ #define CreateCountryAvailabilityDescriptor(descr, ava) \
+    do \
+    { \
+-      xCreateNode (((struct CountryAvailabilityDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct CountryAvailabilityDescriptor *)descr)->Tag = DESCR_COUNTRY_AVAIL; \
+       ((struct CountryAvailabilityDescriptor *)descr)->AvailibilityFlag = ava; \
+       ((struct CountryAvailabilityDescriptor *)descr)->Amount = 0; \
+@@ -539,7 +539,7 @@
+ #define CreateCaIdentifierDescriptor(descr, amo) \
+    do \
+    { \
+-      xCreateNode (((struct CaIdentifierDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct CaIdentifierDescriptor *)descr)->Tag = DESCR_CA_IDENT; \
+       ((struct CaIdentifierDescriptor *)descr)->Amount = amo; \
+       xMemAlloc (amo*2+2, &((struct CaIdentifierDescriptor *)descr)->SystemID); \
+@@ -564,7 +564,7 @@
+ #define CreateCaDescriptor(descr, typ, capid, len) \
+    do \
+    { \
+-      xCreateNode (((struct CaDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct CaDescriptor *)descr)->Tag = DESCR_CA; \
+       ((struct CaDescriptor *)descr)->CA_type = typ; \
+       ((struct CaDescriptor *)descr)->CA_PID = capid; \
+@@ -588,7 +588,7 @@
+ #define CreateStreamIdentifierDescriptor(descr, ctag) \
+    do \
+    { \
+-      xCreateNode (((struct StreamIdentifierDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct StreamIdentifierDescriptor *)descr)->Tag = DESCR_STREAM_ID; \
+       ((struct StreamIdentifierDescriptor *)descr)->ComponentTag = (ctag); \
+    } while (0)
+@@ -630,7 +630,7 @@
+ #define CreateNvodReferenceDescriptor(descr) \
+    do \
+    { \
+-      xCreateNode (((struct NvodReferenceDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct NvodReferenceDescriptor *)descr)->Tag = DESCR_NVOD_REF; \
+       ((struct NvodReferenceDescriptor *)descr)->Items = xNewList (NULL); \
+    } while (0)
+@@ -677,7 +677,7 @@
+ #define CreateLinkageDescriptor(descr, tpid, onid, svid, ltyp, pdl, pdp) \
+    do \
+    { \
+-      xCreateNode (((struct LinkageDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct LinkageDescriptor *)descr)->Tag = DESCR_LINKAGE; \
+       ((struct LinkageDescriptor *)descr)->TransportStreamID = tpid; \
+       ((struct LinkageDescriptor *)descr)->OriginalNetworkID = onid; \
+@@ -702,7 +702,7 @@
+ #define CreateServiceDescriptor(descr, styp, prov, name) \
+    do \
+    { \
+-      xCreateNode (((struct ServiceDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct NODE *)descr)->Name = name; \
+       ((struct NODE *)descr)->HashKey = xHashKey (name); \
+       ((struct ServiceDescriptor *)descr)->Tag = DESCR_SERVICE; \
+@@ -730,7 +730,7 @@
+ #define CreateTimeShiftedServiceDescriptor(descr, svid) \
+    do \
+    { \
+-      xCreateNode (((struct TimeShiftedServiceDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct TimeShiftedServiceDescriptor *)descr)->Tag = DESCR_TIME_SHIFTED_SERVICE; \
+       ((struct TimeShiftedServiceDescriptor *)descr)->ReferenceServiceID = svid; \
+    } while (0)
+@@ -748,7 +748,7 @@
+ #define CreateTimeShiftedEventDescriptor(descr, svid, evid) \
+    do \
+    { \
+-      xCreateNode (((struct TimeShiftedEventDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct TimeShiftedEventDescriptor *)descr)->Tag = DESCR_TIME_SHIFTED_EVENT; \
+       ((struct TimeShiftedEventDescriptor *)descr)->ReferenceServiceID = svid; \
+       ((struct TimeShiftedEventDescriptor *)descr)->ReferenceEventID = evid; \
+@@ -769,7 +769,7 @@
+ #define CreateComponentDescriptor(descr, scnt, ctyp, tag, lc1, lc2, lc3, txt) \
+    do \
+    { \
+-      xCreateNode (((struct ComponentDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct NODE *)descr)->Name = txt; \
+       ((struct NODE *)descr)->HashKey = xHashKey (txt); \
+       ((struct ComponentDescriptor *)descr)->Tag = DESCR_COMPONENT; \
+@@ -795,7 +795,7 @@
+ #define CreateContentDescriptor(descr, amo) \
+    do \
+    { \
+-      xCreateNode (((struct ContentDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct ContentDescriptor *)descr)->Tag = DESCR_CONTENT; \
+       ((struct ContentDescriptor *)descr)->Amount = amo; \
+       xMemAlloc (amo*2+2, &((struct ContentDescriptor *)descr)->ContentID); \
+@@ -828,7 +828,7 @@
+ #define CreateExtendedEventDescriptor(descr, dnum, ldnb, lc1, lc2, lc3, text) \
+    do \
+    { \
+-      xCreateNode (((struct ExtendedEventDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct NODE *)descr)->Name = text; \
+       ((struct NODE *)descr)->HashKey = xHashKey (text); \
+       ((struct ExtendedEventDescriptor *)descr)->Tag = DESCR_EXTENDED_EVENT; \
+@@ -876,7 +876,7 @@
+ #define CreateParentalRatingDescriptor(descr) \
+    do \
+    { \
+-      xCreateNode (((struct ParentalRatingDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct ParentalRatingDescriptor *)descr)->Tag = DESCR_PARENTAL_RATING; \
+       ((struct ParentalRatingDescriptor *)descr)->Ratings = xNewList (NULL); \
+    } while (0)
+@@ -919,7 +919,7 @@
+ #define CreateShortEventDescriptor(descr, name, lc1, lc2, lc3, text) \
+    do \
+    { \
+-      xCreateNode (((struct ShortEventDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct NODE *)descr)->Name = name; \
+       ((struct NODE *)descr)->HashKey = xHashKey (name); \
+       ((struct ShortEventDescriptor *)descr)->Tag = DESCR_SHORT_EVENT; \
+@@ -942,7 +942,7 @@
+ #define CreateTeletextDescriptor(descr) \
+    do \
+    { \
+-      xCreateNode (((struct TeletextDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct TeletextDescriptor *)descr)->Tag = DESCR_TELETEXT; \
+       ((struct TeletextDescriptor *)descr)->Items = xNewList (NULL); \
+    } while (0)
+@@ -995,7 +995,7 @@
+ #define CreateSubtitlingDescriptor(descr) \
+    do \
+    { \
+-      xCreateNode (((struct SubtitlingDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct SubtitlingDescriptor *)descr)->Tag = DESCR_SUBTITLING; \
+       ((struct SubtitlingDescriptor *)descr)->Items = xNewList (NULL); \
+    } while (0)
+@@ -1046,7 +1046,7 @@
+ #define CreateSatelliteDeliverySystemDescriptor(descr, freq, orb, mod, polar, sr, fec) \
+    do \
+    { \
+-      xCreateNode (((struct SatelliteDeliverySystemDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct SatelliteDeliverySystemDescriptor *)descr)->Tag = DESCR_SAT_DEL_SYS; \
+       ((struct SatelliteDeliverySystemDescriptor *)descr)->Frequency = freq; \
+       ((struct SatelliteDeliverySystemDescriptor *)descr)->OrbitalPosition = orb; \
+@@ -1071,7 +1071,7 @@
+ #define CreateCableDeliverySystemDescriptor(descr, freq, sr, fec_o, fec_i, mod) \
+    do \
+    { \
+-      xCreateNode (((struct CableDeliverySystemDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct CableDeliverySystemDescriptor *)descr)->Tag = DESCR_CABLE_DEL_SYS; \
+       ((struct CableDeliverySystemDescriptor *)descr)->Frequency = freq; \
+       ((struct CableDeliverySystemDescriptor *)descr)->SymbolRate = sr; \
+@@ -1099,7 +1099,7 @@
+ #define CreateTerrestrialDeliverySystemDescriptor(descr, freq, bw, cst, hr, crh, crl, gi, tm, ofm) \
+    do \
+    { \
+-      xCreateNode (((struct CableDeliverySystemDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct TerrestrialDeliverySystemDescriptor *)descr)->Tag = DESCR_TERR_DEL_SYS; \
+       ((struct TerrestrialDeliverySystemDescriptor *)descr)->Frequency = freq; \
+       ((struct TerrestrialDeliverySystemDescriptor *)descr)->Bandwidth = bw; \
+@@ -1123,7 +1123,7 @@
+ #define CreateServiceListDescriptor(descr) \
+    do \
+    { \
+-      xCreateNode (((struct ServiceListDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct ServiceListDescriptor *)descr)->Tag = DESCR_SERVICE_LIST; \
+       ((struct ServiceListDescriptor *)descr)->ServiceList = xNewList(NULL); \
+    } while (0)
+@@ -1156,7 +1156,7 @@
+ #define CreateLocalTimeOffsetDescriptor(descr) \
+    do \
+    { \
+-      xCreateNode (((struct LocalTimeOffsetDescriptor *)descr), NULL); \
++      xCreateNode (descr, NULL); \
+       ((struct LocalTimeOffsetDescriptor *)descr)->Tag = DESCR_LOCAL_TIME_OFF; \
+       ((struct LocalTimeOffsetDescriptor *)descr)->LocalTimeOffsets = xNewList(NULL); \
+    } while (0)

@@ -1,0 +1,52 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+
+## 01_vdr_1.2.6-3.1.diff.gz.dpatch by Thomas Schmidt <thomas.schmidt@in.stud.tu-ilmenau.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: New patch generated from vdr 1.2.6-3.1 diff.gz
+
+@DPATCH@
+--- vdr-1.2.6.orig/PLUGINS/src/osddemo/Makefile
++++ vdr-1.2.6/PLUGINS/src/osddemo/Makefile
+@@ -16,7 +16,7 @@
+ ### The C++ compiler and options:
+ 
+ CXX      ?= g++
+-CXXFLAGS ?= -O2 -Wall -Woverloaded-virtual
++CXXFLAGS ?= -fPIC -O2 -Wall -Woverloaded-virtual
+ 
+ ### The directory environment:
+ 
+--- vdr-1.2.6.orig/PLUGINS/src/sky/Makefile
++++ vdr-1.2.6/PLUGINS/src/sky/Makefile
+@@ -16,7 +16,7 @@
+ ### The C++ compiler and options:
+ 
+ CXX      ?= g++
+-CXXFLAGS ?= -O2 -Wall -Woverloaded-virtual
++CXXFLAGS ?= -fPIC -O2 -Wall -Woverloaded-virtual
+ 
+ ### The directory environment:
+ 
+--- vdr-1.2.6.orig/PLUGINS/src/status/Makefile
++++ vdr-1.2.6/PLUGINS/src/status/Makefile
+@@ -16,7 +16,7 @@
+ ### The C++ compiler and options:
+ 
+ CXX      ?= g++
+-CXXFLAGS ?= -O2 -Wall -Woverloaded-virtual
++CXXFLAGS ?= -fPIC -O2 -Wall -Woverloaded-virtual
+ 
+ ### The directory environment:
+ 
+--- vdr-1.2.6.orig/PLUGINS/src/hello/Makefile
++++ vdr-1.2.6/PLUGINS/src/hello/Makefile
+@@ -16,7 +16,7 @@
+ ### The C++ compiler and options:
+ 
+ CXX      ?= g++
+-CXXFLAGS ?= -O2 -Wall -Woverloaded-virtual
++CXXFLAGS ?= -fPIC -O2 -Wall -Woverloaded-virtual
+ 
+ ### The directory environment:
+ 

@@ -1,0 +1,24 @@
+Template: vdr/showinfo
+Type: note
+_Description: VDR needs DVB kernel modules
+ VDR needs DVB (Digital Video Broadcasting) kernel modules. You may have to
+ separately install these modules. Ensure that the correct modules for your
+ DVB hardware get loaded automatically e.g. by adding them to /etc/modules
+ otherwise VDR won't work!
+
+Template: vdr/select_dvb_card
+Type: select
+_Choices: Satellite, Terrestrial, Cable
+Default: Satellite
+_Description: DVB card type:
+ VDR needs to know your DVB card type to work correctly.
+ Using your selection, a channels.conf file will be installed to /var/lib/vdr. 
+ You may have to change this file depending on your setup.
+
+Template: vdr/create_video_dir
+Type: boolean
+Default: false
+_Description: Create /var/lib/video.00?
+ By default VDR is configured to use /var/lib/video.00 to store recordings.
+ You can either create this directory now, or change this behavior later 
+ by modifying the VIDEO_DIR variable in /etc/default/vdr.

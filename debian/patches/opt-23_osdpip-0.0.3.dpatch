@@ -1,0 +1,82 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+
+## osdpip-patch by Sascha Volkenandt <sascha@akv-soft.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: This patch supports the OSDPIP-PlugIn
+## DP: (can not be used with autopid)
+
+@DPATCH@
+diff -Nur vdr.orig/osdbase.c vdr/osdbase.c
+--- vdr.orig/osdbase.c	2004-03-15 22:56:29.000000000 +0100
++++ vdr/osdbase.c	2004-03-15 22:56:29.000000000 +0100
+@@ -173,6 +173,12 @@
+       }
+ }
+ 
++void cPalette::Replace(const cPalette &Palette)
++{
++  for (int i = 0; i < Palette.numColors; i++)
++      SetColor(i, Palette.color[i]);
++}
++
+ // --- cBitmap ---------------------------------------------------------------
+ 
+ cBitmap::cBitmap(int Width, int Height, int Bpp, bool ClearWithBackground)
+@@ -289,6 +295,17 @@
+      }
+ }
+ 
++void cBitmap::SetBitmap256(int x, int y, const cBitmap &Bitmap)
++{
++  if (bitmap && Bitmap.bitmap) {
++     Replace(Bitmap);
++     for (int ix = 0; ix < Bitmap.width; ix++) {
++         for (int iy = 0; iy < Bitmap.height; iy++)
++             SetIndex(x + ix, y + iy, Bitmap.bitmap[Bitmap.width * iy + ix]);
++         }
++     }
++}
++
+ int cBitmap::Width(unsigned char c)
+ {
+   return font ? font->Width(c) : -1;
+@@ -550,7 +567,10 @@
+      x -= x0;
+      y -= y0;
+      }
+-  cBitmap::SetBitmap(x, y, Bitmap);
++  if (bpp == 8)
++     cBitmap::SetBitmap256(x, y, Bitmap);
++  else
++     cBitmap::SetBitmap(x, y, Bitmap);
+ }
+ 
+ void cWindow::Text(int x, int y, const char *s, eDvbColor ColorFg, eDvbColor ColorBg)
+diff -Nur vdr.orig/osdbase.h vdr/osdbase.h
+--- vdr.orig/osdbase.h	2004-03-15 22:56:29.000000000 +0100
++++ vdr/osdbase.h	2004-03-15 22:56:53.000000000 +0100
+@@ -14,6 +14,7 @@
+ #include "font.h"
+ 
+ #define MAXNUMCOLORS 256
++#define VDR_OSDPIP_PATCHED
+ 
+ enum eDvbColor {
+ #ifdef DEBUG_OSD
+@@ -95,6 +96,7 @@
+         // stored yet, NumColors will be set to 0 and the function will
+         // return NULL.
+   void Take(const cPalette &Palette, tIndexes *Indexes = NULL);
++  void Replace(const cPalette &Palette);
+   };
+ 
+ class cBitmap : public cPalette {
+@@ -115,6 +117,7 @@
+   void SetIndex(int x, int y, unsigned char Index);
+   void SetPixel(int x, int y, eDvbColor Color);
+   void SetBitmap(int x, int y, const cBitmap &Bitmap);
++  void SetBitmap256(int x, int y, const cBitmap &Bitmap);
+   int Width(void) { return width; }
+   int Width(unsigned char c);
+   int Width(const char *s);

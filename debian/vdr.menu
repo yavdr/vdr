@@ -1,0 +1,2 @@
+?package(vdr):needs="text" section="Apps/Viewers"\
+  title="vdr" command="/usr/bin/vdr" longtitle="Digital TV viewer and DVD player with On-Screen-Display controls"

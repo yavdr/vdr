@@ -1,0 +1,370 @@
+vdr (1.2.6-8) unstable; urgency=low
+
+  * Thomas Schmidt <tschmidt@debian.org>
+    - Removed patch which fixes the compilation with gcc-4.0 on 
+      amd64 as it causes vdr to crash, will have to investigate 
+      this further, before the patch can be re-added 
+      (closes: #295838)
+
+ -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sat, 19 Feb 2005 15:17:38 +0100
+
+vdr (1.2.6-7) unstable; urgency=low
+
+  * Thomas Schmidt <tschmidt@debian.org>
+    - This is the first upload of vdr, i can do by myself, i want 
+      to thank Andreas Müller (amu) and Christoph Martin (chrism) 
+      for their help with sponsoring previous uploads
+    - Only try to change capabilities when vdr is called by root 
+      (closes: #293042)
+    - Added patch from Andreas Jochens to fix the FTBFS on amd64
+      with gcc-4.0 (closes: #294041)
+    - Changed my email-address to the new debian one
+    - Make an entry in syslog when someone tries to shutdown vdr
+      while the automatic shutdown is disabled
+    
+ -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Wed, 09 Feb 2005 12:41:49 +0100
+
+vdr (1.2.6-6) unstable; urgency=high
+
+  * Urgency high because it includes a fix for CAN-2005-0071
+  * Thomas Günther <tom@toms-cafe.de>
+    - new (optional) plugin check (with "vdr -V -P plugin")
+    - Extracted patchlevel code to patchlevel.sh 
+    - Installing patchlevel.sh into vdr-dev package
+  * Tobias Grimm <tg@e-tobi.net> 
+    - fixed small bug in vdr-recordingaction
+    - moved PLUGIN_DIR, PLUGIN_PREFIX, CFG_DIR, PLUGIN_CFG_DIR,
+      PLUGIN_ORDER_FILE, CMDHOOKSDIR, REC_CMD from the default file to 
+      the init script
+    - fixed bug in shutdown script (OSD messages have to be deferred until
+      the shutdown script is finished)
+    - removed PLUGIN_ORDER_FILE paramter, order.conf should always be in
+      PLUGIN_CFG_DIR
+    - set default location for epg.data to /var/cache/vdr (vdr -E)
+    - The default command to shutdown the system when the power-off-key of the
+      remote is pressed, can now be configured in /etc/default/vdr.
+    - When processing the shutdown hooks, no further hook scripts will be
+      processed, if one script requests to delay the shutdown.
+    - Extracted loading of VDR daemon config options to separate file for
+      later reuse by other start scripts
+    - Fixed warning message in generated commands.conf and reccmds.conf  
+  * Thomas Schmidt <thomas.schmidt@in.stud.tu-ilmenau.de>
+    - Do not run as user root anymore, the user vdr will be created
+      and the video-directory and config-files will be changed, so the
+      owner/group is vdr:vdr (closes: #287899)
+    - Added 07_not_as_root.dpatch - vdr exists when it should run as
+      user or with group-id root (adapted from Darren Salt's patch 
+      for vdr 1.3.x)
+    - Added 08_security_CAN-2005-0071.dpatch - do not overwrite 
+      existing files with the GRAB-Command anymore (CAN-2005-0071)
+    - Set default port for SVDRP to 0, users who run vdr from the 
+      commandline will have to enable it by using the --port option
+      (in the init-script SVDRP will still be enabled and on the default 
+      port 2001)
+    - Added vdr-shutdown.wrapper with owner/group root:vdr and mode 6750, 
+      which calls the normal vdr-shutdown-script so that the user vdr is 
+      able to run vdr's shutdown-hooks
+    - The automatic shutdown is now disabled by default, to enable it 
+      again you have to change ENABLE_SHUTDOWN=0 to 1 in /etc/default/vdr
+    - Changed package vdr to Architecture: any, because it now contains
+      a binary file
+    - Added patch from Ludwig Nussel to be able to syncronize the system-
+      time via DVB, even when vdr runs as user
+    - Build-depend on libcap-dev
+    - Package vdr: depend on adduser
+    - Remove some files under /var/lib/vdr and /var/cache/vdr in postrm 
+      on purge (closes: #287914)
+    - Added german (de.po) debconf-translation from Jens Nachtigall 
+      <nachtigall@web.de> (closes: #273643)
+    - Added a note to the package description and README.Debian that vdr
+      (without special plugins) requires a DVB-Card with an mpeg-decoder
+      (Closes: #287428)
+    - Improved runvdr-script: when no loaded dvb-modules were found, 
+      try to load the module dvb (could be an alias for the real 
+      dvb-module)
+    - Added XB-VDR-Patchlevel-field in debian/control to vdr-plugin-sky 
+      and vdr-plugin-examples
+    - Build-depend on dpatch (>= 2.0.9)
+    - Converted existing dpatch-files to the new short format
+    - Added newplugin-script as vdr-newplugin to vdr-dev, so 
+      plugin-developers can initialize a new plugin-directory without a 
+      normal vdr-source-tree
+    - Added debianize-vdrplugin-script and the plugin-template-dir from 
+      c't-vdr
+    - Added lintian-override to avoid the lintian-warnings for the
+      plugin-template-scripts
+    - Default VIDEO_DIR is now /var/lib/video.00, so new harddiscs can
+      be added very easy by mounting them to /var/lib/video.0{1,2,...}
+      (if the old directory /var/lib/video exists, create 
+      /var/lib/video.00 as symlink to the old directory, if it does
+      not exist, /var/lib/video will be a symlink to /var/lib/video.00)
+    - Removed unnecessary debconf-question about creating the dvb 
+      devices, they will now be created without any question when they
+      are not existing allready
+    - Removed libncurses5-dev from Build-Depends
+
+ -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Wed, 19 Jan 2005 00:12:03 +0100
+
+vdr (1.2.6-5) unstable; urgency=low
+
+  * Tobias Grimm <tg@e-tobi.net> 
+    - fixed Bug in vdr-shutdown script - osd messages have to be send detached
+    - added patchlevel check in vdr.init - only plugins that have been compiled
+      with the same patch levels will be loaded, to avoid conflicts due to
+      binary incompatibility.
+    - removed dh_shlibdeps and $shlibs:Depends from binary independent target
+    - extracted common patch code from dpatch files
+    - added patchlevel generation
+    - added patchlevel checking when loading plugins - it's enabled in
+      /etc/default by setting PLUGIN_CHECK_PATCHLEVEL="yes"
+    - added ElchiAio4d as optional patch (see README.Debian)
+    - added ttxtsubs-patch as optional patch
+    - added 8-bit-color-patch as optional patch
+    - added osdpip-patch as optional patch
+    - added jumpplay-patch as optional patch
+    - an entry in the (commands|reccmds).order.conf can now be disabled by
+      prepending a "-", just like this is done in the plugins.order.conf too
+  * Thomas Schmidt <thomas.schmidt@in.stud.tu-ilmenau.de>
+    - It is not possible anymore to start more than one instance of vdr
+      with the init-script
+    - Changed runvdr-script as suggested by Nikolaus Regnat (Closes: #258412)
+    - Fix spelling error in vdr.postinst (Closes: #258615)
+    - Changed Maintainer to Debian VDR and DVB Packaging team
+      <pkg-vdr-dvb-devel@lists.alioth.debian.org>
+    - List Andreas Mueller <amu@tr.debian.net> as Uploader
+    - Added patch from Andreas Jochens <aj@andaco.de> to fix FTBFS with
+      gcc 3.4 (Closes: #262744)
+    - Changed $PLUGIN_CFG_DIR in /etc/default/vdr, to /etc/vdr/plugins 
+      (Closes: #264071)
+    - Changed package-description of vdr-plugin-examples a little bit
+
+ -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sun, 08 Aug 2004 19:48:33 +0200 
+
+vdr (1.2.6-4) unstable; urgency=low
+
+  * First release from the VDR and DVB Packaging team
+    (pkg-vdr-dvb-devel@lists.alioth.debian.org)
+
+  * Thomas Schmidt
+    - Acknowledge NMU (Closes: #238395)
+    - Use dpatch, so build-depend on dpatch
+    - Build-Depend on: dvb-dev | linux-kernel-headers
+    - Separate plugins from the vdr-package (new packages: 
+      vdr-plugin-examples and vdr-plugin-sky)
+    - Change architecture of package vdr to all - it does not 
+      contain any architecture-dependent files anymore
+    - Cleaned up some parts to avoid lintian warnings and errors
+    - Use makedev for device-generation in postinst, therefore 
+      depend on makedev
+    - Removed build-dep to g++
+    - Added LD_ASSUME_KERNEL=2.4 in runvdr, to be able to run vdr 
+      under 2.6 without problems
+    - New cfg-dir /var/lib/vdr, link static cfg-files from /etc/vdr to
+      /var/lib/vdr, install channels.conf in postinst to /var/lib/vdr,
+      move non-static cfg-files to /var/lib/vdr in postinst
+    - Add an option to vdr, to specify the cfg-dir at build-time,
+      and set this to /var/lib/vdr (Closes: Bug#233647)
+    - Selection of vdr-binary now handled by update-alternatives
+    - Changed runvdr, to quote plugin-options correct (Closes: Bug#239619)
+    - Applied patch from Emmanuel le Chevoir (Closes: Bug#238713)
+    - Updated debconf-translations:
+      + French (fr.po) by Emmanuel le Chevoir
+      + Czech (cs.po) by Miroslav Kure
+      + Dutch (nl.po) by Luk Claes
+    - Added myself as uploader
+    - Added correct watch-file
+    - Added manpage for runvdr
+
+  * Tobias Grimm <vdr@e-tobi.net>
+    - added automatic loading of plugins in init script from c't vdr
+      (see README.Debian)
+    - added dynamic generation of reccmds.conf and commands.conf from c't vdr
+      (see README.Debian)
+    - added recording hooks as used in c't vdr (see README.Debian)
+    - added cmd_submenus patch with improvements by Thomas Günther
+    - added shutdown hooks as used in c't vdr (see README.Debian)
+
+ -- Thomas Schmidt <thomas.schmidt@in.stud.tu-ilmenau.de>  Sat, 24 Apr 2004 12:04:41 +0200
+
+vdr (1.2.6-3.1) unstable; urgency=low
+
+  * Non-Maintainer-Upload during Bug-Squashing-Party.
+  * Applied patch by Lamont Jones to build all shared libraries
+    with -fPIC. (Closes: #238395)
+
+ -- Michael Banck <mbanck@debian.org>  Sun, 18 Apr 2004 13:49:48 +0200
+
+vdr (1.2.6-3) unstable; urgency=low
+
+  * Moved /video to /var/lib/video now we should FHS conform
+    Thx to Noel Koethe. (Closes: #234429)
+  * changed control to arch any/all for buildd.d.o 
+
+ -- Andreas Mueller <amu@tr.debian.net>  Sat, 13 Mar 2004 02:27:00 +0100
+    
+vdr (1.2.6-2) unstable; urgency=low
+
+  * Thx to Nikolaus Regnat
+  * Corrected runvdr script dvb module detection. (Closes: #233520)
+  * Switched to gettext-based debconf templates (Thx to Martin Quinson). (Closes: #233107)  
+  * Improved debconf question texts.
+  * Fixed vdr.postinst script so that channels.conf is no longer overwritten.
+    (Closes: #233646)
+  * Fixed bug in vdr.postinst script which prevented package upgrade.	
+  * Adapted debian/rules to use upstream make plugin/plugin-clean targets. (Closes: #233630)
+
+ -- Andreas Mueller <amu@tr.debian.net>  Wed, 18 Feb 2004 17:08:34 +0100
+
+vdr (1.2.6-1) unstable; urgency=low
+
+  * Thx to Nikolaus Regnat
+  * New upstream release.
+  * Corrected plugin installation. Plugin libs do now reside in
+    /usr/lib/vdr/plugins. (Closes: #227074)
+  * Install needed configuration files in /etc/vdr.
+  * Changed (in /etc/default/vdr) CFG_DIR="/etc/vdr". (Closes: #227084)
+  * Added debconf info about needed kernel-modules.
+  * Added debconf question to select dvb card type.
+  * Added debconf question to create /video filesystem.
+  * Added debconf question to create dvb device nodes.
+  * Declared ca.conf, diseqc.conf, keymacros.conf, sources.conf and
+    svdrphosts.conf as conffiles.
+  * Added lirc dependency to vdr-lirc.
+  * Removed loading of hello pluging (in /etc/default/vdr) as it is useless.
+  * Modified runvdr script to accept lsmod output of module-init-tools (kernel
+    2.6). (Closes: #227059)
+  * Used the --port=0 option (in /etc/default/vdr) to disable SVDRP port.
+  * Accepted various suggestion on packaging improvement (Closes: #227084)
+    
+ -- Andreas Mueller <amu@tr.debian.net>  Sat, 10 Jan 2004 15:25:27 +0100
+
+vdr (1.2.5-3) unstable; urgency=low
+
+  * moved plugins-dir to /usr/lib/vdr
+
+ -- Andreas Mueller <amu@tr.debian.net>  Mon,  21 Sep 2003 19:23:12 +0200
+
+vdr (1.2.5-2) unstable; urgency=low
+
+  * vdr_1.2.5-1.dsc: invalid 'Build-Depends' field produced by a broken
+    version of dpkg-dev (1.10.11). Now build with 1.10.13
+
+ -- Andreas Mueller <amu@tr.debian.net>  Tue,  18 Sep 2003 01:10:47 +0200
+
+
+vdr (1.2.5-1) unstable; urgency=low
+
+  * new upstream build
+  * Moved to Standards-Version: 3.6.1
+
+ -- Andreas Mueller <amu@tr.debian.net>  Tue,  17 Sep 2003 22:12:38 +0200
+
+
+vdr (1.2.2-1) unstable; urgency=low
+
+  * new upstream build
+    (closes: Bug#195951)
+
+ -- Andreas Mueller <amu@tr.debian.net>  Tue,  9 Sep 2003 11:27:00 +0200
+
+vdr (1.0.4-3) unstable; urgency=low
+
+  * some cosmetic things ( ex. autobuilder )
+  * added autobuilder support
+
+ -- Andreas Mueller <amu@tr.debian.net>  Mon,  10 Mar 2003 11:27:00 +0100
+
+vdr (1.0.4-2) unstable; urgency=low
+
+  * took package from Eduard/QA
+    (closes: Bug#134645)
+    (closes: Bug#158158)
+
+ -- Andreas Mueller <amu@tr.debian.net>  Sat,  4 Jan 2003 16:27:00 +0100
+
+vdr (1.0.4-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Eduard Bloch <blade@debian.org>  Sat,  3 Aug 2002 12:22:20 +0200
+
+vdr (1.0.0-1) unstable; urgency=medium
+
+  * New upstream (stable) release
+  * removed manpages hocus-pocus and forced to use new version to avoid
+    trashing of vdr.1. Closes: #142809
+  * removed kvdr references, it is broken anyways
+
+ -- Eduard Bloch <blade@debian.org>  Sun,  7 Apr 2002 23:43:41 +0200
+
+vdr (0.98+1.0.0pre5-1) unstable; urgency=high
+
+  * New upstream (pre)release, closes: #141035
+  * Urgency high, since the Woody version is already broken since the new
+    drivers entered it recently
+  * incompatible with kvdr, set Conflicts:
+  * Changed the build-system to DBS like
+  * Added the tools pack from Upstream's web location and the FORMATS file
+  * Not including the DVD patch, too unstable.
+
+ -- Eduard Bloch <blade@debian.org>  Wed,  3 Apr 2002 12:10:31 +0200
+
+vdr (0.98-2) unstable; urgency=medium
+
+  * Disabled SVDRP port as-default and noted in README.Debian.
+    Better secure than warned and less secure. Closes: #117193
+  * added more Build-Depends, closes: #123701
+  * now conflicting with previous kvdr version and recommending the new since
+    kvdr would break starting vdr-daemon without port specification.
+
+ -- Eduard Bloch <blade@debian.org>  Thu, 13 Dec 2001 00:58:01 +0100
+
+vdr (0.98-1) unstable; urgency=low
+
+  * New upstream release
+  * fixed spelling errors
+
+ -- Eduard Bloch <blade@debian.org>  Wed, 14 Nov 2001 09:56:49 +0100
+
+vdr (0.96-4) unstable; urgency=low
+
+  * improved Description, thanks to Joey and Alfie
+  * included README and other scripts, maybe usefull
+
+ -- Eduard Bloch <blade@debian.org>  Thu, 11 Oct 2001 12:56:42 +0200
+
+vdr (0.96-3) unstable; urgency=high
+
+  * all versions except of -daemon disable the control port by default
+    (possible security hole). Debconf warning for -daemon.
+  * package splited
+  * building additional vdr-daemon binary, needed for kvdr
+  * fixed postinst files, there were too much copy&paste work :(
+
+ -- Eduard Bloch <blade@debian.org>  Mon,  8 Oct 2001 13:21:31 +0200
+
+vdr (0.96-2) unstable; urgency=low
+
+  * enabled DVD support after helping Brian to fix libdvdread packages
+
+ -- Eduard Bloch <blade@debian.org>  Sun,  7 Oct 2001 16:27:53 +0200
+
+vdr (0.96-1) unstable; urgency=low
+
+  * New upstream release
+  * removed upx stuff
+  * no DVD support until the libdvdread2 package is ready
+
+ -- Eduard Bloch <blade@debian.org>  Tue,  2 Oct 2001 02:24:51 +0200
+
+vdr (0.95-1) unstable; urgency=low
+
+  * Initial Release, closes: #113106
+  * Made a little hack to create the channel.conf template from Debian examples
+
+ -- Eduard Bloch <blade@debian.org>  Sat, 22 Sep 2001 03:16:11 +0200
+
+Local variables:
+mode: debian-changelog
+End:
+

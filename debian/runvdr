@@ -1,0 +1,42 @@
+#!/bin/bash
+#
+#
+
+OPTIONS="$*"
+VDRCMD="LD_ASSUME_KERNEL=2.4 /usr/bin/vdr $OPTIONS"
+
+function get_modulenames ()
+{
+   KVERS=`uname -r | grep -e '2.6'`
+   if [ -z "$KVERS" ]; then
+      MODULES=`lsmod | grep dvb-core | cut -d'[' -f2 | cut -d']' -f1`
+   else
+      MODULES=`lsmod | grep ^dvb_core | awk '{print $4;}' | awk '{ gsub(/,/," ", $1); print }'`
+   fi
+}
+
+get_modulenames
+
+if [ -z "$MODULES" ]; then		# If no DVB-Modules were found, try to load
+   modprobe dvb > /dev/null 2>&1	# the module with the name dvb, this could
+   get_modulenames			# be an alias for the dvb-ttpci-module or
+fi					# another dvb-module
+
+MODULES="$MODULES dvb-core"
+
+while (true) do
+      eval $VDRCMD >/dev/null 2>&1
+      if test $? -eq 0; then exit; fi
+      logger "restarting VDR"
+      /usr/bin/killall -q -TERM /usr/bin/vdr
+      sleep 10
+      
+	 	for MODUL in $MODULES; do
+			rmmod $MODUL >/dev/null 2>&1
+			wait `pidof rmmod`
+		done
+     	
+		for MODUL in $MODULES; do
+  			modprobe $MODUL >/dev/null 2>&1
+		done		
+done

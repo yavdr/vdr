@@ -1,0 +1,32 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+
+## 01_gcc3.4-FTBFS-fix.dpatch by Thomas Schmidt <thomas.schmidt@in.stud.tu-ilmenau.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fix for a FTBFS-Bug with gcc 3.4 (#262744)
+
+@DPATCH@
+diff -urNad /home/chelli/vdr/cvs/vdr/vdr/config.h vdr/config.h
+--- /home/chelli/vdr/cvs/vdr/vdr/config.h	2004-05-14 12:32:15.000000000 +0200
++++ vdr/config.h	2004-08-02 12:51:07.000000000 +0200
+@@ -137,7 +137,7 @@
+   bool Save(void)
+   {
+     bool result = true;
+-    T *l = (T *)First();
++    T *l = (T *)this->First();
+     cSafeFile f(fileName);
+     if (f.Open()) {
+        while (l) {
+diff -urNad /home/chelli/vdr/cvs/vdr/vdr/plugin.c vdr/plugin.c
+--- /home/chelli/vdr/cvs/vdr/vdr/plugin.c	2004-05-14 12:32:19.000000000 +0200
++++ vdr/plugin.c	2004-08-02 12:51:07.000000000 +0200
+@@ -162,7 +162,7 @@
+   const char *error = dlerror();
+   if (!error) {
+      void *(*creator)(void);
+-     (void *)creator = dlsym(handle, "VDRPluginCreator");
++     creator = (void*(*)())dlsym(handle, "VDRPluginCreator");
+      if (!(error = dlerror()))
+         plugin = (cPlugin *)creator();
+      }

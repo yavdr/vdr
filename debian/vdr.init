@@ -1,0 +1,69 @@
+#! /bin/bash
+#
+# vdr start-stop script
+#
+
+. /usr/lib/vdr/config-loader.sh
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+NAME=vdr
+DESC="Linux Video Disk Recorder"
+
+test "$ENABLE_SHUTDOWN" = "1" && VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown.wrapper" \
+	|| VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown-message"
+
+test "$ENABLED" != "0" || exit 0
+
+test -x /usr/sbin/runvdr || exit 0
+
+startvdr() 
+{
+    if ! ps ax | grep "/usr/bin/vdr " | grep -v grep > /dev/null 
+    then
+	. /usr/lib/vdr/plugin-loader.sh
+	. /usr/lib/vdr/commands-loader.sh
+    	getplugins
+    	mergecommands "commands"
+    	mergecommands "reccmds"
+    	start-stop-daemon --start --quiet \
+	 	--exec /usr/sbin/runvdr -- -v $VIDEO_DIR -c $CFG_DIR -r $REC_CMD \
+	 	-s $VDRSHUTDOWN -E $EPG_FILE -u $USER -g $GROUP --port $SVDRP_PORT \
+		$OPTIONS $PLUGINS &
+    else
+	   echo -n " - seems to be running already"
+    fi
+} 
+
+stopvdr()
+{
+    killall -q -TERM runvdr
+    killall -q -TERM /usr/bin/vdr
+}
+
+case "$1" in
+  start)
+	 echo -n "Starting $DESC: $NAME"
+	 startvdr
+	 echo "."
+	 ;;
+  stop)
+	 echo -n "Stopping $DESC: $NAME"
+	 stopvdr
+	 echo "."
+	 ;;
+  restart|force-reload)
+	 echo -n "Restarting $DESC: $NAME"
+	 stopvdr
+	 sleep 4
+	 startvdr
+	 echo "."
+	 ;;
+  *)
+	 N=/etc/init.d/$NAME
+	 echo "Use: $N {start|stop|restart|force-reload}" >&2
+	 exit 1
+	;;
+esac
+
+exit 0
+

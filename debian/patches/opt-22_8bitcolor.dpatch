@@ -1,0 +1,96 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+
+## 8bitcolor by Andreas Regel <andreas.regel@gmx.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fixes problems with 8 bit colors by using unsigned char instead of char.
+## DP: For 256 color support, you will also need ElchiAIO4d.
+
+@DPATCH@
+diff -Nur vdr.orig/osdbase.c vdr/osdbase.c
+--- vdr.orig/osdbase.c	2004-03-15 22:48:57.000000000 +0100
++++ vdr/osdbase.c	2004-03-15 22:48:57.000000000 +0100
+@@ -185,7 +185,7 @@
+   fontType = fontOsd;
+   font = NULL;
+   if (width > 0 && height > 0) {
+-     bitmap = MALLOC(char, width * height);
++     bitmap = MALLOC(unsigned char, width * height);
+      if (bitmap) {
+         Clean();
+         memset(bitmap, 0x00, width * height);
+@@ -257,7 +257,7 @@
+   dirtyY2 = -1;
+ }
+ 
+-void cBitmap::SetIndex(int x, int y, char Index)
++void cBitmap::SetIndex(int x, int y, unsigned char Index)
+ {
+   if (bitmap) {
+      if (0 <= x && x < width && 0 <= y && y < height) {
+@@ -338,7 +338,7 @@
+      Fill(0, 0, width - 1, height - 1, clrBackground);
+ }
+ 
+-const char *cBitmap::Data(int x, int y)
++const unsigned char *cBitmap::Data(int x, int y)
+ {
+   return &bitmap[y * width + x];
+ }
+@@ -476,7 +476,7 @@
+            ABORT;
+            }
+         free(bitmap);
+-        bitmap = MALLOC(char, height * width);
++        bitmap = MALLOC(unsigned char, height * width);
+         for (int y = 0; y < height; ++y)
+             for (int x = 0; x < width; ++x) {
+                 eDvbColor col;
+@@ -562,7 +562,7 @@
+   cBitmap::Text(x, y, s, ColorFg, ColorBg);
+ }
+ 
+-const char *cWindow::Data(int x, int y)
++const unsigned char *cWindow::Data(int x, int y)
+ {
+   return cBitmap::Data(x, y);
+ }
+diff -Nur vdr.orig/osdbase.h vdr/osdbase.h
+--- vdr.orig/osdbase.h	2004-03-15 22:48:57.000000000 +0100
++++ vdr/osdbase.h	2004-03-15 22:49:54.000000000 +0100
+@@ -101,7 +101,7 @@
+ private:
+   cFont *font;
+   eDvbFont fontType;
+-  char *bitmap;
++  unsigned char *bitmap;
+   bool clearWithBackground;
+ protected:
+   int width, height;
+@@ -112,7 +112,7 @@
+   bool ClearWithBackground(void) { return clearWithBackground; }
+   eDvbFont SetFont(eDvbFont Font);
+   bool Dirty(int &x1, int &y1, int &x2, int &y2);
+-  void SetIndex(int x, int y, char Index);
++  void SetIndex(int x, int y, unsigned char Index);
+   void SetPixel(int x, int y, eDvbColor Color);
+   void SetBitmap(int x, int y, const cBitmap &Bitmap);
+   int Width(void) { return width; }
+@@ -123,7 +123,7 @@
+   void Fill(int x1, int y1, int x2, int y2, eDvbColor Color);
+   void Clean(void);
+   void Clear(void);
+-  const char *Data(int x, int y);
++  const unsigned char *Data(int x, int y);
+   bool LoadXpm(const char *FileName, eDvbColor NoneColor = clrTransparent);
+   bool LoadLogo(const char *FileName);
+   };
+@@ -150,7 +150,7 @@
+   void Fill(int x1, int y1, int x2, int y2, eDvbColor Color);
+   void SetBitmap(int x, int y, const cBitmap &Bitmap);
+   void Text(int x, int y, const char *s, eDvbColor ColorFg = clrWhite, eDvbColor ColorBg = clrBackground);
+-  const char *Data(int x, int y);
++  const unsigned char *Data(int x, int y);
+   };
+ 
+ typedef int tWindowHandle;

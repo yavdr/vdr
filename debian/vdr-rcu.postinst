@@ -1,0 +1,14 @@
+#! /bin/sh -e
+
+case "$1" in
+	abort-upgrade)
+		update-alternatives --install /usr/bin/vdr vdr /usr/bin/vdr-rcu 105
+	;;
+	configure)
+		update-alternatives --install /usr/bin/vdr vdr /usr/bin/vdr-rcu 105
+	;;
+esac
+
+#DEBHELPER#
+
+exit 0

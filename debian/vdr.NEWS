@@ -1,0 +1,48 @@
+vdr (1.2.6-6) unstable; urgency=low
+
+  The most important change in this release is that vdr from now on
+  will run under the username vdr, not as root, this is due to some
+  security problems when vdr runs as root, the video-directory and 
+  configfiles will be changed at installation, so they are owned by 
+  the user and group vdr.
+
+  The second thing is that the automatic shutdown of vdr is now disabled
+  by default, you can enable it again by changing ENABLE_SHUTDOWN to 1 
+  in /etc/default/vdr.
+  
+  In this release we also changed the default VIDEO_DIR from 
+  /var/lib/video to /var/lib/video.00, to make adding extra harddiscs 
+  for vdr very easy by just creating /var/lib/video.0{1,2,3,...} and 
+  mounting the drive(s) there. In existing installations we will simply 
+  create a symlink /var/lib/video.00 which points to /var/lib/video. In 
+  new installations /var/lib/video will be a symlink which points to 
+  /var/lib/video.00. (These changes will only be asked when you 
+  selected yes in the debconf-question to create the video-directory!)
+
+ -- Thomas Schmidt <thomas.schmidt@in.stud.tu-ilmenau.de>  Fri, 14 Jan 2005 12:17:51 +0100
+
+vdr (1.2.6-4) unstable; urgency=low
+
+  This is the first release from the VDR and DVB Packaging Team
+  <pkg-vdr-dvb-devel@lists.alioth.debian.org>
+  Many thanks to Tobias Grimm and Thomas Günther for the various improvements
+  of the package.
+
+  In this Release, we changed the path of the conf-files to /var/lib/vdr,
+  static conf-files will still be under /etc/vdr, and symlinked to
+  /var/lib/vdr. 
+  If you allready have non-static files (channels.conf, remote.conf, 
+  setup.conf and timers.conf), these files will be moved by the 
+  postinst-script to /var/lib/vdr.
+
+  The most important change in this release is the new init-system of vdr,
+  which was taken from c't-vdr, a woody-based distribution, optimized for vdr.
+    - Plugins are not any longer loaded via /etc/default/vdr, instead of this,
+      every installed plugin will be loaded automatically. The order of the
+      plugins can be configured via /etc/vdr/plugins/order.conf.
+    - The commands.conf and the reccmds.conf files will be auto-generated 
+      by the init-script for better integration of vdr-addons.
+      If you allready have a commands.conf or reccmds.conf, you should move it
+      to /etc/vdr/command-hooks/{commands|reccmds}.custom.conf .
+
+ -- Thomas Schmidt <thomas.schmidt@in.stud.tu-ilmenau.de>  Sat, 29 May 2004 19:43:49 +0200

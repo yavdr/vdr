@@ -1,0 +1,2 @@
+vdr: package-contains-upstream-install-documentation usr/share/doc/vdr/INSTALL.gz
+vdr: menu-command-not-in-package /usr/lib/menu/vdr:2 /usr/bin/vdr

@@ -1,0 +1,33 @@
+.\" Man page for debianize-vdrplugin 
+
+.TH debianize-vdrplugin 1
+.SH NAME
+debianize-vdrplugin
+.SH DESCRIPTION
+.B debianize-vdrplugin
+can be used to add a working debian-directory to the source-directory 
+of a vdr-plugin.
+
+.B debianize-vdrplugin
+should be called directly from a plugin-source-directory.
+
+After
+.B debianize-vdrplugin 
+was run, you should check the files inside the debian-directory if they 
+fit your needs, and modify them accordingly.
+
+The next step to get a debian-package for the vdr-plugin is to call
+.B dpkg-buildpackage
+(You need the package 
+.B dpkg-dev
+for this tool.)
+
+.SH AUTHOR
+This man-page has been written by Thomas Schmidt <thomas@thsnet.de>
+.PP
+Permission is granted to copy, distribute and/or modify this document under
+the terms of the GNU General Public License, Version 2 any
+later version published by the Free Software Foundation.
+.PP
+On Debian systems, the complete text of the GNU General Public
+License can be found in /usr/share/common\-licenses/GPL.
