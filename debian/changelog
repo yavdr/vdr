@@ -10,6 +10,8 @@ vdr (1.2.6-9) experimental; urgency=low
       they are not necessary anymore
     - Added "Conflicts and Replaces: vdr-daemon, vdr-kbd, vdr-lirc, 
       vdr-rcu" to debian/control
+    - Removed Andreas Müller from uploaders - he does not intend 
+      to do uploads anymore
 
  -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sat, 26 Feb 2005 20:35:43 +0100
 
