@@ -10,8 +10,8 @@ etc/vdr/keymacros.conf   var/lib/vdr/keymacros.conf
 etc/vdr/sources.conf     var/lib/vdr/sources.conf
 etc/vdr/svdrphosts.conf  var/lib/vdr/svdrphosts.conf
 
-/etc/vdr/recording-hooks/R90.custom  /usr/share/vdr/recording-hooks/R90.custom
-/etc/vdr/shutdown-hooks/S90.custom   /usr/share/vdr/shutdown-hooks/S90.custom
+etc/vdr/recording-hooks/R90.custom  usr/share/vdr/recording-hooks/R90.custom
+etc/vdr/shutdown-hooks/S90.custom   usr/share/vdr/shutdown-hooks/S90.custom
 
 usr/share/man/man1/vdr.1.gz usr/share/man/man1/vdr-daemon.1.gz
 usr/share/man/man1/vdr.1.gz usr/share/man/man1/vdr-kbd.1.gz
