@@ -1,5 +1,5 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
-## 05_set_system_time_as_user.dpatch by Thomas Schmidt <thomas.schmidt@in.stud.tu-ilmenau.de>
+## 05_set_system_time_as_user.dpatch by Thomas Schmidt <tschmidt@debian.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Allow vdr to be run as a normal user, but keep the capability 

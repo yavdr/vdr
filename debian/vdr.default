@@ -1,7 +1,4 @@
 # /etc/default/vdr
-# Default config thanks to: 
-# Thomas Schmidt <thomas.schmidt@in.stud.tu-ilmenau.de>
-# 29.01.2003
 
 # Change to 1 to enable vdr's init-script
 ENABLED=0

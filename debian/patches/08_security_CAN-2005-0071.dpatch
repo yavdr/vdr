@@ -1,5 +1,5 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
-## 08_security_CAN-2005-0071.dpatch by Thomas Schmidt <thomas.schmidt@in.stud.tu-ilmenau.de>
+## 08_security_CAN-2005-0071.dpatch by Thomas Schmidt <tschmidt@debian.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Fixes CAN-2005-0071 (It is not possible to overwrite files with 

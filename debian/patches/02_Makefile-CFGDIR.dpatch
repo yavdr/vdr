@@ -1,6 +1,6 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
 
-## 01_Makefile-CFGDIR.dpatch by Thomas Schmidt <thomas.schmidt@in.stud.tu-ilmenau.de>
+## 01_Makefile-CFGDIR.dpatch by Thomas Schmidt <tschmidt@debian.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: No description.

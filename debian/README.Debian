@@ -19,7 +19,7 @@ Comments to the Debian version:
    one of this packages installed, and are not happy with the default 
    priorities, you can select the binary via "update-alternatives --config vdr"
 
- -- Thomas Schmidt <thomas.schmidt@in.stud.tu-ilmenau.de>,  Tue, 28 Dec 2004 14:22:21 +0100
+ -- Thomas Schmidt <tschmidt@debian.org>,  Tue, 28 Dec 2004 14:22:21 +0100
 
 
 Automatic Loading of Plugins

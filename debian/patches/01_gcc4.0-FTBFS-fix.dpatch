@@ -1,5 +1,5 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
-## 01_gcc4.0-FTBFS-fix.dpatch by Thomas Schmidt <thomas.schmidt@in.stud.tu-ilmenau.de>
+## 01_gcc4.0-FTBFS-fix.dpatch by Thomas Schmidt <tschmidt@debian.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Fix for the FTBFS-Bug with gcc 4.0 (#294041)

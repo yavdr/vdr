@@ -1,5 +1,5 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
-## 07_not_as_root.dpatch by Thomas Schmidt <thomas.schmidt@in.stud.tu-ilmenau.de>
+## 07_not_as_root.dpatch by Thomas Schmidt <tschmidt@debian.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Refuse to run vdr as user root (Note: This patch requires the

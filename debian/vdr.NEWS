@@ -35,7 +35,7 @@ vdr (1.2.6-6) unstable; urgency=low
   /var/lib/video.00. (These changes will only be asked when you 
   selected yes in the debconf-question to create the video-directory!)
 
- -- Thomas Schmidt <thomas.schmidt@in.stud.tu-ilmenau.de>  Fri, 14 Jan 2005 12:17:51 +0100
+ -- Thomas Schmidt <tschmidt@debian.org>  Fri, 14 Jan 2005 12:17:51 +0100
 
 vdr (1.2.6-4) unstable; urgency=low
 
@@ -61,4 +61,4 @@ vdr (1.2.6-4) unstable; urgency=low
       If you allready have a commands.conf or reccmds.conf, you should move it
       to /etc/vdr/command-hooks/{commands|reccmds}.custom.conf .
 
- -- Thomas Schmidt <thomas.schmidt@in.stud.tu-ilmenau.de>  Sat, 29 May 2004 19:43:49 +0200
+ -- Thomas Schmidt <tschmidt@debian.org>  Sat, 29 May 2004 19:43:49 +0200
