@@ -2,6 +2,8 @@
 #
 #
 
+. /usr/lib/vdr/config-loader.sh
+
 OPTIONS="$*"
 VDRCMD="LD_ASSUME_KERNEL=2.4 /usr/bin/vdr $OPTIONS"
 
@@ -15,6 +17,15 @@ function get_modulenames ()
    fi
 }
 
+function set_permissions ()
+{
+   for FILE in av7110_ir budget_ci_ir; do
+      if [ -e "/proc/$FILE" ]; then
+      	chown $USER.$GROUP /proc/$FILE
+      fi
+   done
+}
+
 get_modulenames
 
 if [ -z "$MODULES" ]; then		# If no DVB-Modules were found, try to load
@@ -25,18 +36,19 @@ fi					# another dvb-module
 MODULES="$MODULES dvb-core"
 
 while (true) do
+      set_permissions
       eval $VDRCMD >/dev/null 2>&1
       if test $? -eq 0; then exit; fi
       logger "restarting VDR"
       /usr/bin/killall -q -TERM /usr/bin/vdr
       sleep 10
       
-	 	for MODUL in $MODULES; do
-			rmmod $MODUL >/dev/null 2>&1
+	 	for MODULE in $MODULES; do
+			rmmod $MODULE >/dev/null 2>&1
 			wait `pidof rmmod`
 		done
      	
-		for MODUL in $MODULES; do
-  			modprobe $MODUL >/dev/null 2>&1
+		for MODULE in $MODULES; do
+  			modprobe $MODULE >/dev/null 2>&1
 		done		
 done

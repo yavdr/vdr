@@ -3,6 +3,9 @@ vdr (1.2.6-9) experimental; urgency=low
   * NOT RELEASED YET
   
   * Thomas Schmidt <tschmidt@debian.org>
+    - Change owner of /proc/{av7110_ir,budget_ci_ir} to the uid and 
+      gid under which vdr will run in /usr/sbin/runvdr 
+      (closes: #297640)
     - Added 13_remote.dpatch from Darren Salt, this allows to have
       just 1 binary for all 4 possible control methods, and it should
       reduce build-time by about 75%
