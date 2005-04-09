@@ -1,6 +1,4 @@
 01_vdr_1.2.6-3.1.diff.gz
-01_gcc3.4-FTBFS-fix
-#01_gcc4.0-FTBFS-fix
 02_Makefile-CFGDIR
 03_cmdsubmenu
 04_newplugin
@@ -8,7 +6,6 @@
 06_default_svdrp_port_0
 07_not_as_root
 08_security_CAN-2005-0071
-09_amd64_epg
 13_remote
 
 # The Elchi AIO 4d patch for a nicer OSD, inlcuding the frames and black

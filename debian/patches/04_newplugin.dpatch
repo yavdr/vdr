@@ -7,9 +7,9 @@
 ## DP: new plugin
 
 @DPATCH@
-diff -urNad vdr/newplugin /tmp/dpep.PJ00Ue/vdr/newplugin
---- vdr/newplugin	2004-05-14 12:32:19.000000000 +0200
-+++ /tmp/dpep.PJ00Ue/vdr/newplugin	2004-11-06 16:21:56.000000000 +0100
+diff -urNad vdr-1.3.23/newplugin /tmp/dpep.xLpfdk/vdr-1.3.23/newplugin
+--- vdr-1.3.23/newplugin	2005-01-30 14:50:05.000000000 +0100
++++ /tmp/dpep.xLpfdk/vdr-1.3.23/newplugin	2005-04-09 21:28:38.310427464 +0200
 @@ -24,7 +24,7 @@
  $PLUGIN_DESCRIPTION = "Enter description for '$PLUGIN_NAME' plugin";
  $PLUGIN_MAINENTRY = $PLUGIN_CLASS;
@@ -28,7 +28,7 @@ diff -urNad vdr/newplugin /tmp/dpep.PJ00Ue/vdr/newplugin
  
  ### The directory environment:
  
-@@ -233,7 +233,7 @@
+@@ -239,7 +239,7 @@
  VDRPLUGINCREATOR(cPlugin$PLUGIN_CLASS); // Don't touch this!
  };
  
@@ -37,7 +37,7 @@ diff -urNad vdr/newplugin /tmp/dpep.PJ00Ue/vdr/newplugin
  
  die "The directory $PLUGINS_SRC doesn't exist!\n" unless (-d "$PLUGINS_SRC");
  die "A plugin named '$PLUGIN_NAME' already exists in $PLUGINS_SRC!\n" if (-e "$PLUGINDIR");
-@@ -254,7 +254,8 @@
+@@ -260,7 +260,8 @@
  * fill in the code skeleton in "$PLUGIN_NAME.c" to implement your plugin function
  * add further source files if necessary
  * adapt the "Makefile" if necessary

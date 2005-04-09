@@ -7,21 +7,21 @@
 ## DP: <ludwig.nussel@gmx.de>
 
 @DPATCH@
-diff -urNad vdr-1.2.6/Makefile /tmp/dpep.OwcM4r/vdr-1.2.6/Makefile
---- vdr-1.2.6/Makefile	2005-01-31 22:48:08.000000000 +0100
-+++ /tmp/dpep.OwcM4r/vdr-1.2.6/Makefile	2005-01-31 22:48:09.000000000 +0100
-@@ -87,7 +87,7 @@
+diff -urNad vdr-1.3.23/Makefile /tmp/dpep.RJebnB/vdr-1.3.23/Makefile
+--- vdr-1.3.23/Makefile	2005-04-09 21:28:46.585169512 +0200
++++ /tmp/dpep.RJebnB/vdr-1.3.23/Makefile	2005-04-09 21:28:46.810135312 +0200
+@@ -109,7 +109,7 @@
  # The main program:
  
- vdr: $(OBJS) $(DTVLIB)
--	$(CXX) $(CXXFLAGS) -rdynamic $(OBJS) $(NCURSESLIB) -ljpeg -lpthread -ldl $(LIBDIRS) $(DTVLIB) -o vdr
-+	$(CXX) $(CXXFLAGS) -rdynamic $(OBJS) $(NCURSESLIB) -lcap -ljpeg -lpthread -ldl $(LIBDIRS) $(DTVLIB) -o vdr
+ vdr: $(OBJS) $(SILIB)
+-	$(CXX) $(CXXFLAGS) -rdynamic $(OBJS) $(NCURSESLIB) -ljpeg -lpthread -ldl $(LIBDIRS) $(SILIB) -o vdr
++	$(CXX) $(CXXFLAGS) -rdynamic $(OBJS) $(NCURSESLIB) -lcap -ljpeg -lpthread -ldl $(LIBDIRS) $(SILIB) -o vdr
  
  # The font files:
  
-diff -urNad vdr-1.2.6/vdr.c /tmp/dpep.OwcM4r/vdr-1.2.6/vdr.c
---- vdr-1.2.6/vdr.c	2005-01-31 22:48:08.000000000 +0100
-+++ /tmp/dpep.OwcM4r/vdr-1.2.6/vdr.c	2005-01-31 23:03:08.000000000 +0100
+diff -urNad vdr-1.3.23/vdr.c /tmp/dpep.RJebnB/vdr-1.3.23/vdr.c
+--- vdr-1.3.23/vdr.c	2005-04-09 21:28:46.551174680 +0200
++++ /tmp/dpep.RJebnB/vdr-1.3.23/vdr.c	2005-04-09 21:28:46.811135160 +0200
 @@ -31,6 +31,10 @@
  #include <stdlib.h>
  #include <termios.h>
@@ -33,7 +33,7 @@ diff -urNad vdr-1.2.6/vdr.c /tmp/dpep.OwcM4r/vdr-1.2.6/vdr.c
  #include "audio.h"
  #include "channels.h"
  #include "config.h"
-@@ -77,6 +81,96 @@
+@@ -85,6 +89,96 @@
    exit(1);
  }
  
@@ -129,17 +129,17 @@ diff -urNad vdr-1.2.6/vdr.c /tmp/dpep.OwcM4r/vdr-1.2.6/vdr.c
 +
  int main(int argc, char *argv[])
  {
-   // Save terminal settings:
-@@ -106,6 +200,8 @@
+ #ifdef _CS_GNU_LIBPTHREAD_VERSION
+@@ -135,6 +229,8 @@
    const char *Terminal = NULL;
    const char *Shutdown = NULL;
    cPluginManager PluginManager(DEFAULTPLUGINDIR);
 +  const char* username = NULL;
 +  const char* groupname = NULL;
+   int ExitCode = 0;
  
    static struct option long_options[] = {
-       { "audio",    required_argument, NULL, 'a' },
-@@ -125,11 +221,13 @@
+@@ -155,11 +251,13 @@
        { "version",  no_argument,       NULL, 'V' },
        { "video",    required_argument, NULL, 'v' },
        { "watchdog", required_argument, NULL, 'w' },
@@ -154,7 +154,7 @@ diff -urNad vdr-1.2.6/vdr.c /tmp/dpep.OwcM4r/vdr-1.2.6/vdr.c
          switch (c) {
            case 'a': AudioCommand = optarg;
                      break;
-@@ -219,6 +317,10 @@
+@@ -249,6 +347,10 @@
                      fprintf(stderr, "vdr: invalid watchdog timeout: %s\n", optarg);
                      return 2;
                      break;
@@ -165,16 +165,16 @@ diff -urNad vdr-1.2.6/vdr.c /tmp/dpep.OwcM4r/vdr-1.2.6/vdr.c
            default:  return 2;
            }
          }
-@@ -260,6 +362,8 @@
+@@ -291,6 +393,8 @@
                 "  -V,       --version      print version information and exit\n"
                 "  -w SEC,   --watchdog=SEC activate the watchdog timer with a timeout of SEC\n"
                 "                           seconds (default: %d); '0' disables the watchdog\n"
 +	       "  -u USER,  --user=USER    run as user USER instead of root\n"
 +	       "  -g GROUP, --group=GROUP  use group GROUP instead of primary group of user\n"
                 "\n",
-                cSIProcessor::GetEpgDataFileName() ? cSIProcessor::GetEpgDataFileName() : "'-'",
+                DEFAULTEPGDATAFILENAME,
                 DEFAULTPLUGINDIR,
-@@ -290,6 +394,21 @@
+@@ -321,6 +425,21 @@
       return 0;
       }
  

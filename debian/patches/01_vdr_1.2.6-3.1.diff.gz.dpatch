@@ -6,8 +6,9 @@
 ## DP: New patch generated from vdr 1.2.6-3.1 diff.gz
 
 @DPATCH@
---- vdr-1.2.6.orig/PLUGINS/src/osddemo/Makefile
-+++ vdr-1.2.6/PLUGINS/src/osddemo/Makefile
+diff -urNad vdr-1.3.23/PLUGINS/src/hello/Makefile /tmp/dpep.EDdlNh/vdr-1.3.23/PLUGINS/src/hello/Makefile
+--- vdr-1.3.23/PLUGINS/src/hello/Makefile	2003-12-21 16:47:22.000000000 +0100
++++ /tmp/dpep.EDdlNh/vdr-1.3.23/PLUGINS/src/hello/Makefile	2005-04-09 21:25:03.085146680 +0200
 @@ -16,7 +16,7 @@
  ### The C++ compiler and options:
  
@@ -17,8 +18,9 @@
  
  ### The directory environment:
  
---- vdr-1.2.6.orig/PLUGINS/src/sky/Makefile
-+++ vdr-1.2.6/PLUGINS/src/sky/Makefile
+diff -urNad vdr-1.3.23/PLUGINS/src/osddemo/Makefile /tmp/dpep.EDdlNh/vdr-1.3.23/PLUGINS/src/osddemo/Makefile
+--- vdr-1.3.23/PLUGINS/src/osddemo/Makefile	2003-12-21 16:47:26.000000000 +0100
++++ /tmp/dpep.EDdlNh/vdr-1.3.23/PLUGINS/src/osddemo/Makefile	2005-04-09 21:25:03.085146680 +0200
 @@ -16,7 +16,7 @@
  ### The C++ compiler and options:
  
@@ -28,8 +30,9 @@
  
  ### The directory environment:
  
---- vdr-1.2.6.orig/PLUGINS/src/status/Makefile
-+++ vdr-1.2.6/PLUGINS/src/status/Makefile
+diff -urNad vdr-1.3.23/PLUGINS/src/sky/Makefile /tmp/dpep.EDdlNh/vdr-1.3.23/PLUGINS/src/sky/Makefile
+--- vdr-1.3.23/PLUGINS/src/sky/Makefile	2003-12-21 16:47:31.000000000 +0100
++++ /tmp/dpep.EDdlNh/vdr-1.3.23/PLUGINS/src/sky/Makefile	2005-04-09 21:25:03.085146680 +0200
 @@ -16,7 +16,7 @@
  ### The C++ compiler and options:
  
@@ -39,8 +42,9 @@
  
  ### The directory environment:
  
---- vdr-1.2.6.orig/PLUGINS/src/hello/Makefile
-+++ vdr-1.2.6/PLUGINS/src/hello/Makefile
+diff -urNad vdr-1.3.23/PLUGINS/src/status/Makefile /tmp/dpep.EDdlNh/vdr-1.3.23/PLUGINS/src/status/Makefile
+--- vdr-1.3.23/PLUGINS/src/status/Makefile	2003-12-21 16:47:41.000000000 +0100
++++ /tmp/dpep.EDdlNh/vdr-1.3.23/PLUGINS/src/status/Makefile	2005-04-09 21:25:03.085146680 +0200
 @@ -16,7 +16,7 @@
  ### The C++ compiler and options:
  
