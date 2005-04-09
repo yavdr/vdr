@@ -2,12 +2,13 @@
 ## 07_not_as_root.dpatch by Thomas Schmidt <tschmidt@debian.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
+## DP: Refuse to run vdr as user root (Note: This patch requires the
 ## DP: Don't allow vdr to be run as root
 
 @DPATCH@
-diff -urNad vdr-1.2.6/vdr.c /tmp/dpep.YDJHqf/vdr-1.2.6/vdr.c
---- vdr-1.2.6/vdr.c	2005-01-31 23:07:51.000000000 +0100
-+++ /tmp/dpep.YDJHqf/vdr-1.2.6/vdr.c	2005-01-31 23:09:10.000000000 +0100
+diff -urNad vdr/vdr.c /tmp/dpep.pru8wM/vdr/vdr.c
+--- vdr/vdr.c	2005-04-09 11:33:32.000000000 +0200
++++ /tmp/dpep.pru8wM/vdr/vdr.c	2005-04-09 11:34:17.000000000 +0200
 @@ -35,6 +35,7 @@
  #include <grp.h>
  #include <sys/capability.h>
@@ -16,7 +17,24 @@ diff -urNad vdr-1.2.6/vdr.c /tmp/dpep.YDJHqf/vdr-1.2.6/vdr.c
  #include "audio.h"
  #include "channels.h"
  #include "config.h"
-@@ -325,12 +326,30 @@
+@@ -202,8 +203,10 @@
+   cPluginManager PluginManager(DEFAULTPLUGINDIR);
+   const char* username = NULL;
+   const char* groupname = NULL;
++  bool IsAllowRootAnyway = false;
+ 
+   static struct option long_options[] = {
++      { "allow-root",no_argument,      NULL, '!' },
+       { "audio",    required_argument, NULL, 'a' },
+       { "config",   required_argument, NULL, 'c' },
+       { "daemon",   no_argument,       NULL, 'd' },
+@@ -321,16 +324,36 @@
+                     break;
+           case 'g': groupname = optarg;
+                     break;
++          case '!': IsAllowRootAnyway = true;
++                    break;
+           default:  return 2;
            }
          }
  
@@ -42,7 +60,7 @@ diff -urNad vdr-1.2.6/vdr.c /tmp/dpep.YDJHqf/vdr-1.2.6/vdr.c
 -     if (!PluginManager.HasPlugins())
 -        PluginManager.AddPlugin("*"); // adds all available plugins
 -     PluginManager.LoadPlugins();
-+     if (!IsRoot) {
++     if (!IsRoot || IsAllowRootAnyway) {
 +     	if (!PluginManager.HasPlugins())
 +        	PluginManager.AddPlugin("*"); // adds all available plugins
 +     	PluginManager.LoadPlugins();
@@ -50,22 +68,28 @@ diff -urNad vdr-1.2.6/vdr.c /tmp/dpep.YDJHqf/vdr-1.2.6/vdr.c
       if (DisplayHelp) {
          printf("Usage: vdr [OPTIONS]\n\n"          // for easier orientation, this is column 80|
                 "  -a CMD,   --audio=CMD    send Dolby Digital audio to stdin of command CMD\n"
-@@ -374,7 +393,7 @@
+@@ -374,7 +397,7 @@
          }
       if (DisplayVersion)
          printf("vdr (%s) - The Video Disk Recorder\n", VDRVERSION);
 -     if (PluginManager.HasPlugins()) {
-+     if (!IsRoot && PluginManager.HasPlugins()) {
++     if ((!IsRoot || IsAllowRootAnyway) && PluginManager.HasPlugins()) {
          if (DisplayHelp)
             printf("Plugins: vdr -P\"name [OPTIONS]\"\n\n");
          for (int i = 0; ; i++) {
-@@ -394,6 +413,11 @@
+@@ -394,6 +417,17 @@
       return 0;
       }
  
 +  if (IsRoot) {
-+	fprintf (stderr, "%s: sorry, I refuse to run with root privileges\n", argv[0]);
-+     	return 0;
++        if (IsAllowRootAnyway) {
++            char* rootWarning="Warning! VDR started with root privileges";
++            isyslog(rootWarning);
++            fprintf(stderr, "%s\n", rootWarning);
++        } else {
++            fprintf (stderr, "%s: sorry, I refuse to run with root privileges\n", argv[0]);
++     	    return 0;
++        }
 +  }
 +  
    // Only try to change capabilities/user when vdr is called by 
