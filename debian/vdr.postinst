@@ -138,10 +138,14 @@ case "$1" in
 
 	# ensure that vdr's config and recording files are correctly owned
 	[ -e /var/lib/video ] && chown -R $USER:$GROUP /var/lib/video/
-	[ -e /var/lib/vdr ] && chown $USER:$GROUP /var/lib/vdr
-	chown $USER:$GROUP /var/lib/vdr/* > /dev/null 2>&1 || true
-	[ -e /var/cache/vdr ] && chown $USER:$GROUP /var/cache/vdr
-	chown $USER:$GROUP /var/cache/vdr/* > /dev/null 2>&1|| true
+	if [ -e /var/lib/vdr ] ; then 
+            chown $USER:$GROUP /var/lib/vdr
+	    chown $USER:$GROUP /var/lib/vdr/* > /dev/null 2>&1 || true
+        fi
+	if [ -e /var/cache/vdr ] ; then
+            chown $USER:$GROUP /var/cache/vdr
+	    chown $USER:$GROUP /var/cache/vdr/* > /dev/null 2>&1|| true
+        fi
 
 	# make /usr/lib/vdr/vdr-shutdown.wrapper setuid/setgid
         # (owner root:vdr, mode 6750)
@@ -180,5 +184,3 @@ sleep 5
 #DEBHELPER#
 
 exit 0
-
-
