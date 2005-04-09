@@ -2,8 +2,8 @@
 ## 07_not_as_root.dpatch by Thomas Schmidt <tschmidt@debian.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: Refuse to run vdr as user root (Note: This patch requires the
-## DP: Don't allow vdr to be run as root
+## DP: Refuse to run vdr as user root, except when using the 
+## DP: --allow-root option
 
 @DPATCH@
 diff -urNad vdr/vdr.c /tmp/dpep.pru8wM/vdr/vdr.c
