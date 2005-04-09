@@ -1,11 +1,10 @@
 vdr (1.2.6-11) unstable; urgency=low
 
-  * !!! UNRELEASED !!!
   * Tobias Grimm <tg@e-tobi.net> 
     - Modified not-as-root-patch to allow to start VDR as root anyway, if the
       option --allow-root is given
 
- -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sat,  9 Apr 2005 18:25:57 +0200
+ -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sat, 09 Apr 2005 22:29:02 +0200
 
 vdr (1.2.6-10) unstable; urgency=low
 
