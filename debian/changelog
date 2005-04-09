@@ -1,5 +1,6 @@
 vdr (1.2.6-11) unstable; urgency=low
 
+  * !!! UNRELEASED !!!
   * Tobias Grimm <tg@e-tobi.net> 
     - Modified not-as-root-patch to allow to start VDR as root anyway, if the
       option --allow-root is given
