@@ -46,40 +46,6 @@ diff -urNad vdr-1.3.23/vdr.1 /tmp/dpep.cA36ZO/vdr-1.3.23/vdr.1
  .TP
  .BI \-D\  num ,\ \-\-device= num
  Use only the given DVB device (\fInum\fR = 0, 1, 2...).
-diff -urNad vdr-1.3.23/vdr.1.rej /tmp/dpep.cA36ZO/vdr-1.3.23/vdr.1.rej
---- vdr-1.3.23/vdr.1.rej	1970-01-01 01:00:00.000000000 +0100
-+++ /tmp/dpep.cA36ZO/vdr-1.3.23/vdr.1.rej	2005-04-09 21:19:38.185538928 +0200
-@@ -0,0 +1,30 @@
-+***************
-+*** 45,52 ****
-+  Read config files from directory \fIdir\fR
-+  (default is to read them from the video directory).
-+  .TP
-+- .B -d, --daemon
-+- Run in daemon mode.
-+  .TP
-+  .BI -D\  num ,\ --device= num
-+  Use only the given DVB device (\fInum\fR = 0, 1, 2...).
-+--- 45,63 ----
-+  Read config files from directory \fIdir\fR
-+  (default is to read them from the video directory).
-+  .TP
-++ .B \-d, \-\-daemon
-++ Run in daemon mode. (This implies \-\-no\-kbd.)
-++ .TP
-++ .B \-\-no\-kbd
-++ Don't use the keyboard as an input device.
-++ .TP
-++ .BI \-\-lirc [=DEVICE]
-++ If this option is present, vdr will use a LIRC remote control device.
-++ If the device name is omitted, vdr uses \fI/dev/lircd\fR.
-++ .TP
-++ .BI \-\-rcu [=DEVICE]
-++ If this option is present, vdr will use a serial port remote control device.
-++ If the device name is omitted, vdr uses \fI/dev/ttyS1\fR.
-+  .TP
-+  .BI -D\  num ,\ --device= num
-+  Use only the given DVB device (\fInum\fR = 0, 1, 2...).
 diff -urNad vdr-1.3.23/vdr.c /tmp/dpep.cA36ZO/vdr-1.3.23/vdr.c
 --- vdr-1.3.23/vdr.c	2005-04-09 21:19:37.951574496 +0200
 +++ /tmp/dpep.cA36ZO/vdr-1.3.23/vdr.c	2005-04-09 21:19:38.186538776 +0200
