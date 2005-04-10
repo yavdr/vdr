@@ -47,7 +47,7 @@ getplugins ()
 
         # move not startable plugins to $leftout2
         for (( i=${#installed_plugins[@]}, i-- ; i >= 0 ; i-- )); do
-            if ! LD_ASSUME_KERNEL=2.4.1 /usr/bin/vdr -u $USER -g $GROUP -V -L $PLUGIN_DIR -P ${installed_plugins[$i]} \
+            if ! LD_ASSUME_KERNEL=2.4.1 /usr/bin/vdr -u $USER -g $GROUP $OPTIONS -V -L $PLUGIN_DIR -P ${installed_plugins[$i]} \
                 2>/dev/null | grep -q "^${installed_plugins[$i]} "; then
                 leftout2="${leftout2} ${installed_plugins[$i]}"
                 unset installed_plugins[$i]

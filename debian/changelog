@@ -7,8 +7,19 @@ vdr (1.3.23-1) experimental; urgency=low
       + Removed 01_gcc3.4-FTBFS-fix.dpatch
       + Removed 09_amd64_epg.dpatch
     - Use LD_ASSUME_KERNEL=2.4.1 when calling vdr in plugins-loader.sh
+  * Tobias Grimm <tg@e-tobi.net>
+    - Don't restrict root capabilities with --allow-root anymore
+    - Passing $OPTIONS to binary compatibility test in plugin loader now
 
  -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sat, 09 Apr 2005 20:43:31 +0200
+
+vdr (1.2.6-12) unstable; urgency=low
+
+  * Tobias Grimm <tg@e-tobi.net>
+    - Don't restrict root capabilities with --allow-root anymore
+    - Passing $OPTIONS to binary compatibility test in plugin loader now
+
+ -- Tobias Grimm <tg@e-tobi.net>  Sun, 10 Apr 2005 17:00:24 +0200
 
 vdr (1.2.6-11) unstable; urgency=low
 
