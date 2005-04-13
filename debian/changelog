@@ -22,7 +22,7 @@ vdr (1.2.6-12) unstable; urgency=low
     - Add "Provides: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu" to package 
       vdr to ensure smooth upgrades
 
- -- Tobias Grimm <tg@e-tobi.net>  Sun, 10 Apr 2005 17:00:24 +0200
+ -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sun, 10 Apr 2005 17:00:24 +0200
 
 vdr (1.2.6-11) unstable; urgency=low
 
