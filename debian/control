@@ -10,6 +10,7 @@ Package: vdr
 Architecture: any
 Depends: ${misc:Depends}, makedev (>=2.3.1-66), adduser
 Recommends: lirc
+Provides: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu
 Conflicts: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu
 Replaces: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu
 Description: Video Disk Recorder for DVB cards

@@ -18,6 +18,9 @@ vdr (1.2.6-12) unstable; urgency=low
   * Tobias Grimm <tg@e-tobi.net>
     - Don't restrict root capabilities with --allow-root anymore
     - Passing $OPTIONS to binary compatibility test in plugin loader now
+  * Thomas Schmidt <tschmidt@debian.org>
+    - Add "Provides: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu" to package 
+      vdr to ensure smooth upgrades
 
  -- Tobias Grimm <tg@e-tobi.net>  Sun, 10 Apr 2005 17:00:24 +0200
 
