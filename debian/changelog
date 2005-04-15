@@ -7,6 +7,15 @@ vdr (1.3.23-1) experimental; urgency=low
       + Removed 01_gcc3.4-FTBFS-fix.dpatch
       + Removed 09_amd64_epg.dpatch
     - Use LD_ASSUME_KERNEL=2.4.1 when calling vdr in plugins-loader.sh
+    - Changes suggested by Thomas Günther <tom@toms-cafe.de>
+      + debian/watch: Updated to show the newest developer versions
+      + Install PLUGINS.html in vdr-dev only
+      + Install libsi header files in package vdr-dev
+      + Added XB-VDR-Patchlevel-field in debian/control to vdr-dev too
+      + Changed a few typos in README.Debian
+      + Added commands.update-recordings.conf from vdrdevel to have a 
+        command for updating the recordings list manually
+      + Added "Blue LCARS" and "Cool" themes from vdrdevel
   * Tobias Grimm <tg@e-tobi.net>
     - Don't restrict root capabilities with --allow-root anymore
     - Passing $OPTIONS to binary compatibility test in plugin loader now

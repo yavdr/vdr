@@ -38,6 +38,7 @@ Description: Video Disk Recorder for DVB cards
  .
  This package contains the header files of VDR.
  You need this package to be able to build vdr-plugins!
+XB-VDR-Patchlevel: ${patchlevel}
 
 Package: vdr-plugin-sky
 Architecture: any 

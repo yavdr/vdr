@@ -21,6 +21,15 @@ Patch Authors:
   jumpplay  -  Torsten Kunkel <vdr@tkunkel.de> (initial version)
                Thomas Günther <tom@toms-cafe.de> (actual version)
 
+Theme Authors:
+  Blue LCARS - (debian/themes/sttng-blue.theme) from Sascha Volkenandt
+               <sascha@akv-soft.de> was downloaded from 
+	       http://www.magoa.net/sttng-blue.theme
+
+  Cool       - (debian/themes/sttng-cool.theme) from 
+               clocker@vdrportal.de, downloaded from 
+	       http://vdrportal.de/board/thread.php?postid=260715#post260715
+
 
 Copyright:
 

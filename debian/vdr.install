@@ -13,8 +13,9 @@ debian/order.conf etc/vdr/plugins/
 debian/order.commands.conf etc/vdr/command-hooks/
 debian/order.reccmds.conf  etc/vdr/command-hooks/
 
-debian/commands.custom.conf etc/vdr/command-hooks/
-debian/reccmds.custom.conf  etc/vdr/command-hooks/
+debian/commands.custom.conf 		etc/vdr/command-hooks/
+debian/commands.update-recordings.conf 	etc/vdr/command-hooks/
+debian/reccmds.custom.conf  		etc/vdr/command-hooks/
 
 debian/config-loader.sh   usr/lib/vdr
 debian/plugin-loader.sh   usr/lib/vdr
@@ -28,6 +29,8 @@ svdrphosts.conf etc/vdr/
 
 debian/vdr-recordingaction usr/lib/vdr/
 debian/R90.custom          etc/vdr/recording-hooks/
+
+debian/themes/*.theme       var/lib/vdr/themes/
 
 debian/vdr-shutdown         usr/lib/vdr/
 debian/vdr-shutdown-message usr/lib/vdr/

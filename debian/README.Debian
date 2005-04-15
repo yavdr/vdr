@@ -29,7 +29,7 @@ When starting vdr with "/etc/init.d/vdr start", for each plugin found in
 /usr/lib/vdr/plugins the appropriate command line argument -P<plugin_name>
 will be created automatically. 
 
-If a file /var/lib/vdr/plugins/plugin.<plugin_name>.conf exists, it will be
+If a file /etc/vdr/plugins/plugin.<plugin_name>.conf exists, it will be
 parsed for command line arguments for the specified plugin. This file may
 contain comments preceeded by a "#" and the command line arguments may also be
 distributed across several lines.
@@ -52,7 +52,7 @@ command files passed to vdr in /etc/init.d/vdr are generated out of the files
 commands.<descriptor>.conf and reccmds.<descriptor>.conf found in
 /usr/share/vdr/command-hooks/. <descriptor> normally should be the name of
 the package, that wants to add these commands to VDR. The order of the 
-commands can be definded in the files order.commands.conf and order.reccmds.conf
+commands can be defined in the files order.commands.conf and order.reccmds.conf
 in /etc/vdr/command-hooks/.
 
 If the author of a package wants the user to be able to customize the commands
@@ -60,7 +60,7 @@ added to vdr, the command file should be installed to /etc/vdr/command-hooks/
 and only symlinked to /usr/share/vdr/command-hooks/.
 
 For a description of the command file syntax, refer to commands.conf and
-reccmds.conf in the vdr documention.
+reccmds.conf in the vdr documentation.
 
 Commands added by the user, should go to commands.custom.conf and
 reccmds.custom.conf in /etc/vdr/command-hooks/. These files contain also some
@@ -111,7 +111,7 @@ Shutdown-Hooks
 
 If you press the power key on your remote control, VDR executes a script 
 provided by the command line option -s. By default, this script will
-execute all files in /usr/share/vdr/command-hooks in their alphabetical order. 
+execute all files in /usr/share/vdr/shutdown-hooks/ in their alphabetical order. 
 If a file in there is not executable, it is treated as a shell script. These
 so called "Shutdown Hooks" should follow this naming scheme:
 
@@ -124,7 +124,7 @@ All shutdown hooks will be passed the same parameters as the main shutdown
 script. I.e. the first parameter is the start time of the next timer. Please
 refer to the vdr documentation for the other parameters.
 
-After all shutdown hooks have been process, VDR will be terminated and the
+After all shutdown hooks have been processed, VDR will be terminated and the
 machine will be shut down.
 
 A shutdown hook may abort the shutdown process by exiting with an errorlevel
@@ -134,7 +134,7 @@ like this:
 
 ABORT_MESSAGE=<message to display>
 
-If the shutdown should only be deferred (i.e. because some background process,
+If the shutdown should only be deferred (e.g. because some background process,
 is still active), the shutdown hook may write to stdout:
 
 TRY_AGAIN=<minutes to wait before next shutdown request>
@@ -147,6 +147,7 @@ shutdown the machine after all shutdown hooks have been processed, a shutdown
 hook may write to stdout:
 
 SHUTDOWNCMD=<new shutdown command>
+
 
 Optional Patches
 ----------------
@@ -169,11 +170,11 @@ be enabled or disabled without the need to recompile the plugins.
 If you decide to compile your own patched vdr packages, you should set
 PLUGIN_CHECK_PATCHLEVEL="yes" in /etc/default/vdr. With this enabled, vdr
 will only load plugins, that have been compiled with the correct vdr patch. This
-checking is done by using a custom control field called "vdr-patchlevel". When
+checking is done by using a custom control field called "VDR-Patchlevel". When
 compiling vdr with some optional patches enabled, these patches will be listed
 in this control field and added to vdr-dev as /usr/include/vdr/patchlevel.
-When compiling a plugin, this patchlevel file is added as the "vdr-patchlevel"
-control field to the plugins binary package. By comparing the "vdr-patchlevel"
+When compiling a plugin, this patchlevel file is added as the "VDR-Patchlevel"
+control field to the plugins binary package. By comparing the "VDR-Patchlevel"
 field of vdr and the plugin packages, the vdr package can decide whether to
 load a plugin or not.
 
