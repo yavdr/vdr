@@ -16,6 +16,8 @@ vdr (1.3.23-1) experimental; urgency=low
       + Added commands.update-recordings.conf from vdrdevel to have a 
         command for updating the recordings list manually
       + Added "Blue LCARS" and "Cool" themes from vdrdevel
+      + Added update-resume patch from vdrdevel (updates the resume
+        status of recordings after replaying them)
   * Tobias Grimm <tg@e-tobi.net>
     - Don't restrict root capabilities with --allow-root anymore
     - Passing $OPTIONS to binary compatibility test in plugin loader now
