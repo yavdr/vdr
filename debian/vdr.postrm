@@ -20,13 +20,13 @@ set -e
 
 case "$1" in
     purge)
-    	rm -f /var/cache/vdr/commands.conf > /dev/null 2>&1 || true
-    	rm -f /var/cache/vdr/reccmds.conf > /dev/null 2>&1 || true
-	rm -f /var/cache/vdr/epg.data > /dev/null 2>&1 || true
-	rm -f /var/lib/vdr/channels.conf > /dev/null 2>&1 || true
-	rm -f /var/lib/vdr/remote.conf > /dev/null 2>&1 || true
-	rm -f /var/lib/vdr/setup.conf > /dev/null 2>&1 || true
-	rm -f /var/lib/vdr/timers.conf > /dev/null 2>&1 || true
+        rm -f /var/cache/vdr/commands.conf > /dev/null 2>&1 || true
+        rm -f /var/cache/vdr/reccmds.conf > /dev/null 2>&1 || true
+        rm -f /var/cache/vdr/epg.data > /dev/null 2>&1 || true
+        rm -f /var/lib/vdr/channels.conf > /dev/null 2>&1 || true
+        rm -f /var/lib/vdr/remote.conf > /dev/null 2>&1 || true
+        rm -f /var/lib/vdr/setup.conf > /dev/null 2>&1 || true
+        rm -f /var/lib/vdr/timers.conf > /dev/null 2>&1 || true
     ;;
     remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
     ;;

@@ -1,4 +1,4 @@
-vdr-kbd	                  usr/bin/
+vdr-kbd                   usr/bin/
 debian/scripts/vdr-daemon usr/bin/
 debian/scripts/vdr-lirc   usr/bin/
 debian/scripts/vdr-rcu    usr/bin/
@@ -13,15 +13,15 @@ debian/order.conf etc/vdr/plugins/
 debian/order.commands.conf etc/vdr/command-hooks/
 debian/order.reccmds.conf  etc/vdr/command-hooks/
 
-debian/commands.custom.conf 		etc/vdr/command-hooks/
-debian/commands.update-recordings.conf 	etc/vdr/command-hooks/
-debian/reccmds.custom.conf  		etc/vdr/command-hooks/
+debian/commands.custom.conf             etc/vdr/command-hooks/
+debian/commands.update-recordings.conf  etc/vdr/command-hooks/
+debian/reccmds.custom.conf              etc/vdr/command-hooks/
 
 debian/config-loader.sh   usr/lib/vdr
 debian/plugin-loader.sh   usr/lib/vdr
 debian/commands-loader.sh usr/lib/vdr
 
-ca.conf		etc/vdr/
+ca.conf         etc/vdr/
 diseqc.conf     etc/vdr/
 keymacros.conf  etc/vdr/
 sources.conf    etc/vdr/
