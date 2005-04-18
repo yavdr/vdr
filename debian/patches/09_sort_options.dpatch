@@ -1,0 +1,103 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 11_sort_options.dpatch by Darren Salt and Luca Olivetti <luca@ventoso.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: [LO] Add sort-by-source options.
+## DP: [DS] Add sort-by-provider-then-channel-number options.
+
+@DPATCH@
+diff -urNad vdr-1.3.17/menu.c /tmp/dpep.AB4AkR/vdr-1.3.17/menu.c
+--- vdr-1.3.17/menu.c	2004-12-04 20:12:35.000000000 +0000
++++ /tmp/dpep.AB4AkR/vdr-1.3.17/menu.c	2004-12-04 20:22:04.000000000 +0000
+@@ -328,14 +328,18 @@
+ 
+ class cMenuChannelItem : public cOsdItem {
+ public:
+-  enum eChannelSortMode { csmNumber, csmName, csmProvider };
++  enum eChannelSortMode {
++    csmNumber, csmName, csmProvider, csmProviderNumber,
++    csmSourceNumber, csmSourceName, csmSourceProvider, csmSourceProviderNumber,
++    csmLAST
++  };
+ private:
+   static eChannelSortMode sortMode;
+   cChannel *channel;
+ public:
+   cMenuChannelItem(cChannel *Channel);
+   static void SetSortMode(eChannelSortMode SortMode) { sortMode = SortMode; }
+-  static void IncSortMode(void) { sortMode = eChannelSortMode((sortMode == csmProvider) ? csmNumber : sortMode + 1); }
++  static void IncSortMode(void) { sortMode = eChannelSortMode(sortMode + 1); if (sortMode == csmLAST) sortMode = csmNumber; }
+   virtual int Compare(const cListObject &ListObject) const;
+   virtual void Set(void);
+   cChannel *Channel(void) { return channel; }
+@@ -352,13 +356,46 @@
+   Set();
+ }
+ 
++static int snum(int source)
++{
++  int stype = (source & cSource::st_Mask);
++  // arbitrary order: sat, cable, terrestrial, none
++  int r;
++  switch(stype) {
++    case cSource::stCable:
++      r=0x7FF0;
++      break;
++    case cSource::stTerr:
++      r=0x7FF2;
++      break;
++    case cSource::stSat: 
++      r=source & cSource::st_Pos;
++      if (source & cSource::st_Neg) r*=-1;
++      break;
++    default:  //stNone or unknown
++      r=0x7FFF;
++  }
++  return r;
++}
++
+ int cMenuChannelItem::Compare(const cListObject &ListObject) const
+ {
+   cMenuChannelItem *p = (cMenuChannelItem *)&ListObject;
+   int r = -1;
+-  if (sortMode == csmProvider)
++  if (sortMode >= csmSourceNumber) {
++     int rsource = snum(channel->Source()) - snum(p->channel->Source());
++     if (sortMode == csmSourceProvider && rsource  == 0)
++        r = strcoll(channel->Provider(), p->channel->Provider());
++     if ((sortMode == csmSourceName ||
++          (r == 0 && sortMode != csmSourceProviderNumber)) && rsource == 0)
++        r = strcoll(channel->Name(), p->channel->Name());
++     if ((sortMode == csmSourceNumber || r == 0) && rsource == 0)
++        r = channel->Number() - p->channel->Number();
++     return ((rsource == 0) ? r : rsource);
++  }
++  if (sortMode == csmProvider || sortMode == csmProviderNumber)
+      r = strcoll(channel->Provider(), p->channel->Provider());
+-  if (sortMode == csmName || r == 0)
++  if (sortMode == csmName || (r == 0 && sortMode != csmProviderNumber))
+      r = strcoll(channel->Name(), p->channel->Name());
+   if (sortMode == csmNumber || r == 0)
+      r = channel->Number() - p->channel->Number();
+@@ -369,10 +406,17 @@
+ {
+   char *buffer = NULL;
+   if (!channel->GroupSep()) {
+-     if (sortMode == csmProvider)
+-        asprintf(&buffer, "%d\t%s - %s", channel->Number(), channel->Provider(), channel->Name());
+-     else
+-        asprintf(&buffer, "%d\t%s", channel->Number(), channel->Name());
++     if (sortMode >= csmSourceNumber) {
++        if (sortMode == csmSourceProvider || sortMode == csmSourceProviderNumber)
++           asprintf(&buffer, "%d\t%s - %s - %s", channel->Number(), *cSource::ToString(channel->Source()), channel->Provider(), channel->Name());
++        else
++           asprintf(&buffer, "%d\t%s - %s", channel->Number(), *cSource::ToString(channel->Source()), channel->Name());
++       } else {
++        if (sortMode == csmProvider || sortMode == csmProviderNumber)
++           asprintf(&buffer, "%d\t%s - %s", channel->Number(), channel->Provider(), channel->Name());
++        else
++           asprintf(&buffer, "%d\t%s", channel->Number(), channel->Name());
++       }   
+      }
+   else
+      asprintf(&buffer, "---\t%s ----------------------------------------------------------------", channel->Name());

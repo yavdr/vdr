@@ -1,0 +1,169 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 06_nissl_dvbplayer.dpatch by Reinhard Nissl <rnissl@gmx.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: send proper I-frames to the device
+
+@DPATCH@
+--- ./dvbplayer.c
++++ ./dvbplayer.c
+@@ -358,6 +358,94 @@ void cDvbPlayer::Activate(bool On)
+      }
+ }
+ 
++static uchar *findStartCode(uchar *Data, int Length)
++{
++  uchar *limit = Data + Length;
++  Data += 6 + 3 + Data[6 + 2] + 3; // move to video payload and skip 00 00 01
++  while (Data < limit) {
++        // possible start codes that appear before/after picture data
++        // 00 00 01 B3: sequence header code
++        // 00 00 01 B8: group start code
++        // 00 00 01 00: picture start code
++        // 00 00 01 B7: sequence end code
++        if (0x01 == Data[-1] && (0xB3 == Data[0] || 0xB8 == Data[0] || 0x00 == Data[0] || 0xB7 == Data[0]) && 0x00 == Data[-2] && 0x00 == Data[-3])
++            return Data - 3;
++        Data++;
++        }
++
++  return 0;
++}
++
++static void fixIFrameHead(uchar *Data, int Length)
++{
++  uchar *p = findStartCode(Data, Length);
++  if (!p) {
++     esyslog("fixIframeHead: start code not found!\n");
++     return;
++     }
++
++  Data += 6 + 3 + Data[6 + 2]; // move to video payload
++  if (Data < p)
++     memset(Data, 0, p - Data); // zero preceeding bytes
++}
++
++static int fixIFrameTail(uchar *Data, int Length, bool StillImage)
++{
++  uchar *p = findStartCode(Data, Length);
++  if (!p) {
++     esyslog("fixIframeTail: start code not found!\n");
++     return Length;
++     }
++
++  if (StillImage) {
++     // need to append sequence end code
++     p[3] = 0xB7;
++     p += 4;
++     }
++
++  // is this PES packet required?
++  uchar *videoPayload = Data + 6 + 3 + Data[6 + 2];
++  if (videoPayload >= p)
++     return 0; // no
++  
++  // adjust PES payload size
++  int payloadSize = (p - Data) - 6;
++  Data[4] = payloadSize >> 8;
++  Data[5] = payloadSize & 0xFF;
++
++  return payloadSize + 6;
++}
++
++#define IPACKS 2048 // originally defined in remux.c
++
++static void fixIFrame(uchar *Data, int &Length, bool StillImage)
++{
++  int originalLength = Length - IPACKS; // by design
++  int done = 0;
++
++  while (done < Length) {
++        if (0x00 != Data[0] || 0x00 != Data[1] || 0x01 != Data[2]) {
++           esyslog("fixIFrame: PES start code not found at offset %d (data length: %d)!", done, Length);
++           return;
++           }
++
++        int lenPES = 6 + Data[4] * 256 + Data[5];
++        if (0xE0 == (0xF0 & Data[ 3 ])) { // video packet
++           int todo = Length - done;
++           int bite = (lenPES < todo) ? lenPES : todo;
++           if (0 == done) // first packet
++              fixIFrameHead(Data, bite);
++           else if (done >= originalLength) { // last packet
++              Length = done + fixIFrameTail(Data, bite, StillImage);
++              return;
++              }
++           }
++        
++        done += lenPES;
++        Data += lenPES;
++        }
++}
++
+ void cDvbPlayer::Action(void)
+ {
+   uchar *b = NULL;
+@@ -380,14 +468,15 @@ void cDvbPlayer::Action(void)
+ 
+            // Read the next frame from the file:
+ 
+-           if (!readFrame && (replayFile >= 0 || readIndex >= 0)) {
+-              if (playMode != pmStill) {
++           if (playMode != pmStill && playMode != pmPause) {
++              if (!readFrame && (replayFile >= 0 || readIndex >= 0)) {
+                  if (!nonBlockingFileReader->Reading()) {
+                     if (playMode == pmFast || (playMode == pmSlow && playDir == pdBackward)) {
+                        uchar FileNumber;
+                        int FileOffset;
+                        int Index = index->GetNextIFrame(readIndex, playDir == pdForward, &FileNumber, &FileOffset, &Length, true);
+                        if (Index >= 0) {
++                          Length += IPACKS; // fixIFrame needs next video packet
+                           if (!NextFile(FileNumber, FileOffset))
+                              continue;
+                           }
+@@ -428,6 +523,8 @@ void cDvbPlayer::Action(void)
+                     }
+                  int r = nonBlockingFileReader->Read(replayFile, b, Length);
+                  if (r > 0) {
++                    if (playMode == pmFast || (playMode == pmSlow && playDir == pdBackward))
++                       fixIFrame(b, r, false);
+                     readFrame = new cFrame(b, -r, ftUnknown, readIndex); // hands over b to the ringBuffer
+                     b = NULL;
+                     }
+@@ -438,16 +535,16 @@ void cDvbPlayer::Action(void)
+                     break;
+                     }
+                  }
+-              else
+-                 cCondWait::SleepMs(3); // this keeps the CPU load low
+-              }
+ 
+-           // Store the frame in the buffer:
++              // Store the frame in the buffer:
+ 
+-           if (readFrame) {
+-              if (ringBuffer->Put(readFrame))
+-                 readFrame = NULL;
++              if (readFrame) {
++                 if (ringBuffer->Put(readFrame))
++                    readFrame = NULL;
++                 }
+               }
++           else
++              cCondWait::SleepMs(3); // this keeps the CPU load low
+ 
+            // Get the next frame from the buffer:
+ 
+@@ -659,11 +756,13 @@ void cDvbPlayer::Goto(int Index, bool St
+      int FileOffset, Length;
+      Index = index->GetNextIFrame(Index, false, &FileNumber, &FileOffset, &Length);
+      if (Index >= 0 && NextFile(FileNumber, FileOffset) && Still) {
++        Length += IPACKS; // fixIFrame needs next video packet
+         uchar b[MAXFRAMESIZE];
+         int r = ReadFrame(replayFile, b, Length, sizeof(b));
+         if (r > 0) {
+            if (playMode == pmPause)
+               DevicePlay();
++           fixIFrame(b, r, true);
+            DeviceStillPicture(b, r);
+            }
+         playMode = pmStill;

@@ -1,0 +1,61 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 06_nissl_dvbspu.dpatch by Reinhard Nissl <rnissl@gmx.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: SPU fixes (vdr-dvd)
+
+@DPATCH@
+diff -urNad vdr-1.3.22/dvbspu.c /tmp/dpep.rB9LVD/vdr-1.3.22/dvbspu.c
+--- vdr-1.3.22/dvbspu.c	2005-02-28 15:56:44.000000000 +0000
++++ /tmp/dpep.rB9LVD/vdr-1.3.22/dvbspu.c	2005-02-28 15:56:45.000000000 +0000
+@@ -153,7 +153,7 @@
+     setMin(minsize[colorid].x1, xp);
+     setMin(minsize[colorid].y1, yp);
+     setMax(minsize[colorid].x2, xp + len - 1);
+-    setMax(minsize[colorid].y2, yp + len - 1);
++    setMax(minsize[colorid].y2, yp);
+ }
+ 
+ static uint8_t getBits(uint8_t * &data, uint8_t & bitf)
+@@ -352,6 +352,20 @@
+     return size;
+ }
+ 
++static bool OsdMatchesArea(cOsd *osd, tArea &area)
++{
++    cBitmap *bmp = osd->GetBitmap(0);
++    if (!bmp)
++       return false;
++    if (bmp->Bpp() < area.bpp)
++       return false;
++    if (bmp->X0() > area.x1 || bmp->Y0() > area.y1)
++       return false;
++    if ((bmp->X0() + bmp->Width()) <= area.x2 || (bmp->Y0() + bmp->Height()) <= area.y2)
++       return false;
++    return true;
++}
++
+ void cDvbSpuDecoder::Draw(void)
+ {
+     if (!spubmp) {
+@@ -389,12 +403,16 @@
+        }
+ 
+     if (bg || fg) {
++        int x2 = areaSize.x2;
++        while ((x2 - areaSize.x1 + 1) & 0x03)
++              x2++;
++        tArea Area = { areaSize.x1, areaSize.y1, x2, areaSize.y2, (fg && bg) ? 4 : 2 };
++        if (osd && !OsdMatchesArea(osd, Area)) {
++           delete osd;
++           osd = NULL;
++           }
+         if (osd == NULL) {
+            osd = cOsdProvider::NewOsd(0, 0);
+-           int x2 = areaSize.x2;
+-           while ((x2 - areaSize.x1 + 1) & 0x03)
+-                 x2++;
+-           tArea Area = { areaSize.x1, areaSize.y1, x2, areaSize.y2, (fg && bg) ? 4 : 2 };
+            osd->SetAreas(&Area, 1);
+            }
+ 

@@ -6,15 +6,22 @@
 06_default_svdrp_port_0
 07_not_as_root
 08_security_CAN-2005-0071
+09_sort_options
+10_livelock
+11_memleak
+12_nptl
 13_remote
 14_update-resume
+15_dvbplayer
+16_dvbspu
+17_replay
 
 # The Elchi AIO 4d patch for a nicer OSD, inlcuding the frames and black
 # square fix.
 # opt-20_elchiaio4d+1
 
-# Patch needed for ttxtsubs (does not work with AC3-patch)
-# opt-21_ttxtsubs
+# Patch needed for DVB subtitles or ttxtsubs (does not work with AC3-patch)
+# opt-21_subtitles_and_ttxtsubs
 
 # This patch fixes a problem with 256 color, by changing char to unsigned
 # char.
