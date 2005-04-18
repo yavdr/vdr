@@ -5,7 +5,11 @@
 . /usr/lib/vdr/config-loader.sh
 
 OPTIONS="$*"
-VDRCMD="LD_ASSUME_KERNEL=2.4 /usr/bin/vdr $OPTIONS"
+if [ "$NONPTL" = "1" -a `uname -m` != x86_64 ]; then
+  VDRCMD="LD_ASSUME_KERNEL=2.4 /usr/bin/vdr $OPTIONS"
+else
+  VDRCMD="/usr/bin/vdr $OPTIONS"
+fi
 
 function get_modulenames ()
 {
