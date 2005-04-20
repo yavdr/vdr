@@ -31,6 +31,9 @@ vdr (1.3.23-1) experimental; urgency=low
       + 16_dvbspu: fix some SPU bugs [Reinhard Nissl]
       + 17_replay: improve end-of-recording handling [Reinhard Nissl]
     - Replaced the ttxtsubs patch with a combined subtitles+ttxtsubs patch.
+    - Make the usage of NTPL configurable in /etc/default/vdr
+    - Disable the usage of NTPL on amd64 in runvdr (this allways overrides 
+      the setting in /etc/default/vdr) (closes: #305098)
 
  -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Mon, 18 Apr 2005 23:26:21 +0100
 
