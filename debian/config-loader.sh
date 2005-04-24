@@ -50,4 +50,9 @@ ENABLED=0
 # Enable / Disable automatic shutdown
 ENABLE_SHUTDOWN=0
 
+# Change this to 0 if you want to allow VDR to use NPTL (if available).
+# This is disabled by default, although it should be safe to enable it.
+# (This has no effect on AMD64 machines.)
+NONPTL=1
+
 test -f /etc/default/vdr && . /etc/default/vdr
