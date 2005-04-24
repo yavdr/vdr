@@ -1,0 +1,523 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+
+## jumpplay patch - version 0.6 for vdr-1.3.18 - see README.jumpplay for details
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Play after jump to next mark. Automatically jump over commercial breaks.
+
+@DPATCH@
+diff -Naur vdr-1.3.18/README.jumpplay vdr-1.3.18-jumpplay-0.6/README.jumpplay
+--- vdr-1.3.18/README.jumpplay	1970-01-01 01:00:00.000000000 +0100
++++ vdr-1.3.18-jumpplay-0.6/README.jumpplay	2005-01-09 19:47:13.000000000 +0100
+@@ -0,0 +1,89 @@
++JumpPlay patch for VDR
++----------------------
++
++This patch changes the replay behaviour for recordings that contain editing
++marks. It allows to immediately continue the replay after jumping forward to
++the next mark, and to automatically jump over the commercial break to the next
++"start" mark, if an "end" mark is reached.
++
++The features of this patch can be turned on or off with the following entries
++in the replay setup.
++
++
++* Parameters in the "Setup" menu "Replay"
++
++  Jump&Play = yes|no     Turns playing on or off after jumping forward to the
++                         next editing mark with the '9' key.
++
++  Play&Jump = yes|no     Turns automatic jumping over commercial breaks on or
++                         off. This includes jumping to the first mark, if the
++                         replay starts at the beginning of a recording - and
++                         stopping the replay at the last mark.
++                         With this setting enabled, the behaviour of the '8'
++                         key during replay is changed too. It moves the actual
++                         replay position not only three seconds before the
++                         next "start" mark, but also before the next "end"
++                         mark. This can be used to test, if the editing marks
++                         are correctly positioned for a "smooth" jump over a
++                         commercial break.
++
++  Load marks interval (s) = 0
++                         Set the load marks interval in seconds. This can be
++                         used if an external programme adjusts the cutting
++                         marks, e.g. noad in online mode.
++                         A value of '0' disables the cyclic reloading of
++                         cutting marks.
++
++
++* History
++
++  2003-07-04: jumpandrun.diff - the Noad <theNoad@SoftHome.net>
++    Jump&Play
++
++  2003-12-06: Version 0.0 - Torsten Kunkel <vdr@tkunkel.de>
++    Play&Jump (only if progressbar is visible)
++    Setup parameters Jump&Play and Play&Jump in the replay setup
++
++  2004-01-20: Version 0.1 - Thomas Günther <tom@toms-cafe.de>
++    Jump&Play:
++      - fixed speed after jump
++      - fixed removing of marks
++    Play&Jump:
++      - jump only on "end" marks
++
++  2004-01-27: Version 0.2 - Thomas Günther <tom@toms-cafe.de>
++    Jump&Play:
++      - fixed double jump
++    Play&Jump:
++      - fixed mark detection: fuzzy detection (until 3 seconds after mark)
++      - jump without progressbar
++      - mode "progressbar only" for old behaviour
++
++  2004-01-31: Version 0.3 - Thomas Günther <tom@toms-cafe.de>
++    Jump&Play:
++      - fixed display frames
++    Play&Jump:
++      - fixed end of playing at last mark
++
++  2004-07-11: Version 0.4 - Thomas Günther <tom@toms-cafe.de>
++    Jump&Play:
++      - don't play after jump to end
++    Play&Jump:
++      - don't prevent jumping after hide or show
++    Less conflicts with other patches (Elchi/AutoPID)
++
++  2004-08-21: Version 0.5 - Thomas Günther <tom@toms-cafe.de>
++    Play&Jump:
++      - exact jumps, replay like edited recording (no fuzzy mark detection)
++      - jump to first mark if replay starts at the beginning
++      - check jump marks with '8' key
++      - mode "progressbar only" removed
++    Description in README.jumpplay
++
++  2004-12-28: Version 0.6 - Thomas Günther <tom@toms-cafe.de>
++    Adapted noad extensions (from the Noad <theNoad@SoftHome.net>) to
++    jumpplay-0.5:
++      - cyclic reloading of marks found by noad online-scan
++      - don't stop after the last mark in case of live-recordings
++    New setup parameter "Load marks interval (s)"
++    Updated description in README.jumpplay
+diff -Naur vdr-1.3.18/config.c vdr-1.3.18-jumpplay-0.6/config.c
+--- vdr-1.3.18/config.c	2005-01-09 13:14:58.000000000 +0100
++++ vdr-1.3.18-jumpplay-0.6/config.c	2005-01-09 19:47:13.000000000 +0100
+@@ -296,6 +296,9 @@
+   MultiSpeedMode = 0;
+   ShowReplayMode = 0;
+   ResumeID = 0;
++  JumpPlay = 0;
++  PlayJump = 0;
++  LoadMarksInterval = 0;
+   CurrentChannel = -1;
+   CurrentVolume = MAXVOLUME;
+   CurrentDolby = 0;
+@@ -451,6 +454,9 @@
+   else if (!strcasecmp(Name, "MultiSpeedMode"))      MultiSpeedMode     = atoi(Value);
+   else if (!strcasecmp(Name, "ShowReplayMode"))      ShowReplayMode     = atoi(Value);
+   else if (!strcasecmp(Name, "ResumeID"))            ResumeID           = atoi(Value);
++  else if (!strcasecmp(Name, "JumpPlay"))            JumpPlay           = atoi(Value);
++  else if (!strcasecmp(Name, "PlayJump"))            PlayJump           = atoi(Value);
++  else if (!strcasecmp(Name, "LoadMarksInterval"))   LoadMarksInterval  = atoi(Value);
+   else if (!strcasecmp(Name, "CurrentChannel"))      CurrentChannel     = atoi(Value);
+   else if (!strcasecmp(Name, "CurrentVolume"))       CurrentVolume      = atoi(Value);
+   else if (!strcasecmp(Name, "CurrentDolby"))        CurrentDolby       = atoi(Value);
+@@ -513,6 +519,9 @@
+   Store("MultiSpeedMode",     MultiSpeedMode);
+   Store("ShowReplayMode",     ShowReplayMode);
+   Store("ResumeID",           ResumeID);
++  Store("JumpPlay",           JumpPlay);
++  Store("PlayJump",           PlayJump);
++  Store("LoadMarksInterval",  LoadMarksInterval);
+   Store("CurrentChannel",     CurrentChannel);
+   Store("CurrentVolume",      CurrentVolume);
+   Store("CurrentDolby",       CurrentDolby);
+diff -Naur vdr-1.3.18/config.h vdr-1.3.18-jumpplay-0.6/config.h
+--- vdr-1.3.18/config.h	2005-01-09 13:14:33.000000000 +0100
++++ vdr-1.3.18-jumpplay-0.6/config.h	2005-01-09 19:47:13.000000000 +0100
+@@ -90,7 +90,7 @@
+   cConfig(void) { fileName = NULL; }
+   virtual ~cConfig() { free(fileName); }
+   const char *FileName(void) { return fileName; }
+-  bool Load(const char *FileName = NULL, bool AllowComments = false, bool MustExist = false)
++  bool Load(const char *FileName = NULL, bool AllowComments = false, bool MustExist = false, bool SupressMessage = false)
+   {
+     Clear();
+     if (FileName) {
+@@ -100,7 +100,8 @@
+        }
+     bool result = !MustExist;
+     if (fileName && access(fileName, F_OK) == 0) {
+-       isyslog("loading %s", fileName);
++       if (!SupressMessage)
++         isyslog("loading %s", fileName);
+        FILE *f = fopen(fileName, "r");
+        if (f) {
+           int line = 0;
+@@ -250,6 +251,9 @@
+   int MultiSpeedMode;
+   int ShowReplayMode;
+   int ResumeID;
++  int JumpPlay;
++  int PlayJump;
++  int LoadMarksInterval;
+   int CurrentChannel;
+   int CurrentVolume;
+   int CurrentDolby;
+diff -Naur vdr-1.3.18/dvbplayer.c vdr-1.3.18-jumpplay-0.6/dvbplayer.c
+--- vdr-1.3.18/dvbplayer.c	2004-12-26 12:45:34.000000000 +0100
++++ vdr-1.3.18-jumpplay-0.6/dvbplayer.c	2005-01-09 20:02:03.000000000 +0100
+@@ -183,6 +183,7 @@
+   cNonBlockingFileReader *nonBlockingFileReader;
+   cRingBufferFrame *ringBuffer;
+   cBackTrace *backTrace;
++  cMarks *marks;
+   cFileName *fileName;
+   cIndexFile *index;
+   int replayFile;
+@@ -205,7 +206,7 @@
+   virtual void Activate(bool On);
+   virtual void Action(void);
+ public:
+-  cDvbPlayer(const char *FileName);
++  cDvbPlayer(const char *FileName, cMarks *Marks = NULL);
+   virtual ~cDvbPlayer();
+   bool Active(void) { return active; }
+   void Pause(void);
+@@ -225,7 +226,7 @@
+ #define SPEED_MULT   12 // the speed multiplier
+ int cDvbPlayer::Speeds[] = { 0, -2, -4, -8, 1, 2, 4, 12, 0 };
+ 
+-cDvbPlayer::cDvbPlayer(const char *FileName)
++cDvbPlayer::cDvbPlayer(const char *FileName, cMarks *Marks)
+ :cThread("dvbplayer")
+ {
+   nonBlockingFileReader = NULL;
+@@ -257,6 +258,7 @@
+      index = NULL;
+      }
+   backTrace = new cBackTrace;
++  marks = Marks;
+ }
+ 
+ cDvbPlayer::~cDvbPlayer()
+@@ -363,11 +365,25 @@
+   uchar *b = NULL;
+   uchar *p = NULL;
+   int pc = 0;
++  bool cutIn = false;
++  int total = -1;
+ 
+   readIndex = Resume();
+   if (readIndex >= 0)
+      isyslog("resuming replay at index %d (%s)", readIndex, *IndexToHMSF(readIndex, true));
+ 
++  if (Setup.PlayJump && readIndex <= 0 && marks->First() && index) {
++     int Index = marks->First()->position;
++     uchar FileNumber;
++     int FileOffset;
++     if (index->Get(Index, &FileNumber, &FileOffset) &&
++         NextFile(FileNumber, FileOffset)) {
++        isyslog("PlayJump: start replay at first mark %d (%s)",
++                Index, *IndexToHMSF(Index, true));
++        readIndex = Index;
++        }
++     }
++
+   nonBlockingFileReader = new cNonBlockingFileReader;
+   int Length = 0;
+ 
+@@ -410,6 +426,36 @@
+                        uchar FileNumber;
+                        int FileOffset;
+                        readIndex++;
++                       if (Setup.PlayJump && marks) {
++                          // check for end mark - jump to next start mark
++                          cMark *m = marks->Get(readIndex);
++                          if (m && (m->Index() & 0x01) != 0) {
++                             m = marks->Next(m);
++                             int Index;
++                             if (m)
++                                Index = m->position;
++                             else if (total == index->Last())
++                                // on last mark jump to end of recording
++                                Index = index->Last() - 1;
++                             else
++                                // jump but stay off end of live-recordings
++                                Index = index->GetNextIFrame(index->Last() - 150, true);
++                             // don't jump in edited recordings
++                             if (Index > readIndex &&
++                                 Index > index->GetNextIFrame(readIndex, true)) {
++                                isyslog("PlayJump: %d frames to %d (%s)",
++                                        Index - readIndex, Index,
++                                        *IndexToHMSF(Index, true));
++                                readIndex = Index;
++                                cutIn = true;
++                                }
++                             }
++                          }
++                       // for detecting growing length of live-recordings
++                       uchar PictureType;
++                       if (index->Get(readIndex, &FileNumber, &FileOffset, &PictureType) &&
++                           PictureType == I_FRAME)
++                          total = index->Last();
+                        if (!(index->Get(readIndex, &FileNumber, &FileOffset, NULL, &Length) && NextFile(FileNumber, FileOffset))) {
+                           readIndex = -1;
+                           eof = true;
+@@ -445,6 +491,10 @@
+            // Store the frame in the buffer:
+ 
+            if (readFrame) {
++              if (cutIn) {
++                 cRemux::SetBrokenLink(readFrame->Data(), readFrame->Count());
++                 cutIn = false;
++                 }
+               if (ringBuffer->Put(readFrame))
+                  readFrame = NULL;
+               }
+@@ -710,6 +760,11 @@
+ {
+ }
+ 
++cDvbPlayerControl::cDvbPlayerControl(const char *FileName, cMarks *Marks)
++:cControl(player = new cDvbPlayer(FileName, Marks))
++{
++}
++
+ cDvbPlayerControl::~cDvbPlayerControl()
+ {
+   Stop();
+diff -Naur vdr-1.3.18/dvbplayer.h vdr-1.3.18-jumpplay-0.6/dvbplayer.h
+--- vdr-1.3.18/dvbplayer.h	2002-06-23 12:13:51.000000000 +0200
++++ vdr-1.3.18-jumpplay-0.6/dvbplayer.h	2005-01-09 19:47:13.000000000 +0100
+@@ -20,6 +20,7 @@
+   cDvbPlayer *player;
+ public:
+   cDvbPlayerControl(const char *FileName);
++  cDvbPlayerControl(const char *FileName, cMarks *Marks);
+        // Sets up a player for the given file.
+   virtual ~cDvbPlayerControl();
+   bool Active(void);
+diff -Naur vdr-1.3.18/i18n.c vdr-1.3.18-jumpplay-0.6/i18n.c
+--- vdr-1.3.18/i18n.c	2005-01-09 13:17:44.000000000 +0100
++++ vdr-1.3.18-jumpplay-0.6/i18n.c	2005-01-09 19:47:13.000000000 +0100
+@@ -3703,6 +3703,93 @@
+     "Jätkamise ID",
+     "Genoptagelses ID",
+   },
++  { "Setup.Replay$Jump&Play",
++    "Wiedergabe nach Sprung",
++    "", // Slovenski
++    "", // Italiano
++    "", // Nederlands
++    "", // Português
++    "", // Français
++    "", // Norsk
++    "", // Suomi
++    "", // Polski
++    "", // Español
++    "", // Greek
++    "", // Svenska
++    "", // Romaneste
++    "", // Magyar
++    "", // Català
++#if VDRVERSNUM > 10302
++    "", // Russian
++#if VDRVERSNUM > 10307
++    "", // Hrvatski
++#if VDRVERSNUM > 10313
++    "", // Eesti
++#if VDRVERSNUM > 10316
++    "", // Dansk
++#endif
++#endif
++#endif
++#endif
++  },
++  { "Setup.Replay$Play&Jump",
++    "Sprung bei Schnittmarke",
++    "", // Slovenski
++    "", // Italiano
++    "", // Nederlands
++    "", // Português
++    "", // Français
++    "", // Norsk
++    "", // Suomi
++    "", // Polski
++    "", // Español
++    "", // Greek
++    "", // Svenska
++    "", // Romaneste
++    "", // Magyar
++    "", // Català
++#if VDRVERSNUM > 10302
++    "", // Russian
++#if VDRVERSNUM > 10307
++    "", // Hrvatski
++#if VDRVERSNUM > 10313
++    "", // Eesti
++#if VDRVERSNUM > 10316
++    "", // Dansk
++#endif
++#endif
++#endif
++#endif
++  },
++  { "Setup.Replay$Load marks interval (s)",
++    "Intervall für Laden der Marken (s)",
++    "", // Slovenski
++    "", // Italiano
++    "", // Nederlands
++    "", // Português
++    "", // Français
++    "", // Norsk
++    "", // Suomi
++    "", // Polski
++    "", // Español
++    "", // Greek
++    "", // Svenska
++    "", // Romaneste
++    "", // Magyar
++    "", // Català
++#if VDRVERSNUM > 10302
++    "", // Russian
++#if VDRVERSNUM > 10307
++    "", // Hrvatski
++#if VDRVERSNUM > 10313
++    "", // Eesti
++#if VDRVERSNUM > 10316
++    "", // Dansk
++#endif
++#endif
++#endif
++#endif
++  },
+   { "Setup.Miscellaneous$Min. event timeout (min)",
+     "Mindest Event Pause (min)",
+     "Najmanjsi cas dogodka (min)",
+diff -Naur vdr-1.3.18/menu.c vdr-1.3.18-jumpplay-0.6/menu.c
+--- vdr-1.3.18/menu.c	2005-01-09 14:04:49.000000000 +0100
++++ vdr-1.3.18-jumpplay-0.6/menu.c	2005-01-09 19:47:13.000000000 +0100
+@@ -2171,6 +2171,9 @@
+   Add(new cMenuEditBoolItem(tr("Setup.Replay$Multi speed mode"), &data.MultiSpeedMode));
+   Add(new cMenuEditBoolItem(tr("Setup.Replay$Show replay mode"), &data.ShowReplayMode));
+   Add(new cMenuEditIntItem(tr("Setup.Replay$Resume ID"), &data.ResumeID, 0, 99));
++  Add(new cMenuEditBoolItem(tr("Setup.Replay$Jump&Play"), &data.JumpPlay));
++  Add(new cMenuEditBoolItem(tr("Setup.Replay$Play&Jump"), &data.PlayJump));
++  Add(new cMenuEditIntItem(tr("Setup.Replay$Load marks interval (s)"), &data.LoadMarksInterval));
+ }
+ 
+ // --- cMenuSetupMisc --------------------------------------------------------
+@@ -3264,7 +3267,7 @@
+ char *cReplayControl::title = NULL;
+ 
+ cReplayControl::cReplayControl(void)
+-:cDvbPlayerControl(fileName)
++:cDvbPlayerControl(fileName, &marks)
+ {
+   displayReplay = NULL;
+   visible = modeOnly = shown = displayFrames = false;
+@@ -3274,6 +3277,7 @@
+   timeoutShow = 0;
+   timeSearchActive = false;
+   marks.Load(fileName);
++  lastLoadMarks = time(NULL);
+   cRecording Recording(fileName);
+   cStatus::MsgReplaying(this, Recording.Name());
+ }
+@@ -3490,8 +3494,10 @@
+         ShowTimed(2);
+         bool Play, Forward;
+         int Speed;
+-        if (GetReplayMode(Play, Forward, Speed) && !Play)
++        if (GetReplayMode(Play, Forward, Speed) && !Play) {
+            Goto(Current, true);
++           displayFrames = true;
++           }
+         }
+      marks.Save();
+      }
+@@ -3503,10 +3509,20 @@
+      int Current, Total;
+      if (GetIndex(Current, Total)) {
+         cMark *m = Forward ? marks.GetNext(Current) : marks.GetPrev(Current);
+-        if (m)
+-           Goto(m->position, true);
++        if (m) {
++           bool Play2, Forward2;
++           int Speed;
++           if (Setup.JumpPlay && GetReplayMode(Play2, Forward2, Speed) &&
++               Play2 && Forward && m->position < Total - SecondsToFrames(3)) {
++              Goto(m->position);
++              Play();
++              }
++           else {
++              Goto(m->position, true);
++              displayFrames = true;
++              }
++           }
+         }
+-     displayFrames = true;
+      }
+ }
+ 
+@@ -3559,7 +3575,7 @@
+      if (!m)
+         m = marks.GetNext(Current);
+      if (m) {
+-        if ((m->Index() & 0x01) != 0)
++        if ((m->Index() & 0x01) != 0 && !Setup.PlayJump)
+            m = marks.Next(m);
+         if (m) {
+            Goto(m->position - SecondsToFrames(3));
+@@ -3573,6 +3589,11 @@
+ {
+   if (!Active())
+      return osEnd;
++  if (Setup.LoadMarksInterval &&
++      time(NULL) >= lastLoadMarks + Setup.LoadMarksInterval) {
++     marks.Load(fileName, true);
++     lastLoadMarks = time(NULL);
++     }
+   if (visible) {
+      if (timeoutShow && time(NULL) > timeoutShow) {
+         Hide();
+diff -Naur vdr-1.3.18/menu.h vdr-1.3.18-jumpplay-0.6/menu.h
+--- vdr-1.3.18/menu.h	2005-01-08 16:48:57.000000000 +0100
++++ vdr-1.3.18-jumpplay-0.6/menu.h	2005-01-09 19:47:13.000000000 +0100
+@@ -188,6 +188,7 @@
+   bool lastPlay, lastForward;
+   int lastSpeed;
+   time_t timeoutShow;
++  time_t lastLoadMarks;
+   bool timeSearchActive, timeSearchHide;
+   int timeSearchTime, timeSearchPos;
+   void TimeSearchDisplay(void);
+diff -Naur vdr-1.3.18/recording.c vdr-1.3.18-jumpplay-0.6/recording.c
+--- vdr-1.3.18/recording.c	2004-12-26 12:55:24.000000000 +0100
++++ vdr-1.3.18-jumpplay-0.6/recording.c	2005-01-09 19:53:01.000000000 +0100
+@@ -743,9 +743,10 @@
+ 
+ // --- cMarks ----------------------------------------------------------------
+ 
+-bool cMarks::Load(const char *RecordingFileName)
++bool cMarks::Load(const char *RecordingFileName, bool SupressMessage)
+ {
+-  if (cConfig<cMark>::Load(AddDirectory(RecordingFileName, MARKSFILESUFFIX))) {
++  if (cConfig<cMark>::Load(AddDirectory(RecordingFileName, MARKSFILESUFFIX),
++                           false, false, SupressMessage)) {
+      Sort();
+      return true;
+      }
+diff -Naur vdr-1.3.18/recording.h vdr-1.3.18-jumpplay-0.6/recording.h
+--- vdr-1.3.18/recording.h	2004-12-26 12:47:35.000000000 +0100
++++ vdr-1.3.18-jumpplay-0.6/recording.h	2005-01-09 19:47:13.000000000 +0100
+@@ -98,7 +98,7 @@
+ 
+ class cMarks : public cConfig<cMark> {
+ public:
+-  bool Load(const char *RecordingFileName);
++  bool Load(const char *RecordingFileName,bool SupressMessage = false);
+   void Sort(void);
+   cMark *Add(int Position);
+   cMark *Get(int Position);

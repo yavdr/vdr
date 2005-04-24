@@ -6,17 +6,8 @@ It was downloaded from http://www.cadsoft.de/people/kls/vdr/download.htm
 Upstream Author: Klaus Schmidinger <kls@cadsoft.de> and others
 
 Patch Authors:
-  ElchiAIO4 - Rolf Ahrenberg, originally written by Andy Grobb
-              (see HISTORY-ElchiAIO for all contributors)
-	      Thomas Günther <tom@toms-cafe.de> ( frames fix )
-              Gerhard Steiner ( black frame fix )
-
   ttxtsubs  - Ragnar Sundblad <ragge@nada.kth.se>
               http://www.nada.kth.se/~ragge/vdr/ttxtsubs/
-
-  osdpip    -  Sascha Volkenandt <sascha@akv-soft.de>
-
-  8bitcolor -  Andreas Regel <andreas.regel@gmx.de>
 
   jumpplay  -  Torsten Kunkel <vdr@tkunkel.de> (initial version)
                Thomas Günther <tom@toms-cafe.de> (actual version)

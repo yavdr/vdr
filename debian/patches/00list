@@ -16,19 +16,8 @@
 16_dvbspu
 17_replay
 
-# The Elchi AIO 4d patch for a nicer OSD, inlcuding the frames and black
-# square fix.
-# opt-20_elchiaio4d+1
-
 # Patch needed for DVB subtitles or ttxtsubs (does not work with AC3-patch)
 # opt-21_subtitles_and_ttxtsubs
 
-# This patch fixes a problem with 256 color, by changing char to unsigned
-# char.
-# opt-22_8bitcolor
-
-# Patch to support variable color for osdpip plugin
-# opt-23_osdpip-0.0.3
-
 # The Jump patch allows automatic jumping over cutting marks.
-# opt-24_jumpplay-0.4
+# opt-24_jumpplay-0.6
