@@ -5,9 +5,10 @@
 ## DP: send proper I-frames to the device
 
 @DPATCH@
---- ./dvbplayer.c
-+++ ./dvbplayer.c
-@@ -358,6 +358,94 @@ void cDvbPlayer::Activate(bool On)
+diff -urNad vdr-1.3.24/dvbplayer.c /tmp/dpep.Ctc0VI/vdr-1.3.24/dvbplayer.c
+--- vdr-1.3.24/dvbplayer.c	2005-05-08 16:52:49.000000000 +0200
++++ /tmp/dpep.Ctc0VI/vdr-1.3.24/dvbplayer.c	2005-05-09 20:31:45.721116992 +0200
+@@ -360,6 +360,94 @@
       }
  }
  
@@ -102,17 +103,7 @@
  void cDvbPlayer::Action(void)
  {
    uchar *b = NULL;
-@@ -380,14 +468,15 @@ void cDvbPlayer::Action(void)
- 
-            // Read the next frame from the file:
- 
--           if (!readFrame && (replayFile >= 0 || readIndex >= 0)) {
--              if (playMode != pmStill) {
-+           if (playMode != pmStill && playMode != pmPause) {
-+              if (!readFrame && (replayFile >= 0 || readIndex >= 0)) {
-                  if (!nonBlockingFileReader->Reading()) {
-                     if (playMode == pmFast || (playMode == pmSlow && playDir == pdBackward)) {
-                        uchar FileNumber;
+@@ -395,6 +483,7 @@
                         int FileOffset;
                         int Index = index->GetNextIFrame(readIndex, playDir == pdForward, &FileNumber, &FileOffset, &Length, true);
                         if (Index >= 0) {
@@ -120,7 +111,7 @@
                            if (!NextFile(FileNumber, FileOffset))
                               continue;
                            }
-@@ -428,6 +523,8 @@ void cDvbPlayer::Action(void)
+@@ -435,6 +524,8 @@
                      }
                   int r = nonBlockingFileReader->Read(replayFile, b, Length);
                   if (r > 0) {
@@ -129,31 +120,7 @@
                      readFrame = new cFrame(b, -r, ftUnknown, readIndex); // hands over b to the ringBuffer
                      b = NULL;
                      }
-@@ -438,16 +535,16 @@ void cDvbPlayer::Action(void)
-                     break;
-                     }
-                  }
--              else
--                 cCondWait::SleepMs(3); // this keeps the CPU load low
--              }
- 
--           // Store the frame in the buffer:
-+              // Store the frame in the buffer:
- 
--           if (readFrame) {
--              if (ringBuffer->Put(readFrame))
--                 readFrame = NULL;
-+              if (readFrame) {
-+                 if (ringBuffer->Put(readFrame))
-+                    readFrame = NULL;
-+                 }
-               }
-+           else
-+              cCondWait::SleepMs(3); // this keeps the CPU load low
- 
-            // Get the next frame from the buffer:
- 
-@@ -659,11 +756,13 @@ void cDvbPlayer::Goto(int Index, bool St
+@@ -666,11 +757,13 @@
       int FileOffset, Length;
       Index = index->GetNextIFrame(Index, false, &FileNumber, &FileOffset, &Length);
       if (Index >= 0 && NextFile(FileNumber, FileOffset) && Still) {
