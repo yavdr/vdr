@@ -4,6 +4,7 @@ vdr (1.3.24-1) experimental; urgency=low
   
   * Thomas Schmidt <tschmidt@debian.org>
     - New upstream release
+      + Removed 10_livelock.dpatch
       + Removed 11_memleak.dpatch
       + Updated 15_dvbplayer.dpatch
 
