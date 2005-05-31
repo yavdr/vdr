@@ -85,9 +85,7 @@ case "$1" in
         
         # create needed devices nodes
         if [ ! -e /dev/dvb/ ]; then
-                echo -n "Creating DVB-Devices: "
                 cd /dev && MAKEDEV dvb
-                echo "done."
         fi
 
         db_get vdr/create_video_dir
