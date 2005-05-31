@@ -7,21 +7,21 @@
 ## DP: <ludwig.nussel@gmx.de>
 
 @DPATCH@
-diff -urNad vdr-1.3.23/Makefile /tmp/dpep.RJebnB/vdr-1.3.23/Makefile
---- vdr-1.3.23/Makefile	2005-04-09 21:28:46.585169512 +0200
-+++ /tmp/dpep.RJebnB/vdr-1.3.23/Makefile	2005-04-09 21:28:46.810135312 +0200
-@@ -109,7 +109,7 @@
- # The main program:
+diff -urNad vdr-1.3.25/Makefile /tmp/dpep.6f25Et/vdr-1.3.25/Makefile
+--- vdr-1.3.25/Makefile	2005-05-31 14:09:22.490646536 +0200
++++ /tmp/dpep.6f25Et/vdr-1.3.25/Makefile	2005-05-31 14:11:43.003285368 +0200
+@@ -18,7 +18,7 @@
+ LSIDIR   = ./libsi
+ MANDIR   = /usr/local/man
+ BINDIR   = /usr/local/bin
+-LIBS     = -ljpeg -lpthread -ldl
++LIBS     = -ljpeg -lpthread -ldl -lcap
+ INCLUDES =
  
- vdr: $(OBJS) $(SILIB)
--	$(CXX) $(CXXFLAGS) -rdynamic $(OBJS) $(NCURSESLIB) -ljpeg -lpthread -ldl $(LIBDIRS) $(SILIB) -o vdr
-+	$(CXX) $(CXXFLAGS) -rdynamic $(OBJS) $(NCURSESLIB) -lcap -ljpeg -lpthread -ldl $(LIBDIRS) $(SILIB) -o vdr
- 
- # The font files:
- 
-diff -urNad vdr-1.3.23/vdr.c /tmp/dpep.RJebnB/vdr-1.3.23/vdr.c
---- vdr-1.3.23/vdr.c	2005-04-09 21:28:46.551174680 +0200
-+++ /tmp/dpep.RJebnB/vdr-1.3.23/vdr.c	2005-04-09 21:28:46.811135160 +0200
+ PLUGINDIR= ./PLUGINS
+diff -urNad vdr-1.3.25/vdr.c /tmp/dpep.6f25Et/vdr-1.3.25/vdr.c
+--- vdr-1.3.25/vdr.c	2005-05-31 14:09:22.479648208 +0200
++++ /tmp/dpep.6f25Et/vdr-1.3.25/vdr.c	2005-05-31 14:09:22.795600176 +0200
 @@ -31,6 +31,10 @@
  #include <stdlib.h>
  #include <termios.h>
@@ -129,8 +129,8 @@ diff -urNad vdr-1.3.23/vdr.c /tmp/dpep.RJebnB/vdr-1.3.23/vdr.c
 +
  int main(int argc, char *argv[])
  {
- #ifdef _CS_GNU_LIBPTHREAD_VERSION
-@@ -135,6 +229,8 @@
+   // Save terminal settings:
+@@ -116,6 +210,8 @@
    const char *Terminal = NULL;
    const char *Shutdown = NULL;
    cPluginManager PluginManager(DEFAULTPLUGINDIR);
@@ -139,7 +139,7 @@ diff -urNad vdr-1.3.23/vdr.c /tmp/dpep.RJebnB/vdr-1.3.23/vdr.c
    int ExitCode = 0;
  
    static struct option long_options[] = {
-@@ -155,11 +251,13 @@
+@@ -136,11 +232,13 @@
        { "version",  no_argument,       NULL, 'V' },
        { "video",    required_argument, NULL, 'v' },
        { "watchdog", required_argument, NULL, 'w' },
@@ -154,7 +154,7 @@ diff -urNad vdr-1.3.23/vdr.c /tmp/dpep.RJebnB/vdr-1.3.23/vdr.c
          switch (c) {
            case 'a': AudioCommand = optarg;
                      break;
-@@ -249,6 +347,10 @@
+@@ -230,6 +328,10 @@
                      fprintf(stderr, "vdr: invalid watchdog timeout: %s\n", optarg);
                      return 2;
                      break;
@@ -165,7 +165,7 @@ diff -urNad vdr-1.3.23/vdr.c /tmp/dpep.RJebnB/vdr-1.3.23/vdr.c
            default:  return 2;
            }
          }
-@@ -291,6 +393,8 @@
+@@ -272,6 +374,8 @@
                 "  -V,       --version      print version information and exit\n"
                 "  -w SEC,   --watchdog=SEC activate the watchdog timer with a timeout of SEC\n"
                 "                           seconds (default: %d); '0' disables the watchdog\n"
@@ -175,7 +175,7 @@ diff -urNad vdr-1.3.23/vdr.c /tmp/dpep.RJebnB/vdr-1.3.23/vdr.c
                 DEFAULTEPGDATAFILENAME,
                 DEFAULTPLUGINDIR,
 @@ -321,6 +425,21 @@
-      return 0;
+      return 2;
       }
  
 +  // Only try to change capabilities/user when vdr is called by 
