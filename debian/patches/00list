@@ -7,13 +7,13 @@
 07_not_as_root
 08_security_CAN-2005-0071
 09_sort_options
-#10_livelock
 12_nptl
 13_remote
 14_update-resume
 15_dvbplayer
 16_dvbspu
 17_replay
+18_vdr-1.3.26-pagedown-fix
 
 # Patch needed for DVB subtitles or ttxtsubs (does not work with AC3-patch)
 # opt-21_subtitles_and_ttxtsubs
