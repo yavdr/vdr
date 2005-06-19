@@ -6,6 +6,8 @@ vdr (1.3.27-1) unstable; urgency=low
     - New upstream release
       + Removed 12_nptl.dpatch
       + Removed 18_vdr-1.3.26-pagedown-fix.dpatch
+  * Tobias Grimm <tg@e-tobi.net>
+    - Added installation of README.vps and README.developer
 
  -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sun, 19 Jun 2005 17:25:56 +0200
 
