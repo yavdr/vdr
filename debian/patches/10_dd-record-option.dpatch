@@ -7,9 +7,9 @@
 ## DP: dvd-plugin)
 
 @DPATCH@
-diff -urNad vdr-1.3.27/config.c /tmp/dpep.UDf2Z3/vdr-1.3.27/config.c
---- vdr-1.3.27/config.c	2005-06-25 21:15:38.678427768 +0200
-+++ /tmp/dpep.UDf2Z3/vdr-1.3.27/config.c	2005-06-25 21:15:39.191349792 +0200
+diff -urNad vdr-1.3.27/config.c /tmp/dpep.zcLqt8/vdr-1.3.27/config.c
+--- vdr-1.3.27/config.c	2005-06-25 22:54:20.595508664 +0200
++++ /tmp/dpep.zcLqt8/vdr-1.3.27/config.c	2005-06-25 22:54:21.032442240 +0200
 @@ -364,6 +364,7 @@
    VideoDisplayFormat = 1;
    VideoFormat = 0;
@@ -34,9 +34,9 @@ diff -urNad vdr-1.3.27/config.c /tmp/dpep.UDf2Z3/vdr-1.3.27/config.c
    Store("UseDolbyDigital",    UseDolbyDigital);
    Store("ChannelInfoPos",     ChannelInfoPos);
    Store("ChannelInfoTime",    ChannelInfoTime);
-diff -urNad vdr-1.3.27/config.h /tmp/dpep.UDf2Z3/vdr-1.3.27/config.h
---- vdr-1.3.27/config.h	2005-06-25 21:15:38.678427768 +0200
-+++ /tmp/dpep.UDf2Z3/vdr-1.3.27/config.h	2005-06-25 21:15:39.191349792 +0200
+diff -urNad vdr-1.3.27/config.h /tmp/dpep.zcLqt8/vdr-1.3.27/config.h
+--- vdr-1.3.27/config.h	2005-06-25 22:54:20.595508664 +0200
++++ /tmp/dpep.zcLqt8/vdr-1.3.27/config.h	2005-06-25 22:54:21.033442088 +0200
 @@ -258,6 +258,7 @@
    int VideoDisplayFormat;
    int VideoFormat;
@@ -45,21 +45,9 @@ diff -urNad vdr-1.3.27/config.h /tmp/dpep.UDf2Z3/vdr-1.3.27/config.h
    int UseDolbyDigital;
    int ChannelInfoPos;
    int ChannelInfoTime;
-diff -urNad vdr-1.3.27/device.c /tmp/dpep.UDf2Z3/vdr-1.3.27/device.c
---- vdr-1.3.27/device.c	2005-06-12 15:39:11.000000000 +0200
-+++ /tmp/dpep.UDf2Z3/vdr-1.3.27/device.c	2005-06-25 21:15:39.192349640 +0200
-@@ -620,7 +620,7 @@
-         ClrAvailableTracks();
-         for (int i = 0; i < MAXAPIDS; i++)
-             SetAvailableTrack(ttAudio, i, Channel->Apid(i), Channel->Alang(i));
--        if (Setup.UseDolbyDigital) {
-+        if (Setup.RecordDolbyDigital) {
-            for (int i = 0; i < MAXDPIDS; i++)
-                SetAvailableTrack(ttDolby, i, Channel->Dpid(i), Channel->Dlang(i));
-            }
-diff -urNad vdr-1.3.27/i18n.c /tmp/dpep.UDf2Z3/vdr-1.3.27/i18n.c
+diff -urNad vdr-1.3.27/i18n.c /tmp/dpep.zcLqt8/vdr-1.3.27/i18n.c
 --- vdr-1.3.27/i18n.c	2005-06-18 12:42:31.000000000 +0200
-+++ /tmp/dpep.UDf2Z3/vdr-1.3.27/i18n.c	2005-06-25 21:20:07.047629448 +0200
++++ /tmp/dpep.zcLqt8/vdr-1.3.27/i18n.c	2005-06-25 22:54:21.036441632 +0200
 @@ -3241,26 +3241,47 @@
      "TV külgsuhe",
      "Video format",
@@ -117,9 +105,9 @@ diff -urNad vdr-1.3.27/i18n.c /tmp/dpep.UDf2Z3/vdr-1.3.27/i18n.c
    },
    { "Setup.DVB$Update channels",
      "Kanäle aktualisieren",
-diff -urNad vdr-1.3.27/menu.c /tmp/dpep.UDf2Z3/vdr-1.3.27/menu.c
---- vdr-1.3.27/menu.c	2005-06-25 21:15:38.923390528 +0200
-+++ /tmp/dpep.UDf2Z3/vdr-1.3.27/menu.c	2005-06-25 21:15:39.194349336 +0200
+diff -urNad vdr-1.3.27/menu.c /tmp/dpep.zcLqt8/vdr-1.3.27/menu.c
+--- vdr-1.3.27/menu.c	2005-06-25 22:54:20.804476896 +0200
++++ /tmp/dpep.zcLqt8/vdr-1.3.27/menu.c	2005-06-25 22:54:21.038441328 +0200
 @@ -2074,7 +2074,8 @@
    Add(new cMenuEditBoolItem(tr("Setup.DVB$Video format"),          &data.VideoFormat, "4:3", "16:9"));
    if (data.VideoFormat == 0)
@@ -130,3 +118,24 @@ diff -urNad vdr-1.3.27/menu.c /tmp/dpep.UDf2Z3/vdr-1.3.27/menu.c
    Add(new cMenuEditStraItem(tr("Setup.DVB$Update channels"),       &data.UpdateChannels, 5, updateChannelsTexts));
    Add(new cMenuEditIntItem( tr("Setup.DVB$Audio languages"),       &numAudioLanguages, 0, I18nNumLanguages));
    for (int i = 0; i < numAudioLanguages; i++)
+diff -urNad vdr-1.3.27/recorder.c /tmp/dpep.zcLqt8/vdr-1.3.27/recorder.c
+--- vdr-1.3.27/recorder.c	2005-01-16 13:53:17.000000000 +0100
++++ /tmp/dpep.zcLqt8/vdr-1.3.27/recorder.c	2005-06-25 22:54:21.038441328 +0200
+@@ -128,7 +128,7 @@
+ }
+ 
+ cRecorder::cRecorder(const char *FileName, int Ca, int Priority, int VPid, const int *APids, const int *DPids, const int *SPids)
+-:cReceiver(Ca, Priority, VPid, APids, Setup.UseDolbyDigital ? DPids : NULL, SPids)
++:cReceiver(Ca, Priority, VPid, APids, Setup.RecordDolbyDigital ? DPids : NULL, SPids)
+ ,cThread("recording")
+ {
+   active = false;
+@@ -139,7 +139,7 @@
+ 
+   ringBuffer = new cRingBufferLinear(RECORDERBUFSIZE, TS_SIZE * 2, true, "Recorder");
+   ringBuffer->SetTimeouts(0, 100);
+-  remux = new cRemux(VPid, APids, Setup.UseDolbyDigital ? DPids : NULL, SPids, true);
++  remux = new cRemux(VPid, APids, Setup.RecordDolbyDigital ? DPids : NULL, SPids, true);
+   writer = new cFileWriter(FileName, remux);
+ }
+ 
