@@ -12,7 +12,7 @@ Comments to the Debian version:
    /usr/lib/vdr/. You may use and modify them for you own purposes.
  - if you want to use the vdr-initscript, edit /etc/default/vdr and change
    ENABLED=0 to ENABLED=1, and the other Options in this file
- - video-dir is moved to /var/lib/video see #234429 		
+ - video-dir is moved to /var/lib/video see #234429
  - cfg-dir was moved to /var/lib/vdr, to be FHS-compliant
  - The selection of your favourite vdr-binary (vdr-daemon, vdr-kbd, vdr-lirc or 
    vdr-rcu) is now handeled via update-alternatives, so if you have more than 

@@ -1,12 +1,12 @@
-*.h 				usr/include/vdr/
+*.h                             usr/include/vdr/
 
-libsi/*.h                   	usr/include/vdr/libsi/
+libsi/*.h                       usr/include/vdr/libsi/
 
-debian/debianize-vdrplugin  	usr/bin/
-debian/plugin-template/     	usr/share/vdr-dev/
+debian/debianize-vdrplugin      usr/bin/
+debian/plugin-template/         usr/share/vdr-dev/
 
-vdr-newplugin			usr/bin/
+vdr-newplugin                   usr/bin/
 
-debian/lintian/vdr-dev		usr/share/lintian/overrides/
+debian/lintian/vdr-dev          usr/share/lintian/overrides/
 
 debian/patchlevel.sh            usr/lib/vdr-dev/

@@ -7,11 +7,11 @@ set -e
 
 case "$1" in
   remove)
-	update-alternatives --remove vdr /usr/bin/vdr-daemon
-	update-alternatives --remove vdr /usr/bin/vdr-kbd
-	update-alternatives --remove vdr /usr/bin/vdr-lirc
-	update-alternatives --remove vdr /usr/bin/vdr-rcu
-	;;
+        update-alternatives --remove vdr /usr/bin/vdr-daemon
+        update-alternatives --remove vdr /usr/bin/vdr-kbd
+        update-alternatives --remove vdr /usr/bin/vdr-lirc
+        update-alternatives --remove vdr /usr/bin/vdr-rcu
+        ;;
 esac
 
 #DEBHELPER#

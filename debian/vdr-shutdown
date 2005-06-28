@@ -27,24 +27,24 @@ for shutdownhook in $shutdownhooks; do
     TRY_AGAIN=0
 
     if [ -x $shutdownhook ]; then
-	$log "executing $shutdownhook"
-	result_data=`$shutdownhook $@`
+        $log "executing $shutdownhook"
+        result_data=`$shutdownhook "$@"`
     else
-	$log "executing $shutdownhook as shell script"
-	result_data=`/bin/sh $shutdownhook $@`
+        $log "executing $shutdownhook as shell script"
+        result_data=`/bin/sh $shutdownhook "$@"`
     fi
     result=$?
     eval $result_data
     if [ $result -ne 0 ] ; then 
-	$log "Shutdown aborted by $shutdownhook with exitcode $result"
-	osdmsg "Shutdown abgebrochen / Shutdown aborted!" &
-	[ -z "$ABORT_MESSAGE" ] || osdmsg "$ABORT_MESSAGE" &
-	exit $result
+        $log "Shutdown aborted by $shutdownhook with exitcode $result"
+        osdmsg "Shutdown abgebrochen / Shutdown aborted!" &
+        [ -z "$ABORT_MESSAGE" ] || osdmsg "$ABORT_MESSAGE" &
+        exit $result
     fi
 
     if [ $TRY_AGAIN -gt 0 ]
     then
-	$log "$shutdownhook requests to try again in $TRY_AGAIN minutes" 
+        $log "$shutdownhook requests to try again in $TRY_AGAIN minutes" 
         echo "$svdrpsend HITK Power" | at now + $TRY_AGAIN minutes
         osdmsg "Shutdown aborted. Retry in $TRY_AGAIN minutes." &
         exit 0

@@ -12,6 +12,8 @@ vdr (1.3.27-1) unstable; urgency=low
     - Added installation of README.vps and README.developer
     - Fixed parameter passing in vdr-shutdown
     - Fixed package description
+    - Replaced some tabs with spaces and fixed indentation
+    - Took over commands-loader.sh from vdrdevel
 
  -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sun, 19 Jun 2005 17:25:56 +0200
 
@@ -354,7 +356,7 @@ vdr (1.2.6-2) unstable; urgency=low
   * Improved debconf question texts.
   * Fixed vdr.postinst script so that channels.conf is no longer overwritten.
     (Closes: #233646)
-  * Fixed bug in vdr.postinst script which prevented package upgrade.	
+  * Fixed bug in vdr.postinst script which prevented package upgrade.
   * Adapted debian/rules to use upstream make plugin/plugin-clean targets. (Closes: #233630)
 
  -- Andreas Mueller <amu@tr.debian.net>  Wed, 18 Feb 2004 17:08:34 +0100

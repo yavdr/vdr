@@ -31,19 +31,19 @@ recordinghooks=`find $REC_HOOKS_DIR -maxdepth 1 -xtype f | sort`
 
 for recordinghook in $recordinghooks; do
     case $1 in
-	before|after)
-	    action="$1 recording $2" 
-	    ;;
-	edited)
-	    action="after editing recording $2" 
-	    ;;
+        before|after)
+            action="$1 recording $2" 
+            ;;
+        edited)
+            action="after editing recording $2" 
+            ;;
     esac
     if [ -x $recordinghook ]; then
-	logger -t recordingaction "executing $recordinghook $action"
-	$recordinghook $*
+        logger -t recordingaction "executing $recordinghook $action"
+        $recordinghook $*
     else
-	logger -t recordingaction "executing $recordinghook $action as shell script"
-	/bin/sh $recordinghook $*
+        logger -t recordingaction "executing $recordinghook $action as shell script"
+        /bin/sh $recordinghook $*
     fi
     [ $? -ne 0 ] && logger -t recordingaction "error when executing $recordinghook"
 done 

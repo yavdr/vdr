@@ -25,7 +25,7 @@ case "$*" in
             PATCHES=$(cat /usr/include/vdr/patchlevel)
         fi
         # write *.substvars only if patchlevel not empty
-	if [ "$PATCHES" != "patchlevel=" ]; then
+        if [ "$PATCHES" != "patchlevel=" ]; then
             # scan control for packages
             for p in $(dh_listpackages); do
                 echo "$PATCHES" >> debian/$p.substvars

@@ -29,15 +29,15 @@
 
 case $1 in
     before)
-	# do here what ever you would like to do right BEFORE
-	# the recording $2 STARTS
-	;;
+        # do here what ever you would like to do right BEFORE
+        # the recording $2 STARTS
+        ;;
     after)
-	# do here what ever you would like to do right AFTER
-	# the recording $2 ENDED
+        # do here what ever you would like to do right AFTER
+        # the recording $2 ENDED
         ;;
     edited)
-	# do here what ever you would like to do right AFTER
-	# the recording $2 has been EDITED
+        # do here what ever you would like to do right AFTER
+        # the recording $2 has been EDITED
         ;;
 esac
