@@ -1,15 +1,39 @@
 #!/bin/sh /usr/share/dpatch/dpatch-run
 
-## submenu patch
+## cmdsubmenu patch - version 0.4
+##
+## 2003-10-08: Version 0.1 - Albu at vdrportal.de
+##   http://vdrportal.de/board/thread.php?threadid=6319
+##
+## 2003-10-09: Version 0.2 - Tobias Grimm <tg@e-tobi.net>
+##   Added Define CMD_SUBMENUS in Makefile
+##
+## 2004-05-28: Version 0.3 - Thomas Günther <tom@toms-cafe.de>
+##   Fixed compilation with gcc-3.3.3
+##   Added new virtual method AddConfig in cConfig
+##   Redefining of method Add in cListBase to virtual no longer necessary
+##   Improved code in menu.c
+##
+## 2004-12-20: Version 0.4 - Thomas Günther <tom@toms-cafe.de>
+##   Solved conflict with jumpplay patch 0.6
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Adds submenus within the commands and recording commands menu.
 ## DP: To create a submenu entry, prefix the name by one ore more "-".
 
 @DPATCH@
-diff -urNad vdr-1.3.23/config.c /tmp/dpep.74bcRU/vdr-1.3.23/config.c
---- vdr-1.3.23/config.c	2005-02-20 13:52:59.000000000 +0100
-+++ /tmp/dpep.74bcRU/vdr-1.3.23/config.c	2005-04-09 21:28:28.912856112 +0200
+--- vdr-1.2.6/Makefile
++++ vdr-1.2.6/Makefile
+@@ -48,6 +48,7 @@
+ 
+ DEFINES += -DREMOTE_$(REMOTE)
+ 
++DEFINES += -DCMD_SUBMENUS
+ DEFINES += -D_GNU_SOURCE
+ 
+ DEFINES += -DVIDEODIR=\"$(VIDEODIR)\"
+--- vdr-1.2.6/config.c
++++ vdr-1.2.6/config.c
 @@ -27,18 +27,29 @@
  {
    title = command = NULL;
@@ -117,12 +141,11 @@ diff -urNad vdr-1.3.23/config.c /tmp/dpep.74bcRU/vdr-1.3.23/config.c
  // -- cSVDRPhost -------------------------------------------------------------
  
  cSVDRPhost::cSVDRPhost(void)
-diff -urNad vdr-1.3.23/config.h /tmp/dpep.74bcRU/vdr-1.3.23/config.h
---- vdr-1.3.23/config.h	2005-03-05 16:44:35.000000000 +0100
-+++ /tmp/dpep.74bcRU/vdr-1.3.23/config.h	2005-04-09 21:28:28.913855960 +0200
-@@ -35,11 +35,15 @@
- #define MaxSkinName 16
- #define MaxThemeName 16
+--- vdr-1.2.6/config.h
++++ vdr-1.2.6/config.h
+@@ -32,11 +32,15 @@
+ 
+ #define MaxFileName 256
  
 +class cCommands;
 +
@@ -136,7 +159,7 @@ diff -urNad vdr-1.3.23/config.h /tmp/dpep.74bcRU/vdr-1.3.23/config.h
    static char *result;
  public:
    cCommand(void);
-@@ -48,6 +52,12 @@
+@@ -45,6 +49,12 @@
    const char *Title(void) { return title; }
    bool Confirm(void) { return confirm; }
    const char *Execute(const char *Parameters = NULL);
@@ -149,18 +172,18 @@ diff -urNad vdr-1.3.23/config.h /tmp/dpep.74bcRU/vdr-1.3.23/config.h
    };
  
  typedef uint32_t in_addr_t; //XXX from /usr/include/netinet/in.h (apparently this is not defined on systems with glibc < 2.2)
-@@ -90,6 +100,10 @@
+@@ -86,6 +96,10 @@
+ public:
    cConfig(void) { fileName = NULL; }
    virtual ~cConfig() { free(fileName); }
-   const char *FileName(void) { return fileName; }
 +  virtual void AddConfig(T *Object)
 +  {
 +    cList<T>::Add(Object);
 +  }
+   const char *FileName(void) { return fileName; }
    bool Load(const char *FileName = NULL, bool AllowComments = false, bool MustExist = false)
    {
-     Clear();
-@@ -117,7 +131,7 @@
+@@ -114,7 +128,7 @@
                  if (!isempty(buffer)) {
                     T *l = new T;
                     if (l->Parse(buffer))
@@ -169,7 +192,7 @@ diff -urNad vdr-1.3.23/config.h /tmp/dpep.74bcRU/vdr-1.3.23/config.h
                     else {
                        esyslog("ERROR: error in %s, line %d\n", fileName, line);
                        delete l;
-@@ -159,7 +173,10 @@
+@@ -156,7 +170,10 @@
    }
    };
  
@@ -181,21 +204,9 @@ diff -urNad vdr-1.3.23/config.h /tmp/dpep.74bcRU/vdr-1.3.23/config.h
  
  class cSVDRPhosts : public cConfig<cSVDRPhost> {
  public:
-diff -urNad vdr-1.3.23/Makefile /tmp/dpep.74bcRU/vdr-1.3.23/Makefile
---- vdr-1.3.23/Makefile	2005-04-09 21:28:28.756879824 +0200
-+++ /tmp/dpep.74bcRU/vdr-1.3.23/Makefile	2005-04-09 21:28:28.912856112 +0200
-@@ -67,6 +67,7 @@
- 
- DEFINES += -DREMOTE_$(REMOTE)
- 
-+DEFINES += -DCMD_SUBMENUS
- DEFINES += -D_GNU_SOURCE
- 
- DEFINES += -DVIDEODIR=\"$(VIDEODIR)\"
-diff -urNad vdr-1.3.23/menu.c /tmp/dpep.74bcRU/vdr-1.3.23/menu.c
---- vdr-1.3.23/menu.c	2005-03-20 16:14:51.000000000 +0100
-+++ /tmp/dpep.74bcRU/vdr-1.3.23/menu.c	2005-04-09 21:28:28.914855808 +0200
-@@ -1272,6 +1272,12 @@
+--- vdr-1.2.6/menu.c
++++ vdr-1.2.6/menu.c
+@@ -1518,6 +1518,12 @@
    if (command) {
       char *buffer = NULL;
       bool confirmed = true;
