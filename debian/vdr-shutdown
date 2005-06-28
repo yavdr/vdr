@@ -28,10 +28,10 @@ for shutdownhook in $shutdownhooks; do
 
     if [ -x $shutdownhook ]; then
 	$log "executing $shutdownhook"
-	result_data=`$shutdownhook $*`
+	result_data=`$shutdownhook $@`
     else
 	$log "executing $shutdownhook as shell script"
-	result_data=`/bin/sh $shutdownhook $*`
+	result_data=`/bin/sh $shutdownhook $@`
     fi
     result=$?
     eval $result_data
