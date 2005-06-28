@@ -8,7 +8,7 @@ Standards-Version: 3.6.1
 
 Package: vdr
 Architecture: any
-Depends: ${misc:Depends}, makedev (>=2.3.1-66), adduser, psmisc
+Depends: ${shlibs:Depends}, ${misc:Depends}, makedev (>=2.3.1-66), adduser, psmisc
 Recommends: lirc
 Provides: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu
 Conflicts: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu
