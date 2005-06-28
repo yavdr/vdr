@@ -19,8 +19,8 @@ Description: Video Disk Recorder for DVB cards
  as well as output the stream to TV. It is also possible to watch DVDs
  (hardware accelerated) with some comfort and use an IR remote control.
  .
- This package contains files shared by different VDR versions and
- frontends.
+ This package contains the vdr main program which is controlled via the
+ PC keyboard or a IR remote control.
  .
  NOTE: You should install compatible DVB drivers before using these
  programs. Also the standard VDR (without special plugins) requires 

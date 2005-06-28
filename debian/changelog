@@ -11,6 +11,7 @@ vdr (1.3.27-1) unstable; urgency=low
   * Tobias Grimm <tg@e-tobi.net>
     - Added installation of README.vps and README.developer
     - Fixed parameter passing in vdr-shutdown
+    - Fixed package description
 
  -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sun, 19 Jun 2005 17:25:56 +0200
 
