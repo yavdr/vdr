@@ -6,8 +6,14 @@ vdr (1.3.27-1) unstable; urgency=low
     - New upstream release
       + Removed 12_nptl.dpatch
       + Removed 18_vdr-1.3.26-pagedown-fix.dpatch
+    - The new upstream version seems to compile fine with gcc-4.0 
+      (closes: #294041)
     - Added 10_dd-record-option.dpatch - allows to choose if to record
       or to replay Dolby Digital independently
+    - Updated 03_cmdsubmenu.dpatch and opt-24_jumpplay-0.6.dpatch to the
+      versions from vdrdevel
+    - Now using debian/watch from vdrdevel
+    - Bumped Standards-Version to 3.6.2
   * Tobias Grimm <tg@e-tobi.net>
     - Added installation of README.vps and README.developer
     - Fixed parameter passing in vdr-shutdown
@@ -16,7 +22,7 @@ vdr (1.3.27-1) unstable; urgency=low
     - Took over commands-loader.sh from vdrdevel
     - Added ${shlibs:Depends}
 
- -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sun, 19 Jun 2005 17:25:56 +0200
+ -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Wed, 29 Jun 2005 15:49:58 +0200
 
 vdr (1.3.26-1) unstable; urgency=low
 
