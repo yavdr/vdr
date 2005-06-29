@@ -1,7 +1,5 @@
 vdr (1.3.27-1) unstable; urgency=low
 
-  * (NOT RELEASED YET) New upstream release
-  
   * Thomas Schmidt <tschmidt@debian.org>
     - New upstream release
       + Removed 12_nptl.dpatch
