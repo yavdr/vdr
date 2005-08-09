@@ -1,21 +1,113 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
-## 06_nissl_dvbplayer.dpatch by Reinhard Nissl <rnissl@gmx.de>
+## 15_dvbplayer.dpatch by Reinhard Nissl <rnissl@gmx.de>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: send proper I-frames to the device
+## DP: Downloaded from: http://home.vrweb.de/~rnissl/
+## DP: Fixes VDR's recording replayer to send proper I-frames to a device.
+## DP: Without this patch it is very likely that incomplete I-frames are sent
+## DP: and therefore many I-frames will not be displayed by devices like
+## DP: vdr-xine or dxr3. This patch has a very positive effect on moving
+## DP: cutting marks and all fast trickspeed modes as well as slow motion
+## DP: rewind.
+## DP: NOTE: without this patch it is likely that xine disconnects from
+## DP: vdr-xine while moving cut marks.
 
 @DPATCH@
-diff -urNad vdr-1.3.24/dvbplayer.c /tmp/dpep.Ctc0VI/vdr-1.3.24/dvbplayer.c
---- vdr-1.3.24/dvbplayer.c	2005-05-08 16:52:49.000000000 +0200
-+++ /tmp/dpep.Ctc0VI/vdr-1.3.24/dvbplayer.c	2005-05-09 20:31:45.721116992 +0200
-@@ -360,6 +360,94 @@
+diff -urNad --exclude=CVS --exclude=.svn ./dvbplayer.c /tmp/dpep-work.CvTof4/vdr-1.3.28/dvbplayer.c
+--- ./dvbplayer.c	2005-07-30 12:00:24.000000000 +0200
++++ /tmp/dpep-work.CvTof4/vdr-1.3.28/dvbplayer.c	2005-08-07 23:07:35.000000000 +0200
+@@ -360,6 +360,176 @@
       }
  }
  
-+static uchar *findStartCode(uchar *Data, int Length)
++// --- BEGIN fix for I frames  -------------------------------------------
++// 
++//  Prior to the introduction of cVideoRepacker, VDR didn't start a new
++//  PES packet when a new frame started. So, it was likely that the tail
++//  of an I frame was at the beginning of the packet which started the
++//  following B frame. Due to the organisation of VDR's index file, VDR
++//  typically didn't read the tail of the I frame and therefore caused
++//  softdevice plugins to not render such a frame as it was incomplete,
++//  e. g. when moving cutting marks.
++//
++//  The following code tries to fix incomplete I frames for recordings
++//  made prior to the introdcution of cVideoRepacker, to be able to
++//  edit cutting marks for example with softdevice plugins like vdr-xine.
++//
++
++static int analyzePesHeader(const uchar *Data, int Count, int &PesPayloadOffset, bool *ContinuationHeader = 0)
++{
++  if (Count < 7)
++     return -1; // too short
++
++  if ((Data[6] & 0xC0) == 0x80) { // MPEG 2
++     if (Count < 9)
++        return -1; // too short
++
++     PesPayloadOffset = 6 + 3 + Data[8];
++     if (Count < PesPayloadOffset)
++        return -1; // too short
++
++     if (ContinuationHeader)
++        *ContinuationHeader = ((Data[6] == 0x80) && !Data[7] && !Data[8]);
++
++     return 2; // MPEG 2
++     }
++
++  // check for MPEG 1 ...
++  PesPayloadOffset = 6;
++
++  // skip up to 16 stuffing bytes
++  for (int i = 0; i < 16; i++) {
++      if (Data[PesPayloadOffset] != 0xFF)
++         break;
++
++      if (Count <= ++PesPayloadOffset)
++         return -1; // too short
++      }
++
++  // skip STD_buffer_scale/size
++  if ((Data[PesPayloadOffset] & 0xC0) == 0x40) {
++     PesPayloadOffset += 2;
++
++     if (Count <= PesPayloadOffset)
++        return -1; // too short
++     }
++
++  if (ContinuationHeader)
++     *ContinuationHeader = false;
++
++  if ((Data[PesPayloadOffset] & 0xF0) == 0x20) {
++     // skip PTS only
++     PesPayloadOffset += 5;
++     }
++  else if ((Data[PesPayloadOffset] & 0xF0) == 0x30) {
++     // skip PTS and DTS
++     PesPayloadOffset += 10;
++     }
++  else if (Data[PesPayloadOffset] == 0x0F) {
++     // continuation header
++     PesPayloadOffset++;
++
++     if (ContinuationHeader)
++        *ContinuationHeader = true;
++     }
++  else
++     return 0; // unknown
++
++  if (Count < PesPayloadOffset)
++     return -1; // too short
++
++  return 1; // MPEG 1
++}
++
++static uchar *findStartCode(uchar *Data, int Length, int &PesPayloadOffset)
 +{
 +  uchar *limit = Data + Length;
-+  Data += 6 + 3 + Data[6 + 2] + 3; // move to video payload and skip 00 00 01
++  if (analyzePesHeader(Data, Length, PesPayloadOffset) <= 0)
++     return 0; // neither MPEG1 nor MPEG2
++
++  Data += PesPayloadOffset + 3; // move to video payload and skip 00 00 01
 +  while (Data < limit) {
 +        // possible start codes that appear before/after picture data
 +        // 00 00 01 B3: sequence header code
@@ -32,47 +124,43 @@ diff -urNad vdr-1.3.24/dvbplayer.c /tmp/dpep.Ctc0VI/vdr-1.3.24/dvbplayer.c
 +
 +static void fixIFrameHead(uchar *Data, int Length)
 +{
-+  uchar *p = findStartCode(Data, Length);
++  int pesPayloadOffset = 0;
++  uchar *p = findStartCode(Data, Length, pesPayloadOffset);
 +  if (!p) {
 +     esyslog("fixIframeHead: start code not found!\n");
 +     return;
 +     }
 +
-+  Data += 6 + 3 + Data[6 + 2]; // move to video payload
++  Data += pesPayloadOffset; // move to video payload
 +  if (Data < p)
 +     memset(Data, 0, p - Data); // zero preceeding bytes
 +}
 +
-+static int fixIFrameTail(uchar *Data, int Length, bool StillImage)
++static int fixIFrameTail(uchar *Data, int Length)
 +{
-+  uchar *p = findStartCode(Data, Length);
++  int pesPayloadOffset = 0;
++  uchar *p = findStartCode(Data, Length, pesPayloadOffset);
 +  if (!p) {
 +     esyslog("fixIframeTail: start code not found!\n");
 +     return Length;
 +     }
 +
-+  if (StillImage) {
-+     // need to append sequence end code
-+     p[3] = 0xB7;
-+     p += 4;
-+     }
-+
 +  // is this PES packet required?
-+  uchar *videoPayload = Data + 6 + 3 + Data[6 + 2];
++  uchar *videoPayload = Data + pesPayloadOffset;
 +  if (videoPayload >= p)
 +     return 0; // no
 +  
-+  // adjust PES payload size
-+  int payloadSize = (p - Data) - 6;
-+  Data[4] = payloadSize >> 8;
-+  Data[5] = payloadSize & 0xFF;
++  // adjust PES length
++  int lenPES = (p - Data);
++  Data[4] = (lenPES - 6) >> 8;
++  Data[5] = (lenPES - 6) & 0xFF;
 +
-+  return payloadSize + 6;
++  return lenPES;
 +}
 +
 +#define IPACKS 2048 // originally defined in remux.c
 +
-+static void fixIFrame(uchar *Data, int &Length, bool StillImage)
++static void fixIFrame(uchar *Data, int &Length)
 +{
 +  int originalLength = Length - IPACKS; // by design
 +  int done = 0;
@@ -90,7 +178,7 @@ diff -urNad vdr-1.3.24/dvbplayer.c /tmp/dpep.Ctc0VI/vdr-1.3.24/dvbplayer.c
 +           if (0 == done) // first packet
 +              fixIFrameHead(Data, bite);
 +           else if (done >= originalLength) { // last packet
-+              Length = done + fixIFrameTail(Data, bite, StillImage);
++              Length = done + fixIFrameTail(Data, bite);
 +              return;
 +              }
 +           }
@@ -100,37 +188,37 @@ diff -urNad vdr-1.3.24/dvbplayer.c /tmp/dpep.Ctc0VI/vdr-1.3.24/dvbplayer.c
 +        }
 +}
 +
++// --- END fix for I frames  ---------------------------------------------
++
  void cDvbPlayer::Action(void)
  {
    uchar *b = NULL;
-@@ -395,6 +483,7 @@
-                        int FileOffset;
-                        int Index = index->GetNextIFrame(readIndex, playDir == pdForward, &FileNumber, &FileOffset, &Length, true);
+@@ -397,6 +567,7 @@
                         if (Index >= 0) {
-+                          Length += IPACKS; // fixIFrame needs next video packet
                            if (!NextFile(FileNumber, FileOffset))
                               continue;
++                          Length += IPACKS; // fixIFrame needs next video packet
                            }
-@@ -435,6 +524,8 @@
+                        else {
+                           // hit begin of recording: wait for device buffers to drain
+@@ -435,6 +606,8 @@
                      }
                   int r = nonBlockingFileReader->Read(replayFile, b, Length);
                   if (r > 0) {
 +                    if (playMode == pmFast || (playMode == pmSlow && playDir == pdBackward))
-+                       fixIFrame(b, r, false);
++                       fixIFrame(b, r);
                      readFrame = new cFrame(b, -r, ftUnknown, readIndex); // hands over b to the ringBuffer
                      b = NULL;
                      }
-@@ -666,11 +757,13 @@
+@@ -668,9 +841,11 @@
       int FileOffset, Length;
       Index = index->GetNextIFrame(Index, false, &FileNumber, &FileOffset, &Length);
       if (Index >= 0 && NextFile(FileNumber, FileOffset) && Still) {
 +        Length += IPACKS; // fixIFrame needs next video packet
-         uchar b[MAXFRAMESIZE];
+         uchar b[MAXFRAMESIZE + 4 + 5 + 4];
          int r = ReadFrame(replayFile, b, Length, sizeof(b));
          if (r > 0) {
++           fixIFrame(b, r);
             if (playMode == pmPause)
                DevicePlay();
-+           fixIFrame(b, r, true);
-            DeviceStillPicture(b, r);
-            }
-         playMode = pmStill;
+            // append sequence end code to get the image shown immediately with softdevices
