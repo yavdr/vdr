@@ -1,6 +1,6 @@
 #!/bin/sh /usr/share/dpatch/dpatch-run
 
-## cmdsubmenu patch - version 0.4
+## 03_cmdsubmenu.dpatch
 ##
 ## 2003-10-08: Version 0.1 - Albu at vdrportal.de
 ##   http://vdrportal.de/board/thread.php?threadid=6319

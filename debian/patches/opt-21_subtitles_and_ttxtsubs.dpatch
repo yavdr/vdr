@@ -1,4 +1,5 @@
 #!/bin/sh /usr/share/dpatch/dpatch-run
+
 ## opt-20_subtitles_and_ttxtsubs.dpatch by Rolf Ahrenberg <rahrenbe@cc.hut.fi>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.

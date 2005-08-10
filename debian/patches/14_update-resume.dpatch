@@ -1,6 +1,6 @@
 #!/bin/sh /usr/share/dpatch/dpatch-run
 
-## update-resume - version 0.1 - Thomas Günther <tom@toms-cafe.de>
+## 14_update-resume.dpatch by Thomas Günther <tom@toms-cafe.de>
 ##
 ## 2005-03-08: version 0.1
 ##   - trigger reread of the resume file after replaying a recording

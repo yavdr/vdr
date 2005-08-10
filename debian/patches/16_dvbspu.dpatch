@@ -1,4 +1,5 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
+
 ## 06_nissl_dvbspu.dpatch by Reinhard Nissl <rnissl@gmx.de>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.

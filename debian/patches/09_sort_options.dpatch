@@ -1,4 +1,5 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
+
 ## 11_sort_options.dpatch by Darren Salt and Luca Olivetti <luca@ventoso.org>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
