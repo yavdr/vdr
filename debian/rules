@@ -71,7 +71,9 @@ clean-patched:
 	sh debian/patchlevel.sh clean
 
 	rm -f debian/vdr-shutdown.wrapper
-	
+
+	rm -f debian/patchinfo
+
 	dh_clean
 
 install: build patchlevel
