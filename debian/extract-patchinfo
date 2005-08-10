@@ -1,0 +1,47 @@
+#!/bin/sh
+
+print_patch()
+{
+    author=`dpatch cat --author-only $1`
+    patch_name=`echo $1 | sed 's/[^_]*_\(.*\)/\1/'`
+    patch_description=`dpatch cat --no-meta $patch` 
+    echo $patch_name:
+    if [ ! -z "$author" ] ; then
+       echo "    $author"
+       echo
+    fi
+    if [ ! -z "$patch_description" ] ; then
+        echo $patch_description | fmt | sed 's/\(.*\)/    \1/'
+    fi
+    echo
+}
+
+echo "Patches applied to vanilla vdr sources"
+echo "--------------------------------------"
+echo
+
+patches_applied=`dpatch list-all`
+for patch in $patches_applied ; do
+    print_patch $patch
+done
+
+echo
+echo "Patches available in source package, but not active"
+echo "---------------------------------------------------"
+echo
+
+patches_available=`find debian/patches -name *.dpatch -printf "%f\n" | sed 's/\(.*\)\.dpatch/\1/'`
+for patch in $patches_available ; do
+    is_applied="no"
+
+    for applied_patch in $patches_applied ; do
+        if [ $applied_patch == $patch ] ; then
+            is_applied="yes"
+            break
+        fi
+    done
+    
+    if [ $is_applied == "no" ] ; then
+        print_patch $patch
+    fi
+done

@@ -51,6 +51,8 @@ build-stamp:
 patchlevel:
 	chmod +x debian/patchlevel.sh
 	debian/patchlevel.sh make
+	chmod +x debian/extract-patchinfo
+	debian/extract-patchinfo >debian/patchinfo
 
 clean: clean-patched unpatch
 
