@@ -10,7 +10,6 @@
 10_dd-record-option
 14_update-resume
 15_dvbplayer
-16_dvbspu
 17_replay
 
 # Patch needed for DVB subtitles or ttxtsubs (does not work with AC3-patch)
