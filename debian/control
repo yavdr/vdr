@@ -30,7 +30,7 @@ XB-VDR-Patchlevel: ${patchlevel}
 
 Package: vdr-dev
 Architecture:  all
-Depends: ${misc:Depends}, dvb-dev (>= 1.0.0) | linux-kernel-headers (>=2.5.999-test7-bk-6)
+Depends: ${misc:Depends}, debhelper, dvb-dev (>= 1.0.0) | linux-kernel-headers (>=2.5.999-test7-bk-6)
 Suggests: dh-make
 Description: Video Disk Recorder for DVB cards
  Video Disk Recorder (VDR) is a digital sat-receiver program using
