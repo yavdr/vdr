@@ -1,4 +1,4 @@
-01_vdr_1.2.6-3.1.diff.gz
+01_Makefile-fPIC-fix
 02_Makefile-CFGDIR
 03_cmdsubmenu
 04_newplugin
