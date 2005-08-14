@@ -1,0 +1,46 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+
+## 12_osdbase-maxitems.dpatch by Andreas Brugger <brougs78@gmx.net>
+##
+## downloaded from http://vdrportal.de/board/thread.php?postid=343665#post343665
+## original filename: vdr-1.3.28-osdbase-maxitems.diff
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fixes problems with text2skin skin enigma.
+
+@DPATCH@
+diff -Nru vdr_plain/osdbase.c vdr_patched/osdbase.c
+--- vdr_plain/osdbase.c	2005-06-18 12:30:51.000000000 +0200
++++ vdr_patched/osdbase.c	2005-08-07 20:26:55.000000000 +0200
+@@ -261,6 +261,7 @@
+ 
+ void cOsdMenu::CursorUp(void)
+ {
++  displayMenuItems = displayMenu->MaxItems();
+   int tmpCurrent = current;
+   int lastOnScreen = first + displayMenuItems - 1;
+   int last = Count() - 1;
+@@ -291,6 +292,7 @@
+ 
+ void cOsdMenu::CursorDown(void)
+ {
++  displayMenuItems = displayMenu->MaxItems();
+   int tmpCurrent = current;
+   int lastOnScreen = first + displayMenuItems - 1;
+   int last = Count() - 1;
+@@ -323,6 +325,7 @@
+ 
+ void cOsdMenu::PageUp(void)
+ {
++  displayMenuItems = displayMenu->MaxItems();
+   int oldCurrent = current;
+   int oldFirst = first;
+   current -= displayMenuItems;
+@@ -357,6 +360,7 @@
+ 
+ void cOsdMenu::PageDown(void) 
+ {
++  displayMenuItems = displayMenu->MaxItems();
+   int oldCurrent = current;
+   int oldFirst = first;
+   current += displayMenuItems;
