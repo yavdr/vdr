@@ -1,3 +1,12 @@
+vdr (1.3.29-1) unstable; urgency=low
+
+  * NOT YET RELEASED
+
+  * Thomas Schmidt <tschmidt@debian.org>
+    - New upstream release
+
+ -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Mon, 15 Aug 2005 17:31:44 +0200
+
 vdr (1.3.28-2) unstable; urgency=low
 
   * Tobias Grimm <tg@e-tobi.net>
@@ -13,7 +22,6 @@ vdr (1.3.28-1) unstable; urgency=low
       + Removed 16_dvbspu.dpatch
       + Updated 10_dd-record-option.dpatch
       + Updated 15_dvbplayer.dpatch
-      + Updated 16_dvbspu.dpatch
     - vdr-dev: depend on ${misc:Depends}, debhelper, 
       dvb-dev (>= 1.0.0) | linux-kernel-headers (>=2.5.999-test7-bk-6) 
     - vdr-dev: suggests dh-make
