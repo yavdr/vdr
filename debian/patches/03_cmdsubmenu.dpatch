@@ -1,21 +1,23 @@
 #!/bin/sh /usr/share/dpatch/dpatch-run
 
-## 03_cmdsubmenu.dpatch
+## 03_cmdsubmenu.dpatch by Albu at vdrportal.de
 ##
 ## 2003-10-08: Version 0.1 - Albu at vdrportal.de
 ##   http://vdrportal.de/board/thread.php?threadid=6319
 ##
 ## 2003-10-09: Version 0.2 - Tobias Grimm <tg@e-tobi.net>
-##   Added Define CMD_SUBMENUS in Makefile
+##   - Added Define CMD_SUBMENUS in Makefile
 ##
 ## 2004-05-28: Version 0.3 - Thomas Günther <tom@toms-cafe.de>
-##   Fixed compilation with gcc-3.3.3
-##   Added new virtual method AddConfig in cConfig
-##   Redefining of method Add in cListBase to virtual no longer necessary
-##   Improved code in menu.c
+##   - Fixed compilation with gcc-3.3.3
+##   - Added new virtual method AddConfig in cConfig
+##   - Redefining of method Add in cListBase to virtual no longer necessary
+##   - Improved code in menu.c
+##   http://toms-cafe.de/vdr/download/vdr-cmdsubmenu-0.3.diff
 ##
 ## 2004-12-20: Version 0.4 - Thomas Günther <tom@toms-cafe.de>
-##   Solved conflict with jumpplay patch 0.6
+##   - Solved conflict with jumpplay patch 0.6
+##   http://toms-cafe.de/vdr/download/vdr-cmdsubmenu-0.4.diff
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Adds submenus within the commands and recording commands menu.

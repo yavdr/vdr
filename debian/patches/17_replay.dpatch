@@ -1,9 +1,11 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
+#!/bin/sh /usr/share/dpatch/dpatch-run
 
-## 06_nissl_replay.dpatch by Reinhard Nissl <rnissl@gmx.de>
+## 17_replay.dpatch by Reinhard Nissl <rnissl@gmx.de>
+## http://www.vr-web.de/~rnissl/vdr-1.3.11-replay.patch
 ##
-## All lines beginning with ## DP:' are a description of the patch.
-## DP: Replay optimisation
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Replay patch fixes recording replay when reaching the end of a recording
+## DP: in trickspeed mode. VDR switched to play mode instead of ending replay.
 
 @DPATCH@
 diff -urNad vdr-1.3.23/dvbplayer.c /tmp/dpep.OdxwwC/vdr-1.3.23/dvbplayer.c
