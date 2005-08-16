@@ -2,17 +2,18 @@
 
 ## opt-24_jumpplay-0.6.dpatch by Torsten Kunkel, Thomas Günther
 ##
-## version 0.6 for vdr-1.3.24 - see README.jumpplay for details
+## version 0.6 for vdr-1.3.29 - see README.jumpplay for details
+## http://toms-cafe.de/vdr/download/vdr-jumpplay-0.6-1.3.29.diff
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Authors: Torsten Kunkel <vdr@tkunkel.de> (initial version), 
-## DP: Thomas Günther <tom@toms-cafe.de> (current version)
+## DP:          Thomas Günther <tom@toms-cafe.de> (current version).
 ## DP: Play after jump to next mark. Automatically jump over commercial breaks.
 
 @DPATCH@
-diff -Naur vdr-1.3.24/README.jumpplay vdr-1.3.24-jumpplay-0.6/README.jumpplay
---- vdr-1.3.24/README.jumpplay	1970-01-01 01:00:00.000000000 +0100
-+++ vdr-1.3.24-jumpplay-0.6/README.jumpplay	2005-05-09 21:58:00.000000000 +0200
+diff -Naur vdr-1.3.29/README.jumpplay vdr-1.3.29-jumpplay-0.6/README.jumpplay
+--- vdr-1.3.29/README.jumpplay	1970-01-01 01:00:00.000000000 +0100
++++ vdr-1.3.29-jumpplay-0.6/README.jumpplay	2005-08-15 21:33:56.000000000 +0200
 @@ -0,0 +1,89 @@
 +JumpPlay patch for VDR
 +----------------------
@@ -103,10 +104,10 @@ diff -Naur vdr-1.3.24/README.jumpplay vdr-1.3.24-jumpplay-0.6/README.jumpplay
 +      - don't stop after the last mark in case of live-recordings
 +    New setup parameter "Load marks interval (s)"
 +    Updated description in README.jumpplay
-diff -Naur vdr-1.3.24/config.c vdr-1.3.24-jumpplay-0.6/config.c
---- vdr-1.3.24/config.c	2005-02-20 13:52:59.000000000 +0100
-+++ vdr-1.3.24-jumpplay-0.6/config.c	2005-05-09 21:58:00.000000000 +0200
-@@ -298,6 +298,9 @@
+diff -Naur vdr-1.3.29/config.c vdr-1.3.29-jumpplay-0.6/config.c
+--- vdr-1.3.29/config.c	2005-08-13 15:47:08.000000000 +0200
++++ vdr-1.3.29-jumpplay-0.6/config.c	2005-08-15 20:02:01.000000000 +0200
+@@ -299,6 +299,9 @@
    MultiSpeedMode = 0;
    ShowReplayMode = 0;
    ResumeID = 0;
@@ -116,7 +117,7 @@ diff -Naur vdr-1.3.24/config.c vdr-1.3.24-jumpplay-0.6/config.c
    CurrentChannel = -1;
    CurrentVolume = MAXVOLUME;
    CurrentDolby = 0;
-@@ -455,6 +458,9 @@
+@@ -457,6 +460,9 @@
    else if (!strcasecmp(Name, "MultiSpeedMode"))      MultiSpeedMode     = atoi(Value);
    else if (!strcasecmp(Name, "ShowReplayMode"))      ShowReplayMode     = atoi(Value);
    else if (!strcasecmp(Name, "ResumeID"))            ResumeID           = atoi(Value);
@@ -126,7 +127,7 @@ diff -Naur vdr-1.3.24/config.c vdr-1.3.24-jumpplay-0.6/config.c
    else if (!strcasecmp(Name, "CurrentChannel"))      CurrentChannel     = atoi(Value);
    else if (!strcasecmp(Name, "CurrentVolume"))       CurrentVolume      = atoi(Value);
    else if (!strcasecmp(Name, "CurrentDolby"))        CurrentDolby       = atoi(Value);
-@@ -519,6 +525,9 @@
+@@ -522,6 +528,9 @@
    Store("MultiSpeedMode",     MultiSpeedMode);
    Store("ShowReplayMode",     ShowReplayMode);
    Store("ResumeID",           ResumeID);
@@ -136,9 +137,9 @@ diff -Naur vdr-1.3.24/config.c vdr-1.3.24-jumpplay-0.6/config.c
    Store("CurrentChannel",     CurrentChannel);
    Store("CurrentVolume",      CurrentVolume);
    Store("CurrentDolby",       CurrentDolby);
-diff -Naur vdr-1.3.24/config.h vdr-1.3.24-jumpplay-0.6/config.h
---- vdr-1.3.24/config.h	2005-05-05 13:04:18.000000000 +0200
-+++ vdr-1.3.24-jumpplay-0.6/config.h	2005-05-09 21:58:00.000000000 +0200
+diff -Naur vdr-1.3.29/config.h vdr-1.3.29-jumpplay-0.6/config.h
+--- vdr-1.3.29/config.h	2005-08-13 11:43:27.000000000 +0200
++++ vdr-1.3.29-jumpplay-0.6/config.h	2005-08-15 20:02:01.000000000 +0200
 @@ -90,7 +90,7 @@
    cConfig(void) { fileName = NULL; }
    virtual ~cConfig() { free(fileName); }
@@ -158,7 +159,7 @@ diff -Naur vdr-1.3.24/config.h vdr-1.3.24-jumpplay-0.6/config.h
         FILE *f = fopen(fileName, "r");
         if (f) {
            int line = 0;
-@@ -252,6 +253,9 @@
+@@ -253,6 +254,9 @@
    int MultiSpeedMode;
    int ShowReplayMode;
    int ResumeID;
@@ -168,10 +169,10 @@ diff -Naur vdr-1.3.24/config.h vdr-1.3.24-jumpplay-0.6/config.h
    int CurrentChannel;
    int CurrentVolume;
    int CurrentDolby;
-diff -Naur vdr-1.3.24/dvbplayer.c vdr-1.3.24-jumpplay-0.6/dvbplayer.c
---- vdr-1.3.24/dvbplayer.c	2005-05-08 16:52:49.000000000 +0200
-+++ vdr-1.3.24-jumpplay-0.6/dvbplayer.c	2005-05-09 21:58:54.000000000 +0200
-@@ -183,6 +183,7 @@
+diff -Naur vdr-1.3.29/dvbplayer.c vdr-1.3.29-jumpplay-0.6/dvbplayer.c
+--- vdr-1.3.29/dvbplayer.c	2005-08-14 12:52:45.000000000 +0200
++++ vdr-1.3.29-jumpplay-0.6/dvbplayer.c	2005-08-15 20:02:01.000000000 +0200
+@@ -179,6 +179,7 @@
    cNonBlockingFileReader *nonBlockingFileReader;
    cRingBufferFrame *ringBuffer;
    cBackTrace *backTrace;
@@ -179,16 +180,16 @@ diff -Naur vdr-1.3.24/dvbplayer.c vdr-1.3.24-jumpplay-0.6/dvbplayer.c
    cFileName *fileName;
    cIndexFile *index;
    int replayFile;
-@@ -205,7 +206,7 @@
+@@ -199,7 +200,7 @@
    virtual void Activate(bool On);
    virtual void Action(void);
  public:
 -  cDvbPlayer(const char *FileName);
 +  cDvbPlayer(const char *FileName, cMarks *Marks = NULL);
    virtual ~cDvbPlayer();
-   bool Active(void) { return active; }
+   bool Active(void) { return cThread::Running(); }
    void Pause(void);
-@@ -225,7 +226,7 @@
+@@ -219,7 +220,7 @@
  #define SPEED_MULT   12 // the speed multiplier
  int cDvbPlayer::Speeds[] = { 0, -2, -4, -8, 1, 2, 4, 12, 0 };
  
@@ -197,7 +198,7 @@ diff -Naur vdr-1.3.24/dvbplayer.c vdr-1.3.24-jumpplay-0.6/dvbplayer.c
  :cThread("dvbplayer")
  {
    nonBlockingFileReader = NULL;
-@@ -257,6 +258,7 @@
+@@ -249,6 +250,7 @@
       index = NULL;
       }
    backTrace = new cBackTrace;
@@ -205,7 +206,7 @@ diff -Naur vdr-1.3.24/dvbplayer.c vdr-1.3.24-jumpplay-0.6/dvbplayer.c
  }
  
  cDvbPlayer::~cDvbPlayer()
-@@ -365,11 +367,25 @@
+@@ -354,11 +356,25 @@
    uchar *b = NULL;
    uchar *p = NULL;
    int pc = 0;
@@ -231,7 +232,7 @@ diff -Naur vdr-1.3.24/dvbplayer.c vdr-1.3.24-jumpplay-0.6/dvbplayer.c
    nonBlockingFileReader = new cNonBlockingFileReader;
    int Length = 0;
    bool Sleep = false;
-@@ -417,6 +433,36 @@
+@@ -405,6 +421,36 @@
                         uchar FileNumber;
                         int FileOffset;
                         readIndex++;
@@ -268,7 +269,7 @@ diff -Naur vdr-1.3.24/dvbplayer.c vdr-1.3.24-jumpplay-0.6/dvbplayer.c
                         if (!(index->Get(readIndex, &FileNumber, &FileOffset, NULL, &Length) && NextFile(FileNumber, FileOffset))) {
                            readIndex = -1;
                            eof = true;
-@@ -449,6 +495,10 @@
+@@ -437,6 +483,10 @@
                // Store the frame in the buffer:
  
                if (readFrame) {
@@ -279,7 +280,7 @@ diff -Naur vdr-1.3.24/dvbplayer.c vdr-1.3.24-jumpplay-0.6/dvbplayer.c
                   if (ringBuffer->Put(readFrame))
                      readFrame = NULL;
                   }
-@@ -717,6 +767,11 @@
+@@ -729,6 +779,11 @@
  {
  }
  
@@ -291,9 +292,9 @@ diff -Naur vdr-1.3.24/dvbplayer.c vdr-1.3.24-jumpplay-0.6/dvbplayer.c
  cDvbPlayerControl::~cDvbPlayerControl()
  {
    Stop();
-diff -Naur vdr-1.3.24/dvbplayer.h vdr-1.3.24-jumpplay-0.6/dvbplayer.h
---- vdr-1.3.24/dvbplayer.h	2002-06-23 12:13:51.000000000 +0200
-+++ vdr-1.3.24-jumpplay-0.6/dvbplayer.h	2005-05-09 21:58:00.000000000 +0200
+diff -Naur vdr-1.3.29/dvbplayer.h vdr-1.3.29-jumpplay-0.6/dvbplayer.h
+--- vdr-1.3.29/dvbplayer.h	2002-06-23 12:13:51.000000000 +0200
++++ vdr-1.3.29-jumpplay-0.6/dvbplayer.h	2005-08-15 20:02:01.000000000 +0200
 @@ -20,6 +20,7 @@
    cDvbPlayer *player;
  public:
@@ -302,10 +303,10 @@ diff -Naur vdr-1.3.24/dvbplayer.h vdr-1.3.24-jumpplay-0.6/dvbplayer.h
         // Sets up a player for the given file.
    virtual ~cDvbPlayerControl();
    bool Active(void);
-diff -Naur vdr-1.3.24/i18n.c vdr-1.3.24-jumpplay-0.6/i18n.c
---- vdr-1.3.24/i18n.c	2005-05-05 15:12:54.000000000 +0200
-+++ vdr-1.3.24-jumpplay-0.6/i18n.c	2005-05-09 21:58:00.000000000 +0200
-@@ -3850,6 +3850,93 @@
+diff -Naur vdr-1.3.29/i18n.c vdr-1.3.29-jumpplay-0.6/i18n.c
+--- vdr-1.3.29/i18n.c	2005-08-14 14:03:47.000000000 +0200
++++ vdr-1.3.29-jumpplay-0.6/i18n.c	2005-08-15 20:02:01.000000000 +0200
+@@ -3913,6 +3913,93 @@
      "Jätkamise ID",
      "Genoptagelses ID",
    },
@@ -399,10 +400,10 @@ diff -Naur vdr-1.3.24/i18n.c vdr-1.3.24-jumpplay-0.6/i18n.c
    { "Setup.Miscellaneous$Min. event timeout (min)",
      "Mindest Event Pause (min)",
      "Najmanjsi cas dogodka (min)",
-diff -Naur vdr-1.3.24/menu.c vdr-1.3.24-jumpplay-0.6/menu.c
---- vdr-1.3.24/menu.c	2005-03-20 16:14:51.000000000 +0100
-+++ vdr-1.3.24-jumpplay-0.6/menu.c	2005-05-09 21:58:00.000000000 +0200
-@@ -2198,6 +2198,9 @@
+diff -Naur vdr-1.3.29/menu.c vdr-1.3.29-jumpplay-0.6/menu.c
+--- vdr-1.3.29/menu.c	2005-08-14 17:14:29.000000000 +0200
++++ vdr-1.3.29-jumpplay-0.6/menu.c	2005-08-15 21:43:15.000000000 +0200
+@@ -2259,6 +2259,9 @@
    Add(new cMenuEditBoolItem(tr("Setup.Replay$Multi speed mode"), &data.MultiSpeedMode));
    Add(new cMenuEditBoolItem(tr("Setup.Replay$Show replay mode"), &data.ShowReplayMode));
    Add(new cMenuEditIntItem(tr("Setup.Replay$Resume ID"), &data.ResumeID, 0, 99));
@@ -412,7 +413,7 @@ diff -Naur vdr-1.3.24/menu.c vdr-1.3.24-jumpplay-0.6/menu.c
  }
  
  // --- cMenuSetupMisc --------------------------------------------------------
-@@ -3293,7 +3296,7 @@
+@@ -3361,7 +3364,7 @@
  char *cReplayControl::title = NULL;
  
  cReplayControl::cReplayControl(void)
@@ -421,7 +422,7 @@ diff -Naur vdr-1.3.24/menu.c vdr-1.3.24-jumpplay-0.6/menu.c
  {
    displayReplay = NULL;
    visible = modeOnly = shown = displayFrames = false;
-@@ -3303,6 +3306,7 @@
+@@ -3371,6 +3374,7 @@
    timeoutShow = 0;
    timeSearchActive = false;
    marks.Load(fileName);
@@ -429,7 +430,7 @@ diff -Naur vdr-1.3.24/menu.c vdr-1.3.24-jumpplay-0.6/menu.c
    cRecording Recording(fileName);
    cStatus::MsgReplaying(this, Recording.Name());
  }
-@@ -3519,8 +3523,10 @@
+@@ -3587,8 +3591,10 @@
          ShowTimed(2);
          bool Play, Forward;
          int Speed;
@@ -441,13 +442,12 @@ diff -Naur vdr-1.3.24/menu.c vdr-1.3.24-jumpplay-0.6/menu.c
          }
       marks.Save();
       }
-@@ -3532,10 +3538,20 @@
-      int Current, Total;
+@@ -3601,8 +3607,17 @@
       if (GetIndex(Current, Total)) {
          cMark *m = Forward ? marks.GetNext(Current) : marks.GetPrev(Current);
--        if (m)
+         if (m) {
 -           Goto(m->position, true);
-+        if (m) {
+-           displayFrames = true;
 +           bool Play2, Forward2;
 +           int Speed;
 +           if (Setup.JumpPlay && GetReplayMode(Play2, Forward2, Speed) &&
@@ -459,13 +459,10 @@ diff -Naur vdr-1.3.24/menu.c vdr-1.3.24-jumpplay-0.6/menu.c
 +              Goto(m->position, true);
 +              displayFrames = true;
 +              }
-+           }
+            }
          }
--     displayFrames = true;
       }
- }
- 
-@@ -3588,7 +3604,7 @@
+@@ -3657,7 +3672,7 @@
       if (!m)
          m = marks.GetNext(Current);
       if (m) {
@@ -474,7 +471,7 @@ diff -Naur vdr-1.3.24/menu.c vdr-1.3.24-jumpplay-0.6/menu.c
             m = marks.Next(m);
          if (m) {
             Goto(m->position - SecondsToFrames(3));
-@@ -3602,6 +3618,11 @@
+@@ -3671,6 +3686,11 @@
  {
    if (!Active())
       return osEnd;
@@ -486,9 +483,9 @@ diff -Naur vdr-1.3.24/menu.c vdr-1.3.24-jumpplay-0.6/menu.c
    if (visible) {
       if (timeoutShow && time(NULL) > timeoutShow) {
          Hide();
-diff -Naur vdr-1.3.24/menu.h vdr-1.3.24-jumpplay-0.6/menu.h
---- vdr-1.3.24/menu.h	2005-03-20 11:57:29.000000000 +0100
-+++ vdr-1.3.24-jumpplay-0.6/menu.h	2005-05-09 21:58:00.000000000 +0200
+diff -Naur vdr-1.3.29/menu.h vdr-1.3.29-jumpplay-0.6/menu.h
+--- vdr-1.3.29/menu.h	2005-05-15 16:34:54.000000000 +0200
++++ vdr-1.3.29-jumpplay-0.6/menu.h	2005-08-15 20:02:01.000000000 +0200
 @@ -187,6 +187,7 @@
    bool lastPlay, lastForward;
    int lastSpeed;
@@ -497,10 +494,10 @@ diff -Naur vdr-1.3.24/menu.h vdr-1.3.24-jumpplay-0.6/menu.h
    bool timeSearchActive, timeSearchHide;
    int timeSearchTime, timeSearchPos;
    void TimeSearchDisplay(void);
-diff -Naur vdr-1.3.24/recording.c vdr-1.3.24-jumpplay-0.6/recording.c
---- vdr-1.3.24/recording.c	2005-05-07 17:25:15.000000000 +0200
-+++ vdr-1.3.24-jumpplay-0.6/recording.c	2005-05-09 21:58:00.000000000 +0200
-@@ -744,9 +744,10 @@
+diff -Naur vdr-1.3.29/recording.c vdr-1.3.29-jumpplay-0.6/recording.c
+--- vdr-1.3.29/recording.c	2005-08-13 16:00:48.000000000 +0200
++++ vdr-1.3.29-jumpplay-0.6/recording.c	2005-08-15 20:02:01.000000000 +0200
+@@ -833,9 +833,10 @@
  
  // --- cMarks ----------------------------------------------------------------
  
@@ -513,10 +510,10 @@ diff -Naur vdr-1.3.24/recording.c vdr-1.3.24-jumpplay-0.6/recording.c
       Sort();
       return true;
       }
-diff -Naur vdr-1.3.24/recording.h vdr-1.3.24-jumpplay-0.6/recording.h
---- vdr-1.3.24/recording.h	2005-01-16 16:11:31.000000000 +0100
-+++ vdr-1.3.24-jumpplay-0.6/recording.h	2005-05-09 21:58:00.000000000 +0200
-@@ -98,7 +98,7 @@
+diff -Naur vdr-1.3.29/recording.h vdr-1.3.29-jumpplay-0.6/recording.h
+--- vdr-1.3.29/recording.h	2005-08-13 16:09:50.000000000 +0200
++++ vdr-1.3.29-jumpplay-0.6/recording.h	2005-08-15 20:02:01.000000000 +0200
+@@ -118,7 +118,7 @@
  
  class cMarks : public cConfig<cMark> {
  public:
