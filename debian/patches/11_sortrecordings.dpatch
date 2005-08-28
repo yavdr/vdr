@@ -1,0 +1,33 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+
+## 11_sortrecordings.dpatch by FrankJepsen at vdrportal.de
+## http://www.jepsennet.de/vdr/download/11_sortrecordings.dpatch
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Sort recordings dirs first and by name, recs by date or name (if last
+## DP: char in dir is one of '.-$ª').
+
+@DPATCH@
+
+--- vdrdevel-1.3.24.org/recording.c	2005-05-07 17:25:15.000000000 +0200
++++ vdrdevel-1.3.24/recording.c	2005-06-17 00:24:44.000000000 +0200
+@@ -445,8 +445,8 @@
+               s1 = t;
+            }
+         t++;
+-        }
+-  if (s1 && s2)
++        } *s1 = 255;
++  if (s1 && s2 && s1 != s && !strchr(".-$ª", *(s1 - 1)))
+      memmove(s1 + 1, s2, t - s2 + 1);
+   return s;
+ }
+@@ -454,7 +454,7 @@
+ char *cRecording::SortName(void) const
+ {
+   if (!sortBuffer) {
+-     char *s = StripEpisodeName(strdup(FileName() + strlen(VideoDirectory) + 1));
++     char *s = StripEpisodeName(strdup(FileName() + strlen(VideoDirectory) ));
+      int l = strxfrm(NULL, s, 0) + 1;
+      sortBuffer = MALLOC(char, l);
+      strxfrm(sortBuffer, s, l);

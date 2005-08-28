@@ -1,6 +1,23 @@
-vdr (1.3.29-1) unstable; urgency=low
+vdr (1.3.31-1) unstable; urgency=low
 
-  * NOT YET RELEASED
+  * NOT RELEASED YET
+  
+  * Thomas Schmidt <tschmidt@debian.org>
+    - New upstream release
+
+ -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sun, 28 Aug 2005 18:25:00 +0200
+
+vdr (1.3.30-1) unstable; urgency=low
+
+  * Thomas Schmidt <tschmidt@debian.org>
+    - New upstream release
+      + Should fix the FTBFS on several arches (closes: #324082)
+    - Added 11_sortrecordings.dpatch, to allow changing the sort-order
+      of the recordings
+
+ -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sat, 27 Aug 2005 19:34:47 +0200
+
+vdr (1.3.29-1) unstable; urgency=low
 
   * Thomas Schmidt <tschmidt@debian.org>
     - New upstream release
