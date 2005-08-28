@@ -28,7 +28,7 @@ startvdr()
         getplugins
         mergecommands "commands"
         mergecommands "reccmds"
-        start-stop-daemon --start --quiet \
+        start-stop-daemon --start --quiet --background \
                 --exec /usr/sbin/runvdr -- -v $VIDEO_DIR -c $CFG_DIR -r $REC_CMD \
                 -s $VDRSHUTDOWN -E $EPG_FILE -u $USER -g $GROUP --port $SVDRP_PORT \
                 $OPTIONS $PLUGINS &
