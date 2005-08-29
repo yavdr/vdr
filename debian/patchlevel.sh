@@ -4,9 +4,13 @@ case "$*" in
     "make")
         # scan patches in 00list and write to patchlevel file
         echo -n "Patches: "
-        for p in $(grep "^opt-[0-9][0-9]_" debian/patches/00list | cut -d"_" -f2-); do
+        for p in $(grep "^[[:space:]]*opt-[0-9][0-9]_" debian/patches/00list | cut -d"_" -f2-); do
             echo -n "$p "
-            PATCHES="$PATCHES $p"
+            if [ -z $PATCHES ]; then
+                PATCHES="$p"
+            else
+                PATCHES="$PATCHES $p"
+            fi
         done
         echo
         echo "patchlevel=$PATCHES" > patchlevel
