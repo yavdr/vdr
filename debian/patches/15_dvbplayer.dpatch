@@ -1,9 +1,9 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
 
 ## 15_dvbplayer.dpatch by Reinhard Nissl <rnissl@gmx.de>
+## http://home.vr-web.de/~rnissl/vdr-1.3.31-dvbplayer5.patch
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: Downloaded from: http://home.vrweb.de/~rnissl/
 ## DP: Fixes VDR's recording replayer to send proper I-frames to a device.
 ## DP: Without this patch it is very likely that incomplete I-frames are sent
 ## DP: and therefore many I-frames will not be displayed by devices like
@@ -14,11 +14,10 @@
 ## DP: vdr-xine while moving cut marks.
 
 @DPATCH@
-diff -urNad --exclude=CVS --exclude=.svn ./dvbplayer.c /tmp/dpep-work.CvTof4/vdr-1.3.28/dvbplayer.c
---- ./dvbplayer.c	2005-07-30 12:00:24.000000000 +0200
-+++ /tmp/dpep-work.CvTof4/vdr-1.3.28/dvbplayer.c	2005-08-07 23:07:35.000000000 +0200
-@@ -360,6 +360,176 @@
-      }
+--- vdr-1.3.31/dvbplayer.c
++++ vdr-1.3.31/dvbplayer.c
+@@ -349,6 +349,202 @@ void cDvbPlayer::Activate(bool On)
+      Cancel(9);
  }
  
 +// --- BEGIN fix for I frames  -------------------------------------------
@@ -36,23 +35,32 @@ diff -urNad --exclude=CVS --exclude=.svn ./dvbplayer.c /tmp/dpep-work.CvTof4/vdr
 +//  edit cutting marks for example with softdevice plugins like vdr-xine.
 +//
 +
-+static int analyzePesHeader(const uchar *Data, int Count, int &PesPayloadOffset, bool *ContinuationHeader = 0)
++#if VDRVERSNUM < 10331
++
++enum ePesHeader {
++  phNeedMoreData = -1,
++  phInvalid = 0,
++  phMPEG1 = 1,
++  phMPEG2 = 2
++  };
++
++static ePesHeader AnalyzePesHeader(const uchar *Data, int Count, int &PesPayloadOffset, bool *ContinuationHeader = NULL)
 +{
 +  if (Count < 7)
-+     return -1; // too short
++     return phNeedMoreData; // too short
 +
 +  if ((Data[6] & 0xC0) == 0x80) { // MPEG 2
 +     if (Count < 9)
-+        return -1; // too short
++        return phNeedMoreData; // too short
 +
 +     PesPayloadOffset = 6 + 3 + Data[8];
 +     if (Count < PesPayloadOffset)
-+        return -1; // too short
++        return phNeedMoreData; // too short
 +
 +     if (ContinuationHeader)
 +        *ContinuationHeader = ((Data[6] == 0x80) && !Data[7] && !Data[8]);
 +
-+     return 2; // MPEG 2
++     return phMPEG2; // MPEG 2
 +     }
 +
 +  // check for MPEG 1 ...
@@ -64,7 +72,7 @@ diff -urNad --exclude=CVS --exclude=.svn ./dvbplayer.c /tmp/dpep-work.CvTof4/vdr
 +         break;
 +
 +      if (Count <= ++PesPayloadOffset)
-+         return -1; // too short
++         return phNeedMoreData; // too short
 +      }
 +
 +  // skip STD_buffer_scale/size
@@ -72,7 +80,7 @@ diff -urNad --exclude=CVS --exclude=.svn ./dvbplayer.c /tmp/dpep-work.CvTof4/vdr
 +     PesPayloadOffset += 2;
 +
 +     if (Count <= PesPayloadOffset)
-+        return -1; // too short
++        return phNeedMoreData; // too short
 +     }
 +
 +  if (ContinuationHeader)
@@ -94,18 +102,20 @@ diff -urNad --exclude=CVS --exclude=.svn ./dvbplayer.c /tmp/dpep-work.CvTof4/vdr
 +        *ContinuationHeader = true;
 +     }
 +  else
-+     return 0; // unknown
++     return phInvalid; // unknown
 +
 +  if (Count < PesPayloadOffset)
-+     return -1; // too short
++     return phNeedMoreData; // too short
 +
-+  return 1; // MPEG 1
++  return phMPEG1; // MPEG 1
 +}
++
++#endif
 +
 +static uchar *findStartCode(uchar *Data, int Length, int &PesPayloadOffset)
 +{
 +  uchar *limit = Data + Length;
-+  if (analyzePesHeader(Data, Length, PesPayloadOffset) <= 0)
++  if (AnalyzePesHeader(Data, Length, PesPayloadOffset) <= phInvalid)
 +     return 0; // neither MPEG1 nor MPEG2
 +
 +  Data += PesPayloadOffset + 3; // move to video payload and skip 00 00 01
@@ -161,29 +171,44 @@ diff -urNad --exclude=CVS --exclude=.svn ./dvbplayer.c /tmp/dpep-work.CvTof4/vdr
 +
 +#define IPACKS 2048 // originally defined in remux.c
 +
-+static void fixIFrame(uchar *Data, int &Length)
++static void fixIFrame(uchar *Data, int &Length, const int OriginalLength)
 +{
-+  int originalLength = Length - IPACKS; // by design
 +  int done = 0;
 +
 +  while (done < Length) {
 +        if (0x00 != Data[0] || 0x00 != Data[1] || 0x01 != Data[2]) {
-+           esyslog("fixIFrame: PES start code not found at offset %d (data length: %d)!", done, Length);
++           esyslog("fixIFrame: PES start code not found at offset %d (data length: %d, original length: %d)!", done, Length, OriginalLength);
++           if (Length > OriginalLength) // roll back additional data
++              Length = OriginalLength;
 +           return;
 +           }
 +
 +        int lenPES = 6 + Data[4] * 256 + Data[5];
-+        if (0xE0 == (0xF0 & Data[ 3 ])) { // video packet
++        if (0xBA == Data[3]) { // pack header has fixed length
++           if (0x00 == (0xC0 & Data[4]))
++              lenPES = 12; // MPEG1
++           else
++              lenPES = 14 + (Data[13] & 0x07); // MPEG2
++           }
++        else if (0xB9 == Data[3]) // stream end has fixed length
++           lenPES = 4;
++        else if (0xE0 == (0xF0 & Data[3])) { // video packet
 +           int todo = Length - done;
 +           int bite = (lenPES < todo) ? lenPES : todo;
 +           if (0 == done) // first packet
 +              fixIFrameHead(Data, bite);
-+           else if (done >= originalLength) { // last packet
++           else if (done >= OriginalLength) { // last packet
 +              Length = done + fixIFrameTail(Data, bite);
 +              return;
 +              }
 +           }
-+        
++        else if (0 == done && 0xC0 == (0xE0 & Data[3])) {
++           // if the first I frame packet is an audio packet then this is a radio recording: don't touch it!
++           if (Length > OriginalLength) // roll back additional data
++              Length = OriginalLength;
++           return;
++           }
++
 +        done += lenPES;
 +        Data += lenPES;
 +        }
@@ -194,7 +219,7 @@ diff -urNad --exclude=CVS --exclude=.svn ./dvbplayer.c /tmp/dpep-work.CvTof4/vdr
  void cDvbPlayer::Action(void)
  {
    uchar *b = NULL;
-@@ -397,6 +567,7 @@
+@@ -385,6 +581,7 @@ void cDvbPlayer::Action(void)
                         if (Index >= 0) {
                            if (!NextFile(FileNumber, FileOffset))
                               continue;
@@ -202,16 +227,16 @@ diff -urNad --exclude=CVS --exclude=.svn ./dvbplayer.c /tmp/dpep-work.CvTof4/vdr
                            }
                         else {
                            // hit begin of recording: wait for device buffers to drain
-@@ -435,6 +606,8 @@
+@@ -423,6 +620,8 @@ void cDvbPlayer::Action(void)
                      }
                   int r = nonBlockingFileReader->Read(replayFile, b, Length);
                   if (r > 0) {
 +                    if (playMode == pmFast || (playMode == pmSlow && playDir == pdBackward))
-+                       fixIFrame(b, r);
++                       fixIFrame(b, r, Length - IPACKS);
                      readFrame = new cFrame(b, -r, ftUnknown, readIndex); // hands over b to the ringBuffer
                      b = NULL;
                      }
-@@ -668,9 +841,11 @@
+@@ -655,9 +854,11 @@ void cDvbPlayer::Goto(int Index, bool St
       int FileOffset, Length;
       Index = index->GetNextIFrame(Index, false, &FileNumber, &FileOffset, &Length);
       if (Index >= 0 && NextFile(FileNumber, FileOffset) && Still) {
@@ -219,7 +244,7 @@ diff -urNad --exclude=CVS --exclude=.svn ./dvbplayer.c /tmp/dpep-work.CvTof4/vdr
          uchar b[MAXFRAMESIZE + 4 + 5 + 4];
          int r = ReadFrame(replayFile, b, Length, sizeof(b));
          if (r > 0) {
-+           fixIFrame(b, r);
++           fixIFrame(b, r, Length - IPACKS);
             if (playMode == pmPause)
                DevicePlay();
             // append sequence end code to get the image shown immediately with softdevices
