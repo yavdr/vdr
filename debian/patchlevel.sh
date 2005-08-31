@@ -6,14 +6,14 @@ case "$*" in
         echo -n "Patches: "
         for p in $(grep "^[[:space:]]*opt-[0-9][0-9]_" debian/patches/00list | cut -d"_" -f2-); do
             echo -n "$p "
-            if [ -z $PATCHES ]; then
+            if [ -z "$PATCHES" ]; then
                 PATCHES="$p"
             else
                 PATCHES="$PATCHES $p"
             fi
         done
         echo
-        echo "patchlevel=$PATCHES" > patchlevel
+        echo "vdr:Patchlevel=$PATCHES" > patchlevel
         ;;
     "clean")
         # remove patchlevel file
@@ -29,7 +29,7 @@ case "$*" in
             PATCHES=$(cat /usr/include/vdr/patchlevel)
         fi
         # write *.substvars only if patchlevel not empty
-        if [ "$PATCHES" != "patchlevel=" ]; then
+        if [ "$PATCHES" != "vdr:Patchlevel=" ]; then
             # scan control for packages
             for p in $(dh_listpackages); do
                 echo "$PATCHES" >> debian/$p.substvars

@@ -26,7 +26,7 @@ Description: Video Disk Recorder for DVB cards
  programs. Also the standard VDR (without special plugins) requires 
  a DVB-Card with an integrated mpeg-decoder, a so called 
  Full-Featured Card.
-XB-VDR-Patchlevel: ${patchlevel}
+XB-VDR-Patchlevel: ${vdr:Patchlevel}
 
 Package: vdr-dev
 Architecture:  all
@@ -40,7 +40,7 @@ Description: Video Disk Recorder for DVB cards
  .
  This package contains the header files of VDR.
  You need this package to be able to build vdr-plugins!
-XB-VDR-Patchlevel: ${patchlevel}
+XB-VDR-Patchlevel: ${vdr:Patchlevel}
 
 Package: vdr-plugin-sky
 Architecture: any 
@@ -54,7 +54,7 @@ Description: Plugin for using a Sky Digibox with vdr
  the analog a/v output of a Sky Digibox to VDR, so that you can 
  enjoy the full recording flexibility of VDR with your Sky 
  subscription. 
-XB-VDR-Patchlevel: ${patchlevel}
+XB-VDR-Patchlevel: ${vdr:Patchlevel}
 
 Package: vdr-plugin-examples
 Architecture: any 
@@ -68,4 +68,4 @@ Description: Plugins for vdr to show some possible features
  from the vdr-source. These plugins do not have useful features,
  they only demonstrate how vdr-plugins work and what is possible to
  do with them.
-XB-VDR-Patchlevel: ${patchlevel}
+XB-VDR-Patchlevel: ${vdr:Patchlevel}

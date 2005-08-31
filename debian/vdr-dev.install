@@ -10,3 +10,4 @@ vdr-newplugin                   usr/bin/
 debian/lintian/vdr-dev          usr/share/lintian/overrides/
 
 debian/patchlevel.sh            usr/lib/vdr-dev/
+debian/patchlevel.sh            usr/lib/vdr-dev/
