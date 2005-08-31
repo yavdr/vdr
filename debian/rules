@@ -49,9 +49,9 @@ build-stamp:
 	touch build-stamp
 
 patchlevel:
-	chmod +x debian/patchlevel.sh
+	chmod 0755 debian/patchlevel.sh
 	debian/patchlevel.sh make
-	chmod +x debian/extract-patchinfo
+	chmod 0755 debian/extract-patchinfo
 	debian/extract-patchinfo >debian/patchinfo
 
 clean: clean-patched unpatch
@@ -84,7 +84,10 @@ install: build patchlevel
 
 	# patchlevel file:
 	install -D -m644 patchlevel debian/vdr-dev/usr/include/vdr/patchlevel || true
-	
+
+	# make dependencies.sh executable
+	chmod 0755 debian/dependencies.sh	
+
 	# All other files will be installed using dh_install.
 
 # Build architecture-independent files here.
