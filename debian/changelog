@@ -21,6 +21,7 @@ vdr (1.3.31-1) unstable; urgency=low
   * Thomas Günther <tom@toms-cafe.de>
     - Made debian/plugin-template/rules svn-buildpackage-save
     - Updated 15_dvbplayer.dpatch
+    - Added 22_vdr-playerepg.dpatch - Fixes mp3 plugin problems
 
  -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sun, 28 Aug 2005 18:25:00 +0200
 
