@@ -19,12 +19,14 @@ vdr (1.3.31-1) unstable; urgency=low
       from Tobias inofficial vdr package and changed a few things as suggested
       by Thomas Günther
   * Tobias Grimm <tg@e-tobi.net>
-    - Made debian/patchlevel.sh acccept opt-entries in 00list with leading
+    - Made debian/patchlevel.sh accept opt-entries in 00list with leading
       spaces and removed leading space from vdr-patchlevel output
   * Thomas Günther <tom@toms-cafe.de>
     - Made debian/plugin-template/rules svn-buildpackage-save
     - Updated 15_dvbplayer.dpatch
     - Added 22_vdr-playerepg.dpatch - Fixes mp3 plugin problems
+    - Made debian/plugin-template/control and debian/plugin-template/rules
+      compatible with dependencies.sh and new patchlevel.sh
 
  -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sun, 28 Aug 2005 18:25:00 +0200
 

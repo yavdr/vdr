@@ -87,6 +87,7 @@ binary-arch: build install
 #	dh_perl
 	dh_shlibdeps
 	/usr/lib/$(VDR)-dev/patchlevel.sh subst
+	/usr/lib/$(VDR)-dev/dependencies.sh
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
