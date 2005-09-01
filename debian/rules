@@ -5,14 +5,6 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-CFGDIR    := /var/lib/vdr
-DVBDIR    := /usr/include
-PLUGINDIR := /usr/lib/vdr/plugins
-VIDEODIR  := /var/lib/video.00
-
-# include dpatch stuff
-include /usr/share/dpatch/dpatch.make
-
 ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -g
 endif
@@ -20,60 +12,70 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	INSTALL_PROGRAM += -s
 endif
 
+# Set VDR=vdr or VDR=vdrdevel - vdrdevel always uses dpatch
+VDR=$(shell dh_listpackages | grep "^vdr.*-" | head -n 1 | sed -e "s/-.*//")
+ifeq ($(VDR), vdrdevel)
+    DPATCH=yes
+endif
+
+# To use dpatch uncomment the following line and set Build-Depends to dpatch
+DPATCH=yes
+
+ifdef DPATCH
+include /usr/share/dpatch/dpatch.make
+else
+patch:
+patch-stamp:
+unpatch:
+endif
+
+CFGDIR=/var/lib/$(VDR)
+DVBDIR=/usr/include
+PLUGINDIR=/usr/lib/$(VDR)/plugins
+VIDEODIR=/var/lib/video.00
+
 configure: configure-stamp
-configure-stamp:
+configure-stamp: patch-stamp
 	dh_testdir
-	
 	touch configure-stamp
 
-build: patch-stamp configure-stamp build-stamp
-
-build-stamp: 
+build: build-stamp
+build-stamp: configure-stamp
 	dh_testdir
 
-	# Add here commands to compile the package.
-	
-	$(MAKE) VIDEODIR=$(VIDEODIR) VFAT=1 DVBDIR=$(DVBDIR) PLUGINLIBDIR=$(PLUGINDIR) CFGDIR=$(CFGDIR)
+	$(MAKE) VIDEODIR=$(VIDEODIR) VFAT=1 DVBDIR=$(DVBDIR) \
+		PLUGINLIBDIR=$(PLUGINDIR) CFGDIR=$(CFGDIR)
 	ln -f vdr vdr-kbd
-
 	make include-dir
 
 	# plugins
 	mkdir PLUGINS/lib
 	$(MAKE) plugins
 
-	cp newplugin vdr-newplugin
+	cp newplugin $(VDR)-newplugin
 
-	gcc -o debian/vdr-shutdown.wrapper debian/vdr-shutdown-wrapper.c
+	gcc -o debian/$(VDR)-shutdown.wrapper debian/$(VDR)-shutdown-wrapper.c
 
 	touch build-stamp
 
 patchlevel:
-	chmod 0755 debian/patchlevel.sh
-	debian/patchlevel.sh make
-	chmod 0755 debian/extract-patchinfo
-	debian/extract-patchinfo >debian/patchinfo
+	sh debian/patchlevel.sh make
+	sh debian/extract-patchinfo >debian/patchinfo
 
 clean: clean-patched unpatch
-
 clean-patched:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
-
-	# Add here commands to clean up after the build process.
 	-$(MAKE) plugins-clean 
 	-$(MAKE) clean
-
+	[ "$(VDR)" = "vdr" ] || rm -f $(VDR) $(VDR).1 $(VDR).5
 	rm -f vdr-kbd
 	rm -rf PLUGINS/lib
-	rm -f vdr-newplugin
+	rm -f $(VDR)-newplugin
+	rm -f debian/$(VDR)-shutdown.wrapper
 	sh debian/patchlevel.sh clean
-
-	rm -f debian/vdr-shutdown.wrapper
-
 	rm -f debian/patchinfo
-
 	dh_clean
 
 install: build patchlevel
@@ -81,14 +83,10 @@ install: build patchlevel
 	dh_testroot
 	dh_clean -k
 	dh_installdirs
-
-	# patchlevel file:
-	install -D -m644 patchlevel debian/vdr-dev/usr/include/vdr/patchlevel || true
-
-	# make dependencies.sh executable
-	chmod 0755 debian/dependencies.sh	
-
-	# All other files will be installed using dh_install.
+	dh_install
+	chmod 0755 $(CURDIR)/debian/$(VDR)/usr/lib/$(VDR)/$(VDR)-* \
+          $(CURDIR)/debian/$(VDR)-dev/usr/lib/$(VDR)-dev/patchlevel.sh \
+	  $(CURDIR)/debian/$(VDR)-dev/usr/lib/$(VDR)-dev/dependencies.sh
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -100,7 +98,6 @@ binary-indep: build install
 	dh_installman -i 
 	dh_installmenu -i
 	dh_installchangelogs -i
-	dh_install -i
 	dh_link -i
 	dh_strip -i
 	dh_compress -i 
@@ -122,18 +119,17 @@ binary-arch: build install
 	dh_installman -a
 	dh_installmenu -a
 	dh_installinit -a -pvdr
-	dh_install -a
-	chmod ugo+x $(CURDIR)/debian/vdr/usr/lib/vdr/vdr-*
 	dh_link -a
 	dh_strip -a
 	dh_compress -a
 	dh_fixperms -a
 	dh_installdeb -a
 	dh_shlibdeps -a
-	debian/patchlevel.sh subst
+	sh debian/patchlevel.sh subst
 	dh_gencontrol -a
 	dh_md5sums -a
 	dh_builddeb -a
 
 binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install patch  unpatch configure clean-patched
+.PHONY: build clean binary-indep binary-arch binary install configure \
+        clean-patched patch unpatch
