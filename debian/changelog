@@ -1,3 +1,13 @@
+vdr (1.3.31-2) unstable; urgency=low
+
+  * NOT RELEASED YET
+
+  * Thomas Schmidt <tschmidt@debian.org>
+    - Updated 01_Makefile-fPIC-fix.dpatch, to add -fPIC to the Makefiles
+      of the new example plugins
+  
+ -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Fri,  2 Sep 2005 23:26:47 +0200
+
 vdr (1.3.31-1) unstable; urgency=low
 
   * Thomas Schmidt <tschmidt@debian.org>
