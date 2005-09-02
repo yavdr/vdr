@@ -1,11 +1,9 @@
 vdr (1.3.31-1) unstable; urgency=low
 
-  * NOT RELEASED YET
-  
   * Thomas Schmidt <tschmidt@debian.org>
     - New upstream release
     - Use --background when calling start-stop-daemon in the init-script
-    - Added 16_avoidTrashing.dpatch, which prevent vdr from trashing the 
+    - Added 16_avoidTrashing.dpatch, which prevents vdr from trashing the 
       file system buffers when reading/writing recordings
     - Added 18_vdr-1.3.31-remuxbraces - Fixes some gcc4 warning messages 
     - Added 19_vdr-1.3.31-remux - Fixes a bug in cVideo/AudioRepacker::Repack()
@@ -28,7 +26,7 @@ vdr (1.3.31-1) unstable; urgency=low
     - Made debian/plugin-template/control and debian/plugin-template/rules
       compatible with dependencies.sh and new patchlevel.sh
 
- -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sun, 28 Aug 2005 18:25:00 +0200
+ -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Fri,  2 Sep 2005 17:14:02 +0200
 
 vdr (1.3.30-1) unstable; urgency=low
 
