@@ -6,9 +6,9 @@
 ## DP: Adds -fPIC to Makefiles to fix potential FTBFS.
 
 @DPATCH@
-diff -urNad vdr-1.3.31/PLUGINS/src/hello/Makefile /tmp/dpep.UMYsn3/vdr-1.3.31/PLUGINS/src/hello/Makefile
+diff -urNad vdr-1.3.31/PLUGINS/src/hello/Makefile /tmp/dpep.SGxFe2/vdr-1.3.31/PLUGINS/src/hello/Makefile
 --- vdr-1.3.31/PLUGINS/src/hello/Makefile	2003-12-21 16:47:22.000000000 +0100
-+++ /tmp/dpep.UMYsn3/vdr-1.3.31/PLUGINS/src/hello/Makefile	2005-09-02 23:23:37.518741704 +0200
++++ /tmp/dpep.SGxFe2/vdr-1.3.31/PLUGINS/src/hello/Makefile	2005-09-04 17:12:42.453382128 +0200
 @@ -16,7 +16,7 @@
  ### The C++ compiler and options:
  
@@ -18,9 +18,9 @@ diff -urNad vdr-1.3.31/PLUGINS/src/hello/Makefile /tmp/dpep.UMYsn3/vdr-1.3.31/PL
  
  ### The directory environment:
  
-diff -urNad vdr-1.3.31/PLUGINS/src/osddemo/Makefile /tmp/dpep.UMYsn3/vdr-1.3.31/PLUGINS/src/osddemo/Makefile
+diff -urNad vdr-1.3.31/PLUGINS/src/osddemo/Makefile /tmp/dpep.SGxFe2/vdr-1.3.31/PLUGINS/src/osddemo/Makefile
 --- vdr-1.3.31/PLUGINS/src/osddemo/Makefile	2003-12-21 16:47:26.000000000 +0100
-+++ /tmp/dpep.UMYsn3/vdr-1.3.31/PLUGINS/src/osddemo/Makefile	2005-09-02 23:23:37.518741704 +0200
++++ /tmp/dpep.SGxFe2/vdr-1.3.31/PLUGINS/src/osddemo/Makefile	2005-09-04 17:12:42.453382128 +0200
 @@ -16,7 +16,7 @@
  ### The C++ compiler and options:
  
@@ -30,9 +30,9 @@ diff -urNad vdr-1.3.31/PLUGINS/src/osddemo/Makefile /tmp/dpep.UMYsn3/vdr-1.3.31/
  
  ### The directory environment:
  
-diff -urNad vdr-1.3.31/PLUGINS/src/servicedemo/Makefile /tmp/dpep.UMYsn3/vdr-1.3.31/PLUGINS/src/servicedemo/Makefile
+diff -urNad vdr-1.3.31/PLUGINS/src/servicedemo/Makefile /tmp/dpep.SGxFe2/vdr-1.3.31/PLUGINS/src/servicedemo/Makefile
 --- vdr-1.3.31/PLUGINS/src/servicedemo/Makefile	2005-08-21 12:43:12.000000000 +0200
-+++ /tmp/dpep.UMYsn3/vdr-1.3.31/PLUGINS/src/servicedemo/Makefile	2005-09-02 23:25:15.594831872 +0200
++++ /tmp/dpep.SGxFe2/vdr-1.3.31/PLUGINS/src/servicedemo/Makefile	2005-09-04 17:12:42.453382128 +0200
 @@ -17,7 +17,7 @@
  ### The C++ compiler and options:
  
@@ -42,9 +42,21 @@ diff -urNad vdr-1.3.31/PLUGINS/src/servicedemo/Makefile /tmp/dpep.UMYsn3/vdr-1.3
  
  ### The directory environment:
  
-diff -urNad vdr-1.3.31/PLUGINS/src/sky/Makefile /tmp/dpep.UMYsn3/vdr-1.3.31/PLUGINS/src/sky/Makefile
+diff -urNad vdr-1.3.31/PLUGINS/src/skincurses/Makefile /tmp/dpep.SGxFe2/vdr-1.3.31/PLUGINS/src/skincurses/Makefile
+--- vdr-1.3.31/PLUGINS/src/skincurses/Makefile	2004-05-29 16:44:58.000000000 +0200
++++ /tmp/dpep.SGxFe2/vdr-1.3.31/PLUGINS/src/skincurses/Makefile	2005-09-04 17:13:01.300516928 +0200
+@@ -16,7 +16,7 @@
+ ### The C++ compiler and options:
+ 
+ CXX      ?= g++
+-CXXFLAGS ?= -O2 -Wall -Woverloaded-virtual
++CXXFLAGS ?= -fPIC -O2 -Wall -Woverloaded-virtual
+ 
+ ### The directory environment:
+ 
+diff -urNad vdr-1.3.31/PLUGINS/src/sky/Makefile /tmp/dpep.SGxFe2/vdr-1.3.31/PLUGINS/src/sky/Makefile
 --- vdr-1.3.31/PLUGINS/src/sky/Makefile	2003-12-21 16:47:31.000000000 +0100
-+++ /tmp/dpep.UMYsn3/vdr-1.3.31/PLUGINS/src/sky/Makefile	2005-09-02 23:23:37.518741704 +0200
++++ /tmp/dpep.SGxFe2/vdr-1.3.31/PLUGINS/src/sky/Makefile	2005-09-04 17:12:42.453382128 +0200
 @@ -16,7 +16,7 @@
  ### The C++ compiler and options:
  
@@ -54,9 +66,9 @@ diff -urNad vdr-1.3.31/PLUGINS/src/sky/Makefile /tmp/dpep.UMYsn3/vdr-1.3.31/PLUG
  
  ### The directory environment:
  
-diff -urNad vdr-1.3.31/PLUGINS/src/status/Makefile /tmp/dpep.UMYsn3/vdr-1.3.31/PLUGINS/src/status/Makefile
+diff -urNad vdr-1.3.31/PLUGINS/src/status/Makefile /tmp/dpep.SGxFe2/vdr-1.3.31/PLUGINS/src/status/Makefile
 --- vdr-1.3.31/PLUGINS/src/status/Makefile	2003-12-21 16:47:41.000000000 +0100
-+++ /tmp/dpep.UMYsn3/vdr-1.3.31/PLUGINS/src/status/Makefile	2005-09-02 23:23:37.519741552 +0200
++++ /tmp/dpep.SGxFe2/vdr-1.3.31/PLUGINS/src/status/Makefile	2005-09-04 17:12:42.454381976 +0200
 @@ -16,7 +16,7 @@
  ### The C++ compiler and options:
  
@@ -66,9 +78,9 @@ diff -urNad vdr-1.3.31/PLUGINS/src/status/Makefile /tmp/dpep.UMYsn3/vdr-1.3.31/P
  
  ### The directory environment:
  
-diff -urNad vdr-1.3.31/PLUGINS/src/svdrpdemo/Makefile /tmp/dpep.UMYsn3/vdr-1.3.31/PLUGINS/src/svdrpdemo/Makefile
+diff -urNad vdr-1.3.31/PLUGINS/src/svdrpdemo/Makefile /tmp/dpep.SGxFe2/vdr-1.3.31/PLUGINS/src/svdrpdemo/Makefile
 --- vdr-1.3.31/PLUGINS/src/svdrpdemo/Makefile	2005-08-27 13:26:49.000000000 +0200
-+++ /tmp/dpep.UMYsn3/vdr-1.3.31/PLUGINS/src/svdrpdemo/Makefile	2005-09-02 23:24:50.243685832 +0200
++++ /tmp/dpep.SGxFe2/vdr-1.3.31/PLUGINS/src/svdrpdemo/Makefile	2005-09-04 17:12:42.454381976 +0200
 @@ -16,7 +16,7 @@
  ### The C++ compiler and options:
  

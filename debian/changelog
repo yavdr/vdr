@@ -1,3 +1,16 @@
+vdr (1.3.31-3) unstable; urgency=low
+
+  * NOT RELEASED YET
+  
+  * Thomas Schmidt <tschmidt@debian.org>
+    - Updated 01_Makefile-fPIC-fix.dpatch again, added -fPIC to the Makefile 
+      of the skincurses plugin
+    - Build-Depend on libncurses5-dev, so the skincurses plugin gets compiled
+    - Install the plugins svccli, svcsvr, skincurses and svdrpdemo into the
+      vdr-plugin-examples package
+
+ -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sun,  4 Sep 2005 17:18:11 +0200
+
 vdr (1.3.31-2) unstable; urgency=low
 
   * Thomas Schmidt <tschmidt@debian.org>
