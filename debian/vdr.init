@@ -14,27 +14,29 @@ DESC="Linux Video Disk Recorder"
 test "$ENABLE_SHUTDOWN" = "1" && VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown.wrapper" \
         || VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown-message"
 
-test "$ENABLED" != "0" || exit 0
-
 startvdr() 
 {
-    # only start vdr if there is no other instance running
-    # (Appears as vdr-kbd in the official debian-packages
-    # and just as vdr in the c't-vdr packages)
-    if ! ps ax | grep "/usr/bin/\(vdr\|vdr-kbd\) " | grep -qv grep
-    then
-        . /usr/lib/vdr/plugin-loader.sh
-        . /usr/lib/vdr/commands-loader.sh
-        getplugins
-        mergecommands "commands"
-        mergecommands "reccmds"
-        start-stop-daemon --start --quiet --background \
-                --exec /usr/sbin/runvdr -- -v $VIDEO_DIR -c $CFG_DIR -r $REC_CMD \
-                -s $VDRSHUTDOWN -E $EPG_FILE -u $USER -g $GROUP --port $SVDRP_PORT \
-                $OPTIONS $PLUGINS
-    else
-           echo -n " - seems to be running already"
-    fi
+    if [ "$ENABLED" != "0" ]; then
+        # only start vdr if there is no other instance running
+        # (Appears as vdr-kbd in the official debian-packages
+        # and just as vdr in the c't-vdr packages)
+        if ! ps ax | grep "/usr/bin/\(vdr\|vdr-kbd\) " | grep -qv grep
+        then
+                . /usr/lib/vdr/plugin-loader.sh
+                . /usr/lib/vdr/commands-loader.sh
+                getplugins
+                mergecommands "commands"
+                mergecommands "reccmds"
+                start-stop-daemon --start --quiet --background \
+                        --exec /usr/sbin/runvdr -- -v $VIDEO_DIR -c $CFG_DIR -r $REC_CMD \
+                        -s $VDRSHUTDOWN -E $EPG_FILE -u $USER -g $GROUP --port $SVDRP_PORT \
+                        $OPTIONS $PLUGINS
+        else
+                echo -n " - seems to be running already"
+        fi
+     else
+        echo -n " - aborted (to enable the daemon, edit /etc/default/vdr)"
+     fi
 } 
 
 stopvdr()
