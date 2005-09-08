@@ -17,19 +17,19 @@ getplugins ()
     local vdrcmd
     local version
 
+    vdrcmd="/usr/bin/vdr -u $USER -g $GROUP $OPTIONS"
+
     if [ "$NONPTL" = "1" -a `uname -m` != x86_64 ]; then
-        vdrcmd="LD_ASSUME_KERNEL=2.4.1 /usr/bin/vdr"
-    else
-        vdrcmd="/usr/bin/vdr"
+        vdrcmd="LD_ASSUME_KERNEL=2.4.1 $vdrcmd"
     fi
 
-    version=`$vdrcmd -u $USER -g $GROUP -V -L/usr/bin/vdr 2>/dev/null | sed -e 's/.*(\(.*\)).*/\1/'`
+    version=`eval "$vdrcmd -V -L/usr/bin/vdr 2>/dev/null | sed 's/.*(\(.*\)).*/\1/'"`
     test "$version" || version="unknown version"
- 
+
     PLUGINS=""
- 
+
     echo -ne "\nSearching for plugins (VDR $version):"
- 
+
     # find installed plugins
     installed_plugins=( `find $PLUGIN_DIR -maxdepth 1 -name "$PLUGIN_PREFIX*.so.$version" -printf "%f " | sed "s/$PLUGIN_PREFIX\([^\.]\+\)\.so\.$version/\1/g"` )
 
@@ -54,7 +54,7 @@ getplugins ()
 
         # move not startable plugins to $leftout2
         for (( i=${#installed_plugins[@]}, i-- ; i >= 0 ; i-- )); do
-            if ! $vdrcmd -u $USER -g $GROUP $OPTIONS -V -L $PLUGIN_DIR -P ${installed_plugins[$i]} \
+            if ! eval "$vdrcmd -V -L $PLUGIN_DIR -P ${installed_plugins[$i]}" \
                 2>/dev/null | grep -q "^${installed_plugins[$i]} "; then
                 leftout2="${leftout2} ${installed_plugins[$i]}"
                 unset installed_plugins[$i]

@@ -14,6 +14,8 @@ vdr (1.3.31-3) unstable; urgency=low
     - Do not try to call vdr with LD_ASSUME_KERNEL=2.4.1 in plugins-loader.sh
       on amd64 (many thanks to Sören Köpping for reporting the problem and
       sending a patch) (closes: #326866)
+  * Thomas GÃ¼nther <tom@toms-cafe.de>
+    - Fixed vdr call with LD_ASSUME_KERNEL=2.4.1 in plugins-loader.sh
 
  -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Tue,  6 Sep 2005 14:19:43 +0200
 
