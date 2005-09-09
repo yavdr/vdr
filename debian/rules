@@ -30,7 +30,6 @@ unpatch:
 endif
 
 CFGDIR=/var/lib/$(VDR)
-DVBDIR=/usr/include
 PLUGINDIR=/usr/lib/$(VDR)/plugins
 VIDEODIR=/var/lib/video.00
 
@@ -43,10 +42,11 @@ build: build-stamp
 build-stamp: configure-stamp
 	dh_testdir
 
-	$(MAKE) VIDEODIR=$(VIDEODIR) VFAT=1 DVBDIR=$(DVBDIR) \
-		PLUGINLIBDIR=$(PLUGINDIR) CFGDIR=$(CFGDIR)
-	ln -f vdr vdr-kbd
-	make include-dir
+	$(MAKE) VFAT=1 DVBDIR=/usr \
+	        VIDEODIR=$(VIDEODIR) PLUGINLIBDIR=$(PLUGINDIR) CFGDIR=$(CFGDIR)
+	[ "$(VDR)" = "vdr" ] || \
+	    (cp vdr $(VDR); cp vdr.1 $(VDR).1; cp vdr.5 $(VDR).5)
+	ln -f $(VDR) $(VDR)-kbd
 
 	# plugins
 	mkdir PLUGINS/lib
@@ -67,10 +67,10 @@ clean-patched:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
-	-$(MAKE) plugins-clean 
-	-$(MAKE) clean
+	-$(MAKE) -o .dependencies plugins-clean
+	-$(MAKE) -o .dependencies clean
 	[ "$(VDR)" = "vdr" ] || rm -f $(VDR) $(VDR).1 $(VDR).5
-	rm -f vdr-kbd
+	rm -f $(VDR)-kbd
 	rm -rf PLUGINS/lib
 	rm -f $(VDR)-newplugin
 	rm -f debian/$(VDR)-shutdown.wrapper
@@ -84,25 +84,37 @@ install: build patchlevel
 	dh_clean -k
 	dh_installdirs
 	dh_install
-	chmod 0755 $(CURDIR)/debian/$(VDR)/usr/lib/$(VDR)/$(VDR)-* \
-          $(CURDIR)/debian/$(VDR)-dev/usr/lib/$(VDR)-dev/patchlevel.sh \
+	chmod +x $(CURDIR)/debian/$(VDR)/usr/lib/$(VDR)/$(VDR)-* \
+	  $(CURDIR)/debian/$(VDR)-dev/usr/lib/$(VDR)-dev/patchlevel.sh \
 	  $(CURDIR)/debian/$(VDR)-dev/usr/lib/$(VDR)-dev/dependencies.sh
 
 # Build architecture-independent files here.
 binary-indep: build install
 	dh_testdir -i
-	dh_testroot -i 
-	dh_installdebconf -i
-	dh_installdocs -i 
+	dh_testroot -i
+#	dh_installdebconf -i
+	dh_installdocs -i
 	dh_installexamples -i
-	dh_installman -i 
-	dh_installmenu -i
-	dh_installchangelogs -i
+#	dh_installmenu -i
+#	dh_installlogrotate -i
+#	dh_installemacsen -i
+#	dh_installpam -i
+#	dh_installmime -i
+#	dh_installinit -i
+#	dh_installcron -i
+#	dh_installman -i
+#	dh_installinfo -i
+#	dh_undocumented -i
+	dh_installchangelogs -i HISTORY
 	dh_link -i
 	dh_strip -i
-	dh_compress -i 
+	dh_compress -i
 	dh_fixperms -i
+#	dh_makeshlibs -i
 	dh_installdeb -i
+#	dh_perl -i
+	dh_shlibdeps -i
+	sh debian/patchlevel.sh subst
 	dh_gencontrol -i
 	dh_md5sums -i
 	dh_builddeb -i
@@ -111,19 +123,28 @@ binary-indep: build install
 binary-arch: build install
 	dh_testdir -a
 	dh_testroot -a
-	dh_installdebconf -a -pvdr
-	dh_installdocs -a -Nvdr-plugin-examples
+	dh_installdebconf -a
+	dh_installdocs -a -N$(VDR)-dbg -N$(VDR)-plugin-examples
 	dh_installexamples -a
-	dh_installchangelogs -a -Nvdr-plugin-examples -Nvdr-plugin-sky -pvdr HISTORY
-	dh_installchangelogs -a -Nvdr-plugin-examples -Nvdr -pvdr-plugin-sky PLUGINS/src/sky/HISTORY
-	dh_installman -a
 	dh_installmenu -a
-	dh_installinit -a -pvdr
+#	dh_installlogrotate -a
+#	dh_installemacsen -a
+#	dh_installpam -a
+#	dh_installmime -a
+	dh_installinit -a
+#	dh_installcron -a
+	dh_installman -a
+#	dh_installinfo -a
+#	dh_undocumented -a
+	dh_installchangelogs -p$(VDR) HISTORY
+	dh_installchangelogs -p$(VDR)-plugin-sky PLUGINS/src/sky/HISTORY
 	dh_link -a
 	dh_strip -a
 	dh_compress -a
 	dh_fixperms -a
+#	dh_makeshlibs -a
 	dh_installdeb -a
+#	dh_perl -a
 	dh_shlibdeps -a
 	sh debian/patchlevel.sh subst
 	dh_gencontrol -a

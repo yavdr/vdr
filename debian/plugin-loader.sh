@@ -10,6 +10,7 @@ getplugins ()
     local plugin
     local i
     local arguments
+    local plugins
     local packages
     local patchelvels
     local leftout
@@ -31,12 +32,20 @@ getplugins ()
     echo -ne "\nSearching for plugins (VDR $version):"
 
     # find installed plugins
-    installed_plugins=( `find $PLUGIN_DIR -maxdepth 1 -name "$PLUGIN_PREFIX*.so.$version" -printf "%f " | sed "s/$PLUGIN_PREFIX\([^\.]\+\)\.so\.$version/\1/g"` )
+    plugins=(`find ${PLUGIN_DIR} -maxdepth 1 \
+                   -name "${PLUGIN_PREFIX}*.so.${version}" | \
+              xargs -r dpkg -S 2>&1 | \
+              sed "s/^dpkg:/'':/" | \
+              sed "s/:.*${PLUGIN_PREFIX}\([^\.]\+\)\.so\.${version}.*$/:\1/"`)
+    installed_plugins=(`echo ${plugins[@]} | sed 's/[^ ]*://g'`)
+    packages=(   vdr   `echo ${plugins[@]} | sed 's/:[^ ]*//g'`)
 
     if [ "$PLUGIN_CHECK_PATCHLEVEL" == "yes" ]; then
         # extract patchlevel info
-        packages=( "vdr" "${installed_plugins[@]/#/vdr-plugin-}" )
-        eval "patchlevels=( "`LANG=en;dpkg -s ${packages[@]} 2>&1 | awk -F ':' '/^Package: / {p=$2} /^Package.*is not installed/ {print "\"\""} (/[pP]atchlevel:/ || /^$/) && p!="" {print "\""$2"\"";p=""}'`" )"
+        eval "patchlevels=($(LANG=en;dpkg -s ${packages[@]} 2>&1 | awk -F ':' '\
+            /^Package: /                         {p=$2} \
+            /^Package.*is not installed/         {print "\"\""} \
+            (/[pP]atchlevel:/ || /^$/) && p!=""  {print "\""$2"\"";p=""}'))"
 
         # move plugins with incompatible patchlevel to $leftout
         for (( i=1 ; i<${#patchlevels[@]} ; i++ )); do

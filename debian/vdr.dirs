@@ -1,12 +1,3 @@
-etc/vdr/plugins
-etc/vdr/command-hooks
-usr/bin
-usr/include/vdr
 usr/lib/vdr/plugins
-usr/sbin
-usr/share/lintian/overrides
-usr/share/vdr/command-hooks
-usr/share/vdr/recording-hooks
-usr/share/vdr/shutdown-hooks
 var/cache/vdr
 var/lib/vdr/plugins
