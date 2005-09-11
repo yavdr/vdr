@@ -4,6 +4,7 @@ vdr (1.3.32-1) unstable; urgency=low
   
   * Thomas Schmidt <tschmidt@debian.org>
     - New upstream release
+      + Added 18_vdr-plugin-sky-fix.dpatch
       + Updated 10_dd-record-option.dpatch
       + Removed 18_vdr-1.3.31-remuxbraces.dpatch
       + Removed 19_vdr-1.3.31-remux.dpatch
