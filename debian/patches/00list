@@ -11,11 +11,9 @@
 11_sortrecordings
 12_osdbase-maxitems
 13_epgfix
-14_update-resume
 15_dvbplayer
 16_avoidTrashing
 17_replay
-18_vdr-plugin-sky-fix
 22_vdr-playerepg
 
 # Patch needed for DVB subtitles or ttxtsubs (does not work with AC3-patch)
