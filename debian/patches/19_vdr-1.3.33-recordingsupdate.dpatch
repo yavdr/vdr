@@ -1,0 +1,78 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+
+## 19_vdr-1.3.33-recordingsupdate.dpatch by Klaus Schmidinger <kls@cadsoft.de>
+## from vdr@linuxtv.org mailinglist (Sat, 01 Oct 2005 12:35:30 +0200)
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fixes .update detection if recording dir != /video.
+
+@DPATCH@
+--- vdr-1.3.33/recording.h	2005/09/25 14:30:13	1.44
++++ vdr-1.3.33/recording.h	2005/10/01 10:24:41
+@@ -93,10 +93,11 @@
+ 
+ class cRecordings : public cList<cRecording>, public cThread {
+ private:
+-  char *updateFileName;
++  static char *updateFileName;
+   bool deleted;
+   time_t lastUpdate;
+   int state;
++  const char *UpdateFileName(void);
+   void Refresh(bool Foreground = false);
+   void ScanVideoDir(const char *DirName, bool Foreground = false);
+ protected:
+--- vdr-1.3.33/recording.c	2005/09/25 14:29:49	1.119
++++ vdr-1.3.33/recording.c	2005/10/01 10:29:02
+@@ -743,10 +743,11 @@
+ 
+ cRecordings Recordings;
+ 
++char *cRecordings::updateFileName = NULL;
++
+ cRecordings::cRecordings(bool Deleted)
+ :cThread("video directory scanner")
+ {
+-  updateFileName = strdup(AddDirectory(VideoDirectory, ".update"));
+   deleted = Deleted;
+   lastUpdate = 0;
+   state = 0;
+@@ -755,7 +756,6 @@
+ cRecordings::~cRecordings()
+ {
+   Cancel(3);
+-  free(updateFileName);
+ }
+ 
+ void cRecordings::Action(void)
+@@ -763,6 +763,13 @@
+   Refresh();
+ }
+ 
++const char *cRecordings::UpdateFileName(void)
++{
++  if (!updateFileName)
++     updateFileName = strdup(AddDirectory(VideoDirectory, ".update"));
++  return updateFileName;
++}
++
+ void cRecordings::Refresh(bool Foreground)
+ {
+   lastUpdate = time(NULL); // doing this first to make sure we don't miss anything
+@@ -825,13 +832,13 @@
+ 
+ void cRecordings::TouchUpdate(void)
+ {
+-  TouchFile(updateFileName);
++  TouchFile(UpdateFileName());
+   lastUpdate = time(NULL); // make sure we don't tigger ourselves
+ }
+ 
+ bool cRecordings::NeedsUpdate(void)
+ {
+-  return lastUpdate < LastModifiedTime(updateFileName);
++  return lastUpdate < LastModifiedTime(UpdateFileName());
+ }
+ 
+ bool cRecordings::Update(bool Wait)
+

@@ -8,6 +8,9 @@ vdr (1.3.33-1) unstable; urgency=low
       + Removed 18_vdr-plugin-sky-fix
     - Added initial Swedish translation (sv.po) of the debconf template
       from Daniel Nylander (closes: #330988)
+  * Thomas Günther <tom@toms-cafe.de>
+    - Added 18_vdr-1.3.33-recordingsmenu.dpatch
+    - Added 19_vdr-1.3.33-recordingsupdate.dpatch
 
  -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sun, 25 Sep 2005 17:51:14 +0200
 

@@ -14,6 +14,8 @@
 15_dvbplayer
 16_avoidTrashing
 17_replay
+18_vdr-1.3.33-recordingsmenu
+19_vdr-1.3.33-recordingsupdate
 22_vdr-playerepg
 
 # Patch needed for DVB subtitles or ttxtsubs (does not work with AC3-patch)
