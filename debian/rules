@@ -49,7 +49,7 @@ build-stamp: configure-stamp
 	ln -f $(VDR) $(VDR)-kbd
 
 	# plugins
-	mkdir PLUGINS/lib
+	mkdir -p PLUGINS/lib
 	$(MAKE) plugins
 
 	cp newplugin $(VDR)-newplugin
