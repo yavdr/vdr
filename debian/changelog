@@ -1,7 +1,17 @@
-vdr (1.3.33-1) unstable; urgency=low
+vdr (1.3.35-1) unstable; urgency=low
 
   * NOT RELEASED YET
   
+  * Thomas Schmidt <tschmidt@debian.org>
+    - New upstream release
+      + Removed 16_avoidTrashing.dpatch
+      + Removed 18_vdr-1.3.33-recordingsmenu.dpatch
+      + Removed 19_vdr-1.3.33-recordingsupdate.dpatch
+
+ -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Tue,  1 Nov 2005 21:43:03 +0100
+
+vdr (1.3.33-1) unstable; urgency=low
+
   * Thomas Schmidt <tschmidt@debian.org>
     - New upstream release
       + Removed 14_update-resume.dpatch
