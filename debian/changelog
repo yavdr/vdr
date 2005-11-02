@@ -8,6 +8,8 @@ vdr (1.3.35-1) unstable; urgency=low
       + Removed 18_vdr-1.3.33-recordingsmenu.dpatch
       + Removed 19_vdr-1.3.33-recordingsupdate.dpatch
     - Corrected FSF Address in debian/copyright
+    - Call dh_installman in binary-indep target in debian/rules, to 
+      (re-)include 2 missing manpages
 
  -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Tue,  1 Nov 2005 21:43:03 +0100
 
