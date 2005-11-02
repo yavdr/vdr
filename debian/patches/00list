@@ -12,6 +12,7 @@
 12_osdbase-maxitems
 13_epgfix
 15_dvbplayer
+16_recordings.c-fix
 17_replay
 22_vdr-playerepg
 
