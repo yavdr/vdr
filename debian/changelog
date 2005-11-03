@@ -8,9 +8,14 @@ vdr (1.3.35-1) unstable; urgency=low
       + Removed 18_vdr-1.3.33-recordingsmenu.dpatch
       + Removed 19_vdr-1.3.33-recordingsupdate.dpatch
       + Added 16_recordings.c-fix.dpatch
-    - Corrected FSF Address in debian/copyright
+    - Corrected FSF address in debian/copyright
     - Call dh_installman in binary-indep target in debian/rules, to 
       (re-)include 2 missing manpages
+    - Changed dependencies.sh to create Depends: like 
+      vdr (>= current>), vdr (<< current-9999) without using Conflicts: vdr
+      (>= current-9999) - many thanks to Adeodato Simó for suggesting this
+      (this will hopefully allow vdr+plugins to enter testing without manual
+      hinting)
 
  -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Tue,  1 Nov 2005 21:43:03 +0100
 
