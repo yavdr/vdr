@@ -2,6 +2,11 @@
 
 ## 03_cmdsubmenu.dpatch by Albu at vdrportal.de
 ##
+## version 0.4 for vdr-1.3.36
+## http://toms-cafe.de/vdr/download/vdr-cmdsubmenu-0.4-1.3.36.diff
+##
+## History:
+##
 ## 2003-10-08: Version 0.1 - Albu at vdrportal.de
 ##   http://vdrportal.de/board/thread.php?threadid=6319
 ##
@@ -24,19 +29,19 @@
 ## DP: To create a submenu entry, prefix the name by one ore more "-".
 
 @DPATCH@
---- vdr-1.2.6/Makefile
-+++ vdr-1.2.6/Makefile
-@@ -48,6 +48,7 @@
+--- vdr-1.3.36/Makefile
++++ vdr-1.3.36/Makefile
+@@ -83,6 +83,7 @@
  
- DEFINES += -DREMOTE_$(REMOTE)
+ DEFINES += -DLIRC_DEVICE=\"$(LIRC_DEVICE)\" -DRCU_DEVICE=\"$(RCU_DEVICE)\"
  
 +DEFINES += -DCMD_SUBMENUS
  DEFINES += -D_GNU_SOURCE
  
  DEFINES += -DVIDEODIR=\"$(VIDEODIR)\"
---- vdr-1.2.6/config.c
-+++ vdr-1.2.6/config.c
-@@ -27,18 +27,29 @@
+--- vdr-1.3.36/config.c
++++ vdr-1.3.36/config.c
+@@ -28,18 +28,29 @@
  {
    title = command = NULL;
    confirm = false;
@@ -66,7 +71,7 @@
       int l = p - s;
       if (l > 0) {
          title = MALLOC(char, l + 1);
-@@ -85,6 +96,76 @@
+@@ -86,6 +97,76 @@
    return result;
  }
  
@@ -143,11 +148,11 @@
  // -- cSVDRPhost -------------------------------------------------------------
  
  cSVDRPhost::cSVDRPhost(void)
---- vdr-1.2.6/config.h
-+++ vdr-1.2.6/config.h
-@@ -32,11 +32,15 @@
- 
- #define MaxFileName 256
+--- vdr-1.3.36/config.h
++++ vdr-1.3.36/config.h
+@@ -34,11 +34,15 @@
+ #define MaxSkinName 16
+ #define MaxThemeName 16
  
 +class cCommands;
 +
@@ -161,7 +166,7 @@
    static char *result;
  public:
    cCommand(void);
-@@ -45,6 +49,12 @@
+@@ -47,6 +51,12 @@
    const char *Title(void) { return title; }
    bool Confirm(void) { return confirm; }
    const char *Execute(const char *Parameters = NULL);
@@ -174,7 +179,7 @@
    };
  
  typedef uint32_t in_addr_t; //XXX from /usr/include/netinet/in.h (apparently this is not defined on systems with glibc < 2.2)
-@@ -86,6 +96,10 @@
+@@ -88,6 +98,10 @@
  public:
    cConfig(void) { fileName = NULL; }
    virtual ~cConfig() { free(fileName); }
@@ -185,16 +190,16 @@
    const char *FileName(void) { return fileName; }
    bool Load(const char *FileName = NULL, bool AllowComments = false, bool MustExist = false)
    {
-@@ -114,7 +128,7 @@
-                 if (!isempty(buffer)) {
+@@ -117,7 +131,7 @@
+                 if (!isempty(s)) {
                     T *l = new T;
-                    if (l->Parse(buffer))
+                    if (l->Parse(s))
 -                      Add(l);
 +                      AddConfig(l);
                     else {
-                       esyslog("ERROR: error in %s, line %d\n", fileName, line);
+                       esyslog("ERROR: error in %s, line %d", fileName, line);
                        delete l;
-@@ -156,7 +170,10 @@
+@@ -159,7 +173,10 @@
    }
    };
  
@@ -206,9 +211,9 @@
  
  class cSVDRPhosts : public cConfig<cSVDRPhost> {
  public:
---- vdr-1.2.6/menu.c
-+++ vdr-1.2.6/menu.c
-@@ -1518,6 +1518,12 @@
+--- vdr-1.3.36/menu.c
++++ vdr-1.3.36/menu.c
+@@ -1247,6 +1247,12 @@
    if (command) {
       char *buffer = NULL;
       bool confirmed = true;
