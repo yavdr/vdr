@@ -21,7 +21,6 @@ debian/config-loader.sh   usr/lib/vdr
 debian/plugin-loader.sh   usr/lib/vdr
 debian/commands-loader.sh usr/lib/vdr
 
-ca.conf         etc/vdr/
 diseqc.conf     etc/vdr/
 keymacros.conf  etc/vdr/
 sources.conf    etc/vdr/

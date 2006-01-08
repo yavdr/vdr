@@ -36,11 +36,6 @@ EPG_FILE=/var/cache/vdr/epg.data
 # root or with "-u root")
 USER=vdr
 
-# Groupname under which vdr will run (Note: the group root is not 
-# allowed to run vdr, vdr will abort when you try to start it with
-# group root or with "-g root")
-GROUP=vdr
-
 # Default port for SVDRP
 SVDRP_PORT=2001
 

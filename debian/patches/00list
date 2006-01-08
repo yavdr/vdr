@@ -1,10 +1,7 @@
 02_Makefile-CFGDIR
 03_cmdsubmenu
 04_newplugin
-05_set_system_time_as_user
 06_default_svdrp_port_0
-07_not_as_root
-08_security_CAN-2005-0071
 09_sort_options
 10_dd-record-option
 11_sortrecordings
