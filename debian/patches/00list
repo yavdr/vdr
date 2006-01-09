@@ -9,6 +9,7 @@
 13_epgfix
 15_dvbplayer
 17_replay
+18_vdr-1.3.38-root-fix
 
 # Patch needed for DVB subtitles or ttxtsubs (does not work with AC3-patch)
 # opt-21_subtitles_and_ttxtsubs

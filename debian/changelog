@@ -8,6 +8,7 @@ vdr (1.3.38-1) unstable; urgency=low
       + Updated 06_default_svdrp_port_0.dpatch
       + Removed 07_not_as_root.dpatch
       + Removed 08_security_CAN-2005-0071.dpatch
+      + Added 18_vdr-1.3.38-root-fix.dpatch
     - Do not try to install ca.conf, because it is not needed anmore
     - Removed option to set group under which vdr should run from the
       init-script
