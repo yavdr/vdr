@@ -4,7 +4,6 @@ etc/vdr/command-hooks/reccmds.custom.conf   usr/share/vdr/command-hooks/reccmds.
 var/cache/vdr/commands.conf  var/lib/vdr/commands.conf
 var/cache/vdr/reccmds.conf   var/lib/vdr/reccmds.conf
 
-etc/vdr/ca.conf          var/lib/vdr/ca.conf
 etc/vdr/diseqc.conf      var/lib/vdr/diseqc.conf
 etc/vdr/keymacros.conf   var/lib/vdr/keymacros.conf
 etc/vdr/sources.conf     var/lib/vdr/sources.conf
