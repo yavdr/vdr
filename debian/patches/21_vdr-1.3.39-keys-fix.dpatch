@@ -1,0 +1,39 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+
+## 21_vdr-1.3.39-keys-fix.dpatch by Klaus Schmidinger <Klaus.Schmidinger@cadsoft.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fixes cKeyMacros to be kNone-safe
+
+@DPATCH@
+diff -urNad vdr-1.3.39/keys.c /tmp/dpep.C9NYym/vdr-1.3.39/keys.c
+--- vdr-1.3.39/keys.c	2006-01-05 16:39:26.000000000 +0100
++++ /tmp/dpep.C9NYym/vdr-1.3.39/keys.c	2006-01-20 22:10:03.133378750 +0100
+@@ -250,9 +250,11 @@
+ 
+ const cKeyMacro *cKeyMacros::Get(eKeys Key)
+ {
+-  for (cKeyMacro *k = First(); k; k = Next(k)) {
+-      if (*k->Macro() == Key)
+-         return k;
+-      }
++  if (Key != kNone) {
++     for (cKeyMacro *k = First(); k; k = Next(k)) {
++         if (*k->Macro() == Key)
++            return k;
++         }
++     }
+   return NULL;
+ }
+diff -urNad vdr-1.3.39/vdr.c /tmp/dpep.C9NYym/vdr-1.3.39/vdr.c
+--- vdr-1.3.39/vdr.c	2006-01-15 14:31:57.000000000 +0100
++++ /tmp/dpep.C9NYym/vdr-1.3.39/vdr.c	2006-01-20 22:10:03.133378750 +0100
+@@ -985,7 +985,7 @@
+            }
+         else {
+            // Key functions in "normal" viewing mode:
+-           if (KeyMacros.Get(key)) {
++           if (key != kNone && KeyMacros.Get(key)) {
+               cRemote::PutMacro(key);
+               key = kNone;
+               }
