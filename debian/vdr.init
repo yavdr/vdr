@@ -26,17 +26,17 @@ startvdr()
 {
     if [ "$ENABLED" != "0" ]; then
         # only start vdr if there is no other instance running
-	if start-stop-daemon --start --startas $DAEMON --test \
-		--name $(basename $DAEMON) --pidfile $PIDFILE >/dev/null
-	then
+        if start-stop-daemon --start --startas $DAEMON --test \
+                --name $(basename $DAEMON) --pidfile $PIDFILE >/dev/null
+        then
                 getplugins
                 mergecommands "commands"
                 mergecommands "reccmds"
                 start-stop-daemon --start --quiet --startas $DAEMON --background \
-			--name $(basename $DAEMON) --pidfile $PIDFILE --make-pidfile --\
+                        --name $(basename $DAEMON) --pidfile $PIDFILE --make-pidfile --\
                         -v $VIDEO_DIR -c $CFG_DIR -L $PLUGIN_DIR -r $REC_CMD \
                         -s $VDRSHUTDOWN -E $EPG_FILE -u $USER \
-			--port $SVDRP_PORT $OPTIONS $PLUGINS
+                        --port $SVDRP_PORT $OPTIONS $PLUGINS
         else
                 echo -n " - seems to be running already"
         fi
@@ -50,10 +50,10 @@ stopvdr()
     if start-stop-daemon --stop --retry 5 \
         --name $(basename $DAEMON) --pidfile $PIDFILE >/dev/null
     then
-    	start-stop-daemon --stop --retry 5 --oknodo --exec $VDRPRG-kbd >/dev/null
-	rm -f $PIDFILE
+        start-stop-daemon --stop --retry 5 --oknodo --exec $VDRPRG-kbd >/dev/null
+        rm -f $PIDFILE
     else
-    	echo -n " - seems not to be running"
+        echo -n " - seems not to be running"
     fi
 }
 
