@@ -16,34 +16,35 @@ test -x $VDRPRG || exit 0
 
 . /usr/lib/vdr/config-loader.sh
 
+# Set shutdown command
 test "$ENABLE_SHUTDOWN" = "1" && VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown.wrapper" \
-        || VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown-message"
+                              || VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown-message"
 
 . /usr/lib/vdr/plugin-loader.sh
 . /usr/lib/vdr/commands-loader.sh
 
-startvdr() 
+startvdr()
 {
-    if [ "$ENABLED" != "0" ]; then
+    if [ "$ENABLED" != "0" ] ; then
         # only start vdr if there is no other instance running
         if start-stop-daemon --start --startas $DAEMON --test \
-                --name $(basename $DAEMON) --pidfile $PIDFILE >/dev/null
+            --name $(basename $DAEMON) --pidfile $PIDFILE >/dev/null
         then
-                getplugins
-                mergecommands "commands"
-                mergecommands "reccmds"
-                start-stop-daemon --start --quiet --startas $DAEMON --background \
-                        --name $(basename $DAEMON) --pidfile $PIDFILE --make-pidfile --\
-                        -v $VIDEO_DIR -c $CFG_DIR -L $PLUGIN_DIR -r $REC_CMD \
-                        -s $VDRSHUTDOWN -E $EPG_FILE -u $USER \
-                        --port $SVDRP_PORT $OPTIONS $PLUGINS
+            getplugins
+            mergecommands "commands"
+            mergecommands "reccmds"
+            start-stop-daemon --start --quiet --startas $DAEMON --background \
+                --name $(basename $DAEMON) --pidfile $PIDFILE --make-pidfile -- \
+                -v $VIDEO_DIR -c $CFG_DIR -L $PLUGIN_DIR -r $REC_CMD \
+                -s $VDRSHUTDOWN -E $EPG_FILE -u $USER -g /tmp \
+                --port $SVDRP_PORT $OPTIONS $PLUGINS
         else
-                echo -n " - seems to be running already"
+            echo -n " - seems to be running already"
         fi
-     else
+    else
         echo -n " - aborted (to enable the daemon, edit /etc/default/vdr)"
-     fi
-} 
+    fi
+}
 
 stopvdr()
 {
@@ -58,27 +59,27 @@ stopvdr()
 }
 
 case "$1" in
-  start)
-         echo -n "Starting $DESC: $NAME"
-         startvdr
-         echo "."
-         ;;
-  stop)
-         echo -n "Stopping $DESC: $NAME"
-         stopvdr
-         echo "."
-         ;;
-  restart|force-reload)
-         echo -n "Restarting $DESC: $NAME"
-         stopvdr
-         sleep 4
-         startvdr
-         echo "."
-         ;;
-  *)
-         N=/etc/init.d/$NAME
-         echo "Use: $N {start|stop|restart|force-reload}" >&2
-         exit 1
+    start)
+        echo -n "Starting $DESC: $NAME"
+        startvdr
+        echo "."
+        ;;
+    stop)
+        echo -n "Stopping $DESC: $NAME"
+        stopvdr
+        echo "."
+        ;;
+    restart|force-reload)
+        echo -n "Restarting $DESC: $NAME"
+        stopvdr
+        sleep 4
+        startvdr
+        echo "."
+        ;;
+    *)
+        N=/etc/init.d/$NAME
+        echo "Usage: $N {start|stop|restart|force-reload}" >&2
+        exit 1
         ;;
 esac
 
