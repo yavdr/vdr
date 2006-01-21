@@ -3,34 +3,40 @@
 # vdr start-stop script
 #
 
-test -x /usr/sbin/runvdr || exit 0
-
 . /usr/lib/vdr/config-loader.sh
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 NAME=vdr
 DESC="Linux Video Disk Recorder"
 
+DAEMON=/usr/sbin/runvdr
+PIDFILE=/var/run/runvdr.pid
+VDRPRG=/usr/bin/vdr
+
 test "$ENABLE_SHUTDOWN" = "1" && VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown.wrapper" \
         || VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown-message"
+
+test -x $DAEMON || exit 0
+test -x $VDRPRG || exit 0
+
+. /usr/lib/vdr/plugin-loader.sh
+. /usr/lib/vdr/commands-loader.sh
 
 startvdr() 
 {
     if [ "$ENABLED" != "0" ]; then
         # only start vdr if there is no other instance running
-        # (Appears as vdr-kbd in the official debian-packages
-        # and just as vdr in the c't-vdr packages)
-        if ! ps ax | grep "/usr/bin/\(vdr\|vdr-kbd\) " | grep -qv grep
-        then
-                . /usr/lib/vdr/plugin-loader.sh
-                . /usr/lib/vdr/commands-loader.sh
+	if start-stop-daemon --start --startas $DAEMON --test \
+		--name $(basename $DAEMON) --pidfile $PIDFILE >/dev/null
+	then
                 getplugins
                 mergecommands "commands"
                 mergecommands "reccmds"
-                start-stop-daemon --start --quiet --background \
-                        --exec /usr/sbin/runvdr -- -v $VIDEO_DIR -c $CFG_DIR -r $REC_CMD \
-                        -s $VDRSHUTDOWN -E $EPG_FILE -u $USER --port $SVDRP_PORT \
-                        $OPTIONS $PLUGINS
+                start-stop-daemon --start --quiet --startas $DAEMON --background \
+			--name $(basename $DAEMON) --pidfile $PIDFILE --make-pidfile --\
+                        -v $VIDEO_DIR -c $CFG_DIR -L $PLUGIN_DIR -r $REC_CMD \
+                        -s $VDRSHUTDOWN -E $EPG_FILE -u $USER \
+			--port $SVDRP_PORT $OPTIONS $PLUGINS
         else
                 echo -n " - seems to be running already"
         fi
@@ -41,15 +47,13 @@ startvdr()
 
 stopvdr()
 {
-    killall -q -TERM runvdr
-
-    # check if the running process is /usr/bin/vdr or /usr/bin/vdr-kbd
-    if ps ax | grep "/usr/bin/vdr " | grep -qv grep
+    if start-stop-daemon --stop --retry 5 \
+        --name $(basename $DAEMON) --pidfile $PIDFILE >/dev/null
     then
-       killall -q -TERM /usr/bin/vdr > /dev/null 2>&1
+    	start-stop-daemon --stop --retry 5 --oknodo --exec $VDRPRG-kbd >/dev/null
+	rm -f $PIDFILE
     else
-       # (assume that vdr-kbd is running)
-       killall -q -TERM /usr/bin/vdr-kbd > /dev/null 2>&1
+    	echo -n " - seems not to be running"
     fi
 }
 
@@ -79,4 +83,3 @@ case "$1" in
 esac
 
 exit 0
-
