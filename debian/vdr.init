@@ -3,8 +3,6 @@
 # vdr start-stop script
 #
 
-. /usr/lib/vdr/config-loader.sh
-
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 NAME=vdr
 DESC="Linux Video Disk Recorder"
@@ -13,11 +11,13 @@ DAEMON=/usr/sbin/runvdr
 PIDFILE=/var/run/runvdr.pid
 VDRPRG=/usr/bin/vdr
 
-test "$ENABLE_SHUTDOWN" = "1" && VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown.wrapper" \
-        || VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown-message"
-
 test -x $DAEMON || exit 0
 test -x $VDRPRG || exit 0
+
+. /usr/lib/vdr/config-loader.sh
+
+test "$ENABLE_SHUTDOWN" = "1" && VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown.wrapper" \
+        || VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown-message"
 
 . /usr/lib/vdr/plugin-loader.sh
 . /usr/lib/vdr/commands-loader.sh
