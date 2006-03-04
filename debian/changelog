@@ -4,6 +4,7 @@ vdr (1.3.41-1) unstable; urgency=low
 
   * Thomas Schmidt <tschmidt@debian.org>
     - New upstream release
+      + Added 01_IA64-FTBFS-fix - fixes FTBFS of vdr>=1.3.38 on ia64
       + Removed 13_epgfix.dpatch
       + Added 99_epg-fix.dpatch
       + Added 19_vdr-1.3.41-no-title-fix.dpatch

@@ -1,0 +1,33 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+
+## 01_IA64-FTBFS-fix.dpatch by Thomas Schmidt <tschmidt@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fixes FTBFS of vdr >= 1.3.38 on ia64 by using to old behaviour
+## DP: to determine the thread-id on ia64, because the gettid syscall
+## DP: is not available on ia64
+
+@DPATCH@
+diff -urNad vdr-1.3.41/thread.c /tmp/dpep.xP5Coq/vdr-1.3.41/thread.c
+--- vdr-1.3.41/thread.c	2006-01-28 12:34:35.000000000 +0100
++++ /tmp/dpep.xP5Coq/vdr-1.3.41/thread.c	2006-03-04 23:49:42.376137750 +0100
+@@ -316,12 +316,19 @@
+   return emergencyExitRequested = true; // yes, it's an assignment, not a comparison!
+ }
+ 
++#ifndef __ia64__
+ _syscall0(pid_t, gettid)
+ 
+ tThreadId cThread::ThreadId(void)
+ {
+   return gettid();
+ }
++#else
++tThreadId cThread::ThreadId(void)
++{
++  return pthread_self();
++}
++#endif
+ 
+ void cThread::SetMainThreadId(void)
+ {
