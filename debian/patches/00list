@@ -10,6 +10,7 @@
 13_vdr_1.3.45_sources.conf-fix
 14_cap-memsize
 15_dvbplayer
+16_vdr_1.3.45_diseqc.conf-fix
 17_replay
 
 # Patch needed for DVB subtitles or ttxtsubs (does not work with AC3-patch)

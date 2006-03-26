@@ -4,9 +4,10 @@ vdr (1.3.45-1) unstable; urgency=low
 
   * Thomas Schmidt <tschmidt@debian.org>
     - New upstream release
-      + Updated 11_sortrecordings.dpatch
       + Added 13_vdr_1.3.45_sources.conf-fix.dpatch
       + Added 14_cap-memsize.dpatch
+      + Added 16_vdr_1.3.45_diseqc.conf-fix.dpatch
+      + Updated 11_sortrecordings.dpatch
       + Updated 15_dvbplayer.dpatch
       + Removed 18_vdr-1.3.39-menu-on-control.dpatch
       + Removed 19_vdr-1.3.41-no-title-fix.dpatch
