@@ -1,6 +1,17 @@
-vdr (1.3.41-1) unstable; urgency=low
+vdr (1.3.45-1) unstable; urgency=low
 
   * NOT RELEASED YET
+
+  * Thomas Schmidt <tschmidt@debian.org>
+    - New upstream release
+      + Updated 11_sortrecordings.dpatch
+      + Updated 15_dvbplayer.dpatch
+      + Removed 18_vdr-1.3.39-menu-on-control.dpatch
+      + Removed 19_vdr-1.3.41-no-title-fix.dpatch
+
+ -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sun, 26 Mar 2006 18:08:29 +0200
+
+vdr (1.3.41-1) unstable; urgency=low
 
   * Thomas Schmidt <tschmidt@debian.org>
     - New upstream release
