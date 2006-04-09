@@ -1,4 +1,4 @@
-01_IA64-FTBFS-fix.dpatch
+01_IA64-FTBFS-fix
 02_Makefile-CFGDIR
 03_cmdsubmenu
 04_newplugin
@@ -7,11 +7,8 @@
 10_dd-record-option
 11_sortrecordings
 12_osdbase-maxitems
-13_vdr_1.3.45_sources.conf-fix
 14_cap-memsize
 15_dvbplayer
-16_vdr_1.3.45_diseqc.conf-fix
-17_replay
 
 # Patch needed for DVB subtitles or ttxtsubs (does not work with AC3-patch)
 # opt-21_subtitles_and_ttxtsubs

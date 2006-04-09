@@ -1,3 +1,16 @@
+vdr (1.3.46-1) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+
+  * New upstream release
+  * Thomas Günther <tom@toms-cafe.de>
+    - Removed 13_vdr_1.3.45_sources.conf-fix.dpatch
+    - Removed 16_vdr_1.3.45_diseqc.conf-fix.dpatch
+    - Removed 17_replay.dpatch
+    - Removed 99_epg-fix.dpatch
+
+ -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sun,  9 Apr 2006 17:46:02 +0200
+
 vdr (1.3.45-1) unstable; urgency=low
 
   * NOT RELEASED YET
