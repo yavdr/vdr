@@ -9,10 +9,9 @@
 12_osdbase-maxitems
 14_cap-memsize
 15_dvbplayer
-16_vdr-1.3.46_menuitems.c-fix
 
 # Patch needed for DVB subtitles or ttxtsubs (does not work with AC3-patch)
 # opt-21_subtitles_and_ttxtsubs
 
 # The Jump patch allows automatic jumping over cutting marks.
-# opt-24_jumpplay-0.6
+# opt-24_jumpplay-0.7

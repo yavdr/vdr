@@ -1,6 +1,8 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
-
 ## 10_dd_replay_option.dpatch by Thomas Schmidt <tschmidt@debian.org>
+##
+## Thomas Günther <tom@toms-cafe.de>:
+##   - adapted to VDR-1.3.47
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Allowes to choose if to record and to replay Dolby Digital 
@@ -8,18 +10,17 @@
 ## DP: dvd-plugin)
 
 @DPATCH@
-diff -urNad vdr-1.3.32/config.c /tmp/dpep.7sbpO9/vdr-1.3.32/config.c
---- vdr-1.3.32/config.c	2005-09-11 18:11:45.024178024 +0200
-+++ /tmp/dpep.7sbpO9/vdr-1.3.32/config.c	2005-09-11 18:11:45.795060832 +0200
-@@ -365,6 +365,7 @@
+--- vdr-1.3.47/config.c
++++ vdr-1.3.47/config.c
+@@ -252,6 +252,7 @@
    VideoDisplayFormat = 1;
    VideoFormat = 0;
-   UpdateChannels = 4;
+   UpdateChannels = 5;
 +  RecordDolbyDigital = 1;
    UseDolbyDigital = 1;
    ChannelInfoPos = 0;
    ChannelInfoTime = 5;
-@@ -523,6 +524,7 @@
+@@ -413,6 +414,7 @@
    else if (!strcasecmp(Name, "VideoDisplayFormat"))  VideoDisplayFormat = atoi(Value);
    else if (!strcasecmp(Name, "VideoFormat"))         VideoFormat        = atoi(Value);
    else if (!strcasecmp(Name, "UpdateChannels"))      UpdateChannels     = atoi(Value);
@@ -27,7 +28,7 @@ diff -urNad vdr-1.3.32/config.c /tmp/dpep.7sbpO9/vdr-1.3.32/config.c
    else if (!strcasecmp(Name, "UseDolbyDigital"))     UseDolbyDigital    = atoi(Value);
    else if (!strcasecmp(Name, "ChannelInfoPos"))      ChannelInfoPos     = atoi(Value);
    else if (!strcasecmp(Name, "ChannelInfoTime"))     ChannelInfoTime    = atoi(Value);
-@@ -588,6 +590,7 @@
+@@ -481,6 +483,7 @@
    Store("VideoDisplayFormat", VideoDisplayFormat);
    Store("VideoFormat",        VideoFormat);
    Store("UpdateChannels",     UpdateChannels);
@@ -35,10 +36,9 @@ diff -urNad vdr-1.3.32/config.c /tmp/dpep.7sbpO9/vdr-1.3.32/config.c
    Store("UseDolbyDigital",    UseDolbyDigital);
    Store("ChannelInfoPos",     ChannelInfoPos);
    Store("ChannelInfoTime",    ChannelInfoTime);
-diff -urNad vdr-1.3.32/config.h /tmp/dpep.7sbpO9/vdr-1.3.32/config.h
---- vdr-1.3.32/config.h	2005-09-11 18:11:45.025177872 +0200
-+++ /tmp/dpep.7sbpO9/vdr-1.3.32/config.h	2005-09-11 18:11:45.795060832 +0200
-@@ -257,6 +257,7 @@
+--- vdr-1.3.47/config.h
++++ vdr-1.3.47/config.h
+@@ -235,6 +235,7 @@
    int VideoDisplayFormat;
    int VideoFormat;
    int UpdateChannels;
@@ -46,12 +46,11 @@ diff -urNad vdr-1.3.32/config.h /tmp/dpep.7sbpO9/vdr-1.3.32/config.h
    int UseDolbyDigital;
    int ChannelInfoPos;
    int ChannelInfoTime;
-diff -urNad vdr-1.3.32/i18n.c /tmp/dpep.7sbpO9/vdr-1.3.32/i18n.c
---- vdr-1.3.32/i18n.c	2005-09-11 18:02:41.692776952 +0200
-+++ /tmp/dpep.7sbpO9/vdr-1.3.32/i18n.c	2005-09-11 18:11:45.799060224 +0200
-@@ -3262,8 +3262,29 @@
-     "TV külgsuhe",
+--- vdr-1.3.47/i18n.c
++++ vdr-1.3.47/i18n.c
+@@ -3656,8 +3656,29 @@
      "Video format",
+     "Formát videa",
    },
 +  { "Setup.DVB$Record Dolby Digital",
 +    "Dolby Digital Ton aufzeichnen",
@@ -80,22 +79,20 @@ diff -urNad vdr-1.3.32/i18n.c /tmp/dpep.7sbpO9/vdr-1.3.32/i18n.c
      "Uporabljaj Dolby Digital",
      "",//TODO
      "Dolby Digital gebruiken",
-diff -urNad vdr-1.3.32/menu.c /tmp/dpep.7sbpO9/vdr-1.3.32/menu.c
---- vdr-1.3.32/menu.c	2005-09-11 18:11:45.266141240 +0200
-+++ /tmp/dpep.7sbpO9/vdr-1.3.32/menu.c	2005-09-11 18:11:45.801059920 +0200
-@@ -2039,7 +2039,8 @@
+--- vdr-1.3.47/menu.c
++++ vdr-1.3.47/menu.c
+@@ -2339,7 +2339,8 @@
    Add(new cMenuEditBoolItem(tr("Setup.DVB$Video format"),          &data.VideoFormat, "4:3", "16:9"));
    if (data.VideoFormat == 0)
       Add(new cMenuEditStraItem(tr("Setup.DVB$Video display format"), &data.VideoDisplayFormat, 3, videoDisplayFormatTexts));
 -  Add(new cMenuEditBoolItem(tr("Setup.DVB$Use Dolby Digital"),     &data.UseDolbyDigital));
 +  Add(new cMenuEditBoolItem(tr("Setup.DVB$Record Dolby Digital"),  &data.RecordDolbyDigital));
 +  Add(new cMenuEditBoolItem(tr("Setup.DVB$Replay Dolby Digital"),  &data.UseDolbyDigital));
-   Add(new cMenuEditStraItem(tr("Setup.DVB$Update channels"),       &data.UpdateChannels, 5, updateChannelsTexts));
+   Add(new cMenuEditStraItem(tr("Setup.DVB$Update channels"),       &data.UpdateChannels, 6, updateChannelsTexts));
    Add(new cMenuEditIntItem( tr("Setup.DVB$Audio languages"),       &numAudioLanguages, 0, I18nNumLanguages));
    for (int i = 0; i < numAudioLanguages; i++)
-diff -urNad vdr-1.3.32/recorder.c /tmp/dpep.7sbpO9/vdr-1.3.32/recorder.c
---- vdr-1.3.32/recorder.c	2005-09-11 18:02:41.696776344 +0200
-+++ /tmp/dpep.7sbpO9/vdr-1.3.32/recorder.c	2005-09-11 18:11:45.802059768 +0200
+--- vdr-1.3.47/recorder.c
++++ vdr-1.3.47/recorder.c
 @@ -122,7 +122,7 @@
  }
  
