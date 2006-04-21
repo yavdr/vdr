@@ -11,7 +11,7 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, makedev (>=2.3.1-66), adduser, psmisc
 Recommends: lirc
 Provides: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu
-Conflicts: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu
+Conflicts: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu, vdradmin (< 3.4.3)
 Replaces: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu
 Description: Video Disk Recorder for DVB cards
  Video Disk Recorder (VDR) is a digital sat-receiver program using
