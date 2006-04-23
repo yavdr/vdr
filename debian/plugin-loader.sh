@@ -18,7 +18,7 @@ getplugins ()
     local vdrcmd
     local version
 
-    vdrcmd="/usr/bin/vdr -u $USER -g $GROUP $OPTIONS"
+    vdrcmd="/usr/bin/vdr -u $USER $OPTIONS"
 
     if [ "$NONPTL" = "1" -a `uname -m` != x86_64 ]; then
         vdrcmd="LD_ASSUME_KERNEL=2.4.1 $vdrcmd"
@@ -32,6 +32,7 @@ getplugins ()
     echo -ne "\nSearching for plugins (VDR $version):"
 
     # find installed plugins
+    version=`echo "$version" | sed 's:.*/::'`
     plugins=(`find ${PLUGIN_DIR} -maxdepth 1 \
                    -name "${PLUGIN_PREFIX}*.so.${version}" | \
               xargs -r dpkg -S 2>&1 | \
