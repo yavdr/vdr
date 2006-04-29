@@ -67,7 +67,7 @@ clean-patched:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
-	-$(MAKE) -o .dependencies plugins-clean
+	-$(MAKE) -o .dependencies clean-plugins
 	-$(MAKE) -o .dependencies clean
 	[ "$(VDR)" = "vdr" ] || rm -f $(VDR) $(VDR).1 $(VDR).5
 	rm -f $(VDR)-kbd
