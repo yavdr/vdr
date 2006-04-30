@@ -18,7 +18,7 @@ vdr (1.3.48-1) unstable; urgency=low
     - Removed 16_vdr-1.3.46_menuitems.c-fix.dpatch
     - Upgraded opt-24_jumpplay-0.6.dpatch to opt-24_jumpplay-0.7.dpatch
   * Thomas Schmidt <tschmidt@debian.org>
-    - Conflict with vdradmin (< 3.4.3) to force users to upgrade to
+    - Conflict with vdradmin (<< 3.4.3) to force users to upgrade to
       vdradmin-am, because the old vdradmin package which is partly 
       incompatible with newer vdr versions
 
