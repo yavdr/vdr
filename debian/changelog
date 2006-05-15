@@ -6,6 +6,7 @@ vdr (1.4.0-2) unstable; urgency=low
     - Fixed i18n texts for replay in 10_dd-record-option.dpatch
     - Upgraded 03_cmdsubmenu.dpatch to version 0.7 - fixes FTBFS with G++ 4.1:
       extra qualification (closes: #367360)
+    - Upgraded opt-24_jumpplay-0.7.dpatch to opt-24_jumpplay-0.8.dpatch
   * Thomas Schmidt <tschmidt@debian.org>
     - Fixed debian/watch
   
