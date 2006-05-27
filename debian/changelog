@@ -1,7 +1,5 @@
 vdr (1.4.0-2) unstable; urgency=low
 
-  * NOT RELEASED YET
-
   * Thomas Günther <tom@toms-cafe.de>
     - Fixed i18n texts for replay in 10_dd-record-option.dpatch
     - Upgraded 03_cmdsubmenu.dpatch to version 0.7 - fixes FTBFS with G++ 4.1:
@@ -10,7 +8,7 @@ vdr (1.4.0-2) unstable; urgency=low
   * Thomas Schmidt <tschmidt@debian.org>
     - Fixed debian/watch
   
- -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Fri,  5 May 2006 20:21:44 +0200
+ -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sat, 27 May 2006 09:54:14 +0200
 
 vdr (1.4.0-1) unstable; urgency=low
 
