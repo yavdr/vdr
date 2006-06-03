@@ -22,6 +22,70 @@ Comments to the Debian version:
  -- Thomas Schmidt <tschmidt@debian.org>,  Tue, 28 Dec 2004 14:22:21 +0100
 
 
+Additonal configuration options
+-------------------------------
+
+The following options can be configured in /etc/default/vdr.
+
+NONPTL=<0|1>
+
+    Default: 1
+
+    Change this to 0 if you want to allow VDR to use NPTL (if available). This is
+    disabled by default, although it should be safe to enable it.
+    (This has no effect on AMD64 machines.)
+
+PLUGIN_CHECK_PATCHLEVEL="<yes|no>"
+
+    Default: "no"
+
+    Set this to "yes" to force VDR to load only plugins with a matching patch
+    level. This is especially useful, if you run patched VDR versions from third
+    party repositories like the ctvdr dirstribution.
+
+PLUGIN_CHECK_STARTABLE="<yes|no>"
+
+    Default: "yes"
+
+    Before starting VDR with the plugins, the loadability of the plugin
+    libraries will be checked with "vdr -V -P plugin". This will catch
+    some binary incompatibilties and problems with the plugins
+    initialization code. Set this to "no" to load the plugins without
+    any testing.
+
+SHUTDOWNCMD="<COMMAND>"
+
+    Default: "/sbin/shutdown -h now"
+
+    VDR executes <COMMAND> when the power-off-key of the remote is pressed after
+    processing all shutdown hook scripts. Shutdown hooks may override this
+    command. See section "Shutdown-Hooks" below. SHUTDOWNCMD will be executed
+    detached in background.
+
+SVDRP_PORT=<PORT>
+
+    Default: 2001
+
+    Default port for SVDRP (Simple Video Disk Recorder Protocol), the telnet
+    like interface to control VDR.
+
+USER=<USERNAME>
+
+    Default: vdr
+
+    Username under which vdr will run. All plugins and commands invoked by VDR
+    will be executed with this users rights.
+  
+
+VIDEO_DIR="<VIDEODIR>"
+
+    Default: "/var/lib/video.00"
+
+    The video directory where vdr recordings will be stored.  
+
+ -- Tobias Grimm <tg@e-tobi.net>,  Sat, 03 Jun 2006 19:00:00 +0100
+
+
 Automatic Loading of Plugins
 ----------------------------
 

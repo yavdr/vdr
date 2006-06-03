@@ -26,7 +26,7 @@ CMDHOOKSDIR="/usr/share/vdr/command-hooks"
 REC_CMD=/usr/lib/vdr/vdr-recordingaction
 
 # Commmand executed by vdr to shutdown the system
-SHUTDOWNCMD="/etc/init.d/vdr stop ; sleep 1 ; /sbin/shutdown -h now"
+SHUTDOWNCMD="/sbin/shutdown -h now"
 
 # EPG data file
 EPG_FILE=/var/cache/vdr/epg.data
@@ -49,5 +49,14 @@ ENABLE_SHUTDOWN=0
 # This is disabled by default, although it should be safe to enable it.
 # (This has no effect on AMD64 machines.)
 NONPTL=1
+
+# Video-Directory
+VIDEO_DIR="/var/lib/video.00"
+
+# Set this to load only plugins with the correct patch level
+PLUGIN_CHECK_PATCHLEVEL="no"
+
+# Set this to load only startable plugins (check with "vdr -V -P plugin")
+PLUGIN_CHECK_STARTABLE="yes"
 
 test -f /etc/default/vdr && . /etc/default/vdr

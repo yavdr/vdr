@@ -4,6 +4,13 @@ vdr (1.4.0-3) unstable; urgency=low
 
   * Thomas Günther <tom@toms-cafe.de>
     - Upgraded opt-24_jumpplay-0.8.dpatch to opt-24_jumpplay-0.9.dpatch
+  * Tobias Grimm <tg@e-tobi.net>
+    - Stripped default SHUTDOWNCMD to "shutdown -h now"
+    - SHUTDOWNCMD in vdr-shurdown is now executed detached, so that VDR does not
+      block and can cleanly shutdown when receiving SIGTERM
+      (Thanks to Hanno Müller for pointing this out!)
+    - Moved some of the default values in vdr.default to the config loader
+      and added description to README.Debian
 
  -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sun, 28 May 2006 21:03:39 +0200
 

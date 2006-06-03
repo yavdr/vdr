@@ -51,4 +51,4 @@ for shutdownhook in $shutdownhooks; do
     fi
 done 
 
-eval $SHUTDOWNCMD
+eval $SHUTDOWNCMD &
