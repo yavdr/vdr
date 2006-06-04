@@ -48,10 +48,10 @@ startvdr()
 
 stopvdr()
 {
-    if start-stop-daemon --stop --retry 5 \
+    if start-stop-daemon --stop --retry 30 \
         --name $(basename $DAEMON) --pidfile $PIDFILE >/dev/null
     then
-        start-stop-daemon --stop --retry 5 --oknodo --exec $VDRPRG-kbd >/dev/null
+        start-stop-daemon --stop --retry 30 --oknodo --exec $VDRPRG-kbd >/dev/null
         rm -f $PIDFILE
     else
         echo -n " - seems not to be running"

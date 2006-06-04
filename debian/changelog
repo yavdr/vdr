@@ -9,6 +9,8 @@ vdr (1.4.0-3) unstable; urgency=low
     - SHUTDOWNCMD in vdr-shurdown is now executed detached, so that VDR does not
       block and can cleanly shutdown when receiving SIGTERM
       (Thanks to Hanno Müller for pointing this out!)
+    - Increased timeout for stopping the VDR daemon from 5 to 30 seconds, because
+      VDR may take pretty long to shut down gracefully
     - Moved some of the default values in vdr.default to the config loader
       and added description to README.Debian
 
