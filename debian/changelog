@@ -3,7 +3,7 @@ vdr (1.4.1-1) UNRELEASED; urgency=low
   * (NOT RELEASED YET)
   * New upstream release
   * Thomas Günther <tom@toms-cafe.de>
-    - Upgraded opt-24_jumpplay-0.8.dpatch to opt-24_jumpplay-0.9.dpatch
+    - Upgraded opt-24_jumpplay-0.8.dpatch to opt-24_jumpplay.dpatch version 0.9
   * Tobias Grimm <tg@e-tobi.net>
     - Stripped default SHUTDOWNCMD to "shutdown -h now"
     - SHUTDOWNCMD in vdr-shutdown is now executed detached, so that VDR does not
