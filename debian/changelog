@@ -1,7 +1,7 @@
-vdr (1.4.0-3) unstable; urgency=low
+vdr (1.4.1-1) UNRELEASED; urgency=low
 
-  * NOT RELEASED YET
-
+  * (NOT RELEASED YET)
+  * New upstream release
   * Thomas Günther <tom@toms-cafe.de>
     - Upgraded opt-24_jumpplay-0.8.dpatch to opt-24_jumpplay-0.9.dpatch
   * Tobias Grimm <tg@e-tobi.net>
