@@ -59,4 +59,8 @@ PLUGIN_CHECK_PATCHLEVEL="no"
 # Set this to load only startable plugins (check with "vdr -V -P plugin")
 PLUGIN_CHECK_STARTABLE="yes"
 
+# Default Console for controlling VDR by keyboard. On startup VDR will
+# change to this console. Empty means no console input.
+KEYB_TTY=""
+
 test -f /etc/default/vdr && . /etc/default/vdr

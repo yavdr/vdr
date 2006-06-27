@@ -27,6 +27,13 @@ Additonal configuration options
 
 The following options can be configured in /etc/default/vdr.
 
+KEYB_TTY="<CONSOLE>"
+
+    Default: "" (No console input)
+
+    Console for controlling VDR by keyboard (e.g. /dev/tty8). On startup VDR
+    will automatically switch to this console.
+
 NONPTL=<0|1>
 
     Default: 1

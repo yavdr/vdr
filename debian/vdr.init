@@ -23,6 +23,24 @@ test "$ENABLE_SHUTDOWN" = "1" && VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown.wrapper"
 . /usr/lib/vdr/plugin-loader.sh
 . /usr/lib/vdr/commands-loader.sh
 
+clean_console()
+{
+    if [ "$KEYB_TTY" != "" ]; then
+        tput -Tlinux clear > $KEYB_TTY
+    fi
+}
+
+switch_console()
+{
+    if [ "$KEYB_TTY" != "" ]; then
+        clean_console
+        echo -e "This tty is currently mapped to VDR, keypresses aren't echoed.\r" > $KEYB_TTY
+        echo -n "For a login prompt switch to another console." > $KEYB_TTY
+        chvt `echo "$KEYB_TTY" | sed "s/\/dev\/tty//"`
+        REDIRECT="< $KEYB_TTY"
+    fi
+}
+
 startvdr()
 {
     if [ "$ENABLED" != "0" ] ; then
@@ -33,11 +51,12 @@ startvdr()
             getplugins
             mergecommands "commands"
             mergecommands "reccmds"
+            switch_console
             start-stop-daemon --start --quiet --startas $DAEMON --background \
                 --name $(basename $DAEMON) --pidfile $PIDFILE --make-pidfile -- \
                 -v $VIDEO_DIR -c $CFG_DIR -L $PLUGIN_DIR -r $REC_CMD \
                 -s $VDRSHUTDOWN -E $EPG_FILE -u $USER -g /tmp \
-                --port $SVDRP_PORT $OPTIONS $PLUGINS
+                --port $SVDRP_PORT $OPTIONS $PLUGINS $REDIRECT
         else
             echo -n " - seems to be running already"
         fi
@@ -53,6 +72,7 @@ stopvdr()
     then
         start-stop-daemon --stop --retry 30 --oknodo --exec $VDRPRG-kbd >/dev/null
         rm -f $PIDFILE
+        clean_console
     else
         echo -n " - seems not to be running"
     fi
