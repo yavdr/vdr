@@ -14,7 +14,7 @@ vdr (1.4.1-1) UNRELEASED; urgency=low
     - Moved some of the default values in vdr.default to the config loader
       and added description to README.Debian
     - Added KEYB_TTY-option which may be overriden in /etc/default/vdr to make
-      VDR sqitch to and acceppt input from the specified console
+      VDR switch to and accept input from the specified console
 
  -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sun, 28 May 2006 21:03:39 +0200
 
