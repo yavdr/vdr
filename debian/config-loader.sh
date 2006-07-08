@@ -63,4 +63,8 @@ PLUGIN_CHECK_STARTABLE="yes"
 # change to this console. Empty means no console input.
 KEYB_TTY=""
 
+# Locale which is used when running vdr (Default is C, because vdr does 
+# not run on systems where the default is UTF8 like on Etch)
+VDR_LANG=C
+
 test -f /etc/default/vdr && . /etc/default/vdr

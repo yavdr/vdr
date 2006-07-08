@@ -1,22 +1,31 @@
 vdr (1.4.1-1) UNRELEASED; urgency=low
 
   * (NOT RELEASED YET)
-  * New upstream release
-  * Thomas Günther <tom@toms-cafe.de>
+  
+  [ Thomas Günther ]
     - Upgraded opt-24_jumpplay-0.8.dpatch to opt-24_jumpplay.dpatch version 0.9
-  * Tobias Grimm <tg@e-tobi.net>
-    - Stripped default SHUTDOWNCMD to "shutdown -h now"
-    - SHUTDOWNCMD in vdr-shutdown is now executed detached, so that VDR does not
-      block and can cleanly shutdown when receiving SIGTERM
-      (Thanks to Hanno Müller for pointing this out!)
-    - Increased timeout for stopping the VDR daemon from 5 to 30 seconds, because
-      VDR may take pretty long to shut down gracefully
-    - Moved some of the default values in vdr.default to the config loader
-      and added description to README.Debian
+  
+  [ Tobias Grimm ]
+  * New upstream release
+  * Stripped default SHUTDOWNCMD to "shutdown -h now"
+  * SHUTDOWNCMD in vdr-shutdown is now executed detached, so that VDR does not
+    block and can cleanly shutdown when receiving SIGTERM
+    (Thanks to Hanno Müller for pointing this out!)
+  * Increased timeout for stopping the VDR daemon from 5 to 30 seconds, because
+    VDR may take pretty long to shut down gracefully
+  * Moved some of the default values in vdr.default to the config loader
+    and added description to README.Debian
     - Added KEYB_TTY-option which may be overriden in /etc/default/vdr to make
       VDR switch to and accept input from the specified console
 
- -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sun, 28 May 2006 21:03:39 +0200
+  [ Thomas Schmidt ]
+  * Using new changelog-format (closes: #343871)
+  * debian/runvdr: use LANG=C when starting vdr, to prevent vdr from exiting
+    on system which use UTF8 as default locale, this setting is also
+    configurable in /etc/default/vdr
+  * Added Tobias Grimm, Thomas Günther and myself to debian/copyright
+
+ -- Thomas Schmidt <tschmidt@debian.org>  Sat,  8 Jul 2006 15:49:59 +0200
 
 vdr (1.4.0-2) unstable; urgency=low
 

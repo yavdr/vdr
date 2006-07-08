@@ -6,9 +6,9 @@
 
 OPTIONS="$*"
 if [ "$NONPTL" = "1" -a `uname -m` != x86_64 ]; then
-    VDRCMD="LD_ASSUME_KERNEL=2.4.1 /usr/bin/vdr $OPTIONS"
+    VDRCMD="LANG=$VDR_LANG LD_ASSUME_KERNEL=2.4.1 /usr/bin/vdr $OPTIONS"
 else
-    VDRCMD="/usr/bin/vdr $OPTIONS"
+    VDRCMD="LANG=$VDR_LANG /usr/bin/vdr $OPTIONS"
 fi
 
 function get_modulenames ()
