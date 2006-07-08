@@ -3,7 +3,7 @@ vdr (1.4.1-1) UNRELEASED; urgency=low
   * (NOT RELEASED YET)
   
   [ Thomas Günther ]
-    - Upgraded opt-24_jumpplay-0.8.dpatch to opt-24_jumpplay.dpatch version 0.9
+  * Upgraded opt-24_jumpplay-0.8.dpatch to opt-24_jumpplay.dpatch version 0.9
   
   [ Tobias Grimm ]
   * New upstream release
@@ -15,8 +15,8 @@ vdr (1.4.1-1) UNRELEASED; urgency=low
     VDR may take pretty long to shut down gracefully
   * Moved some of the default values in vdr.default to the config loader
     and added description to README.Debian
-    - Added KEYB_TTY-option which may be overriden in /etc/default/vdr to make
-      VDR switch to and accept input from the specified console
+  * Added KEYB_TTY-option which may be overriden in /etc/default/vdr to make
+    VDR switch to and accept input from the specified console
 
   [ Thomas Schmidt ]
   * Using new changelog-format (closes: #343871)
