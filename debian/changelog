@@ -1,10 +1,10 @@
 vdr (1.4.1-1) UNRELEASED; urgency=low
 
   * (NOT RELEASED YET)
-  
+
   [ Thomas Günther ]
   * Upgraded opt-24_jumpplay-0.8.dpatch to opt-24_jumpplay.dpatch version 0.9
-  
+
   [ Tobias Grimm ]
   * New upstream release
   * Stripped default SHUTDOWNCMD to "shutdown -h now"
@@ -24,8 +24,9 @@ vdr (1.4.1-1) UNRELEASED; urgency=low
     on system which use UTF8 as default locale, this setting is also
     configurable in /etc/default/vdr
   * Added Tobias Grimm, Thomas Günther and myself to debian/copyright
+  * Added LSB-Headers and status action to debian/vdr.init
 
- -- Thomas Schmidt <tschmidt@debian.org>  Sat,  8 Jul 2006 15:49:59 +0200
+ -- Thomas Schmidt <tschmidt@debian.org>  Tue, 18 Jul 2006 21:22:31 +0200
 
 vdr (1.4.0-2) unstable; urgency=low
 

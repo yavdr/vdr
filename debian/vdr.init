@@ -2,6 +2,18 @@
 #
 # vdr start-stop script
 #
+### BEGIN INIT INFO
+# Provides:          vdr
+# Required-Start:    $network $syslog
+# Required-Stop:     $network $syslog
+# Should-Start:      $local_fs $remote_fs
+# Should-Stop:       $local_fs $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Starts the Linux Video Disk Recorder (VDR)
+# Description:       Starts the Linux Video Disk Recorder (VDR),
+#                    if it is enabled in /etc/default/vdr.
+### END INIT INFO
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 NAME=vdr
@@ -38,6 +50,19 @@ switch_console()
         echo -n "For a login prompt switch to another console." > $KEYB_TTY
         chvt `echo "$KEYB_TTY" | sed "s/\/dev\/tty//"`
         REDIRECT="< $KEYB_TTY"
+    fi
+}
+
+get_status()
+{
+    if start-stop-daemon --start --startas $DAEMON --test \
+        --name $(basename $DAEMON) --pidfile $PIDFILE >/dev/null
+    then
+        echo " - is not running."
+        exit 3
+    else
+        echo " - is running."
+        exit 0
     fi
 }
 
@@ -95,6 +120,10 @@ case "$1" in
         sleep 4
         startvdr
         echo "."
+        ;;
+    status)
+        echo -n "Getting status of $DESC: $NAME"
+        get_status
         ;;
     *)
         N=/etc/init.d/$NAME

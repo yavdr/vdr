@@ -43,7 +43,7 @@ getplugins ()
 
     if [ "$PLUGIN_CHECK_PATCHLEVEL" == "yes" ]; then
         # extract patchlevel info
-        eval "patchlevels=($(LANG=en;dpkg -s ${packages[@]} 2>&1 | awk -F ':' '\
+        eval "patchlevels=($(LANG=C;dpkg -s ${packages[@]} 2>&1 | awk -F ':' '\
             /^Package: /                         {p=$2} \
             /^Package.*is not installed/         {print "\"\""} \
             (/[pP]atchlevel:/ || /^$/) && p!=""  {print "\""$2"\"";p=""}'))"
@@ -112,14 +112,14 @@ getplugins ()
     done
 
     # warn about incompatible plugins
-    if [ "$leftout" != "" ]; then
+    if [ ! -z "$leftout" ]; then
         echo -ne "\nWARNING: The following plugins have been left out due to"\
              "possible binary incompatibility: "
         echo -n $leftout
     fi
 
     # warn about not startable plugins
-    if [ "$leftout2" != "" ]; then
+    if [ ! -z "$leftout2" ]; then
         echo -ne "\nWARNING: The following plugins have been left out due to"\
              "really binary incompatibility: "
         echo -n $leftout2
