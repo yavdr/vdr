@@ -83,6 +83,12 @@ USER=<USERNAME>
     Username under which vdr will run. All plugins and commands invoked by VDR
     will be executed with this users rights.
   
+VDR_LANG=<LANG>
+
+    Default: C
+
+    Locale which is used when running vdr (Default is C, because vdr does 
+    not run on systems where the default is UTF8 like on Etch)
 
 VIDEO_DIR="<VIDEODIR>"
 
