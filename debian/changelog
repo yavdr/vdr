@@ -1,7 +1,5 @@
 vdr (1.4.1-1) UNRELEASED; urgency=low
 
-  * (NOT RELEASED YET)
-
   [ Thomas Günther ]
   * Upgraded opt-24_jumpplay-0.8.dpatch to opt-24_jumpplay.dpatch version 0.9
 
@@ -25,8 +23,12 @@ vdr (1.4.1-1) UNRELEASED; urgency=low
     configurable in /etc/default/vdr
   * Added Tobias Grimm, Thomas Günther and myself to debian/copyright
   * Added LSB-Headers and status action to debian/vdr.init
+  * Added 16_channels.conf.terr-fix.dpatch to fix the example
+    channels.conf.terr
+  * Bumped Standards-Version to 3.7.2
+  * Do not fail silently in postinst if invoke-rc.d vdr fails
 
- -- Thomas Schmidt <tschmidt@debian.org>  Tue, 18 Jul 2006 21:22:31 +0200
+ -- Thomas Schmidt <tschmidt@debian.org>  Tue, 15 Aug 2006 07:49:08 +0200
 
 vdr (1.4.0-2) unstable; urgency=low
 

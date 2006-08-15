@@ -9,6 +9,7 @@
 12_osdbase-maxitems
 14_cap-memsize
 15_dvbplayer
+16_channels.conf.terr-fix
 
 # Patch needed for DVB subtitles or ttxtsubs (does not work with AC3-patch)
 # opt-21_subtitles_and_ttxtsubs

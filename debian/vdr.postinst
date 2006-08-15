@@ -39,9 +39,9 @@ case "$1" in
            if `dpkg --compare-versions $2 lt 1.2.6-9`; then
               if [ -x "/etc/init.d/vdr" ]; then
                  if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-                    invoke-rc.d vdr stop || exit 0
+                    invoke-rc.d vdr stop
                  else
-                    /etc/init.d/vdr stop || exit 0
+                    /etc/init.d/vdr stop
                  fi
               fi
            fi
