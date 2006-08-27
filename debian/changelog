@@ -1,4 +1,11 @@
-vdr (1.4.1-1) UNRELEASED; urgency=low
+vdr (1.4.2-1) UNRELEASED; urgency=low
+
+  * New upstream release
+    - Removed 01_IA64-FTBFS-fix.dpatch
+
+ -- Thomas Schmidt <tschmidt@debian.org>  Sun, 27 Aug 2006 12:11:19 +0200
+
+vdr (1.4.1-1) unstable; urgency=low
 
   [ Thomas Günther ]
   * Upgraded opt-24_jumpplay-0.8.dpatch to opt-24_jumpplay.dpatch version 0.9
