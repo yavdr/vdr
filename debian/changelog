@@ -1,4 +1,4 @@
-vdr (1.4.2-1) UNRELEASED; urgency=low
+vdr (1.4.2-1) unstable; urgency=low
 
   * New upstream release
     - Removed 01_IA64-FTBFS-fix.dpatch
