@@ -2,7 +2,7 @@ Source: vdr
 Section: misc
 Priority: extra
 Maintainer: Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>
-Uploaders: Thomas Schmidt <tschmidt@debian.org> 
+Uploaders: Thomas Schmidt <tschmidt@debian.org>, Tobias Grimm <tg@e-tobi.net>, Thomas Günther <tom@toms-cafe.de>
 Build-Depends: debhelper (>= 4.1.16), linux-kernel-headers (>=2.5.999-test7-bk-6), libjpeg62-dev, dpatch (>= 2.0.9), libcap-dev, libncurses5-dev
 Standards-Version: 3.7.2
 
