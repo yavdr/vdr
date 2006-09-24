@@ -1,0 +1,3 @@
+* Think about linking several conf files from /var/lib/vdr to /etc/vdr, if these
+  files might need to be edited by hand for some reason
+
