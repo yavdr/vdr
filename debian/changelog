@@ -1,9 +1,9 @@
-vdr (1.4.3-1) UNRELEASED; urgency=low
+vdr (1.4.3-1) unstable; urgency=low
 
   * New upstream release
-    - Added LC_ALL=$VDR_LANG when calling vdr in debian/runvdr 
+    - Added LC_ALL=$VDR_LANG when calling vdr in debian/runvdr
 
- -- Thomas Schmidt <tschmidt@debian.org>  Sat, 23 Sep 2006 18:26:02 +0200
+ -- Thomas Schmidt <tschmidt@debian.org>  Tue, 26 Sep 2006 21:14:50 +0200
 
 vdr (1.4.2-1) unstable; urgency=low
 
