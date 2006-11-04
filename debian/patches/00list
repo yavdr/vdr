@@ -10,8 +10,8 @@
 15_dvbplayer
 16_channels.conf.terr-fix
 
-# Patch needed for DVB subtitles or ttxtsubs (does not work with AC3-patch)
-# opt-21_subtitles_and_ttxtsubs
-
 # The Jump patch allows automatic jumping over cutting marks.
-# opt-24_jumpplay-0.9
+# opt-24_jumpplay
+
+# Patch needed for the subtitles and the ttxtsubs plugin.
+# opt-27_subtitles-ttxtsubs
