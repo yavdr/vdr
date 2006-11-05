@@ -1,17 +1,17 @@
-vdr (1.4.4-1) UNRELEASED; urgency=low
+vdr (1.4.4-1) unstable; urgency=low
 
   [ Tobias Grimm ]
-  * (NOT RELEASED YET) New upstream release
+  * New upstream release
   * Renamed and updated optional subtitles-ttxtsubs example patch
   * Created symlinks of setup.conf, channels.conf, remote.conf and
     /etc/default/vdr in /etc/vdr/
 
   [ Thomas Schmidt ]
   * Removed linux-kernel-headers build-dependancy, not needed anymore
-  * Removed vdr-dev dependancy on dvb-dev | linux-kernel-headers 
+  * Removed vdr-dev dependancy on dvb-dev | linux-kernel-headers
     (Ubuntu Bug #65340)
 
- -- Thomas Schmidt <tschmidt@debian.org>  Sun,  5 Nov 2006 14:37:05 +0100
+ -- Thomas Schmidt <tschmidt@debian.org>  Sun,  5 Nov 2006 17:40:44 +0100
 
 vdr (1.4.3-1) unstable; urgency=low
 
