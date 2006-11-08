@@ -8,7 +8,6 @@ Standards-Version: #POLICY#
 Package: vdr-plugin-#PACKAGE#
 Architecture: any
 Depends: ${shlibs:Depends}, ${vdr:Depends}
-Conflicts: ${vdr:Conflicts}
 Description: <insert up to 60 chars description>
  <insert long description, indented with spaces>
 XB-VDR-Patchlevel: ${vdr:Patchlevel}
