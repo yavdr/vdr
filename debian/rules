@@ -1,4 +1,4 @@
-#!/usr/bin/make -f
+#! /bin/sh debian/make-special-vdr
 # Sample debian/rules that uses debhelper.
 # GNU copyright 1997 to 1999 by Joey Hess.
 
@@ -12,12 +12,6 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	INSTALL_PROGRAM += -s
 endif
 
-# Set VDR=vdr or VDR=vdrdevel - vdrdevel always uses dpatch
-VDR=$(shell dh_listpackages | grep "^vdr.*-" | head -n 1 | sed -e "s/-.*//")
-ifeq ($(VDR), vdrdevel)
-    DPATCH=yes
-endif
-
 # To use dpatch uncomment the following line and set Build-Depends to dpatch
 DPATCH=yes
 
@@ -29,9 +23,8 @@ patch-stamp:
 unpatch:
 endif
 
-CFGDIR=/var/lib/$(VDR)
-PLUGINDIR=/usr/lib/$(VDR)/plugins
-VIDEODIR=/var/lib/video.00
+MAKE_OPTIONS = VFAT=1 DVBDIR=/usr CFGDIR=/var/lib/vdr \
+               VIDEODIR=/var/lib/video.00 PLUGINLIBDIR=/usr/lib/vdr/plugins
 
 configure: configure-stamp
 configure-stamp: patch-stamp
@@ -42,19 +35,16 @@ build: build-stamp
 build-stamp: configure-stamp
 	dh_testdir
 
-	$(MAKE) VFAT=1 DVBDIR=/usr \
-	        VIDEODIR=$(VIDEODIR) PLUGINLIBDIR=$(PLUGINDIR) CFGDIR=$(CFGDIR)
-	[ "$(VDR)" = "vdr" ] || \
-	    (cp vdr $(VDR); cp vdr.1 $(VDR).1; cp vdr.5 $(VDR).5)
-	ln -f $(VDR) $(VDR)-kbd
+	$(MAKE) all $(MAKE_OPTIONS)
+	ln -f vdr vdr-kbd
 
 	# plugins
 	mkdir -p PLUGINS/lib
-	$(MAKE) plugins
+	$(MAKE) plugins $(MAKE_OPTIONS)
 
-	cp newplugin $(VDR)-newplugin
+	cp newplugin vdr-newplugin
 
-	gcc -o debian/$(VDR)-shutdown.wrapper debian/$(VDR)-shutdown-wrapper.c
+	gcc -o debian/vdr-shutdown.wrapper debian/vdr-shutdown-wrapper.c
 
 	touch build-stamp
 
@@ -67,13 +57,12 @@ clean-patched:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
-	-$(MAKE) -o .dependencies clean-plugins
-	-$(MAKE) -o .dependencies clean
-	[ "$(VDR)" = "vdr" ] || rm -f $(VDR) $(VDR).1 $(VDR).5
-	rm -f $(VDR)-kbd
+	-$(MAKE) -o .dependencies clean-plugins $(MAKE_OPTIONS)
+	-$(MAKE) -o .dependencies clean $(MAKE_OPTIONS)
+	rm -f vdr-kbd
 	rm -rf PLUGINS/lib
-	rm -f $(VDR)-newplugin
-	rm -f debian/$(VDR)-shutdown.wrapper
+	rm -f vdr-newplugin
+	rm -f debian/vdr-shutdown.wrapper
 	sh debian/patchlevel.sh clean
 	rm -f debian/patchinfo
 	dh_clean
@@ -84,9 +73,9 @@ install: build patchlevel
 	dh_clean -k
 	dh_installdirs
 	dh_install
-	chmod +x $(CURDIR)/debian/$(VDR)/usr/lib/$(VDR)/$(VDR)-* \
-	  $(CURDIR)/debian/$(VDR)-dev/usr/lib/$(VDR)-dev/patchlevel.sh \
-	  $(CURDIR)/debian/$(VDR)-dev/usr/lib/$(VDR)-dev/dependencies.sh
+	chmod +x $(CURDIR)/debian/vdr/usr/lib/vdr/vdr-* \
+	  $(CURDIR)/debian/vdr-dev/usr/lib/vdr-dev/patchlevel.sh \
+	  $(CURDIR)/debian/vdr-dev/usr/lib/vdr-dev/dependencies.sh
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -124,7 +113,7 @@ binary-arch: build install
 	dh_testdir -a
 	dh_testroot -a
 	dh_installdebconf -a
-	dh_installdocs -a -N$(VDR)-dbg -N$(VDR)-plugin-examples
+	dh_installdocs -a -Nvdr-dbg -Nvdr-plugin-examples
 	dh_installexamples -a
 	dh_installmenu -a
 #	dh_installlogrotate -a
@@ -136,8 +125,8 @@ binary-arch: build install
 	dh_installman -a
 #	dh_installinfo -a
 #	dh_undocumented -a
-	dh_installchangelogs -p$(VDR) HISTORY
-	dh_installchangelogs -p$(VDR)-plugin-sky PLUGINS/src/sky/HISTORY
+	dh_installchangelogs -pvdr HISTORY
+	dh_installchangelogs -pvdr-plugin-sky PLUGINS/src/sky/HISTORY
 	dh_link -a
 	dh_strip -a
 	dh_compress -a

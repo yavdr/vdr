@@ -1,4 +1,4 @@
-#!/usr/bin/make -f
+#! /bin/sh /usr/lib/vdr-dev/make-special-vdr
 # Sample debian/rules that uses debhelper.
 # GNU copyright 1997 to 1999 by Joey Hess.
 
@@ -12,12 +12,6 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	INSTALL_PROGRAM += -s
 endif
 
-# Set VDR=vdr or VDR=vdrdevel - vdrdevel always uses dpatch
-VDR=$(shell dh_listpackages | grep "^vdr.*-" | head -n 1 | sed -e "s/-.*//")
-ifeq ($(VDR), vdrdevel)
-    DPATCH=yes
-endif
-
 # To use dpatch uncomment the following line and set Build-Depends to dpatch
 # DPATCH=yes
 
@@ -29,6 +23,8 @@ patch-stamp:
 unpatch:
 endif
 
+MAKE_OPTIONS = DVBDIR=/usr VDRDIR=/usr/include/vdr LIBDIR=.
+
 configure: configure-stamp
 configure-stamp: patch-stamp
 	dh_testdir
@@ -37,7 +33,7 @@ configure-stamp: patch-stamp
 build: build-stamp
 build-stamp: configure-stamp
 	dh_testdir
-	$(MAKE) all DVBDIR=/usr VDRDIR=/usr/include/$(VDR) LIBDIR=.
+	$(MAKE) all $(MAKE_OPTIONS)
 	touch build-stamp
 
 clean: clean-patched unpatch
@@ -45,7 +41,7 @@ clean-patched:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
-	-$(MAKE) -o .dependencies clean
+	-$(MAKE) -o .dependencies clean $(MAKE_OPTIONS)
 	rm -f libvdr-*.so.*
 	dh_clean
 
@@ -86,8 +82,8 @@ binary-arch: build install
 	dh_installdeb
 #	dh_perl
 	dh_shlibdeps
-	/usr/lib/$(VDR)-dev/patchlevel.sh subst
-	/usr/lib/$(VDR)-dev/dependencies.sh
+	/usr/lib/vdr-dev/patchlevel.sh subst
+	/usr/lib/vdr-dev/dependencies.sh
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

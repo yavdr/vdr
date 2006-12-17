@@ -14,3 +14,5 @@ debian/patchlevel.sh            usr/lib/vdr-dev/
 patchlevel                      usr/include/vdr/
 
 debian/dependencies.sh          usr/lib/vdr-dev/
+
+debian/make-special-vdr         usr/lib/vdr-dev/
