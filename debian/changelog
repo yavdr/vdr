@@ -1,4 +1,4 @@
-vdr (1.4.4-2) UNRELEASED; urgency=low
+vdr (1.4.5-1) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
 
@@ -11,7 +11,10 @@ vdr (1.4.4-2) UNRELEASED; urgency=low
   * Install make-special-vdr into vdr-dev package - plugins can use this to
     build plugin packages for special vdr packages
 
- -- Thomas Günther <tom@toms-cafe.de>  Sun, 17 Dec 2006 16:26:55 +0100
+  [ Thomas Schmidt ]
+  * New upstream release
+
+ -- Thomas Schmidt <tschmidt@debian.org>  Fri, 12 Jan 2007 15:03:54 +0100
 
 vdr (1.4.4-1) unstable; urgency=low
 
