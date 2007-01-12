@@ -1,0 +1,1448 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## opt_46_dmh-dvd-archive.dpatch by Marius "DMH" Heidenstecker <marius@heidenstecker.de>
+## vdr-1.3.44-bp-dmh-dvd-archive-version5.diff downloaded from:
+## http://www.vdr-portal.de/board/thread.php?threadid=46861
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Extends Andreas Kool's dvdarchive patch, to allow normal Video-DVD's 
+## DP: (playable on standalone video players) to be handled like archive DVD.
+
+@DPATCH@
+diff -urNad vdr-1.4.3~/HISTORY-dmh-dvd-archive vdr-1.4.3/HISTORY-dmh-dvd-archive
+--- vdr-1.4.3~/HISTORY-dmh-dvd-archive	1970-01-01 01:00:00.000000000 +0100
++++ vdr-1.4.3/HISTORY-dmh-dvd-archive	2006-09-24 13:12:04.000000000 +0200
+@@ -0,0 +1,35 @@
++DMH DVD-Archive Patch History
++-----------------------------
++
++
++2006-04-24: Version 5 (vdr: 1.3.44, BigPatch: test1)
++
++- fixed problem of nonterminating find (Reported by vdrchuck@vdr-portal)
++
++
++2006-03-07: Version 4 (vdr: 1.3.44, BigPatch: test1)
++
++- if libdvdread is installed one can jump through dvd chapters bei pressing
++  "4" or "6" while watching a recording. The handling is then the same as in
++  dvd-plugin. It works only for Video-Archive-DVDs. In order to use it one has
++  to compile vdr with "DVDCHAPJUMP=1". The header-files should be installed in
++  /usr/include/libdvdread.
++
++
++2006-03-02: Version 3 (vdr: 1.3.44, BigPatch: test1)
++
++- changed the setup options
++
++- added possibility to remove leading zeros of dvd number (Suggested by
++  clausmuus@vdr-portal)
++
++- fixed problem that playing of archived recording does not start if "Show
++  DVD-No." is set to "no" in setup (Reported by Wolfi@vdr-portal)
++
++- added reloading of recordings when "DVD display mode" is turned to "Length /
++  Number" or "Number" in setup (Suggested by pat@vdr-portal)
++  
++- added this history ;o)
++
++
++2005-??-??: Initial Version
+diff -urNad vdr-1.4.3~/Makefile vdr-1.4.3/Makefile
+--- vdr-1.4.3~/Makefile	2006-09-24 13:12:04.000000000 +0200
++++ vdr-1.4.3/Makefile	2006-09-24 13:36:08.000000000 +0200
+@@ -18,6 +18,9 @@
+ MANDIR   = /usr/local/man
+ BINDIR   = /usr/local/bin
+ LIBS     = -ljpeg -lpthread -ldl -lcap
++ifdef DVDCHAPJUMP
++   LIBS += -ldvdread
++endif
+ INCLUDES =
+ 
+ PLUGINDIR= ./PLUGINS
+@@ -31,6 +34,10 @@
+ 
+ -include Make.config
+ 
++ifdef DVDCHAPJUMP
++   INCLUDES += -I/usr/include/libdvdread
++endif
++
+ SILIB    = $(LSIDIR)/libsi.a
+ 
+ OBJS = audio.o channels.o ci.o config.o cutter.o device.o diseqc.o dvbdevice.o dvbosd.o\
+@@ -71,6 +78,9 @@
+ ifdef VDR_USER
+ DEFINES += -DVDR_USER=\"$(VDR_USER)\"
+ endif
++ifdef DVDCHAPJUMP
++   DEFINES += -DDVDCHAPJUMP
++endif
+ 
+ LIRC_DEVICE ?= /dev/lircd
+ RCU_DEVICE  ?= /dev/ttyS1
+diff -urNad vdr-1.4.3~/config.c vdr-1.4.3/config.c
+--- vdr-1.4.3~/config.c	2006-09-24 13:12:04.000000000 +0200
++++ vdr-1.4.3/config.c	2006-09-24 13:15:42.000000000 +0200
+@@ -305,10 +305,6 @@
+   SplitEditedFiles = 0;
+   MinEventTimeout = 30;
+   MinUserInactivity = 300;
+-#ifdef DVDARCHIVE
+-  TrayOpenOnBegin = 0;
+-  TrayOpenOnEnd = 0;
+-#endif /* DVDARCHIVE */
+   MultiSpeedMode = 0;
+   ShowReplayMode = 0;
+   DoubleEpgTimeDelta = 15;
+@@ -330,6 +326,10 @@
+   ShowRecLength = 0;
+   ShowProgressBar = 0;
+   MenuCmdPosition = 0;
++  DvdDisplayMode = 1;
++  DvdDisplayZeros = 1;
++  DvdTrayMode = 0;
++  DvdSpeedLimit = 0;
+ }
+ 
+ cSetup& cSetup::operator= (const cSetup &s)
+@@ -486,10 +486,6 @@
+   else if (!strcasecmp(Name, "SplitEditedFiles"))    SplitEditedFiles   = atoi(Value);
+   else if (!strcasecmp(Name, "MinEventTimeout"))     MinEventTimeout    = atoi(Value);
+   else if (!strcasecmp(Name, "MinUserInactivity"))   MinUserInactivity  = atoi(Value);
+-#ifdef DVDARCHIVE
+-  else if (!strcasecmp(Name, "TrayOpenOnBegin"))     TrayOpenOnBegin    = atoi(Value);
+-  else if (!strcasecmp(Name, "TrayOpenOnEnd"))       TrayOpenOnEnd      = atoi(Value);
+-#endif /* DVDARCHIVE */
+   else if (!strcasecmp(Name, "MultiSpeedMode"))      MultiSpeedMode     = atoi(Value);
+   else if (!strcasecmp(Name, "ShowReplayMode"))      ShowReplayMode     = atoi(Value);
+   else if (!strcasecmp(Name, "DoubleEpgTimeDelta"))  DoubleEpgTimeDelta = atoi(Value);
+@@ -511,6 +507,10 @@
+   else if (!strcasecmp(Name, "ShowRecLength"))       ShowRecLength      = atoi(Value);
+   else if (!strcasecmp(Name, "ShowProgressBar"))     ShowProgressBar    = atoi(Value);
+   else if (!strcasecmp(Name, "MenuCmdPosition"))     MenuCmdPosition    = atoi(Value);
++  else if (!strcasecmp(Name, "DvdDisplayMode"))      DvdDisplayMode     = atoi(Value);
++  else if (!strcasecmp(Name, "DvdDisplayZeros"))     DvdDisplayZeros    = atoi(Value);
++  else if (!strcasecmp(Name, "DvdTrayMode"))         DvdTrayMode        = atoi(Value);
++  else if (!strcasecmp(Name, "DvdSpeedLimit"))       DvdSpeedLimit      = atoi(Value);
+   else
+      return false;
+   return true;
+@@ -580,10 +580,6 @@
+   Store("DoubleEpgTimeDelta", DoubleEpgTimeDelta);
+   Store("MultiSpeedMode",     MultiSpeedMode);
+   Store("ShowReplayMode",     ShowReplayMode);
+-#ifdef DVDARCHIVE
+-  Store("TrayOpenOnBegin",    TrayOpenOnBegin);
+-  Store("TrayOpenOnEnd",      TrayOpenOnEnd);
+-#endif /* DVDARCHIVE */
+   Store("ResumeID",           ResumeID);
+   Store("JumpPlay",           JumpPlay);
+   Store("PlayJump",           PlayJump);
+@@ -599,11 +595,16 @@
+   Store("ShowRecLength",      ShowRecLength);
+   Store("ShowProgressBar",    ShowProgressBar);
+   Store("MenuCmdPosition",    MenuCmdPosition);
++  Store("DvdDisplayMode",     DvdDisplayMode);
++  Store("DvdDisplayZeros",    DvdDisplayZeros);
++  Store("DvdTrayMode",        DvdTrayMode);
++  Store("DvdSpeedLimit",      DvdSpeedLimit);
+ 
+   Sort();
+ 
+   if (cConfig<cSetupLine>::Save()) {
+      isyslog("saved setup to %s", FileName());
++     if(DvdDisplayMode >= 1) ::Recordings.Load();		// DVDARCHIVE Patch
+      return true;
+      }
+   return false;
+diff -urNad vdr-1.4.3~/config.h vdr-1.4.3/config.h
+--- vdr-1.4.3~/config.h	2006-09-24 13:12:04.000000000 +0200
++++ vdr-1.4.3/config.h	2006-09-24 13:16:19.000000000 +0200
+@@ -267,8 +267,6 @@
+   int MaxVideoFileSize;
+   int SplitEditedFiles;
+   int MinEventTimeout, MinUserInactivity;
+-  int TrayOpenOnBegin;
+-  int TrayOpenOnEnd;
+   int MultiSpeedMode;
+   int ShowReplayMode;
+   int DoubleEpgTimeDelta;
+@@ -283,6 +281,10 @@
+   int CurrentChannel;
+   int CurrentVolume;
+   int CurrentDolby;
++  int DvdDisplayMode;
++  int DvdDisplayZeros;
++  int DvdTrayMode;
++  int DvdSpeedLimit;
+   int InitialChannel;
+   int InitialVolume;
+   int ShowRecDate, ShowRecTime, ShowRecLength, ShowProgressBar, MenuCmdPosition;
+diff -urNad vdr-1.4.3~/i18n.c vdr-1.4.3/i18n.c
+--- vdr-1.4.3~/i18n.c	2006-09-24 13:12:04.000000000 +0200
++++ vdr-1.4.3/i18n.c	2006-09-24 13:19:08.000000000 +0200
+@@ -2577,8 +2577,187 @@
+     "Otevírá se menu CAM...",
+   },
+ #ifdef DVDARCHIVE
+-  { "Please mount DVD %s",
+-    "Bitte DVD %s einlegen",
++  { "Please mount %s", // English
++    "Bitte %s einlegen", // Deutsch / German
++    "", // Slovenski / Slovenian
++    "", // Italiano / Italian
++    "", // Nederlands / Dutch
++    "", // Português / Portuguese
++    "Mettez %s dans le lecteur", // Français / French
++    "", // Norsk / Norwegian
++    "", // suomi / Finnish
++    "", // Polski / Polish
++    "", // Español / Spanish
++    "", // ÅëëçíéêÜ / Greek
++    "", // Svenska / Swedish
++    "", // Românã / Romanian
++    "", // Magyar / Hungarian
++    "", // Català / Catalanian
++    "", // ÀãááÚØÙ / Russian
++    "", // Hrvatski / Croatian
++    "", // Eesti / Estonian
++    "", // Dansk / Danish
++    "", // Èesky / Czech
++  },
++  { "Please mount DVD %04d", // English
++    "Bitte DVD %04d einlegen", // Deutsch / German
++    "", // Slovenski / Slovenian
++    "", // Italiano / Italian
++    "", // Nederlands / Dutch
++    "", // Português / Portuguese
++    "Mettez le DVD %04d dans le lecteur", // Français / French
++    "", // Norsk / Norwegian
++    "", // suomi / Finnish
++    "", // Polski / Polish
++    "", // Español / Spanish
++    "", // ÅëëçíéêÜ / Greek
++    "", // Svenska / Swedish
++    "", // Românã / Romanian
++    "", // Magyar / Hungarian
++    "", // Català / Catalanian
++    "", // ÀãááÚØÙ / Russian
++    "", // Hrvatski / Croatian
++    "", // Eesti / Estonian
++    "", // Dansk / Danish
++    "", // Èesky / Czech
++  },
++  { "Please mount DVD %d", // English
++    "Bitte DVD %d einlegen", // Deutsch / German
++    "", // Slovenski / Slovenian
++    "", // Italiano / Italian
++    "", // Nederlands / Dutch
++    "", // Português / Portuguese
++    "Mettez le DVD %d dans le lecteur", // Français / French
++    "", // Norsk / Norwegian
++    "", // suomi / Finnish
++    "", // Polski / Polish
++    "", // Español / Spanish
++    "", // ÅëëçíéêÜ / Greek
++    "", // Svenska / Swedish
++    "", // Românã / Romanian
++    "", // Magyar / Hungarian
++    "", // Català / Catalanian
++    "", // ÀãááÚØÙ / Russian
++    "", // Hrvatski / Croatian
++    "", // Eesti / Estonian
++    "", // Dansk / Danish
++    "", // Èesky / Czech
++  },
++  { "Please wait. Checking DVD...", // English
++    "Bitte warten. Überprüfe DVD...", // Deutsch / German
++    "", // Slovenski / Slovenian
++    "", // Italiano / Italian
++    "", // Nederlands / Dutch
++    "", // Português / Portuguese
++    "Un moment SVP. Vérification DVD...", // Français / French
++    "", // Norsk / Norwegian
++    "", // suomi / Finnish
++    "", // Polski / Polish
++    "", // Español / Spanish
++    "", // ÅëëçíéêÜ / Greek
++    "", // Svenska / Swedish
++    "", // Românã / Romanian
++    "", // Magyar / Hungarian
++    "", // Català / Catalanian
++    "", // ÀãááÚØÙ / Russian
++    "", // Hrvatski / Croatian
++    "", // Eesti / Estonian
++    "", // Dansk / Danish
++    "", // Èesky / Czech
++  },
++  { "Wrong DVD!", // English
++    "Falsche DVD!", // Deutsch / German
++    "", // Slovenski / Slovenian
++    "", // Italiano / Italian
++    "", // Nederlands / Dutch
++    "", // Português / Portuguese
++    "Faux DVD!", // Français / French
++    "", // Norsk / Norwegian
++    "", // suomi / Finnish
++    "", // Polski / Polish
++    "", // Español / Spanish
++    "", // ÅëëçíéêÜ / Greek
++    "", // Svenska / Swedish
++    "", // Românã / Romanian
++    "", // Magyar / Hungarian
++    "", // Català / Catalanian
++    "", // ÀãááÚØÙ / Russian
++    "", // Hrvatski / Croatian
++    "", // Eesti / Estonian
++    "", // Dansk / Danish
++    "", // Èesky / Czech
++  },
++  { "DVD plugin is not installed!", // English
++    "Das DVD-Plugin ist nicht installiert!", // Deutsch / German
++    "", // Slovenski / Slovenian
++    "", // Italiano / Italian
++    "", // Nederlands / Dutch
++    "", // Português / Portuguese
++    "Le DVD-plugin n'est pas installé!", // Français / French
++    "", // Norsk / Norwegian
++    "", // suomi / Finnish
++    "", // Polski / Polish
++    "", // Español / Spanish
++    "", // ÅëëçíéêÜ / Greek
++    "", // Svenska / Swedish
++    "", // Românã / Romanian
++    "", // Magyar / Hungarian
++    "", // Català / Catalanian
++    "", // ÀãááÚØÙ / Russian
++    "", // Hrvatski / Croatian
++    "", // Eesti / Estonian
++    "", // Dansk / Danish
++    "", // Èesky / Czech
++  },
++  { "Please wait. Creating index-file...", // English
++    "Bitte warten. Index-Datei wird erstellt...", // Deutsch / German
++    "", // Slovenski / Slovenian
++    "", // Italiano / Italian
++    "", // Nederlands / Dutch
++    "", // Português / Portuguese
++    "Attendez, merci. Le fichier index est en création...", // Français / French
++    "", // Norsk / Norwegian
++    "", // suomi / Finnish
++    "", // Polski / Polish
++    "", // Español / Spanish
++    "", // ÅëëçíéêÜ / Greek
++    "", // Svenska / Swedish
++    "", // Românã / Romanian
++    "", // Magyar / Hungarian
++    "", // Català / Catalanian
++    "", // ÀãááÚØÙ / Russian
++    "", // Hrvatski / Croatian
++    "", // Eesti / Estonian
++    "", // Dansk / Danish
++    "", // Èesky / Czech
++  },
++  { "No index-file found. Creating may take minutes. Create one?", // English
++    "Keine Index-Datei gefunden. Erstellung kann Minuten dauern. Erstellen?", // Deutsch / German
++    "", // Slovenski / Slovenian
++    "", // Italiano / Italian
++    "", // Nederlands / Dutch
++    "", // Português / Portuguese
++    "Pas trouvé de fichiers index. Création du ficher prend quelques minutes. Créer?", // Français / French
++    "", // Norsk / Norwegian
++    "", // suomi / Finnish
++    "", // Polski / Polish
++    "", // Español / Spanish
++    "", // ÅëëçíéêÜ / Greek
++    "", // Svenska / Swedish
++    "", // Românã / Romanian
++    "", // Magyar / Hungarian
++    "", // Català / Catalanian
++    "", // ÀãááÚØÙ / Russian
++    "", // Hrvatski / Croatian
++    "", // Eesti / Estonian
++    "", // Dansk / Danish
++    "", // Èesky / Czech
++  },
++  { "Setup.BigPatch$DVD display mode",
++    "DVD Anzeige",
++    "",//TODO
++    "",//TODO
++    "",//TODO
+     "",//TODO
+     "",//TODO
+     "",//TODO
+@@ -2596,8 +2775,8 @@
+     "",//TODO
+     "",//TODO
+   },
+-  { "Wrong DVD!",
+-    "Falsche DVD!",
++  { "Setup.BigPatch$Length",
++    "Länge",
+     "",//TODO
+     "",//TODO
+     "",//TODO
+@@ -2615,8 +2794,8 @@
+     "",//TODO
+     "",//TODO
+   },
+-  { "Setup.Replay$Tray open on begin",
+-    "DVD-Schublade zu Beginn öffnen",
++  { "Setup.BigPatch$Length / Number",
++    "Länge / Nummer",
+     "",//TODO
+     "",//TODO
+     "",//TODO
+@@ -2634,8 +2813,27 @@
+     "",//TODO
+     "",//TODO
+   },
+-  { "Setup.Replay$Tray open on end",
+-    "DVD-Schublade am Ende öffnen",
++  { "Setup.BigPatch$Number",
++    "Nummer",
++    "",//TODO
++    "",//TODO
++    "",//TODO
++    "",//TODO
++    "",//TODO
++    "",//TODO
++    "",//TODO
++    "",//TODO
++    "",//TODO
++    "",//TODO
++    "",//TODO
++    "",//TODO
++    "",//TODO
++    "",//TODO
++    "",//TODO
++    "",//TODO
++  },
++  { "Setup.BigPatch$DVD display leading zeros",
++    "DVD führende Nullen anzeigen",
+     "",//TODO
+     "",//TODO
+     "",//TODO
+@@ -6771,6 +6969,138 @@
+     "",//TODO
+     "",//TODO
+   },
++  { "Setup.BigPatch$Tray open", // English
++    "DVD-Schublade öffnen", // Deutsch / German
++    "", // Slovenski / Slovenian
++    "", // Italiano / Italian
++    "", // Nederlands / Dutch
++    "", // Português / Portuguese
++    "Ouvrir le tiroir du lecteur DVD", // Français / French
++    "", // Norsk / Norwegian
++    "", // suomi / Finnish
++    "", // Polski / Polish
++    "", // Español / Spanish
++    "", // ÅëëçíéêÜ / Greek
++    "", // Svenska / Swedish
++    "", // Românã / Romanian
++    "", // Magyar / Hungarian
++    "", // Català / Catalanian
++    "", // ÀãááÚØÙ / Russian
++    "", // Hrvatski / Croatian
++    "", // Eesti / Estonian
++    "", // Dansk / Danish
++    "", // Èesky / Czech
++  },
++  { "Setup.BigPatch$never", // English
++    "nie", // Deutsch / German
++    "", // Slovenski / Slovenian
++    "", // Italiano / Italian
++    "", // Nederlands / Dutch
++    "", // Português / Portuguese
++    "", // Français / French
++    "", // Norsk / Norwegian
++    "", // suomi / Finnish
++    "", // Polski / Polish
++    "", // Español / Spanish
++    "", // ÅëëçíéêÜ / Greek
++    "", // Svenska / Swedish
++    "", // Românã / Romanian
++    "", // Magyar / Hungarian
++    "", // Català / Catalanian
++    "", // ÀãááÚØÙ / Russian
++    "", // Hrvatski / Croatian
++    "", // Eesti / Estonian
++    "", // Dansk / Danish
++    "", // Èesky / Czech
++  },
++  { "Setup.BigPatch$on begin", // English
++    "am Anfang", // Deutsch / German
++    "", // Slovenski / Slovenian
++    "", // Italiano / Italian
++    "", // Nederlands / Dutch
++    "", // Português / Portuguese
++    "", // Français / French
++    "", // Norsk / Norwegian
++    "", // suomi / Finnish
++    "", // Polski / Polish
++    "", // Español / Spanish
++    "", // ÅëëçíéêÜ / Greek
++    "", // Svenska / Swedish
++    "", // Românã / Romanian
++    "", // Magyar / Hungarian
++    "", // Català / Catalanian
++    "", // ÀãááÚØÙ / Russian
++    "", // Hrvatski / Croatian
++    "", // Eesti / Estonian
++    "", // Dansk / Danish
++    "", // Èesky / Czech
++  },
++  { "Setup.BigPatch$on end", // English
++    "am Ende", // Deutsch / German
++    "", // Slovenski / Slovenian
++    "", // Italiano / Italian
++    "", // Nederlands / Dutch
++    "", // Português / Portuguese
++    "", // Français / French
++    "", // Norsk / Norwegian
++    "", // suomi / Finnish
++    "", // Polski / Polish
++    "", // Español / Spanish
++    "", // ÅëëçíéêÜ / Greek
++    "", // Svenska / Swedish
++    "", // Românã / Romanian
++    "", // Magyar / Hungarian
++    "", // Català / Catalanian
++    "", // ÀãááÚØÙ / Russian
++    "", // Hrvatski / Croatian
++    "", // Eesti / Estonian
++    "", // Dansk / Danish
++    "", // Èesky / Czech
++  },
++  { "Setup.BigPatch$on begin and end", // English
++    "am Anfang und Ende", // Deutsch / German
++    "", // Slovenski / Slovenian
++    "", // Italiano / Italian
++    "", // Nederlands / Dutch
++    "", // Português / Portuguese
++    "", // Français / French
++    "", // Norsk / Norwegian
++    "", // suomi / Finnish
++    "", // Polski / Polish
++    "", // Español / Spanish
++    "", // ÅëëçíéêÜ / Greek
++    "", // Svenska / Swedish
++    "", // Românã / Romanian
++    "", // Magyar / Hungarian
++    "", // Català / Catalanian
++    "", // ÀãááÚØÙ / Russian
++    "", // Hrvatski / Croatian
++    "", // Eesti / Estonian
++    "", // Dansk / Danish
++    "", // Èesky / Czech
++  },
++  { "Setup.BigPatch$Limit DVD to speed", // English
++    "DVD drosseln auf", // Deutsch / German
++    "", // Slovenski / Slovenian
++    "", // Italiano / Italian
++    "", // Nederlands / Dutch
++    "", // Português / Portuguese
++    "Ralentir la vitesse du DVD sur", // Français / French
++    "", // Norsk / Norwegian
++    "", // suomi / Finnish
++    "", // Polski / Polish
++    "", // Español / Spanish
++    "", // ÅëëçíéêÜ / Greek
++    "", // Svenska / Swedish
++    "", // Românã / Romanian
++    "", // Magyar / Hungarian
++    "", // Català / Catalanian
++    "", // ÀãááÚØÙ / Russian
++    "", // Hrvatski / Croatian
++    "", // Eesti / Estonian
++    "", // Dansk / Danish
++    "", // Èesky / Czech
++  },
+   { NULL }
+   };
+ 
+diff -urNad vdr-1.4.3~/keys.h vdr-1.4.3/keys.h
+--- vdr-1.4.3~/keys.h	2006-04-15 15:56:03.000000000 +0200
++++ vdr-1.4.3/keys.h	2006-09-24 13:12:04.000000000 +0200
+@@ -70,6 +70,10 @@
+ #define kEditCut         k2
+ #define kEditTest        k8
+ 
++// DVDARCHIVE Patch
++#define kDvdChapterJumpForward k6
++#define kDvdChapterJumpBack    k4
++
+ #define RAWKEY(k)        (eKeys((k) & ~k_Flags))
+ #define ISRAWKEY(k)      ((k) != kNone && ((k) & k_Flags) == 0)
+ #define NORMALKEY(k)     (eKeys((k) & ~k_Repeat))
+diff -urNad vdr-1.4.3~/menu.c vdr-1.4.3/menu.c
+--- vdr-1.4.3~/menu.c	2006-09-24 13:12:04.000000000 +0200
++++ vdr-1.4.3/menu.c	2006-09-24 13:23:13.000000000 +0200
+@@ -2347,8 +2347,27 @@
+      else {
+         cRecording *recording = GetRecording(ri);
+         if (recording) {
+-           cReplayControl::SetRecording(recording->FileName(), recording->Title());
+-           return osReplay;
++	   int mountRet = MOUNT_DVD_REPLAY;
++	   if (recording->IsOnlyOnDvd()) {
++	     mountRet = recording->MountDvd();
++	   }
++	   if(mountRet == MOUNT_DVD_REPLAY) {
++	     cReplayControl::SetRecording(recording->FileName(), recording->Title());
++             return osReplay;
++	   } else if (mountRet == MOUNT_DVD_LAUNCH_DVD_PLUGIN) {
++	     //launch DVD plugin here
++	     cPlugin *p = cPluginManager::GetPlugin("dvd");
++	     cOsdObject *osd = NULL;
++	     if(p) {
++	       osd = p->MainMenuAction();
++	       delete osd;
++	       osd = NULL;
++	       return osEnd;
++	     } else {
++	       Skins.Message(mtError, tr("DVD plugin is not installed!"));
++	       Skins.Flush();
++	       }
++	     }
+            }
+         }
+      }
+@@ -2996,8 +3015,19 @@
+   SetSection(tr("Replay"));
+   Add(new cMenuEditBoolItem(tr("Setup.Replay$Multi speed mode"), &data.MultiSpeedMode));
+   Add(new cMenuEditBoolItem(tr("Setup.Replay$Show replay mode"), &data.ShowReplayMode));
+-  Add(new cMenuEditBoolItem(tr("Setup.Replay$Tray open on begin"), &data.TrayOpenOnBegin));
+-  Add(new cMenuEditBoolItem(tr("Setup.Replay$Tray open on end"),   &data.TrayOpenOnEnd));
++  static const char *dvddisplaymode[3];
++  dvddisplaymode[0]=tr("Setup.BigPatch$Length");
++  dvddisplaymode[1]=tr("Setup.BigPatch$Length / Number");
++  dvddisplaymode[2]=tr("Setup.BigPatch$Number");
++  Add(new cMenuEditStraItem(tr("Setup.BigPatch$DVD display mode"),                &data.DvdDisplayMode,3,dvddisplaymode));
++  Add(new cMenuEditBoolItem(tr("Setup.BigPatch$DVD display leading zeros"),       &data.DvdDisplayZeros));
++  static const char *dvdtraymode[4];
++  dvdtraymode[0]=tr("Setup.BigPatch$never");
++  dvdtraymode[1]=tr("Setup.BigPatch$on begin");
++  dvdtraymode[2]=tr("Setup.BigPatch$on end");
++  dvdtraymode[3]=tr("Setup.BigPatch$on begin and end");
++  Add(new cMenuEditStraItem(tr("Setup.BigPatch$Tray open"),                       &data.DvdTrayMode,4,dvdtraymode));
++  Add(new cMenuEditIntItem(tr("Setup.BigPatch$Limit DVD to speed"),               &data.DvdSpeedLimit, 0, 50));
+   Add(new cMenuEditIntItem(tr("Setup.Replay$Resume ID"), &data.ResumeID, 0, 99));
+   Add(new cMenuEditBoolItem(tr("Setup.Replay$Jump&Play"), &data.JumpPlay));
+   Add(new cMenuEditBoolItem(tr("Setup.Replay$Play&Jump"), &data.PlayJump));
+@@ -4387,6 +4417,16 @@
+   timeoutShow = 0;
+   timeSearchActive = false;
+   cRecording Recording(fileName);
++  canJumpChapters = (Recording.GetDvdType() == DVD_VIDEO_ARCHIVE_TYPE);
++  dvdchapters = NULL;
++  if(canJumpChapters) {
++    const char *ret = Recording.GetDvdChapters();
++    if(ret) {
++      dvdchapters = strdup(ret);
++    } else {
++      canJumpChapters=false;
++      }
++    }
+   cStatus::MsgReplaying(this, Recording.Name(), Recording.FileName(), true);
+   SetTrackDescriptions(false);
+ }
+@@ -4394,6 +4434,7 @@
+ cReplayControl::~cReplayControl()
+ {
+   Hide();
++  free(dvdchapters);
+   cStatus::MsgReplaying(this, NULL, fileName, false);
+   Stop();
+ }
+@@ -4659,6 +4700,32 @@
+      }
+ }
+ 
++void cReplayControl::ChaptersJump(bool Forward)
++{
++     int Current, Total;
++     if (GetIndex(Current, Total)) {
++        int position = -1;
++        char *buf, *pos, *old1, *old2;
++	old1 = "-1";
++	old2 = "-1";
++	buf = strdup(dvdchapters);
++	pos = strtok(buf, ",");
++	while(pos != NULL && position == -1) {
++	  if(pos && atoi(pos) > Current)
++	    position = Forward ? atoi(pos) : ((Current - atoi(old1)) <= (3*FRAMESPERSEC)) ? atoi(old2) : atoi(old1);
++	  old2 = old1;
++	  old1 = strdup(pos);
++	  if(position == -1) pos = strtok(NULL, ",");
++	  } 
++	if(!pos && !Forward)
++	  position = ((Current - atoi(old1)) <= (3*FRAMESPERSEC)) ? atoi(old2) : atoi(old1);
++        if(position >= 0) {
++	  Goto(position);
++	  Play();
++        }
++     }
++}
++
+ void cReplayControl::EditCut(void)
+ {
+   if (fileName) {
+@@ -4725,6 +4792,13 @@
+      TimeSearchProcess(Key);
+      return osContinue;
+      }
++  bool isOnMark = false;
++  if(canJumpChapters) {
++    int Current, Total;
++    GetIndex(Current, Total);
++    cMark *m = marks.Get(Current);
++    if(m && (m->position == Current)) isOnMark = true;
++    }
+   bool DoShowMode = true;
+   switch (Key) {
+     // Positioning:
+@@ -4755,6 +4829,22 @@
+     case kBlue:    Hide();
+                    Stop();
+                    return osEnd;
++    case kDvdChapterJumpForward|k_Repeat:			// DVDARCHIVE Patch
++    case kDvdChapterJumpForward: if(canJumpChapters && !isOnMark) {
++                                   ChaptersJump(true);
++				 } else {
++				   DoShowMode = false;
++				   MarkMove(true);
++				   }
++				 break;  
++    case kDvdChapterJumpBack|k_Repeat:
++    case kDvdChapterJumpBack: if(canJumpChapters && !isOnMark) {
++                                ChaptersJump(false);
++			      } else {
++			        DoShowMode = false;
++				MarkMove(false);
++				}
++			      break;  
+     default: {
+       DoShowMode = false;
+       switch (Key) {
+diff -urNad vdr-1.4.3~/menu.h vdr-1.4.3/menu.h
+--- vdr-1.4.3~/menu.h	2006-09-24 13:12:04.000000000 +0200
++++ vdr-1.4.3/menu.h	2006-09-24 13:28:12.000000000 +0200
+@@ -247,6 +247,9 @@
+   void MarkMove(bool Forward);
+   void EditCut(void);
+   void EditTest(void);
++  void ChaptersJump(bool Forward);
++  bool canJumpChapters;
++  char *dvdchapters;
+ public:
+   cReplayControl(void);
+   virtual ~cReplayControl();
+diff -urNad vdr-1.4.3~/recording.c vdr-1.4.3/recording.c
+--- vdr-1.4.3~/recording.c	2006-09-24 13:12:04.000000000 +0200
++++ vdr-1.4.3/recording.c	2006-09-24 13:33:24.000000000 +0200
+@@ -24,6 +24,15 @@
+ #include "tools.h"
+ #include "videodir.h"
+ 
++// DVD-ARCHIVE Patch
++#if defined(DVDCHAPJUMP)
++#include <assert.h>
++/* libdvdread stuff */
++#include <dvdread/dvd_reader.h>
++#include <dvdread/ifo_types.h>
++#include <dvdread/ifo_read.h>
++#endif
++
+ #define SUMMARYFALLBACK
+ 
+ #define RECEXT       ".rec"
+@@ -47,6 +56,7 @@
+ #define INFOFILESUFFIX    "/info.vdr"
+ #define MARKSFILESUFFIX   "/marks.vdr"
+ #define INDEXFILESUFFIX   "/index.vdr"
++#define DVDARCHIVEFILENAME "/dvd.vdr"
+ 
+ #define MINDISKSPACE 1024 // MB
+ 
+@@ -491,6 +501,12 @@
+   sortBuffer = NULL;
+   fileName = NULL;
+   name = NULL;
++  dvdname = NULL;
++  dvdtrack = NULL;
++  dvdchapters = NULL;
++  isArchived = false;
++  isOnlyOnDvd = false;
++  dvdtype = DVD_TYPE_UNKNOWN;
+   fileSizeMB = -1; // unknown
+   deleted = 0;
+   // set up the actual name:
+@@ -551,6 +567,12 @@
+   char *p = strrchr(FileName, '/');
+ 
+   name = NULL;
++  dvdname = NULL;
++  dvdtrack = NULL;
++  dvdchapters = NULL;
++  isArchived = false;
++  isOnlyOnDvd = false;
++  dvdtype = DVD_TYPE_NOT_READ;
+   info = new cRecordingInfo;
+   if (p) {
+      time_t now = time(NULL);
+@@ -634,6 +656,13 @@
+         free(SummaryFileName);
+         }
+ #endif
++     if(CheckFileExistence("dvd.vdr")) {
++       GetDvdName(fileName);
++       isArchived = true;
++       if(!CheckFileExistence("001.vdr")) {
++         isOnlyOnDvd = true;  
++         }
++       }
+      }
+ }
+ 
+@@ -643,6 +672,9 @@
+   free(sortBuffer);
+   free(fileName);
+   free(name);
++  free(dvdname);
++  free(dvdtrack);
++  free(dvdchapters);
+   delete info;
+ }
+ 
+@@ -708,6 +740,352 @@
+   return fileName;
+ }
+ 
++bool cRecording::CheckFileExistence(const char* FileNameToTest, const bool useVideoDir) const
++{
++  if (!useVideoDir || (useVideoDir && FileName())) {
++    char filename[BUFSIZ];
++    
++    sprintf(filename, "%s%s%s", useVideoDir ? FileName() : "",
++				useVideoDir ? "/" : "",
++				FileNameToTest);
++    struct stat statBuf;
++    if(lstat(filename, &statBuf) == -1) return false;
++    return S_ISREG(statBuf.st_mode) || S_ISLNK(statBuf.st_mode);
++    }
++  return false;
++}
++
++bool cRecording::GetDvdName(const char* Directory) const
++{
++  char* filename = (char*)alloca(strlen(Directory) + strlen(DVDARCHIVEFILENAME) + 1);
++  if (filename) {
++    strcpy(filename, Directory);
++    char *end = filename + strlen(filename);
++    strcpy(end, DVDARCHIVEFILENAME);
++    FILE* file;
++    if((file = fopen(filename, "r"))) {
++      cReadLine ReadLine;
++      char* buffer = (char*)alloca(BUFSIZ);
++      if(buffer) {
++        buffer = ReadLine.Read(file);
++        if(buffer) {
++	  ((cRecording*)this)->dvdname = strdup(buffer);
++	} else {
++	  ((cRecording*)this)->dvdname = NULL;
++	  }
++	    
++        buffer = ReadLine.Read(file);
++        if(buffer) {
++	  ((cRecording*)this)->dvdtrack = strdup(buffer);
++	  if(atoi(buffer) == 0) {
++	    ((cRecording*)this)->dvdtype = DVD_VIDEO_TYPE;
++	  } else {
++	    ((cRecording*)this)->dvdtype = DVD_VIDEO_ARCHIVE_TYPE;
++	    }
++	} else {
++	  ((cRecording*)this)->dvdtrack = NULL;
++	  ((cRecording*)this)->dvdtype = DVD_ARCHIVE_TYPE;
++	  }
++	    
++        fclose(file);
++        return true;
++        }
++      }
++    }
++  return false;
++}
++
++bool cRecording::GetDvdChaptersFromDvd(int title) const
++{
++#if defined(DVDCHAPJUMP)
++  char* buf = (char*)alloca(BUFSIZ);
++  if(!buf) return false;
++  
++  dvd_reader_t *dvd;
++  ifo_handle_t *ifo_file;
++  tt_srpt_t *tt_srpt;
++  ifo_handle_t *vts_file;
++  pgc_t *cur_pgc;
++  
++  dvd = DVDOpen(DVD_DEVICE);
++  if(!dvd) {
++    esyslog("DVD-ARCHIVE: Couldn't open DVD device %s!", DVD_DEVICE);
++    return false;
++    }
++  
++  /* open title manager */
++  ifo_file = ifoOpen(dvd,0);
++  if(!ifo_file) {
++    esyslog("DVD-ARCHIVE: Can't open VMG info.");
++    DVDClose(dvd);
++    return false;
++    }
++
++  /* read total_title */
++  tt_srpt = ifo_file->tt_srpt;
++  
++  /* get total chapters */
++  int title_set_nr   = tt_srpt->title[title-1].title_set_nr;
++  int total_chap     = tt_srpt->title[title-1].nr_of_ptts;
++  int local_title_id = tt_srpt->title[title-1].vts_ttn - 1;
++  
++  /* access title set file */
++  vts_file = ifoOpen(dvd,title_set_nr);
++  if(!vts_file) {
++    esyslog("DVD-ARCHIVE: Can't open info file for title set %d!",title_set_nr);
++    DVDClose(dvd);
++    return false;
++  }
++
++  /* find program chain and check programs 
++     all chapters should be in the same prog chain and
++     should be numbered from 1 to <total_chap>
++  */
++  {
++    vts_ptt_srpt_t *vts_ptt_srpt = vts_file->vts_ptt_srpt;
++    int pgc_nr = vts_ptt_srpt->title[local_title_id].ptt[0].pgcn;
++    int pg     = vts_ptt_srpt->title[local_title_id].ptt[0].pgn;
++    int p;
++
++    assert(pg==1);
++    for(p=1;p<total_chap;p++) {
++      int next_pg;
++      int this_pgc;
++      this_pgc = vts_ptt_srpt->title[local_title_id].ptt[p].pgcn;
++      assert(pgc_nr==this_pgc);
++      next_pg = vts_ptt_srpt->title[local_title_id].ptt[p].pgn;
++      assert(pg+1==next_pg);
++      pg = next_pg;
++    }
++    
++    /* fetch program chain */
++    cur_pgc = vts_file->vts_pgcit->pgci_srp[pgc_nr-1].pgc;
++    assert(cur_pgc->nr_of_programs==total_chap);
++  }
++
++  /* --- main cell loop --- */
++  {
++    pgc_program_map_t *chap_cell;
++    cell_playback_t *cell_pb;
++    int c;
++    int chap;
++
++    /* total cells in chain */
++    int total_cell = cur_pgc->nr_of_cells;
++
++    /* get info */
++    chap_cell = cur_pgc->program_map;
++    cell_pb   = cur_pgc->cell_playback;
++
++    /* loop through all cells */
++    chap = -1;
++    int position = 0;
++    for(c=0;c<total_cell;c++) {
++      int cell_mode;
++      char *mode;
++      
++      dvd_time_t *time = (dvd_time_t *)&cell_pb->playback_time;
++      
++      int framerate = time->frame_u>>6;
++      assert(framerate == 1 || framerate == 3);
++      int frames_per_sec = (framerate == 1) ? 25 : 30;
++      
++      /* upper 4 bits are first digit, down 4 bits are second digit */
++      int hour = (time->hour>>4) * 10 + (time->hour&15);
++      int minute = (time->minute>>4) * 10 + (time->minute&15);
++      int second = (time->second>>4) * 10 + (time->second&15);
++      /* upper 4 bits are first digit, down 4 bits are second digit */
++      int frame = (time->frame_u>>4&3) * 10 + (time->frame_u&15);
++      
++      int frames = ((hour * 3600) + (minute * 60) + second) * frames_per_sec + frame;
++
++      /* this cell is the begin of a new chapter! */
++      if(chap_cell[chap+1]==c+1) {
++        char oldbuf[BUFSIZ];
++        sprintf(oldbuf, "%s", buf);
++        sprintf(buf, "%s%d%s", oldbuf, position,
++    			       ((chap+2) < total_chap) ? "," : "");
++	chap++;
++        }
++      
++      /* cell_mode: 0=normal, 1=first of angle, 2=in angle, 3=last of angle */
++      cell_mode = cell_pb->block_mode;
++      if((cell_mode==0)||(cell_mode==1)) {
++	/* only account for normal or begin of angle cells */
++        position += frames;
++	mode = "counted";
++      } else {
++	mode = "skipped";
++      }
++
++      cell_pb++;
++    }
++  }
++
++  ifoClose(ifo_file);
++  ifoClose(vts_file);
++  DVDClose(dvd);
++  
++  ((cRecording*)this)->dvdchapters = strdup(buf);
++  
++  return true;
++#else
++  return false;
++#endif
++}
++
++const char *cRecording::GetDvdChapters(void) const
++{
++  // Read chapters from dvd
++  if(dvdtype == DVD_VIDEO_ARCHIVE_TYPE) {
++    if(dvdtrack) {
++      if(!GetDvdChaptersFromDvd(atoi(dvdtrack))) {
++        ((cRecording*)this)->dvdchapters = NULL;
++      } else {
++        isyslog("DVD-ARCHIVE: Using following positions for chapter jumping: %s", dvdchapters);
++	}
++      return dvdchapters;
++      }
++    }  
++  return NULL;
++}
++
++int cRecording::MountDvd(void) const
++{
++  char cmd[BUFSIZ];
++  if(Setup.DvdSpeedLimit > 0) {
++    sprintf(cmd, "speedcontrol -x %d %s", Setup.DvdSpeedLimit, DVD_DEVICE);
++    SystemExec(cmd);
++    }
++
++  char msg[BUFSIZ];
++  if(atoi(dvdname) == 0) {
++    sprintf(msg, tr("Please mount %s"), dvdname);
++  } else {
++    if(Setup.DvdDisplayZeros) {
++      sprintf(msg, tr("Please mount DVD %04d"), atoi(dvdname));
++    } else {
++      sprintf(msg, tr("Please mount DVD %d"), atoi(dvdname));
++      }  
++    }
++  
++  bool rep = true;
++  while(rep) {
++    if(Setup.DvdTrayMode==1 || Setup.DvdTrayMode==3) {
++      sprintf(cmd, "umount %s; eject %s", DVD_DEVICE, DVD_DEVICE);
++    } else {
++      sprintf(cmd, "umount %s", DVD_DEVICE);
++      }
++    SystemExec(cmd);
++  
++    if(Interface->Confirm(msg, 300)) {
++      Skins.Message(mtStatus, tr("Please wait. Checking DVD..."));
++      Skins.Flush();
++      sprintf(cmd, "eject -t %s; mkdir -p %s; mount -o ro -t %s %s %s",
++		    DVD_DEVICE, DVD_MOUNT_PATH,
++		    (dvdtrack ? "udf" : "iso9660"),
++		    DVD_DEVICE, DVD_MOUNT_PATH);
++      SystemExec(cmd);
++    
++      bool correctDvd = true;
++    
++      char *olddvdname, *olddvdtrack;
++      int olddvdtype;
++      olddvdname = dvdname;
++      olddvdtrack = dvdtrack;
++      olddvdtype = dvdtype;
++      if(GetDvdName(DVD_MOUNT_PATH)) {
++        if(atoi(dvdname) != atoi(olddvdname)) correctDvd = false;
++        }
++      ((cRecording*)this)->dvdname = olddvdname;
++      ((cRecording*)this)->dvdtrack = olddvdtrack;
++      ((cRecording*)this)->dvdtype = olddvdtype;
++    
++      if(correctDvd) {
++        if(dvdtrack == NULL) {
++          // Archived DVD in VDR format
++	  char fn[BUFSIZ];
++	  strcpy(fn, FileName());
++	  char *p = strrchr(fn, '/');
++	  sprintf(cmd, "find '%s' -name '%s'", DVD_MOUNT_PATH, p+1);
++        } else {
++          // Either archived DVD in DVD-Video format or DVD-Video which
++	  // should be played with the DVD plugin
++	  sprintf(cmd, "find '%s' -iname 'VIDEO_TS'", DVD_MOUNT_PATH);
++          }
++	
++        cReadLine pipe;
++        FILE* file;
++        char *dirname = NULL;
++        if((file = popen(cmd, "r")) != (FILE *)NULL) {
++          if((dirname = pipe.Read(file)) != NULL) {
++	    pclose(file);
++	    if(dvdtrack != NULL && atoi(dvdtrack) == 0) {
++	      // It is a valid Video-DVD and DVD plugin can be started
++	      return MOUNT_DVD_LAUNCH_DVD_PLUGIN;
++	    } else {
++	      // It is a valid Archive-DVD or an archived Video-DVD
++	      // and the links can now be established
++	      char srcFn[BUFSIZ];
++	      int n = 1;
++	    
++	      do {
++	        if(dvdtrack == NULL) {
++	          sprintf(srcFn, "%s/%03d.vdr", dirname, n);
++		} else {
++	          sprintf(srcFn, "%s/VTS_%02d_%d.VOB", dirname, atoi(dvdtrack), n);
++		  }
++	    
++	        if(!access(srcFn, R_OK)) {
++	          sprintf(cmd, "ln -sf '%s' '%s/%03d.vdr'", srcFn, FileName(), n);
++	          SystemExec(cmd);
++	          isyslog("DVD-ARCHIVE: Linking %s/%03d.vdr -> %s", FileName(), n, srcFn);
++	        } else {
++	          break;
++	          }
++	        } while( ++n < 999);
++	      
++	        if(!CheckFileExistence("index.vdr")) {
++		  if(dvdtrack == NULL) {
++	            sprintf(srcFn, "%s/index.vdr", dirname);
++		  } else {
++	            sprintf(srcFn, "%s/index_%02d.vdr", dirname, atoi(dvdtrack));
++		    }
++		    
++	          if(!CheckFileExistence(srcFn, false)) {
++		    sprintf(msg, tr("No index-file found. Creating may take minutes. Create one?"));
++		    if(Interface->Confirm(msg, 300)) {
++		      Skins.Message(mtStatus, tr("Please wait. Creating index-file..."));
++		      sprintf(cmd, "speedcontrol -x 999 %s; cd %s && genindex &", DVD_DEVICE, FileName());
++		      SystemExec(cmd);
++		      return MOUNT_DVD_ABORT;
++		    }
++		  } else {
++		    sprintf(cmd, "ln -sf '%s' '%s/index.vdr'", srcFn, FileName());
++	            SystemExec(cmd);
++	            isyslog("DVD-ARCHIVE: Linking %s/index.vdr -> %s", FileName(), srcFn);
++		    }
++	          }
++	      return MOUNT_DVD_REPLAY;
++	      }
++	  } else {
++            Skins.Message(mtError, tr("Wrong DVD!"), 3);
++            Skins.Flush();
++	    }
++          }
++        pclose(file);
++	
++      } else {
++        Skins.Message(mtError, tr("Wrong DVD!"), 3);
++        Skins.Flush();
++        }
++    } else {
++      rep = false;
++    }
++  }
++  return MOUNT_DVD_ABORT;
++}
++
+ const char *cRecording::Title(char Delimiter, bool NewIndicator, int Level, bool Original) const
+ {
+   char New = NewIndicator && IsNew() ? Setup.WarEagleIcons ? ICON_NEU : '*' : ' ';
+@@ -755,6 +1133,42 @@
+               free(filename);
+               }
+            }
++	
++	if(isArchived && !isOnlyOnDvd) New = '~';
++        
++	if (isOnlyOnDvd && Setup.DvdDisplayMode >= 1) {
++	   char oldLength[21];
++	   
++	   if(strrchr(RecLength, '\'')) {
++	     snprintf(oldLength, sizeof(oldLength), "%s", RecLength);
++	   } else {
++	     oldLength[0] = 0;
++	   }
++
++	   if(dvdname) {
++	     char tmp[BUFSIZ];
++	     if(atoi(dvdname) != 0) {
++	       if(Setup.DvdDisplayZeros) {
++	         snprintf(tmp, sizeof(tmp), "%04d", atoi(dvdname));
++	       } else {
++	         int num = atoi(dvdname);
++		 bool displaySpace = !(Setup.DvdDisplayMode == 1 && oldLength[0] != 0);
++		 // ugly hack to have 2 spaces instead of one 0 for each place
++	         snprintf(tmp, sizeof(tmp), "%s%s%s%d", displaySpace && (num < 1000) ? "  " : "",
++							displaySpace && (num < 100)  ? "  " : "",
++							displaySpace && (num < 10)   ? "  " : "",
++							num);
++	         }
++	       ((cRecording*)this)->dvdname = strdup(tmp);
++	       }
++	     }
++	     
++	   snprintf(RecLength, sizeof(RecLength), "%s%s%s%s",	(Setup.ShowRecLength && (Setup.DvdDisplayMode == 1) && (oldLength[0] != 0)) ? oldLength : "",
++								    (dvdname && isArchived && isOnlyOnDvd && Setup.ShowRecLength && (Setup.DvdDisplayMode == 1) && (oldLength[0] != 0)) ? " / " : "",
++								    (dvdname && isArchived && isOnlyOnDvd) ? dvdname : "",
++								    (dvdname && isArchived && isOnlyOnDvd) ? " " : ""
++							);
++	   }
+         snprintf(RecDate, sizeof(RecDate), "%02d.%02d.%02d", t->tm_mday, t->tm_mon + 1, t->tm_year % 100);
+         snprintf(RecTime, sizeof(RecTime), "%02d:%02d", t->tm_hour, t->tm_min);
+         snprintf(RecDelimiter, sizeof(RecDelimiter), "%c", Delimiter);
+@@ -764,8 +1178,8 @@
+                                (Setup.ShowRecTime ? RecTime        : ""),
+                                New,
+                                (Setup.ShowRecTime || Setup.ShowRecDate ? RecDelimiter : ""),
+-                               (Setup.ShowRecLength ? RecLength    : ""),
+-                               (Setup.ShowRecLength ? RecDelimiter : ""),
++                               (((Setup.ShowRecLength + Setup.DvdDisplayMode) > 0) ? RecLength    : ""),
++                               (((Setup.ShowRecLength + Setup.DvdDisplayMode) > 0) ? RecDelimiter : ""),
+                                s);
+         }
+      // let's not display a trailing '~':
+@@ -1529,6 +1943,50 @@
+ cFileName::~cFileName()
+ {
+   Close();
++
++  // DVD Archive Begin
++  
++  char fn[BUFSIZ];
++  strcpy(fn, fileName);
++  
++  char *p;
++  if((p = strrchr(fn, '/'))) {
++    p[0] = 0;
++    }
++  
++  char cmd[BUFSIZ];
++  sprintf(cmd, "find '%s' -type l -lname '%s/*'", fn, DVD_MOUNT_PATH);
++  
++  bool isOnDvd = false;
++  
++  cReadLine pipe;
++  FILE* file;
++  char* filename;
++  if((file = popen(cmd, "r")) != (FILE *)NULL) {
++    while((filename = pipe.Read(file)) != NULL) {
++      isOnDvd = true;
++      unlink(filename);
++      isyslog("DVD-ARCHIVE: Deleting %s", filename);
++      }
++    pclose(file);
++    }
++  
++  if(isOnDvd) {
++    if(Setup.DvdTrayMode==2 || Setup.DvdTrayMode==3) {
++      sprintf(cmd, "umount %s; eject %s", DVD_DEVICE, DVD_DEVICE);
++    } else {
++      sprintf(cmd, "umount %s", DVD_DEVICE);
++      }
++    SystemExec(cmd);
++    
++    if(Setup.DvdSpeedLimit > 0) {
++      sprintf(cmd, "speedcontrol -x 999 %s", DVD_DEVICE);
++      SystemExec(cmd);
++      }
++    }
++  
++  // DVD Archive End
++
+   free(fileName);
+ }
+ 
+@@ -1543,97 +2001,6 @@
+            LOG_ERROR_STR(fileName);
+         }
+      else {
+-#ifdef DVDARCHIVE
+-        isOnDVD = false;
+-
+-        if (access(fileName, R_OK)) { // fileName="/video0/Blumen_des_Schreckens/2004-05-10.12:25.50.99.rec/001.vdr"
+-          if (errno == ENOENT) {
+-            register char *p, *p1;
+-            register int   n = 1;
+-            auto     bool  ok = false;
+-            auto     char  fn[BUFSIZ], fn2[BUFSIZ], msg[BUFSIZ], cmd[BUFSIZ], s[BUFSIZ];
+-            auto     FILE *f, *f1;
+-     	    cReadLine ReadLine;
+-
+-            strcpy(fn, fileName);
+-
+-            if ((p = strrchr(fn, '.'))) {
+-              memcpy(p - 3, "dvd", 3);    // fn="/video0/Blumen_des_Schreckens/2004-05-10.12:25.50.99.rec/dvd.vdr"
+-
+-              if ((f = fopen(fn, "r")) != (FILE *)NULL) {
+-                if (fgets(s, sizeof s, f)) {
+-                  if ((p1 = strchr(s, '\n')))
+-                    *p1 = 0;
+-                  sprintf(msg, tr("Please mount DVD %s"), s);
+-
+-                  do {
+-                    if (Setup.TrayOpenOnBegin)
+-                      SystemExec("umount /dev/cdrom; eject /dev/cdrom");
+-                    else
+-                      SystemExec("umount /dev/cdrom");
+-
+-                    if (Interface->Confirm(msg)) {
+-
+-                      SystemExec("eject -t /dev/cdrom; mkdir -p /tmp/vdr.dvd; mount -o ro /dev/cdrom /tmp/vdr.dvd");
+-                      isOnDVD = true;
+-
+-                      *(p - 4) = 0;
+-                      sprintf(cmd, "find /tmp/vdr.dvd -name '%s'", p - 30); // fn="2004-05-10.12:25.50.99.rec"
+-
+-                      if ((f1 = popen(cmd, "r")) != (FILE *)NULL) {
+-
+-                        if ((p1 = ReadLine.Read(f1)) != NULL) {
+-
+-                          if ((p = strrchr(fileName, '/')))
+-                            *p = 0;
+-
+-                          do {
+-                            sprintf(fn2, "%s/%03d.vdr", p1, n);
+-
+-        		    if (!access(fn2, R_OK)) {
+-                              sprintf(s, "ln -sf '%s' '%s/%03d.vdr'", fn2, fileName, n);
+-                      	      SystemExec(s);
+-           		      dsyslog(s);
+-        		    }
+-                            else
+-                              break;
+-                          }
+-                          while (++n < MAXFILESPERRECORDING);
+-
+-                          sprintf(fn2, "%s/index.vdr", p1);
+-
+-        		  if (!access(fn2, R_OK)) {
+-                            sprintf(s, "ln -sf '%s' '%s/index.vdr'", fn2, fileName);
+-                      	    SystemExec(s);
+-                      	    dsyslog(s);
+-                          }
+-
+-                          *p = '/';
+-
+-                          ok = true;
+-                        }
+-                        pclose(f1);
+-                      }
+-
+-                      if (!ok) {
+-#if VDRVERSNUM >= 10307
+-                        Skins.Message(mtError, tr("Wrong DVD!"));
+-#else
+-                        Interface->Error(tr("Wrong DVD!"));
+-#endif
+-                        isOnDVD = false;
+-                      }
+-                    }
+-                    else
+-                      break;
+-                  } while (!ok);
+-                }
+-                fclose(f);
+-              }
+-            }
+-          }
+-        }
+-#endif /* DVDARCHIVE */
+         if (access(fileName, R_OK) == 0) {
+            dsyslog("playing '%s'", fileName);
+            file = cUnbufferedFile::Create(fileName, O_RDONLY | BlockingFlag);
+@@ -1653,15 +2020,6 @@
+      if (CloseVideoFile(file) < 0)
+         LOG_ERROR_STR(fileName);
+      file = NULL;
+-#ifdef DVDARCHIVE
+-     if (isOnDVD) {
+-        if (Setup.TrayOpenOnEnd)
+-          SystemExec("umount /dev/cdrom; eject /dev/cdrom");
+-        else
+-          SystemExec("umount /dev/cdrom");
+-        isOnDVD = false;
+-     }
+-#endif /* DVDARCHIVE */
+      }
+ }
+ 
+diff -urNad vdr-1.4.3~/recording.h vdr-1.4.3/recording.h
+--- vdr-1.4.3~/recording.h	2006-09-24 13:12:04.000000000 +0200
++++ vdr-1.4.3/recording.h	2006-09-24 13:34:31.000000000 +0200
+@@ -61,6 +61,18 @@
+   bool Write(FILE *f, const char *Prefix = "") const;
+   };
+ 
++#define MOUNT_DVD_ABORT             0
++#define MOUNT_DVD_REPLAY            1
++#define MOUNT_DVD_LAUNCH_DVD_PLUGIN 2
++#define DVD_DEVICE		    "/dev/cdrom"
++#define DVD_MOUNT_PATH		    "/tmp/vdr.dvd"
++
++#define DVD_TYPE_UNKNOWN	    -1
++#define DVD_TYPE_NOT_READ	    0
++#define DVD_VIDEO_TYPE		    1
++#define DVD_ARCHIVE_TYPE	    2
++#define DVD_VIDEO_ARCHIVE_TYPE      3
++
+ class cRecording : public cListObject {
+   friend class cRecordings;
+ private:
+@@ -71,6 +83,13 @@
+   mutable char *name;
+   mutable int fileSizeMB;
+   cRecordingInfo *info;
++  char *dvdname;
++  char *dvdtrack;
++  char *dvdchapters;
++  bool isArchived;
++  bool isOnlyOnDvd;
++  int dvdtype;
++  bool GetDvdChaptersFromDvd(int title) const;
+   static char *StripEpisodeName(char *s);
+   char *SortName(void) const;
+   int GetResume(void) const;
+@@ -85,6 +104,12 @@
+   virtual int Compare(const cListObject &ListObject) const;
+   const char *Name(void) const { return name; }
+   const char *FileName(void) const;
++  bool CheckFileExistence(const char* FileNameToTest, const bool useVideoDir = true) const;
++  bool GetDvdName(const char* Directory) const;
++  bool IsOnlyOnDvd(void) const { return isOnlyOnDvd; }
++  int MountDvd(void) const;
++  int GetDvdType(void) const { return dvdtype; }
++  const char *GetDvdChapters(void) const ;
+   const char *Title(char Delimiter = ' ', bool NewIndicator = false, int Level = -1, bool Original = true) const;
+   const cRecordingInfo *Info(void) const { return info; }
+   const char *PrefixFileName(char Prefix);
+@@ -215,6 +240,7 @@
+   cResumeFile resumeFile;
+   cMutex mutex;
+   bool CatchUp(int Index = -1);
++  bool isOnDVD;
+ public:
+   cIndexFile(const char *FileName, bool Record);
+   ~cIndexFile();

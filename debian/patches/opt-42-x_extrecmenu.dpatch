@@ -1,0 +1,41 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## opt-xx_extrecmenu.dpatch by Martin Prochnow <nordlicht@martins-kabuff.de>
+## From the vdr-extrecmenu plugin: http://martins-kabuff.de/extrecmenu.html
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: This patch allows the extrecmenu plugin to replace the recordings
+## DP: menu with it's own version.
+
+@DPATCH@
+diff -urNad vdr-1.4.2~/menu.c vdr-1.4.2/menu.c
+--- vdr-1.4.2~/menu.c	2006-08-27 22:49:17.000000000 +0200
++++ vdr-1.4.2/menu.c	2006-08-27 22:49:17.000000000 +0200
+@@ -3133,7 +3133,11 @@
+     case osSchedule:   AddSubMenu(new cMenuSchedule); break;
+     case osChannels:   AddSubMenu(new cMenuChannels); break;
+     case osTimers:     AddSubMenu(new cMenuTimers); break;
+-    case osRecordings: AddSubMenu(new cMenuRecordings(NULL, 0, true)); break;
++    case osRecordings: {
++		        cPlugin *p = cPluginManager::GetPlugin("extrecmenu");
++    		        (p && !p->SetupParse("IsOrgRecMenu", "0")) ? AddSubMenu((cOsdMenu *)p->MainMenuAction()) : AddSubMenu(new cMenuRecordings(NULL, 0, true));
++		       }
++		       break;
+     case osSetup:      AddSubMenu(new cMenuSetup); break;
+     case osCommands:   AddSubMenu(new cMenuCommands(tr("Commands"), &Commands)); break;
+     default: break;
+@@ -3376,7 +3380,14 @@
+     case osSchedule:   return AddSubMenu(new cMenuSchedule);
+     case osChannels:   return AddSubMenu(new cMenuChannels);
+     case osTimers:     return AddSubMenu(new cMenuTimers);
+-    case osRecordings: return AddSubMenu(new cMenuRecordings);
++    case osRecordings: {
++			cPlugin *p = cPluginManager::GetPlugin("extrecmenu");
++            	        if (p && !p->SetupParse("IsOrgRecMenu", "0"))
++			    return AddSubMenu((cOsdMenu *)p->MainMenuAction());
++			else
++			    return AddSubMenu(new cMenuRecordings);
++		       }
++		       break;
+     case osSetup:      return AddSubMenu(new cMenuSetup);
+     case osCommands:   return AddSubMenu(new cMenuCommands(tr("Commands"), &Commands));
+     case osStopRecord: if (Interface->Confirm(tr("Stop recording?"))) {

@@ -1,0 +1,78 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## opt-46_dmh-dvd-archive-debian.dpatch by Tobias Grimm <tg@e-tobi.net>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Modifies some defaults from opt-46_dmh-dvd-archive-debian:
+## DP: - DvdDisplayMode = 0 (no display of archive number in recordings list)
+## DP: - DVD-Device = /dev/dvd, mount path = /media/dvd
+## DP: - mount using fstab (to allow user "vdr" to mount the dvd)
+
+@DPATCH@
+diff -urNad vdr-1.4.3~/config.c vdr-1.4.3/config.c
+--- vdr-1.4.3~/config.c	2006-09-29 21:36:27.000000000 +0200
++++ vdr-1.4.3/config.c	2006-09-29 21:36:27.000000000 +0200
+@@ -326,7 +326,7 @@
+   ShowRecLength = 0;
+   ShowProgressBar = 0;
+   MenuCmdPosition = 0;
+-  DvdDisplayMode = 1;
++  DvdDisplayMode = 0;
+   DvdDisplayZeros = 1;
+   DvdTrayMode = 0;
+   DvdSpeedLimit = 0;
+diff -urNad vdr-1.4.3~/recording.c vdr-1.4.3/recording.c
+--- vdr-1.4.3~/recording.c	2006-09-29 21:36:27.000000000 +0200
++++ vdr-1.4.3/recording.c	2006-09-29 21:39:17.000000000 +0200
+@@ -954,7 +954,7 @@
+ {
+   char cmd[BUFSIZ];
+   if(Setup.DvdSpeedLimit > 0) {
+-    sprintf(cmd, "speedcontrol -x %d %s", Setup.DvdSpeedLimit, DVD_DEVICE);
++    sprintf(cmd, "eject -x %d %s", Setup.DvdSpeedLimit, DVD_DEVICE);
+     SystemExec(cmd);
+     }
+ 
+@@ -981,10 +981,7 @@
+     if(Interface->Confirm(msg, 300)) {
+       Skins.Message(mtStatus, tr("Please wait. Checking DVD..."));
+       Skins.Flush();
+-      sprintf(cmd, "eject -t %s; mkdir -p %s; mount -o ro -t %s %s %s",
+-		    DVD_DEVICE, DVD_MOUNT_PATH,
+-		    (dvdtrack ? "udf" : "iso9660"),
+-		    DVD_DEVICE, DVD_MOUNT_PATH);
++      sprintf(cmd, "eject -t %s; mount %s", DVD_DEVICE, DVD_MOUNT_PATH);
+       SystemExec(cmd);
+     
+       bool correctDvd = true;
+@@ -1056,7 +1053,7 @@
+ 		    sprintf(msg, tr("No index-file found. Creating may take minutes. Create one?"));
+ 		    if(Interface->Confirm(msg, 300)) {
+ 		      Skins.Message(mtStatus, tr("Please wait. Creating index-file..."));
+-		      sprintf(cmd, "speedcontrol -x 999 %s; cd %s && genindex &", DVD_DEVICE, FileName());
++		      sprintf(cmd, "eject -x 999 %s; cd %s && genindex &", DVD_DEVICE, FileName());
+ 		      SystemExec(cmd);
+ 		      return MOUNT_DVD_ABORT;
+ 		    }
+@@ -1980,7 +1977,7 @@
+     SystemExec(cmd);
+     
+     if(Setup.DvdSpeedLimit > 0) {
+-      sprintf(cmd, "speedcontrol -x 999 %s", DVD_DEVICE);
++      sprintf(cmd, "eject -x 999 %s", DVD_DEVICE);
+       SystemExec(cmd);
+       }
+     }
+diff -urNad vdr-1.4.3~/recording.h vdr-1.4.3/recording.h
+--- vdr-1.4.3~/recording.h	2006-09-29 21:36:27.000000000 +0200
++++ vdr-1.4.3/recording.h	2006-09-29 21:36:27.000000000 +0200
+@@ -64,8 +64,8 @@
+ #define MOUNT_DVD_ABORT             0
+ #define MOUNT_DVD_REPLAY            1
+ #define MOUNT_DVD_LAUNCH_DVD_PLUGIN 2
+-#define DVD_DEVICE		    "/dev/cdrom"
+-#define DVD_MOUNT_PATH		    "/tmp/vdr.dvd"
++#define DVD_DEVICE		    "/dev/dvd"
++#define DVD_MOUNT_PATH		    "/media/dvd"
+ 
+ #define DVD_TYPE_UNKNOWN	    -1
+ #define DVD_TYPE_NOT_READ	    0

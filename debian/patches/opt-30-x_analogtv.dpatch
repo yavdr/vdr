@@ -1,0 +1,25 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+
+## opt-30-x_analogtv.dpatch by Andreas Kool <akool@gmx.de>
+##
+## extracted from the analogtv plugin 0.3.6
+## original file: vdr-1.3.0.patch
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: This patch is needed for the analogtv plugin.
+
+@DPATCH@
+--- vdr-1.3.0.orig/channels.c	2004-01-04 13:28:49.000000000 +0100
++++ vdr-1.3.0/channels.c	2004-01-04 18:50:40.000000000 +0100
+@@ -347,9 +347,9 @@
+   ST(" S ")  q += sprintf(q, "%c", polarization);
+   ST("CST")  q += PrintParameter(q, 'I', MapToUser(inversion, InversionValues));
+   ST("CST")  q += PrintParameter(q, 'C', MapToUser(coderateH, CoderateValues));
+-  ST("  T")  q += PrintParameter(q, 'D', MapToUser(coderateL, CoderateValues));
++  ST("C T")  q += PrintParameter(q, 'D', MapToUser(coderateL, CoderateValues));
+   ST("C T")  q += PrintParameter(q, 'M', MapToUser(modulation, ModulationValues));
+-  ST("  T")  q += PrintParameter(q, 'B', MapToUser(bandwidth, BandwidthValues));
++  ST("C T")  q += PrintParameter(q, 'B', MapToUser(bandwidth, BandwidthValues));
+   ST("  T")  q += PrintParameter(q, 'T', MapToUser(transmission, TransmissionValues));
+   ST("  T")  q += PrintParameter(q, 'G', MapToUser(guard, GuardValues));
+   ST("  T")  q += PrintParameter(q, 'Y', MapToUser(hierarchy, HierarchyValues));

@@ -8,6 +8,8 @@ vdr (1.4.5-1) UNRELEASED; urgency=low
     /usr/share/vdr-dev/plugin-template/rules not beeing a valid shell script
   * Added linitan source overrided for "debian-rules-not-a-makefile"
   * Removed lintian override for menu-command-not-in-package /usr/lib/menu/vdr:2
+  * Added the complete list of optional patches from the vdr package at e-tobi.net
+    (Ubuntu might want to use them)
 
   [ Thomas Günther ]
   * Replaced VDRdevel adaptions in debian/rules and plugin-template/rules

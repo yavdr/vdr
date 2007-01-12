@@ -10,8 +10,70 @@
 15_dvbplayer
 16_channels.conf.terr-fix
 
+81_Make_config
+82_valgrind
+
+# Patch collection (replaces enAIO).
+# opt-20_liemikuutio
+
 # The Jump patch allows automatic jumping over cutting marks.
 # opt-24_jumpplay
 
 # Patch needed for the subtitles and the ttxtsubs plugin.
 # opt-27_subtitles-ttxtsubs
+# opt-27-x_subtitles-ttxtsubs-volumebar-fix
+
+# Patch needed for the analogtv plugin.
+# opt-30-x_analogtv
+
+# Patch that shows if there is a valid setup value left or right with < and >.
+# opt-35_setup-show-valid
+
+# Patch to handle recordings that should be cutted in a queue (-/+ autodelete).
+# opt-36_CutterQueue
+# opt-36_CutterQueue-AutoDelete
+
+# Patch needed for the submenu plugin.
+# opt-37_submenu
+
+# Patch that suppresses double EPG entries.
+# opt-38_disableDoubleEpgEntrys
+
+# Patch to disable normal epg update for specified channels.
+# opt-39_noepg
+
+# Patch that adds some icons to timer, recording and channel list.
+# opt-40_wareagle-icons
+
+# Patch to show an info, if it is possible to record an event in the timer-info.
+# opt-41-x_timer-info
+
+# Patch to allow extrecmenu to replace the recordings menu with it's own version.
+# opt-42-x_extrecmenu
+
+# Patch to allow epgsearch to replace the schedule menu with it's own version.
+# opt-43-x_epgsearch
+
+# Patch needed for the rotor plugin.
+# opt-44_rotor
+
+# Patch needed for the yaepg plugin.
+# opt-45_yaepg
+
+# Patch to play on DVD archived VDR recordings.
+# opt-46_dvdarchive
+
+# Estension to opt-46_dvdarchive to play VIDEO-DVD's as archived VDR recordings.
+# opt-46_dmh-dvd-archive
+
+# Some Debian specific defaults for opt-46_dmh-dvd-archive
+# opt-46-x_dmh-dvd-archive-debian
+
+# Patch for assigning special satellites to one dvb card.
+# opt-47_sourcecaps
+
+# Patch for the PIN plugin
+# opt-48_pin
+
+# Patch to share one sat connection for several cards.
+# opt-49_sharelnb
