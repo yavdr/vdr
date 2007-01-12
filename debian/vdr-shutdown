@@ -45,7 +45,7 @@ for shutdownhook in $shutdownhooks; do
     if [ $TRY_AGAIN -gt 0 ]
     then
         $log "$shutdownhook requests to try again in $TRY_AGAIN minutes" 
-        echo "$svdrpsend HITK Power" | at now + $TRY_AGAIN minutes
+        echo "$svdrpsend \"HITK Power\" > /dev/null" | at now + $TRY_AGAIN minutes
         osdmsg "Shutdown aborted. Retry in $TRY_AGAIN minutes." &
         exit 0
     fi
