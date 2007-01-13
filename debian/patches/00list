@@ -10,9 +10,6 @@
 15_dvbplayer
 16_channels.conf.terr-fix
 
-81_Make_config
-82_valgrind
-
 # Patch collection (replaces enAIO).
 # opt-20_liemikuutio
 
