@@ -4,7 +4,7 @@ vdr (1.4.5-1) UNRELEASED; urgency=low
 
   [ Tobias Grimm ]
   * Removed Conflicts line from plugin template
-  * Added Lintian ovveride to vdr-dev regarding reports about
+  * Added Lintian override to vdr-dev regarding reports about
     /usr/share/vdr-dev/plugin-template/rules not beeing a valid shell script
   * Added linitan source overrided for "debian-rules-not-a-makefile"
   * Removed lintian override for menu-command-not-in-package /usr/lib/menu/vdr:2
