@@ -4,7 +4,7 @@ vdr (1.4.5-1) UNRELEASED; urgency=low
 
   [ Tobias Grimm ]
   * Removed Conflicts line from plugin template
-  * Added Lintian ovveride to vdr-dev regarding reports about 
+  * Added Lintian ovveride to vdr-dev regarding reports about
     /usr/share/vdr-dev/plugin-template/rules not beeing a valid shell script
   * Added linitan source overrided for "debian-rules-not-a-makefile"
   * Removed lintian override for menu-command-not-in-package /usr/lib/menu/vdr:2
@@ -13,6 +13,8 @@ vdr (1.4.5-1) UNRELEASED; urgency=low
   * Fixed shutdown script to not cause at to generate mails when a shutdown is
     scheduled for later retry - fix provided by
     Wolfgang Miller-Reichling <wolfgang@miller-reichling.de>
+  * Added a linda override file to source package - at the moment it will not
+    be installed by any binary package
 
   [ Thomas Günther ]
   * Replaced VDRdevel adaptions in debian/rules and plugin-template/rules
@@ -25,7 +27,7 @@ vdr (1.4.5-1) UNRELEASED; urgency=low
   [ Thomas Schmidt ]
   * New upstream release
 
- -- Tobias Grimm <tg@e-tobi.net>  Fri, 12 Jan 2007 22:53:19 +0100
+ -- Tobias Grimm <tg@e-tobi.net>  Sat, 13 Jan 2007 23:00:58 +0100
 
 vdr (1.4.4-1) unstable; urgency=low
 
