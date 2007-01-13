@@ -1,4 +1,4 @@
-#! /bin/sh /usr/lib/vdr-dev/make-special-vdr
+#! /bin/sh /usr/share/vdr-dev/make-special-vdr.sh
 # Sample debian/rules that uses debhelper.
 # GNU copyright 1997 to 1999 by Joey Hess.
 
@@ -82,8 +82,8 @@ binary-arch: build install
 	dh_installdeb
 #	dh_perl
 	dh_shlibdeps
-	/usr/lib/vdr-dev/patchlevel.sh subst
-	/usr/lib/vdr-dev/dependencies.sh
+	sh /usr/share/vdr-dev/patchlevel.sh subst
+	sh /usr/share/vdr-dev/dependencies.sh
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

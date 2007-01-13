@@ -1,4 +1,4 @@
-#! /bin/sh debian/make-special-vdr
+#! /bin/sh debian/make-special-vdr.sh
 # Sample debian/rules that uses debhelper.
 # GNU copyright 1997 to 1999 by Joey Hess.
 
@@ -73,9 +73,7 @@ install: build patchlevel
 	dh_clean -k
 	dh_installdirs
 	dh_install
-	chmod +x $(CURDIR)/debian/vdr/usr/lib/vdr/vdr-* \
-	  $(CURDIR)/debian/vdr-dev/usr/lib/vdr-dev/patchlevel.sh \
-	  $(CURDIR)/debian/vdr-dev/usr/lib/vdr-dev/dependencies.sh
+	chmod +x $(CURDIR)/debian/vdr/usr/lib/vdr/vdr-*
 
 # Build architecture-independent files here.
 binary-indep: build install

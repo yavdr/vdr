@@ -16,9 +16,11 @@ vdr (1.4.5-1) UNRELEASED; urgency=low
 
   [ Thomas Günther ]
   * Replaced VDRdevel adaptions in debian/rules and plugin-template/rules
-    with make-special-vdr
-  * Install make-special-vdr into vdr-dev package - plugins can use this to
+    with make-special-vdr.sh
+  * Install make-special-vdr.sh into vdr-dev package - plugins can use this to
     build plugin packages for special vdr packages
+  * Changed installation directory of patchlevel.sh and dependencies.sh from
+    /usr/lib/vdr-dev to /usr/share/vdr-dev
 
   [ Thomas Schmidt ]
   * New upstream release

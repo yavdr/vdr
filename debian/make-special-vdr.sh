@@ -1,6 +1,4 @@
-#! /bin/sh
-
-# make-special-vdr by Thomas Günther <tom@toms-cafe.de>
+# make-special-vdr.sh by Thomas Günther <tom@toms-cafe.de>
 #
 # Description:
 #
@@ -16,11 +14,11 @@
 # Necessary adaptions in the debian source packages:
 #
 # The special packages are built from the same source packages as the standard
-# packages. The make-special-vdr script is called from "debian/rules" instead of
-# the normal make. In the first line of "debian/rules" "#! /usr/bin/make -f" has
-# to be replaced with "#! /bin/sh debian/make-special-vdr" for the vdr package
-# respectively with "#! /bin/sh /usr/lib/vdr-dev/make-special-vdr" for a
-# vdr plugin package.
+# packages. The make-special-vdr.sh script is called from "debian/rules" instead
+# of the normal make. In the first line of "debian/rules" "#! /usr/bin/make -f"
+# has to be replaced with "#! /bin/sh debian/make-special-vdr.sh" for the vdr
+# package respectively with "#! /bin/sh /usr/share/vdr-dev/make-special-vdr.sh"
+# for a vdr plugin package.
 #
 # Usage:
 #
@@ -28,14 +26,14 @@
 # SPECIAL_VDR_SUFFIX. E.g., the vdrdevel variation is built with
 #    SPECIAL_VDR_SUFFIX=devel fakeroot dpkg-buildpackage -us -uc -tc
 #
-# The plugin packages don't include make-special-vdr themselves. Instead they
-# use /usr/lib/vdr-dev/make-special-vdr installed by the vdr-dev package.
+# The plugin packages don't include make-special-vdr.sh themselves. Instead they
+# use /usr/share/vdr-dev/make-special-vdr.sh installed by the vdr-dev package.
 #
-# If the installed make-special-vdr version of vdr-dev is to old to build the
+# If the installed make-special-vdr.sh version of vdr-dev is to old to build the
 # special variation of a particular vdr plugin package, a newer version of
-# make-special-vdr can be specified by the environment variable
+# make-special-vdr.sh can be specified by the environment variable
 # MAKE_SPECIAL_VDR, e.g.
-#    export MAKE_SPECIAL_VDR=/usr/lib/vdrdevel-dev/make-special-vdr
+#    export MAKE_SPECIAL_VDR=/usr/share/vdrdevel-dev/make-special-vdr.sh
 #    SPECIAL_VDR_SUFFIX=devel fakeroot dpkg-buildpackage -us -uc -tc
 #
 # In order to build the standard vdr packages the environment variable
@@ -43,12 +41,12 @@
 #
 # Implementation details:
 #
-# If SPECIAL_VDR_SUFFIX is set and not empty make-special-vdr does following
+# If SPECIAL_VDR_SUFFIX is set and not empty make-special-vdr.sh does following
 # steps:
 #    1. Create the subdirectory ".save".
 #    2. Copy all files and directories into ".save".
 #    3. Substitute "vdr" in the contents of all files (recursively) except for
-#       "debian/changelog", "debian/make-special-vdr", all files in
+#       "debian/changelog", "debian/make-special-vdr.sh", all files in
 #       "debian/plugin-template", and all files in ".save".
 #    4. Substitute "vdr" in the names of all files (recursively) except for all
 #       files in ".save".
@@ -62,8 +60,8 @@
 #
 #    2004-06-12 - 2005-09-29: Version 0.0.0 - 0.1.4 (vdrdevel patch)
 #
-#    2006-??-??: Version 0.2
-#       - Converted vdrdevel patch to make-special-vdr
+#    2007-01-13: Version 0.2
+#       - Converted vdrdevel patch to make-special-vdr.sh
 
 
 main()
@@ -76,7 +74,7 @@ main()
         # Original make if SPECIAL_VDR_SUFFIX is not set
         /usr/bin/make -f "$@"
     elif [ "${MAKE_SPECIAL_VDR}" ]; then
-        # Call newer version of make-special-vdr provided by MAKE_SPECIAL_VDR
+        # Call newer version of make-special-vdr.sh provided by MAKE_SPECIAL_VDR
         MAKE_SPECIAL_VDR= /bin/sh "${MAKE_SPECIAL_VDR}" "$@"
     elif ! check_clean_arg "$@"; then
         # Make special variation: prepare the package before make
@@ -171,7 +169,7 @@ prepare_common()
     echo "prepare_common: substitute vdr -> vdr${SPECIAL_VDR_SUFFIX}"
     SUBST="s.vdr.vdr${SPECIAL_VDR_SUFFIX}.g; \
            s.make-special-vdr${SPECIAL_VDR_SUFFIX}.make-special-vdr.g; \
-           s./bin/sh /usr/lib/vdr${SPECIAL_VDR_SUFFIX}-dev/make-special-vdr./bin/sh /usr/lib/vdr-dev/make-special-vdr.g; \
+           s./bin/sh /usr/share/vdr${SPECIAL_VDR_SUFFIX}-dev/make-special-vdr./bin/sh /usr/share/vdr-dev/make-special-vdr.g; \
            s.Source: vdr${SPECIAL_VDR_SUFFIX}.Source: vdr.g; \
            s.Source: vdr-plugin-vdr${SPECIAL_VDR_SUFFIX}c.Source: vdr-plugin-vdrc.g; \
            s.Source: vdr-plugin-vdr${SPECIAL_VDR_SUFFIX}rip.Source: vdr-plugin-vdrrip.g; \
@@ -207,7 +205,7 @@ prepare_common()
            s/dvdr${SPECIAL_VDR_SUFFIX}ead/dvdread/g"
     FILES=$(/usr/bin/find ./ -type f -not -regex "./${SAVE_DIR}/.*" \
                           -not -regex "./debian/changelog" \
-                          -not -regex "./debian/make-special-vdr" \
+                          -not -regex "./debian/make-special-vdr.sh" \
                           -not -regex "./debian/plugin-template/.*")
     set -f; OLD_IFS="${IFS}"; IFS="
 "; set -- ${FILES}; IFS="${OLD_IFS}"; set +f
@@ -437,7 +435,7 @@ echo
 echo "To build vdr${SPECIAL_VDR_SUFFIX} plugin packages use the environment variable"
 echo "SPECIAL_VDR_SUFFIX, e.g.:"
 echo "    SPECIAL_VDR_SUFFIX=${SPECIAL_VDR_SUFFIX} fakeroot dpkg-buildpackage -us -uc -tc"
-echo "See /usr/lib/vdr-dev/make-special-vdr for details."
+echo "See /usr/share/vdr-dev/make-special-vdr.sh for details."
 EOF
 }
 

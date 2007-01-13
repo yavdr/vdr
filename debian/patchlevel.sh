@@ -1,4 +1,22 @@
-#!/bin/sh
+# patchlevel.sh - maintain the patchlevel of vdr packages
+#
+# This script is called in debian/rules of the vdr package and all vdr plugins.
+#
+# In the vdr package it is used to generate the patchlevel file:
+#     sh debian/patchlevel.sh make
+# to remove it:
+#     sh debian/patchlevel.sh clean
+# and to set the substitution variable "vdr:Patchlevel":
+#     sh debian/patchlevel.sh subst
+#
+# The vdr plugins read the patchlevel from /usr/include/vdr/patchlevel installed
+# by the vdr-dev package and set the substitution variable:
+#     sh /usr/share/vdr-dev/patchlevel.sh subst
+#
+# This substitution variable is used in the debian/control file of the vdr
+# package and all vdr plugins:
+#     XB-VDR-Patchlevel: ${vdr:Patchlevel}
+
 set -e
 case "$*" in
     "make")
@@ -41,4 +59,3 @@ case "$*" in
         exit 1
         ;;
 esac
-exit 0
