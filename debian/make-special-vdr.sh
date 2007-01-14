@@ -1,4 +1,3 @@
-#! /bin/sh
 #
 # make-special-vdr.sh by Thomas Günther <tom@toms-cafe.de>
 #
