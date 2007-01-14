@@ -8,7 +8,6 @@ debian/plugin-template/         usr/share/vdr-dev/
 vdr-newplugin                   usr/bin/
 
 debian/lintian/vdr-dev          usr/share/lintian/overrides/
-debian/linda/vdr-dev            usr/share/linda/overrides/
 
 debian/patchlevel.sh            usr/share/vdr-dev/
 
