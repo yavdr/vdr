@@ -1,6 +1,4 @@
-vdr (1.4.5-1) UNRELEASED; urgency=low
-
-  * NOT RELEASED YET
+vdr (1.4.5-1) experimental; urgency=low
 
   [ Tobias Grimm ]
   * Removed Conflicts line from plugin template
@@ -27,7 +25,7 @@ vdr (1.4.5-1) UNRELEASED; urgency=low
   [ Thomas Schmidt ]
   * New upstream release
 
- -- Tobias Grimm <tg@e-tobi.net>  Sat, 13 Jan 2007 23:00:58 +0100
+ -- Thomas Schmidt <tschmidt@debian.org>  Sun, 14 Jan 2007 20:10:35 +0100
 
 vdr (1.4.4-1) unstable; urgency=low
 
