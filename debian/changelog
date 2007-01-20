@@ -1,3 +1,16 @@
+vdr (1.4.5-2) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+  * Set NONPTL=0 by default - since version 1.3.27 VDR should work with the
+    Native Posix Threading Library without problems. NONPTL can now be
+    enabled for AMD64 systems again, even if this should not be necessary.
+  * Added KEYB_TTY_SWITCH option which, when set to "1", makes VDR switch to
+    the console specified in KEYB_TTY on startup. Before this version, this
+    was the default behaviour when KEYB_TTY was specified. Now it's optional
+    and disabled by default.
+
+ -- Tobias Grimm <tg@e-tobi.net>  Sat, 20 Jan 2007 01:38:33 +0100
+
 vdr (1.4.5-1) experimental; urgency=low
 
   [ Tobias Grimm ]

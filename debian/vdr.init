@@ -48,8 +48,10 @@ switch_console()
         clean_console
         echo -e "This tty is currently mapped to VDR, keypresses aren't echoed.\r" > $KEYB_TTY
         echo -n "For a login prompt switch to another console." > $KEYB_TTY
-        chvt `echo "$KEYB_TTY" | sed "s/\/dev\/tty//"`
         REDIRECT="< $KEYB_TTY"
+        if [ "$KEYB_TTY_SWITCH" = "1" ]; then
+            chvt `echo "$KEYB_TTY" | sed "s/\/dev\/tty//"`
+        fi
     fi
 }
 

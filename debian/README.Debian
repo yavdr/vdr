@@ -34,13 +34,18 @@ KEYB_TTY="<CONSOLE>"
     Console for controlling VDR by keyboard (e.g. /dev/tty8). On startup VDR
     will automatically switch to this console.
 
+KEYB_TTY_SWITCH=<0|1>
+
+    Default: 0
+
+    Set this to 1, to make VDR switch to the console specified in KEYB_TTY
+    on startup.
+
 NONPTL=<0|1>
 
-    Default: 1
+    Default: 0
 
-    Change this to 0 if you want to allow VDR to use NPTL (if available). This is
-    disabled by default, although it should be safe to enable it.
-    (This has no effect on AMD64 machines.)
+    Change this to 1, if you want VDR to not use NPTL.
 
 PLUGIN_CHECK_PATCHLEVEL="<yes|no>"
 

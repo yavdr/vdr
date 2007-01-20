@@ -45,10 +45,8 @@ ENABLED=0
 # Enable / Disable automatic shutdown
 ENABLE_SHUTDOWN=0
 
-# Change this to 0 if you want to allow VDR to use NPTL (if available).
-# This is disabled by default, although it should be safe to enable it.
-# (This has no effect on AMD64 machines.)
-NONPTL=1
+# Change this to 1 if you want to VDR to not use NPTL.
+NONPTL=0
 
 # Video-Directory
 VIDEO_DIR="/var/lib/video.00"
@@ -59,9 +57,13 @@ PLUGIN_CHECK_PATCHLEVEL="no"
 # Set this to load only startable plugins (check with "vdr -V -P plugin")
 PLUGIN_CHECK_STARTABLE="yes"
 
-# Default Console for controlling VDR by keyboard. On startup VDR will
-# change to this console. Empty means no console input.
+# Default Console for controlling VDR by keyboard. Empty means no console
+# input.
 KEYB_TTY=""
+
+# Set this to 1 to make VDR switch to the console specified in KEYB_TTY
+# on startup
+KEYB_TTY_SWITCH=0
 
 # Locale which is used when running vdr (Default is C, because vdr does 
 # not run on systems where the default is UTF8 like on Etch)
