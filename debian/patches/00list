@@ -74,3 +74,6 @@
 
 # Patch to share one sat connection for several cards.
 # opt-49_sharelnb
+
+# Patch required for the GraphTFT plugin
+# opt-50_graphtft

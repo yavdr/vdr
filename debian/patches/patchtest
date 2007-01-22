@@ -34,7 +34,8 @@ multipatch="$standard \
     opt-46_dmh-dvd-archive \
     opt-46-x_dmh-dvd-archive-debian \
     opt-47_sourcecaps \
-    opt-48_pin"
+    opt-48_pin \
+    opt-50_graphtft"
 testpatch="$standard \
     opt-20_liemikuutio \
     opt-24_jumpplay \
@@ -54,7 +55,8 @@ testpatch="$standard \
     opt-46_dmh-dvd-archive \
     opt-46-x_dmh-dvd-archive-debian \
     opt-48_pin \
-    opt-49_sharelnb"
+    opt-49_sharelnb \
+    opt-50_graphtft"
 mustfail_patch="XX_patchtest-patch-error"
 mustfail_compile="XX_patchtest-compile-error"
 

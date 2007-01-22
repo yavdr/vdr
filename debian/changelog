@@ -8,6 +8,7 @@ vdr (1.4.5-2) UNRELEASED; urgency=low
     the console specified in KEYB_TTY on startup. Before this version, this
     was the default behaviour when KEYB_TTY was specified. Now it's optional
     and disabled by default.
+  * Added opt-50_graphtft.dpatch, required by the graphtft plugin version 0.0.15
 
  -- Tobias Grimm <tg@e-tobi.net>  Sat, 20 Jan 2007 01:38:33 +0100
 
