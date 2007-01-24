@@ -35,13 +35,13 @@ for patch in $patches_available ; do
     is_applied="no"
 
     for applied_patch in $patches_applied ; do
-        if [ $applied_patch == $patch ] ; then
+        if [ $applied_patch = $patch ] ; then
             is_applied="yes"
             break
         fi
     done
     
-    if [ $is_applied == "no" ] ; then
+    if [ $is_applied = "no" ] ; then
         print_patch $patch
     fi
 done

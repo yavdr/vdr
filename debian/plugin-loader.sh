@@ -41,7 +41,7 @@ getplugins ()
     installed_plugins=(`echo ${plugins[@]} | sed 's/[^ ]*://g'`)
     packages=(   vdr   `echo ${plugins[@]} | sed 's/:[^ ]*//g'`)
 
-    if [ "$PLUGIN_CHECK_PATCHLEVEL" == "yes" ]; then
+    if [ "$PLUGIN_CHECK_PATCHLEVEL" = "yes" ]; then
         # extract patchlevel info
         eval "patchlevels=($(LANG=C;dpkg -s ${packages[@]} 2>&1 | awk -F ':' '\
             /^Package: /                         {p=$2} \
@@ -60,7 +60,7 @@ getplugins ()
         installed_plugins=( "${installed_plugins[@]}" )
     fi
 
-    if [ "$PLUGIN_CHECK_STARTABLE" == "yes" ]; then
+    if [ "$PLUGIN_CHECK_STARTABLE" = "yes" ]; then
 
         # move not startable plugins to $leftout2
         for (( i=${#installed_plugins[@]}, i-- ; i >= 0 ; i-- )); do
@@ -82,12 +82,12 @@ getplugins ()
         # move ordered plugins to list of ordered plugins
         for plugin in ${plugin_order[@]}; do
             for (( i=0 ; i<${#installed_plugins[@]} ; i++ )); do
-                if [ "$plugin" == "-${installed_plugins[$i]}" ]; then
+                if [ "$plugin" = "-${installed_plugins[$i]}" ]; then
                     unset installed_plugins[$i]
                     installed_plugins=( "${installed_plugins[@]}" )
                     break
                 fi
-                if [ "$plugin" == "${installed_plugins[$i]}" ]; then
+                if [ "$plugin" = "${installed_plugins[$i]}" ]; then
                     ordered_plugins=( "${ordered_plugins[@]}" "$plugin" )
                     unset installed_plugins[$i]
                     installed_plugins=( "${installed_plugins[@]}" )

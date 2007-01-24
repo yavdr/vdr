@@ -35,12 +35,12 @@ mergecommands ()
     # first the ordered commands:
     for cmd in ${cmdsorder[@]}; do
         for (( line=0 ; line<${#cmds[@]} ; line++ )); do
-            if [ "$cmd" == "-${cmds[$line]}" ]; then
+            if [ "$cmd" = "-${cmds[$line]}" ]; then
                 unset cmds[$line]
                 cmds=( "${cmds[@]}" )
                 break
             fi
-            if [ "$cmd" == "${cmds[$line]}" ]; then
+            if [ "$cmd" = "${cmds[$line]}" ]; then
                 ordered_cmds=( "${ordered_cmds[@]}" "${cmds[$line]}" )
                 unset cmds[$line]
                 cmds=( "${cmds[@]}" )
