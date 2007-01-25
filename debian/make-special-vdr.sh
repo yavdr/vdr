@@ -63,6 +63,9 @@
 #
 #    2007-01-13: Version 0.2
 #       - Converted vdrdevel patch to make-special-vdr.sh
+#
+#    2007-01-24: Version 0.3
+#       - Fixed detection of *.vdr files in burn plugin
 
 
 main()
@@ -196,6 +199,8 @@ prepare_common()
            s/002\.vdr${SPECIAL_VDR_SUFFIX}/002.vdr/g; \
            s/index_%02d\.vdr${SPECIAL_VDR_SUFFIX}/index_%02d.vdr/g; \
            s/\[0-9\]\.vdr${SPECIAL_VDR_SUFFIX}/[0-9].vdr/g; \
+           s/\"\.vdr${SPECIAL_VDR_SUFFIX}\"/\".vdr\"/g; \
+           s/}\.vdr${SPECIAL_VDR_SUFFIX}/}.vdr/g; \
            s/index_archive\.vdr${SPECIAL_VDR_SUFFIX}/index_archive.vdr/g; \
            s/{TRACK_ON_DVD}\.vdr${SPECIAL_VDR_SUFFIX}/{TRACK_ON_DVD}.vdr/g; \
            s/size_cut\.vdr${SPECIAL_VDR_SUFFIX}/size_cut.vdr/g; \

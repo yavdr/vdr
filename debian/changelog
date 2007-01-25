@@ -1,6 +1,8 @@
 vdr (1.4.5-2) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
+
+  [ Tobias Grimm ]
   * Set NONPTL=0 by default - since version 1.3.27 VDR should work with the
     Native Posix Threading Library without problems. NONPTL can now be
     enabled for AMD64 systems again, even if this should not be necessary.
@@ -11,6 +13,10 @@ vdr (1.4.5-2) UNRELEASED; urgency=low
   * Added opt-50_graphtft.dpatch, required by the graphtft plugin version 0.0.15
   * Replaced "==" in shell scripts with "=" for compatibility reasons
     (reported by Jörg (Kano) Schirottke)
+
+  [ Thomas Günther ]
+  * Upgraded make-special-vdr.sh to version 0.3 (fixed detection of *.vdr files
+    in burn plugin)
 
  -- Tobias Grimm <tg@e-tobi.net>  Wed, 24 Jan 2007 18:55:42 +0100
 
