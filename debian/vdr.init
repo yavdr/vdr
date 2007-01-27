@@ -42,7 +42,7 @@ clean_console()
     fi
 }
 
-switch_console()
+configure_console_input()
 {
     if [ "$KEYB_TTY" != "" ]; then
         clean_console
@@ -78,7 +78,7 @@ startvdr()
             getplugins
             mergecommands "commands"
             mergecommands "reccmds"
-            switch_console
+            configure_console_input
             start-stop-daemon --start --quiet --startas $DAEMON --background \
                 --name $(basename $DAEMON) --pidfile $PIDFILE --make-pidfile -- \
                 -v $VIDEO_DIR -c $CFG_DIR -L $PLUGIN_DIR -r $REC_CMD \
