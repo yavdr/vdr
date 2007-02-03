@@ -1,11 +1,11 @@
-Source: vdr-plugin-#PACKAGE#
+Source: #PACKAGE#
 Section: misc
 Priority: extra
 Maintainer: #USERNAME# <#EMAIL#>
-Build-Depends: debhelper (>> 4.1.16), vdr-dev (>= #VDRVERSION#)
+Build-Depends: #BUILD_DEPS#, vdr-dev (>= #VDRVERSION#)
 Standards-Version: #POLICY#
 
-Package: vdr-plugin-#PACKAGE#
+Package: #PACKAGE#
 Architecture: any
 Depends: ${shlibs:Depends}, ${vdr:Depends}
 Description: <insert up to 60 chars description>

@@ -1,5 +1,5 @@
-#! /bin/sh
-# preinst script for vdr-plugin-#PACKAGE#
+#!/bin/sh
+# preinst script for #PACKAGE#
 #
 # see: dh_installdeb(1)
 
@@ -10,16 +10,12 @@ set -e
 #        * <new-preinst> `install' <old-version>
 #        * <new-preinst> `upgrade' <old-version>
 #        * <old-preinst> `abort-upgrade' <new-version>
-#
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
 
 case "$1" in
     install|upgrade)
-#        if [ "$1" = "upgrade" ]
-#        then
-#        fi
     ;;
 
     abort-upgrade)

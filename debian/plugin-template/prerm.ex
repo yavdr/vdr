@@ -1,5 +1,5 @@
-#! /bin/sh
-# prerm script for vdr-plugin-#PACKAGE#
+#!/bin/sh
+# prerm script for #PACKAGE#
 #
 # see: dh_installdeb(1)
 
@@ -19,10 +19,11 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-#       install-info --quiet --remove /usr/info/vdr-plugin-#PACKAGE#.info.gz
-        ;;
+    ;;
+
     failed-upgrade)
-        ;;
+    ;;
+
     *)
         echo "prerm called with unknown argument \`$1'" >&2
         exit 1

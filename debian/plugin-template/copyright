@@ -1,11 +1,21 @@
 This package was debianized by #USERNAME# <#EMAIL#> on
 #DATE#.
 
-It was downloaded from <fill in ftp site>
+It was downloaded from <fill in http/ftp site>
 
-Upstream Author: <fill in name and email>
+Upstream Author: <put author(s) name and email here>
 
-Copyright:
+Copyright: <put the year(s) of the copyright, and the names of the
+            copyright holder(s) here>
+
+
+The Debian packaging is (C) #YEAR#, #USERNAME# <#EMAIL#> and
+is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
+
+License:
 
 It may be redistributed under the terms of the GNU GPL, Version 2
 found on Debian systems in the file /usr/share/common-licenses/GPL .
+
+# Please also look if there are files or directories which have a
+# different copyright/license attached and list them here.

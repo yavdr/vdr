@@ -1,1 +1,1 @@
-libvdr-#PACKAGE#.so.*    usr/lib/vdr/plugins/
+libvdr-#PLUGIN#.so.*    usr/lib/vdr/plugins/
