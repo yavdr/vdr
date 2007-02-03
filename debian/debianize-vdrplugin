@@ -58,6 +58,7 @@ replace_vdr_version()
 replace_plugin_name()
 {
     perl -pi -e "s/#PLUGIN#/$PLUGIN/g" debian/install
+    perl -pi -e "s/#PLUGIN#/$PLUGIN/g" debian/links.ex
 }
 
 #

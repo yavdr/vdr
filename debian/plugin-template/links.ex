@@ -1,1 +1,1 @@
-usr/share/vdr-plugin-#PACKAGE#/#PACKAGE#    var/lib/vdr/plugins/#PACKAGE#
+usr/share/#PACKAGE#/#PLUGIN#    var/lib/vdr/plugins/#PLUGIN#
