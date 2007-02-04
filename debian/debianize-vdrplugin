@@ -36,7 +36,7 @@ create_orig_tarball()
     done
       
     for tarball in `find ../ -name "*$PLUGIN-$VERSION.t*bz2"`; do
-        /bin/bzip2 -cd $tarball | /bin/gzip > $ORIGTARBALL
+        /bin/bzip2 -cd $tarball | /bin/gzip --best > $ORIGTARBALL
         return
     done
 }
