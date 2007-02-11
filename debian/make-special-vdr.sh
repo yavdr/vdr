@@ -66,10 +66,16 @@
 #
 #    2007-01-24: Version 0.3
 #       - Fixed detection of *.vdr files in burn plugin
+#
+#    2007-02-11: Version 0.4
+#       - Updated prepare_vompserver for new vompserver release
+#       - Fixed prepare_vdrc
+#       - Exit immediately on errors
 
 
 main()
 {
+    set -e
     echo "$0" "$@" \
          "SPECIAL_VDR_SUFFIX='${SPECIAL_VDR_SUFFIX}'" \
          "MAKE_SPECIAL_VDR='${MAKE_SPECIAL_VDR}'" \
@@ -589,8 +595,8 @@ prepare_vdrc()
 --- debian/control
 +++ debian/control
 @@ -12,1 +12,3 @@
--Depends: ${vdr${SPECIAL_VDR_SUFFIX}:Depends}, ${shlibs:Depends}
-+Depends: ${vdr${SPECIAL_VDR_SUFFIX}:Depends}, ${shlibs:Depends}
+-Depends: ${shlibs:Depends}, ${vdr${SPECIAL_VDR_SUFFIX}:Depends}
++Depends: ${shlibs:Depends}, ${vdr${SPECIAL_VDR_SUFFIX}:Depends}
 +Conflicts: vdr${SPECIAL_VDR_SUFFIX}-plugin-vdrc
 +Replaces: vdr${SPECIAL_VDR_SUFFIX}-plugin-vdrc
 EOF
@@ -634,12 +640,10 @@ EOF
 prepare_vompserver()
 {
     echo "prepare_vompserver: use vompclient from standard package"
+    SUBST="s/vdr${SPECIAL_VDR_SUFFIX}-vompclient-mvp/vdr-vompclient-mvp/g"
+    subst_in_files "${SUBST}" "debian/control"
+
     /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
---- debian/control
-+++ debian/control
-@@ -13 +13 @@
--Conflicts: vdr${SPECIAL_VDR_SUFFIX}-plugin-mediamvp, vdr${SPECIAL_VDR_SUFFIX}-vompclient-mvp (<< 0.2.5)
-+Conflicts: vdr${SPECIAL_VDR_SUFFIX}-plugin-mediamvp, vdr-vompclient-mvp (<< 0.2.5)
 --- debian/vomp.conf
 +++ debian/vomp.conf
 @@ -30 +30 @@
