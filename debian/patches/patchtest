@@ -14,7 +14,7 @@ standard="\
     14_cap-memsize \
     15_dvbplayer \
     16_channels.conf.terr-fix \
-    81_Make_config "
+    17_epg-conv-iso6937"
 multipatch="$standard \
     opt-20_liemikuutio \
     opt-24_jumpplay \
