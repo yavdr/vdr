@@ -16,8 +16,9 @@ vdr (1.4.5-2) UNRELEASED; urgency=low
   * Updated debianize-vdrplugin for Debian Etch
 
   [ Thomas Günther ]
-  * Upgraded make-special-vdr.sh to version 0.4 (fixed detection of *.vdr files
-    in burn plugin, updated for new vompserver release)
+  * Upgraded make-special-vdr.sh to version 0.5 (fixed detection of *.vdr files
+    in burn plugin, updated for new vompserver release, updated for new graphtft
+    release)
   * Added 17_epg-conv-iso6937.dpatch (convert EPG of UPC Direct / HBO
     from iso6937 to iso8859-2) (closes: #384836)
 

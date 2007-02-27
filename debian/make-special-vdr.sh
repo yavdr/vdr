@@ -68,9 +68,12 @@
 #       - Fixed detection of *.vdr files in burn plugin
 #
 #    2007-02-11: Version 0.4
-#       - Updated prepare_vompserver for new vompserver release
+#       - Updated prepare_vompserver for new vompserver release 0.2.6
 #       - Fixed prepare_vdrc
 #       - Exit immediately on errors
+#
+#    2007-02-27: Version 0.5
+#       - Updated prepare_graphtft for new graphtft release 0.0.16
 
 
 main()
@@ -476,22 +479,19 @@ prepare_graphtft()
     /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
 --- display.c
 +++ display.c
-@@ -96 +96 @@
--	pos = strstr(dev, "vdr${SPECIAL_VDR_SUFFIX}/");
-+	pos = strstr(dev, "vdr/");
+@@ -165 +165 @@
+-      else if ((pos = strstr(dev, "vdr${SPECIAL_VDR_SUFFIX}/")))
++      else if ((pos = strstr(dev, "vdr/")))
 --- graphtft.c
 +++ graphtft.c
-@@ -83 +83 @@
--	"                           /dev/fb0 or vdr${SPECIAL_VDR_SUFFIX}/1 \n"
-+	"                           /dev/fb0 or vdr/1 \n"
-@@ -113 +113 @@
--				}else if (strstr(optarg, "vdr${SPECIAL_VDR_SUFFIX}/")){
-+				}else if (strstr(optarg, "vdr/")){
-@@ -170,2 +170,2 @@
--				fprintf(stderr, "vdr${SPECIAL_VDR_SUFFIX}: graphtft -  try device: vdr${SPECIAL_VDR_SUFFIX}/%d !\n", i);
--				asprintf(&_dev, "vdr${SPECIAL_VDR_SUFFIX}/%d", i);
-+				fprintf(stderr, "vdr${SPECIAL_VDR_SUFFIX}: graphtft -  try device: vdr/%d !\n", i);
-+				asprintf(&_dev, "vdr/%d", i);
+@@ -118 +118 @@
+-      "                           /dev/fb0 or vdr${SPECIAL_VDR_SUFFIX}/1 \n"
++      "                           /dev/fb0 or vdr/1 \n"
+@@ -202,2 +202,2 @@
+-            fprintf(stderr, "vdr${SPECIAL_VDR_SUFFIX}: graphtft -  try device: vdr${SPECIAL_VDR_SUFFIX}/%d !\n", i);
+-            asprintf(&_dev, "vdr${SPECIAL_VDR_SUFFIX}/%d", i);
++            fprintf(stderr, "vdr${SPECIAL_VDR_SUFFIX}: graphtft -  try device: vdr/%d !\n", i);
++            asprintf(&_dev, "vdr/%d", i);
 --- debian/plugin.graphtft.conf
 +++ debian/plugin.graphtft.conf
 @@ -5 +5 @@
