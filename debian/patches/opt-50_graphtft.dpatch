@@ -6,9 +6,9 @@
 ## DP: http://www.jwendel.de/vdr/
 
 @DPATCH@
-diff -urNad vdr-1.4.5~/menu.c vdr-1.4.5/menu.c
---- vdr-1.4.5~/menu.c	2007-01-21 12:47:14.000000000 +0100
-+++ vdr-1.4.5/menu.c	2007-01-21 12:48:48.000000000 +0100
+diff -urNad vdr-1.4.6~/menu.c vdr-1.4.6/menu.c
+--- vdr-1.4.6~/menu.c	2007-03-10 21:46:00.000000000 +0100
++++ vdr-1.4.6/menu.c	2007-03-10 21:46:01.000000000 +0100
 @@ -226,6 +226,7 @@
  public:
    cMenuEditChannel(cChannel *Channel, bool New = false);
@@ -57,7 +57,7 @@ diff -urNad vdr-1.4.5~/menu.c vdr-1.4.5/menu.c
  };
  
  cMenuRecording::cMenuRecording(const cRecording *Recording, bool WithButtons)
-@@ -3095,6 +3101,7 @@
+@@ -3097,6 +3103,7 @@
  public:
    cMenuSetupPlugins(void);
    virtual eOSState ProcessKey(eKeys Key);
@@ -65,7 +65,7 @@ diff -urNad vdr-1.4.5~/menu.c vdr-1.4.5/menu.c
    };
  
  cMenuSetupPlugins::cMenuSetupPlugins(void)
-@@ -3148,6 +3155,7 @@
+@@ -3150,6 +3157,7 @@
  public:
    cMenuSetup(void);
    virtual eOSState ProcessKey(eKeys Key);
@@ -73,9 +73,9 @@ diff -urNad vdr-1.4.5~/menu.c vdr-1.4.5/menu.c
    };
  
  cMenuSetup::cMenuSetup(void)
-diff -urNad vdr-1.4.5~/menu.h vdr-1.4.5/menu.h
---- vdr-1.4.5~/menu.h	2007-01-21 12:47:14.000000000 +0100
-+++ vdr-1.4.5/menu.h	2007-01-21 12:48:48.000000000 +0100
+diff -urNad vdr-1.4.6~/menu.h vdr-1.4.6/menu.h
+--- vdr-1.4.6~/menu.h	2007-03-10 21:46:00.000000000 +0100
++++ vdr-1.4.6/menu.h	2007-03-10 21:46:01.000000000 +0100
 @@ -30,6 +30,7 @@
    void SetText(const char *Text);
    virtual void Display(void);
@@ -132,9 +132,9 @@ diff -urNad vdr-1.4.5~/menu.h vdr-1.4.5/menu.h
    };
  
  class cRecordControl {
-diff -urNad vdr-1.4.5~/menuitems.h vdr-1.4.5/menuitems.h
---- vdr-1.4.5~/menuitems.h	2007-01-21 12:47:13.000000000 +0100
-+++ vdr-1.4.5/menuitems.h	2007-01-21 12:48:48.000000000 +0100
+diff -urNad vdr-1.4.6~/menuitems.h vdr-1.4.6/menuitems.h
+--- vdr-1.4.6~/menuitems.h	2007-03-10 21:45:57.000000000 +0100
++++ vdr-1.4.6/menuitems.h	2007-03-10 21:46:01.000000000 +0100
 @@ -179,6 +179,7 @@
    cMenuSetupPage(void);
    virtual eOSState ProcessKey(eKeys Key);
@@ -143,9 +143,9 @@ diff -urNad vdr-1.4.5~/menuitems.h vdr-1.4.5/menuitems.h
    };
  
  #endif //__MENUITEMS_H
-diff -urNad vdr-1.4.5~/osdbase.c vdr-1.4.5/osdbase.c
---- vdr-1.4.5~/osdbase.c	2007-01-21 12:47:13.000000000 +0100
-+++ vdr-1.4.5/osdbase.c	2007-01-21 12:48:48.000000000 +0100
+diff -urNad vdr-1.4.6~/osdbase.c vdr-1.4.6/osdbase.c
+--- vdr-1.4.6~/osdbase.c	2007-03-10 21:45:57.000000000 +0100
++++ vdr-1.4.6/osdbase.c	2007-03-10 21:46:01.000000000 +0100
 @@ -100,6 +100,7 @@
    free(status);
    displayMenu->Clear();
@@ -170,9 +170,9 @@ diff -urNad vdr-1.4.5~/osdbase.c vdr-1.4.5/osdbase.c
       return state;
       }
  
-diff -urNad vdr-1.4.5~/osdbase.h vdr-1.4.5/osdbase.h
---- vdr-1.4.5~/osdbase.h	2007-01-21 12:47:13.000000000 +0100
-+++ vdr-1.4.5/osdbase.h	2007-01-21 12:48:48.000000000 +0100
+diff -urNad vdr-1.4.6~/osdbase.h vdr-1.4.6/osdbase.h
+--- vdr-1.4.6~/osdbase.h	2007-03-10 21:45:57.000000000 +0100
++++ vdr-1.4.6/osdbase.h	2007-03-10 21:46:01.000000000 +0100
 @@ -46,6 +46,30 @@
                  osUser10,
                };
@@ -212,12 +212,12 @@ diff -urNad vdr-1.4.5~/osdbase.h vdr-1.4.5/osdbase.h
    };
  
  #endif //__OSDBASE_H
-diff -urNad vdr-1.4.5~/status.c vdr-1.4.5/status.c
---- vdr-1.4.5~/status.c	2007-01-21 12:47:14.000000000 +0100
-+++ vdr-1.4.5/status.c	2007-01-21 12:48:48.000000000 +0100
-@@ -158,3 +158,15 @@
-   for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
-      sm->UserAction(key, Interact);
+diff -urNad vdr-1.4.6~/status.c vdr-1.4.6/status.c
+--- vdr-1.4.6~/status.c	2007-03-10 21:46:00.000000000 +0100
++++ vdr-1.4.6/status.c	2007-03-10 21:46:01.000000000 +0100
+@@ -164,3 +164,15 @@
+          return true;
+       return false;
  }
 +
 +void cStatus::MsgOsdMenuDisplay(eOsdMenuKind kind)
@@ -231,13 +231,13 @@ diff -urNad vdr-1.4.5~/status.c vdr-1.4.5/status.c
 +  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
 +     sm->OsdMenuDestroy();
 +}
-diff -urNad vdr-1.4.5~/status.h vdr-1.4.5/status.h
---- vdr-1.4.5~/status.h	2007-01-21 12:47:14.000000000 +0100
-+++ vdr-1.4.5/status.h	2007-01-21 12:50:29.000000000 +0100
-@@ -82,6 +82,10 @@
-                // Checks if a plugin is protected.
-   virtual void UserAction(const eKeys key, const cOsdObject* Interact) {}                                 // PIN PATCH
+diff -urNad vdr-1.4.6~/status.h vdr-1.4.6/status.h
+--- vdr-1.4.6~/status.h	2007-03-10 21:46:00.000000000 +0100
++++ vdr-1.4.6/status.h	2007-03-10 21:48:17.000000000 +0100
+@@ -84,6 +84,10 @@
                 // report user action
+   virtual bool MenuItemProtected(const char* Name, int menuView = false)  { return false; }                // PIN PATCH
+                // Checks if a menu entry is protected.
 +  virtual void OsdMenuDisplay(eOsdMenuKind kind) {}
 +               // report menu creation
 +  virtual void OsdMenuDestroy() {}
@@ -245,12 +245,12 @@ diff -urNad vdr-1.4.5~/status.h vdr-1.4.5/status.h
  
  
  public:
-@@ -110,6 +114,8 @@
-   static void MsgTimerCreation(cTimer* Timer, const cEvent *Event);                                // PIN PATCH
-   static bool MsgPluginProtected(cPlugin* Plugin);                                                 // PIN PATCH
-   static void MsgUserAction(const eKeys key, const cOsdObject* Interact);                          // PIN PATCH
+@@ -113,6 +117,8 @@
+   static bool MsgPluginProtected(cPlugin* Plugin, int menuView = false);                           // PIN PATCH
+   static void MsgUserAction(const eKeys key, const cOsdObject* Interact);
+   static bool MsgMenuItemProtected(const char* Name, int menuView = false);                        // PIN PATCH
 +  static void MsgOsdMenuDisplay(const eOsdMenuKind kind);
 +  static void MsgOsdMenuDestroy();
+ 
    };
  
- #endif //__STATUS_H
