@@ -1,3 +1,10 @@
+vdr (1.4.6-2) UNRELEASED; urgency=low
+
+  * NOR RELEASED YET
+  * Added opt-42-x_MainMenuHooks.dpatch (required by remoteosd plugin)
+
+ -- Tobias Grimm <tg@e-tobi.net>  Sat, 10 Mar 2007 20:59:30 +0100
+
 vdr (1.4.6-1) experimental; urgency=low
 
   [ Tobias Grimm ]

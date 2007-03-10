@@ -46,6 +46,9 @@
 # Patch to show an info, if it is possible to record an event in the timer-info.
 # opt-41-x_timer-info
 
+# Patch to allow plugins to replace the VDR mainmenus
+# opt-42-x_MainMenuHooks
+
 # Patch to allow extrecmenu to replace the recordings menu with it's own version.
 # opt-42-x_extrecmenu
 

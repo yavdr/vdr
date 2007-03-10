@@ -26,6 +26,7 @@ multipatch="$standard \
     opt-39_noepg \
     opt-40_wareagle-icons \
     opt-41-x_timer-info \
+    opt-42-x_MainMenuHooks \
     opt-42-x_extrecmenu \
     opt-43-x_epgsearch \
     opt-44_rotor \
