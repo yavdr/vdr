@@ -46,8 +46,7 @@ testpatch="$standard \
     opt-38_disableDoubleEpgEntrys \
     opt-39_noepg \
     opt-41-x_timer-info \
-    opt-42-x_extrecmenu \
-    opt-43-x_epgsearch \
+    opt-42-x_MainMenuHooks \
     opt-44_rotor \
     opt-45_yaepg \
     opt-46_dvdarchive \
