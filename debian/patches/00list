@@ -52,9 +52,6 @@
 # Patch to allow extrecmenu to replace the recordings menu with it's own version.
 # opt-42-x_extrecmenu
 
-# Patch to allow epgsearch to replace the schedule menu with it's own version.
-# opt-43-x_epgsearch
-
 # Patch needed for the rotor plugin.
 # opt-44_rotor
 
