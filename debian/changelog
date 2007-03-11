@@ -5,7 +5,10 @@ vdr (1.4.6-2) UNRELEASED; urgency=low
   * Upgraded opt-48_pin.dpatch
   * Updated opt-50_graphtft.dpatch
   * Removed 92_MainMenuHooks.dpatch
-  * Removed  opt-42-x_extrecmenu.dpatch
+  * Removed opt-42-x_extrecmenu.dpatch
+  * Upgraded opt-27_subtitles-ttxtsubs to Rolf Ahrenberg's
+    vdr-1.4.5-subtitles-0.5.0-and-ttxtsubs-0.0.5.diff.gz (no functional changes,
+    just new version numbers)
 
  -- Tobias Grimm <tg@e-tobi.net>  Sat, 10 Mar 2007 20:59:30 +0100
 
