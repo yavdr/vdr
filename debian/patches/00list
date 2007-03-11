@@ -49,9 +49,6 @@
 # Patch to allow plugins to replace the VDR mainmenus
 # opt-42-x_MainMenuHooks
 
-# Patch to allow extrecmenu to replace the recordings menu with it's own version.
-# opt-42-x_extrecmenu
-
 # Patch needed for the rotor plugin.
 # opt-44_rotor
 

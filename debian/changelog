@@ -5,6 +5,7 @@ vdr (1.4.6-2) UNRELEASED; urgency=low
   * Upgraded opt-48_pin.dpatch
   * Updated opt-50_graphtft.dpatch
   * Removed 92_MainMenuHooks.dpatch
+  * Removed  opt-42-x_extrecmenu.dpatch
 
  -- Tobias Grimm <tg@e-tobi.net>  Sat, 10 Mar 2007 20:59:30 +0100
 
