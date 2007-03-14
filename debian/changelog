@@ -1,6 +1,8 @@
 vdr (1.4.6-2) UNRELEASED; urgency=low
 
-  * NOR RELEASED YET
+  * NOT RELEASED YET
+
+  [ Tobias Grimm ]
   * Added opt-42-x_MainMenuHooks.dpatch
   * Upgraded opt-48_pin.dpatch
   * Updated opt-50_graphtft.dpatch
@@ -10,7 +12,10 @@ vdr (1.4.6-2) UNRELEASED; urgency=low
     vdr-1.4.5-subtitles-0.5.0-and-ttxtsubs-0.0.5.diff.gz (no functional changes,
     just new version numbers)
 
- -- Tobias Grimm <tg@e-tobi.net>  Sat, 10 Mar 2007 20:59:30 +0100
+  [ Thomas Günther ]
+  * Removed debug logs in 17_epg-conv-iso6937.dpatch
+
+ -- Thomas Günther <tom@toms-cafe.de>  Wed, 14 Mar 2007 01:30:07 +0100
 
 vdr (1.4.6-1) experimental; urgency=low
 

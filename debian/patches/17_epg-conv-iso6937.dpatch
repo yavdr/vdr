@@ -28,8 +28,8 @@
 +        *out = 0;
 +        strcpy(text, buffer);
 +        }
-+     else
-+        dsyslog("Converting from iso6937 failed at: %s", in);
++     //else
++     //   dsyslog("Converting from iso6937 failed at: %s", in);
 +     iconv_close(ic);
 +     }
 +  free(buffer);
