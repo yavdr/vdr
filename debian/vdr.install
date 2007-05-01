@@ -27,6 +27,8 @@ keymacros.conf  etc/vdr/
 sources.conf    etc/vdr/
 svdrphosts.conf etc/vdr/
 
+debian/vdr.groups etc/vdr/groups.d
+
 debian/vdr-recordingaction usr/lib/vdr/
 debian/R90.custom          etc/vdr/recording-hooks/
 

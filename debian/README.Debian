@@ -230,13 +230,14 @@ hook may write to stdout:
 
 SHUTDOWNCMD=<new shutdown command>
 
+
 Group memberships
 -----------------
 
 A few plugins require that the user vdr is member in additional system groups 
 like audio or cdrom. To be a little bit more flexible, we have designed a 
 mechanism which can be used by plugins to specify additional group memberships.
-Plugins can add a file /etc/vdr/groups.d/<plugin-name> and call 
+Plugins can add a file /etc/vdr/groups.d/<plugin-name>.groups and call 
 /usr/lib/vdr/vdr-groups.sh in postinst, this will automatically check if vdr is 
 member in all groups which are listed in the files unter /etc/vdr/groups.sh,
 if vdr is not member of one of these groups, it will be added to the specific 
