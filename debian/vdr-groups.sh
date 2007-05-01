@@ -1,27 +1,48 @@
+#!/bin/sh
 #
-# vdr-groups.sh  
-# 
-# Shell script to be used by vdr plugin packages  to register/deregister
-# required vdr group memberships.
+# This script checks which groups the vdr user should belong to and adds
+# it to the necessary groups or removes it from groups which are not needed
+# anymore
 #
-# Usage:
-#
-# /bin/sh /usr/share/vdr/vdr-groups.sh --add <GROUP> <PLUGIN-NAME>
-# /bin/sh /usr/share/vdr/vdr-groups.sh --remove <GROUP> <PLUGIN-NAME>
+# (c) 2007, Thomas Schmidt <tschmidt@debian.org>
 #
 
-VDRGROUPS=/etc/vdr/vdr-groups.sh
+DIR="/etc/vdr/groups.d"
+VDR_USER=vdr
 
-add_to_group()
-{
-   # 1. Add vdr to <GROUP>
-   # 2. Add entry to vdr-groups.conf: 
-   #    <GROUP>    # <PLUGIN-NAME> (don't touch this - will be maintained by the plugin)
-}
+NEEDED_GROUPS=`cat $DIR/* | grep -v "^#\|^$" | sed s/"\(.*\)#.*"/"\1"/ | xargs`
+ACTUAL_GROUPS=`groups $VDR_USER | cut -d' ' -f3-`
 
-remove_from_group()
-{
-   # 1. Remove mathching <GROUP> entry from vdr-groups.conf
-   # 2. If no <GROUP> entry is left, remove user vdr from <GROUP>
-}
+# add $VDR_USER to the required groups
+for NEEDED_GROUP in $NEEDED_GROUPS; do
+   REQUIRED=1
 
+   for ACTUAL_GROUP in $ACTUAL_GROUPS; do
+      if [ $NEEDED_GROUP = $ACTUAL_GROUP ]; then
+         REQUIRED=0
+      fi
+   done
+
+   if [ $REQUIRED = "1" ]; then
+      # add $VDR_USER to $NEEDED_GROUP
+      echo "Adding $VDR_USER to group $NEEDED_GROUP"
+      #adduser $VDR_USER $NEEDED_GROUP > /dev/null 2>&1
+   fi
+done
+
+# check if $VDR_USER is member of any unnecessary groups
+for ACTUAL_GROUP in $ACTUAL_GROUPS; do
+   REQUIRED=0
+
+   for NEEDED_GROUP in $NEEDED_GROUPS; do
+      if [ $ACTUAL_GROUP = $NEEDED_GROUP ]; then
+         REQUIRED=1
+      fi
+   done
+
+   if [ $REQUIRED = "0" ]; then
+      # remove $VDR_USER from $ACTUAL_GROUP
+      echo "Removing $VDR_USER from group $ACTUAL_GROUP"
+      #deluser $VDR_USER $ACTUAL_GROUP > /dev/null 2>&1
+   fi
+done

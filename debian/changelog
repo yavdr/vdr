@@ -16,7 +16,12 @@ vdr (1.4.6-2) UNRELEASED; urgency=low
   [ Thomas Günther ]
   * Removed debug logs in 17_epg-conv-iso6937.dpatch
 
- -- Thomas Günther <tom@toms-cafe.de>  Wed, 14 Mar 2007 01:30:07 +0100
+  [ Thomas Schmidt ]
+  * Added vdr-groups.sh script which can be used by plugins which require the
+    user vdr to be a member in additional system groups, see README.Debian 
+    for additional information
+
+ -- Thomas Schmidt <tschmidt@debian.org>  Tue,  1 May 2007 13:50:39 +0200
 
 vdr (1.4.6-1) experimental; urgency=low
 
