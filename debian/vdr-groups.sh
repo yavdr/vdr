@@ -26,7 +26,7 @@ for NEEDED_GROUP in $NEEDED_GROUPS; do
    if [ $REQUIRED = "1" ]; then
       # add $VDR_USER to $NEEDED_GROUP
       echo "Adding $VDR_USER to group $NEEDED_GROUP"
-      #adduser $VDR_USER $NEEDED_GROUP > /dev/null 2>&1
+      adduser $VDR_USER $NEEDED_GROUP > /dev/null 2>&1
    fi
 done
 
@@ -43,6 +43,6 @@ for ACTUAL_GROUP in $ACTUAL_GROUPS; do
    if [ $REQUIRED = "0" ]; then
       # remove $VDR_USER from $ACTUAL_GROUP
       echo "Removing $VDR_USER from group $ACTUAL_GROUP"
-      #deluser $VDR_USER $ACTUAL_GROUP > /dev/null 2>&1
+      deluser $VDR_USER $ACTUAL_GROUP > /dev/null 2>&1
    fi
 done
