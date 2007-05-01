@@ -16,9 +16,10 @@
 ## DP: vdr-xine while moving cut marks.
 
 @DPATCH@
---- vdr-1.3.31/dvbplayer.c
-+++ vdr-1.3.31/dvbplayer.c
-@@ -349,6 +349,202 @@ void cDvbPlayer::Activate(bool On)
+diff -urNad vdr-1.4.6~/dvbplayer.c vdr-1.4.6/dvbplayer.c
+--- vdr-1.4.6~/dvbplayer.c	2007-05-01 21:22:11.000000000 +0200
++++ vdr-1.4.6/dvbplayer.c	2007-05-01 21:29:43.000000000 +0200
+@@ -363,6 +363,202 @@
       Cancel(9);
  }
  
@@ -221,15 +222,15 @@
  void cDvbPlayer::Action(void)
  {
    uchar *b = NULL;
-@@ -385,6 +581,7 @@ void cDvbPlayer::Action(void)
-                        if (Index >= 0) {
-                           if (!NextFile(FileNumber, FileOffset))
+@@ -406,6 +602,7 @@
+                              readIndex = Index;
                               continue;
+                              }
 +                          Length += IPACKS; // fixIFrame needs next video packet
                            }
                         else {
-                           // hit begin of recording: wait for device buffers to drain
-@@ -423,6 +620,8 @@ void cDvbPlayer::Action(void)
+                           if (!TimeShiftMode && playDir == pdForward) {
+@@ -450,6 +647,8 @@
                      }
                   int r = nonBlockingFileReader->Read(replayFile, b, Length);
                   if (r > 0) {
@@ -238,7 +239,7 @@
                      WaitingForData = false;
                      readFrame = new cFrame(b, -r, ftUnknown, readIndex); // hands over b to the ringBuffer
                      b = NULL;
-@@ -655,9 +854,11 @@ void cDvbPlayer::Goto(int Index, bool St
+@@ -688,9 +887,11 @@
       int FileOffset, Length;
       Index = index->GetNextIFrame(Index, false, &FileNumber, &FileOffset, &Length);
       if (Index >= 0 && NextFile(FileNumber, FileOffset) && Still) {
