@@ -17,10 +17,10 @@ debian/commands.custom.conf             etc/vdr/command-hooks/
 debian/reccmds.custom.conf              etc/vdr/command-hooks/
 debian/commands.update-recordings.conf  usr/share/vdr/command-hooks/
 
-debian/config-loader.sh   usr/lib/vdr
-debian/plugin-loader.sh   usr/lib/vdr
-debian/commands-loader.sh usr/lib/vdr
-debian/vdr-groups.sh      usr/lib/vdr
+debian/config-loader.sh   usr/lib/vdr/
+debian/plugin-loader.sh   usr/lib/vdr/
+debian/commands-loader.sh usr/lib/vdr/
+debian/vdr-groups.sh      usr/lib/vdr/
 
 diseqc.conf     etc/vdr/
 keymacros.conf  etc/vdr/
