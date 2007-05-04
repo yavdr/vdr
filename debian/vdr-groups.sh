@@ -81,6 +81,7 @@ show_help()
     echo "The <GROUP-FILE> is the file in $DIR containing the list of groups"
     echo "vdr should be added to or removed from."
     echo
+    exit 127
 }
 
 #
@@ -92,7 +93,6 @@ groups_file="$DIR/$2"
 
 if [ -z $2 ] || [ ! -e $groups_file ]; then
     show_help
-    exit 127
 fi
 
 case "$action" in
@@ -104,6 +104,5 @@ case "$action" in
         ;;
     *)
         show_help
-        exit 127
         ;;
 esac
