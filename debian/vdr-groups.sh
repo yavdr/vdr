@@ -90,6 +90,11 @@ show_help()
 action="$1"
 groups_file="$DIR/$2"
 
+if [ ! -e $groups_file ]; then
+    show_help
+    exit 127
+fi
+
 case "$action" in
     --add)
         add_to_groups "$groups_file"
