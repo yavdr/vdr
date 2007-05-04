@@ -1,4 +1,3 @@
-# vdr should be in the groups vdr, video and cdrom
+# vdr should be in the groups vdr and video
 vdr
 video
-cdrom
