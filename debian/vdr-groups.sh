@@ -90,7 +90,7 @@ show_help()
 action="$1"
 groups_file="$DIR/$2"
 
-if [ ! -e $groups_file ]; then
+if [ -z $2 ] || [ ! -e $groups_file ]; then
     show_help
     exit 127
 fi
