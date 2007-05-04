@@ -5,44 +5,100 @@
 # anymore
 #
 # (c) 2007, Thomas Schmidt <tschmidt@debian.org>
+# (c) 2007, Tobias Grimm <tg@e-tobi.net>
 #
 
 DIR="/etc/vdr/groups.d"
 VDR_USER=vdr
 
-NEEDED_GROUPS=`cat $DIR/* | grep -v "^#\|^$" | sed s/"\(.*\)#.*"/"\1"/ | xargs`
 ACTUAL_GROUPS=`groups $VDR_USER | cut -d' ' -f3-`
 
-# add $VDR_USER to the required groups
-for NEEDED_GROUP in $NEEDED_GROUPS; do
-   REQUIRED=1
+is_group_in_list()
+{
+    local group=$1
+    shift
+    local group_list=$*
+    local current_group
 
-   for ACTUAL_GROUP in $ACTUAL_GROUPS; do
-      if [ $NEEDED_GROUP = $ACTUAL_GROUP ]; then
-         REQUIRED=0
-      fi
-   done
+    for current_group in $group_list; do
+        [ "$current_group" = "$group" ] && return
+    done
 
-   if [ $REQUIRED = "1" ]; then
-      # add $VDR_USER to $NEEDED_GROUP
-      echo "Adding $VDR_USER to group $NEEDED_GROUP"
-      adduser $VDR_USER $NEEDED_GROUP > /dev/null 2>&1
-   fi
-done
+    false
+}
 
-# check if $VDR_USER is member of any unnecessary groups
-for ACTUAL_GROUP in $ACTUAL_GROUPS; do
-   REQUIRED=0
+read_groups()
+{
+    cat "$1" | grep -v "^#\|^$" | sed s/"\(.*\)#.*"/"\1"/ | xargs
+}
 
-   for NEEDED_GROUP in $NEEDED_GROUPS; do
-      if [ $ACTUAL_GROUP = $NEEDED_GROUP ]; then
-         REQUIRED=1
-      fi
-   done
+add_to_groups()
+{
+    local groups_file="$1"
+    local groups=`read_groups "$groups_file"`
+    local group
 
-   if [ $REQUIRED = "0" ]; then
-      # remove $VDR_USER from $ACTUAL_GROUP
-      echo "Removing $VDR_USER from group $ACTUAL_GROUP"
-      deluser $VDR_USER $ACTUAL_GROUP > /dev/null 2>&1
-   fi
-done
+    for group in $groups; do
+        if ! is_group_in_list $group $ACTUAL_GROUPS; then
+            echo "Adding '$VDR_USER' to group '$group'"
+            adduser $VDR_USER $group > /dev/null 2>&1
+        fi
+    done
+}
+
+remove_from_groups()
+{
+    local groups_file="$1"
+    local groups=`read_groups "$groups_file"`
+    local needed_groups
+    local group
+
+    rm "$groups_file"
+    
+    needed_groups=`read_groups $DIR/*`
+
+    for group in $groups; do
+        if is_group_in_list $group $ACTUAL_GROUPS; then
+            if ! is_group_in_list $group $needed_groups; then
+                echo "Removing '$VDR_USER' from group '$group'"
+                deluser $VDR_USER $group > /dev/null 2>&1
+            fi
+        fi
+    done
+}
+
+show_help()
+{
+    echo
+    echo "vdr-groups.sh"
+    echo "-------------"
+    echo "Shell script to be used by vdr plugin packages to register/deregister"
+    echo "required vdr group memberships."
+    echo
+    echo "/bin/sh /usr/share/vdr/vdr-groups.sh --add <GROUP-FILE>"
+    echo "/bin/sh /usr/share/vdr/vdr-groups.sh --remove <GROUP-FILE>"
+    echo
+    echo "The <GROUP-FILE> is the file in $DIR containing the list of groups"
+    echo "vdr should be added to or removed from."
+    echo
+}
+
+#
+# main()
+#
+
+action="$1"
+groups_file="$DIR/$2"
+
+case "$action" in
+    --add)
+        add_to_groups "$groups_file"
+        ;;
+    --remove)
+        remove_from_groups "$groups_file"
+        ;;
+    *)
+        show_help
+        exit 127
+        ;;
+esac
