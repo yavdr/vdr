@@ -22,12 +22,11 @@ debian/plugin-loader.sh   usr/lib/vdr/
 debian/commands-loader.sh usr/lib/vdr/
 debian/vdr-groups.sh      usr/lib/vdr/
 
-diseqc.conf     etc/vdr/
-keymacros.conf  etc/vdr/
-sources.conf    etc/vdr/
-svdrphosts.conf etc/vdr/
-
-debian/vdr.groups etc/vdr/groups.d/
+diseqc.conf       etc/vdr/
+keymacros.conf    etc/vdr/
+sources.conf      etc/vdr/
+svdrphosts.conf   etc/vdr/
+debian/vdr.groups etc/vdr/
 
 debian/vdr-recordingaction usr/lib/vdr/
 debian/R90.custom          etc/vdr/recording-hooks/

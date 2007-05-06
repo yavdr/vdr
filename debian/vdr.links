@@ -21,3 +21,5 @@ var/lib/vdr/setup.conf       etc/vdr/setup.conf
 var/lib/vdr/remote.conf      etc/vdr/remote.conf
 var/lib/vdr/channels.conf    etc/vdr/channels.conf
 etc/default/vdr              etc/vdr/vdr.default
+
+etc/vdr/vdr.groups    usr/share/vdr/groups.d/vdr.groups

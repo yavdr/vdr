@@ -8,7 +8,7 @@
 # (c) 2007, Tobias Grimm <tg@e-tobi.net>
 #
 
-DIR="/etc/vdr/groups.d"
+DIR="/usr/share/vdr/groups.d"
 VDR_USER=vdr
 
 ACTUAL_GROUPS=`groups $VDR_USER | cut -d' ' -f3-`
@@ -52,8 +52,6 @@ remove_from_groups()
     local groups=`read_groups "$groups_file"`
     local needed_groups
     local group
-
-    rm "$groups_file"
     
     needed_groups=`read_groups $DIR/*`
 
@@ -75,8 +73,8 @@ show_help()
     echo "Shell script to be used by vdr plugin packages to register/deregister"
     echo "required vdr group memberships."
     echo
-    echo "/bin/sh /usr/share/vdr/vdr-groups.sh --add <GROUP-FILE>"
-    echo "/bin/sh /usr/share/vdr/vdr-groups.sh --remove <GROUP-FILE>"
+    echo "/bin/sh /usr/lib/vdr/vdr-groups.sh --add <GROUP-FILE>"
+    echo "/bin/sh /usr/lib/vdr/vdr-groups.sh --remove <GROUP-FILE>"
     echo
     echo "The <GROUP-FILE> is the file in $DIR containing the list of groups"
     echo "vdr should be added to or removed from."
@@ -88,11 +86,17 @@ show_help()
 # main()
 #
 
-action="$1"
-groups_file="$DIR/$2"
 
-if [ -z $2 ] || [ ! -e $groups_file ]; then
+if [ $# -ne 2 ]; then
     show_help
+fi
+
+action="$1"
+groups_file="$DIR/$2.groups"
+
+if [ ! -e $groups_file ]; then
+    echo "WARNING: $groups_file does not exist. Can't adjust vdr group membership"
+    exit 0
 fi
 
 case "$action" in
