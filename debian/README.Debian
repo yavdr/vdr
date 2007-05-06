@@ -243,6 +243,14 @@ care of adding/removing vdr to/from the groups listed in the specified
 <plugin-name>.groups file. vdr will be removed from a group only, if no other
 plugin requires this group membership.
 
+In postinst a plugin should call:
+
+    /bin/sh /usr/lib/vdr/vdr-groups.sh --add vdr-plugin-foo
+    
+and in prerm:
+
+    /bin/sh /usr/lib/vdr/vdr-groups.sh --remove vdr-plugin-foo
+
 If you manually add vdr to a group, you must add the group to
 /etc/vdr/vdr.groups. If you don't do so, vdr may be removed from this group when
 uninstalling a plugin.

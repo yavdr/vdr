@@ -1,3 +1,16 @@
+vdr (1.4.6-2) experimental; urgency=low
+
+  The script /usr/lib/vdr/vdr-groups.sh may now be used by plugins to
+  manage the group memberships of the user 'vdr'. See README.Debian
+  for details on how to use this script.
+  
+  If you manually need to add the user 'vdr' to a group, you should
+  add the group name to /etc/vdr/vdr-groups. This way the vdr-groups.sh
+  script used by plugin installation/deinstallation procedures does
+  not try to remove vdr from this group.
+
+ -- Tobias Grimm <tg@e-tobi.net>  Sun,  6 May 2007 20:43:44 +0200
+
 vdr (1.2.6-9) experimental; urgency=low
 
   This release adds a patch which allows us to have just one binary-
