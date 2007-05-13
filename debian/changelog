@@ -1,4 +1,4 @@
-vdr (1.4.6-2) UNRELEASED; urgency=low
+vdr (1.4.7-1) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
 
@@ -12,7 +12,7 @@ vdr (1.4.6-2) UNRELEASED; urgency=low
     vdr-1.4.5-subtitles-0.5.0-and-ttxtsubs-0.0.5.diff.gz (no functional changes,
     just new version numbers)
   * Added Portuguese debconf translations (closes: #415495)
-  * Added vdr maintenance patch 1.4.6-1 and modified 15_dvbplayer.dpatch
+  * Modified 15_dvbplayer.dpatch
   * vdr will no longer be added to the group cdrom by default. This has to be
     done by the plugin, using the vdr-groups.sh script introduced in this
     version
@@ -24,8 +24,9 @@ vdr (1.4.6-2) UNRELEASED; urgency=low
   * Added vdr-groups.sh script which can be used by plugins which require the
     user vdr to be a member in additional system groups, see README.Debian
     for additional information
+  * New upstream release
 
- -- Tobias Grimm <tg@e-tobi.net>  Fri,  4 May 2007 23:22:46 +0200
+ -- Thomas Schmidt <tschmidt@debian.org>  Sun, 13 May 2007 21:21:34 +0200
 
 vdr (1.4.6-1) experimental; urgency=low
 
