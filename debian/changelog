@@ -16,6 +16,7 @@ vdr (1.4.7-1) UNRELEASED; urgency=low
   * vdr will no longer be added to the group cdrom by default. This has to be
     done by the plugin, using the vdr-groups.sh script introduced in this
     version
+  * Installing svdrpsend in /usr/bin for easier manual access
 
   [ Thomas Günther ]
   * Removed debug logs in 17_epg-conv-iso6937.dpatch
@@ -26,7 +27,7 @@ vdr (1.4.7-1) UNRELEASED; urgency=low
     for additional information
   * New upstream release
 
- -- Thomas Schmidt <tschmidt@debian.org>  Sun, 13 May 2007 21:21:34 +0200
+ -- Tobias Grimm <tg@e-tobi.net>  Sun, 13 May 2007 22:20:48 +0200
 
 vdr (1.4.6-1) experimental; urgency=low
 
