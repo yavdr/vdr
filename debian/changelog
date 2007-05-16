@@ -26,8 +26,11 @@ vdr (1.4.7-1) UNRELEASED; urgency=low
     user vdr to be a member in additional system groups, see README.Debian
     for additional information
   * New upstream release
+  * Added XS-Vcs-Svn and XS-Vcs-Browser fields to debian/control
+  * Removed version from Build-Dependancy to dpatch - even Sarge has the
+    required version
 
- -- Tobias Grimm <tg@e-tobi.net>  Sun, 13 May 2007 22:20:48 +0200
+ -- Thomas Schmidt <tschmidt@debian.org>  Wed, 16 May 2007 18:50:29 +0200
 
 vdr (1.4.6-1) experimental; urgency=low
 
