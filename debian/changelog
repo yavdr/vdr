@@ -1,6 +1,4 @@
-vdr (1.4.7-1) UNRELEASED; urgency=low
-
-  * NOT RELEASED YET
+vdr (1.4.7-1) unstable; urgency=low
 
   [ Tobias Grimm ]
   * Added opt-42-x_MainMenuHooks.dpatch
@@ -30,7 +28,7 @@ vdr (1.4.7-1) UNRELEASED; urgency=low
   * Removed version from Build-Dependancy to dpatch - even Sarge has the
     required version
 
- -- Thomas Schmidt <tschmidt@debian.org>  Wed, 16 May 2007 18:50:29 +0200
+ -- Thomas Schmidt <tschmidt@debian.org>  Mon, 28 May 2007 14:16:19 +0200
 
 vdr (1.4.6-1) experimental; urgency=low
 
