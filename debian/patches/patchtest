@@ -3,7 +3,6 @@
 # Define some patch levels here: foo="patch1 patch2 ..."
 #
 standard="\
-    01_maintenance-patch-01 \
     02_Makefile-CFGDIR \
     03_cmdsubmenu \
     04_newplugin \
