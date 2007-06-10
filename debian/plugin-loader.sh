@@ -20,10 +20,6 @@ getplugins ()
 
     vdrcmd="/usr/bin/vdr -u $USER $OPTIONS"
 
-    if [ "$NONPTL" = "1" -a `uname -m` != x86_64 ]; then
-        vdrcmd="LD_ASSUME_KERNEL=2.4.1 $vdrcmd"
-    fi
-
     version=`eval "$vdrcmd -V -L/usr/bin/vdr 2>/dev/null | sed 's/.*(\(.*\)).*/\1/'"`
     test "$version" || version="unknown version"
 

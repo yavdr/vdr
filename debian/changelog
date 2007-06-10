@@ -1,4 +1,11 @@
-vdr (1.4.7-1) unstable; urgency=low
+vdr (1.4.7-2) UNRELEASED; urgency=low
+  
+  * Removed support for starting vdr without NTPL-support as glibc 2.5 does 
+    not support this anymore
+
+ -- Thomas Schmidt <tschmidt@debian.org>  Sun, 10 Jun 2007 21:58:32 +0200
+
+ vdr (1.4.7-1) unstable; urgency=low
 
   [ Tobias Grimm ]
   * Added opt-42-x_MainMenuHooks.dpatch

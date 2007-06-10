@@ -5,11 +5,8 @@
 . /usr/lib/vdr/config-loader.sh
 
 OPTIONS="$*"
-if [ "$NONPTL" = "1" ]; then
-    VDRCMD="LANG=$VDR_LANG LC_ALL=$VDR_LANG LD_ASSUME_KERNEL=2.4.1 /usr/bin/vdr $OPTIONS"
-else
-    VDRCMD="LANG=$VDR_LANG LC_ALL=$VDR_LANG /usr/bin/vdr $OPTIONS"
-fi
+
+VDRCMD="LANG=$VDR_LANG LC_ALL=$VDR_LANG /usr/bin/vdr $OPTIONS"
 
 function get_modulenames ()
 {

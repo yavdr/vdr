@@ -45,9 +45,6 @@ ENABLED=0
 # Enable / Disable automatic shutdown
 ENABLE_SHUTDOWN=0
 
-# Change this to 1 if you want to VDR to not use NPTL.
-NONPTL=0
-
 # Video-Directory
 VIDEO_DIR="/var/lib/video.00"
 
