@@ -83,11 +83,6 @@ case "$1" in
                 fi
         fi
         
-        # create needed devices nodes
-        if [ ! -e /dev/dvb/ ]; then
-                cd /dev && MAKEDEV dvb
-        fi
-
         db_get vdr/create_video_dir
         if $RET; then
                 # check if an old directory /var/lib/video exists, and 
