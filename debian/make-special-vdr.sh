@@ -79,6 +79,7 @@
 #       - Fixed prepare_xineliboutput
 #       - Added prepare_burn to use backgrounds from standard packages
 #       - Fixed substitions for debianize-vdrplugin in prepare_vdr
+#       - Fixed detection of *.vdr files in vompserver plugin
 
 
 main()
@@ -211,6 +212,7 @@ prepare_common()
            s/marks\.vdr${SPECIAL_VDR_SUFFIX}/marks.vdr/g; \
            s/index\.vdr${SPECIAL_VDR_SUFFIX}/index.vdr/g; \
            s/%03d\.vdr${SPECIAL_VDR_SUFFIX}/%03d.vdr/g; \
+           s/%03i\.vdr${SPECIAL_VDR_SUFFIX}/%03i.vdr/g; \
            s/dvd\.vdr${SPECIAL_VDR_SUFFIX}/dvd.vdr/g; \
            s/001\.vdr${SPECIAL_VDR_SUFFIX}/001.vdr/g; \
            s/002\.vdr${SPECIAL_VDR_SUFFIX}/002.vdr/g; \

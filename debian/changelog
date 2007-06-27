@@ -8,7 +8,7 @@ vdr (1.4.7-2) UNRELEASED; urgency=low
 
   [ Thomas Günther ]
   * Upgraded make-special-vdr.sh to version 0.6 (xineliboutput,
-    burnbackgrounds, debianize-vdrplugin)
+    burnbackgrounds, debianize-vdrplugin, vompserver)
 
  -- Thomas Günther <tom@toms-cafe.de>  Wed, 27 Jun 2007 02:53:01 +0200
 
