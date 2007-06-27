@@ -1,11 +1,16 @@
 vdr (1.4.7-2) UNRELEASED; urgency=low
 
+  [ Thomas Schmidt ]
   * Removed support for starting vdr without NTPL-support as glibc 2.5 does
     not support this anymore
   * removed creation of dvb-devices in postinst - should be created on every
     system automatically (closes: #428695)
 
- -- Thomas Schmidt <tschmidt@debian.org>  Fri, 15 Jun 2007 17:50:25 +0200
+  [ Thomas Günther ]
+  * Upgraded make-special-vdr.sh to version 0.6 (xineliboutput,
+    burnbackgrounds, debianize-vdrplugin)
+
+ -- Thomas Günther <tom@toms-cafe.de>  Wed, 27 Jun 2007 02:53:01 +0200
 
  vdr (1.4.7-1) unstable; urgency=low
 

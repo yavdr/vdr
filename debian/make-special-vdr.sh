@@ -74,6 +74,11 @@
 #
 #    2007-02-27: Version 0.5
 #       - Updated prepare_graphtft for new graphtft release 0.0.16
+#
+#    2007-06-27: Version 0.6
+#       - Fixed prepare_xineliboutput
+#       - Added prepare_burn to use backgrounds from standard packages
+#       - Fixed substitions for debianize-vdrplugin in prepare_vdr
 
 
 main()
@@ -119,6 +124,9 @@ prepare()
         fi
         if check_package "vdr${SPECIAL_VDR_SUFFIX}-plugin-analogtv"; then
             prepare_analogtv
+        fi
+        if check_package "vdr${SPECIAL_VDR_SUFFIX}-plugin-burn"; then
+            prepare_burn
         fi
         if check_package "vdr${SPECIAL_VDR_SUFFIX}-plugin-graphtft"; then
             prepare_graphtft
@@ -452,6 +460,22 @@ echo "SPECIAL_VDR_SUFFIX, e.g.:"
 echo "    SPECIAL_VDR_SUFFIX=${SPECIAL_VDR_SUFFIX} fakeroot dpkg-buildpackage -us -uc -tc"
 echo "See /usr/share/vdr-dev/make-special-vdr.sh for details."
 EOF
+    /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
+--- debian/debianize-vdr${SPECIAL_VDR_SUFFIX}plugin
++++ debian/debianize-vdr${SPECIAL_VDR_SUFFIX}plugin
+@@ -15 +15 @@
+-        echo "The upsteam tarball should be named: vdr${SPECIAL_VDR_SUFFIX}-<PLUGIN-NAME>-<VERSION>.tar.gz"
++        echo "The upsteam tarball should be named: vdr-<PLUGIN-NAME>-<VERSION>.tar.gz"
+@@ -17 +17 @@
+-        echo "e.g.: vdr${SPECIAL_VDR_SUFFIX}-coolplugin-0.0.1.tar.gz"
++        echo "e.g.: vdr-coolplugin-0.0.1.tar.gz"
+@@ -27 +27 @@
+-    ORIGTARBALL="../vdr${SPECIAL_VDR_SUFFIX}-plugin-$PLUGIN"_"$VERSION.orig.tar.gz"
++    ORIGTARBALL="../vdr-plugin-$PLUGIN"_"$VERSION.orig.tar.gz"
+@@ -72 +72 @@
+-dh_make="/usr/bin/dh_make -t /usr/share/vdr${SPECIAL_VDR_SUFFIX}-dev/plugin-template -d -s -p vdr${SPECIAL_VDR_SUFFIX}-plugin-$PLUGIN"
++dh_make="/usr/bin/dh_make -t /usr/share/vdr${SPECIAL_VDR_SUFFIX}-dev/plugin-template -d -s -p vdr-plugin-$PLUGIN"
+EOF
 }
 
 prepare_analogtv()
@@ -470,6 +494,29 @@ prepare_analogtv()
 +	dh_install
 +	cd debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-analogtv/usr/bin; mv mp1e mp1e_vdr${SPECIAL_VDR_SUFFIX}
 +	cd debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-analogtv/usr/share/man/man1; mv mp1e.1 mp1e_vdr${SPECIAL_VDR_SUFFIX}.1
+EOF
+}
+
+prepare_burn()
+{
+    echo "prepare_burn: use backgrounds from standard packages"
+    /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
+--- debian/control
++++ debian/control
+@@ -13,2 +13,2 @@
+-Suggests: vdr${SPECIAL_VDR_SUFFIX}-burnbackgrounds (>= 0.0.1-4)
+-Conflicts: vdr${SPECIAL_VDR_SUFFIX}-burnbackgrounds (<= 0.0.1-3)
++Suggests: vdr-burnbackgrounds (>= 0.0.1-4)
++Conflicts: vdr-burnbackgrounds (<= 0.0.1-3)
+--- debian/links
++++ debian/links
+@@ -0,0 +1,6 @@
++var/lib/vdr/plugins/burn/skins/fo-doku    var/lib/vdr${SPECIAL_VDR_SUFFIX}/plugins/burn/skins/fo-doku
++var/lib/vdr/plugins/burn/skins/fo-kinder  var/lib/vdr${SPECIAL_VDR_SUFFIX}/plugins/burn/skins/fo-kinder
++var/lib/vdr/plugins/burn/skins/fo-kino    var/lib/vdr${SPECIAL_VDR_SUFFIX}/plugins/burn/skins/fo-kino
++var/lib/vdr/plugins/burn/skins/fo-musik   var/lib/vdr${SPECIAL_VDR_SUFFIX}/plugins/burn/skins/fo-musik
++var/lib/vdr/plugins/burn/skins/fo-natur   var/lib/vdr${SPECIAL_VDR_SUFFIX}/plugins/burn/skins/fo-natur
++var/lib/vdr/plugins/burn/skins/fo-sport   var/lib/vdr${SPECIAL_VDR_SUFFIX}/plugins/burn/skins/fo-sport
 EOF
 }
 
@@ -687,6 +734,15 @@ prepare_xineliboutput()
            /Package: xineliboutput-sxfe/,/^\$/d; \
            /Package: libxine-xvdr${SPECIAL_VDR_SUFFIX}/,/^\$/d"
     subst_in_files "${SUBST}" "debian/control"
+
+    /bin/sed -e "s/\${VERSION}/$(grep 'static const char \*VERSION *=' xineliboutput.c | cut -d'"' -f2)/g" \
+             -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
+--- debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-xineliboutput.links  1970-01-01 00:00:00.000000000 +0000
++++ debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-xineliboutput.links
+@@ -0,0 +1,2 @@
++usr/lib/vdr/plugins/libxineliboutput-fbfe.so.${VERSION}  usr/lib/vdr${SPECIAL_VDR_SUFFIX}/plugins/libxineliboutput-fbfe.so.${VERSION}
++usr/lib/vdr/plugins/libxineliboutput-sxfe.so.${VERSION}  usr/lib/vdr${SPECIAL_VDR_SUFFIX}/plugins/libxineliboutput-sxfe.so.${VERSION}
+EOF
 }
 
 cleanup()
