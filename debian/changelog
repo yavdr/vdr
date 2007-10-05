@@ -16,7 +16,7 @@ vdr (1.4.7-2) unstable; urgency=low
 
  -- Tobias Grimm <tg@e-tobi.net>  Fri, 07 Sep 2007 09:53:59 +0200
 
- vdr (1.4.7-1) unstable; urgency=low
+vdr (1.4.7-1) unstable; urgency=low
 
   [ Tobias Grimm ]
   * Added opt-42-x_MainMenuHooks.dpatch
