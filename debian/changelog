@@ -1,4 +1,4 @@
-vdr (1.4.7-2) UNRELEASED; urgency=low
+vdr (1.4.7-2) unstable; urgency=low
 
   [ Thomas Schmidt ]
   * Removed support for starting vdr without NTPL-support as glibc 2.5 does
