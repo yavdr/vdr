@@ -21,7 +21,9 @@ multipatch="$standard \
     opt-27_subtitles-ttxtsubs \
     opt-27-x_subtitles-ttxtsubs-volumebar-fix \
     opt-30-x_analogtv \
-    opt-37_submenu \
+    opt-31-x_reelchannelscan \
+    opt-32_iptv \
+    opt-37-x_menuorg \
     opt-38_disableDoubleEpgEntrys \
     opt-39_noepg \
     opt-40_wareagle-icons \
@@ -29,20 +31,20 @@ multipatch="$standard \
     opt-42-x_MainMenuHooks \
     opt-44_rotor \
     opt-45_yaepg \
-    opt-46_dvdarchive \
-    opt-46_dmh-dvd-archive \
-    opt-46-x_dmh-dvd-archive-debian \
     opt-47_sourcecaps \
-    opt-48_pin \
-    opt-50_graphtft"
+    opt-48-x_pin \
+    opt-50_graphtft-0.1 \
+    opt-51_cuttime"
 testpatch="$standard \
     opt-20_liemikuutio \
     opt-24_jumpplay \
     opt-27_subtitles-ttxtsubs \
     opt-27-x_subtitles-ttxtsubs-volumebar-fix \
     opt-30-x_analogtv \
+    opt-31-x_reelchannelscan \
+    opt-32_iptv \
     opt-36_CutterQueue-AutoDelete \
-    opt-37_submenu \
+    opt-37-x_menuorg \
     opt-38_disableDoubleEpgEntrys \
     opt-39_noepg \
     opt-41-x_timer-info \
@@ -52,9 +54,9 @@ testpatch="$standard \
     opt-46_dvdarchive \
     opt-46_dmh-dvd-archive \
     opt-46-x_dmh-dvd-archive-debian \
-    opt-48_pin \
+    opt-48-x_pin \
     opt-49_sharelnb \
-    opt-50_graphtft"
+    opt-50_graphtft-0.1"
 mustfail_patch="XX_patchtest-patch-error"
 mustfail_compile="XX_patchtest-compile-error"
 

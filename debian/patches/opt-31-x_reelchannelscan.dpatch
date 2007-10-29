@@ -1,0 +1,26 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## opt-31_reelchannelscan.dpatch by Tobias Grimm <tg@e-tobi.net>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad vdr-1.4.6~/vdr.c vdr-1.4.6/vdr.c
+--- vdr-1.4.6~/vdr.c	2006-12-02 17:22:12.000000000 +0100
++++ vdr-1.4.6/vdr.c	2007-03-25 17:33:45.000000000 +0200
+@@ -685,7 +685,14 @@
+         // Make sure we have a visible programme in case device usage has changed:
+         if (!EITScanner.Active() && cDevice::PrimaryDevice()->HasDecoder() && !cDevice::PrimaryDevice()->HasProgramme()) {
+            static time_t lastTime = 0;
+-           if (time(NULL) - lastTime > MINCHANNELWAIT) {
++
++           bool reelChannelscanIsScanningOnReceivingDevice;
++           if (!cPluginManager::CallFirstService("ReelChannelscan::IsScanningOnReceivingDevice", &reelChannelscanIsScanningOnReceivingDevice))
++           {
++             reelChannelscanIsScanningOnReceivingDevice = false;
++           }
++
++           if (!reelChannelscanIsScanningOnReceivingDevice && time(NULL) - lastTime > MINCHANNELWAIT) {
+               cChannel *Channel = Channels.GetByNumber(cDevice::CurrentChannel());
+               if (Channel && (Channel->Vpid() || Channel->Apid(0))) {
+                  if (!Channels.SwitchTo(cDevice::CurrentChannel()) // try to switch to the original channel...

@@ -1,0 +1,31 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## opt-32-x_recordshowfree.dpatch by Walter Koch <koch@u32.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Shows remaining recording capacity in recordings menu.
+## DP: (Requires timer-info patch)
+
+@DPATCH@
+diff -urNad vdr-1.4.7~/menu.c vdr-1.4.7/menu.c
+--- vdr-1.4.7~/menu.c	2007-07-01 21:00:57.000000000 +0200
++++ vdr-1.4.7/menu.c	2007-07-01 21:01:09.000000000 +0200
+@@ -2309,6 +2309,19 @@
+          }
+       }
+   free(LastItemText);
++  
++//kw
++  char *buffer = NULL;
++  int FreeMB;
++  int Percent = VideoDiskSpace(&FreeMB);
++  int Minutes = int(double(FreeMB) / MB_PER_MINUTE);
++  int Hours = Minutes / 60;
++  Minutes %= 60;
++  asprintf(&buffer, "%s   %d%%  %2d:%02d %s  (%.1f GB)", tr("Disk"), Percent, Hours, Minutes, tr("free"), FreeMB / 1024.0 );
++  SetTitle(buffer);
++  free(buffer);
++//kw
++  
+   if (Refresh)
+      Display();
+ }

@@ -1,0 +1,313 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## opt-50_graphtft.dpatch by Jörg Wendel (Horchi)
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Patch from teh Graphtft plugin version 0.0.15
+## DP: http://www.jwendel.de/vdr/
+
+@DPATCH@
+diff -urNad vdr-1.4.7~/menu.c vdr-1.4.7/menu.c
+--- vdr-1.4.7~/menu.c	2007-08-22 21:25:48.000000000 +0200
++++ vdr-1.4.7/menu.c	2007-08-22 21:25:48.000000000 +0200
+@@ -228,6 +228,9 @@
+ public:
+   cMenuEditChannel(cChannel *Channel, bool New = false);
+   virtual eOSState ProcessKey(eKeys Key);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return "MenuEditChannel"; }
++//#endif /* GRAPHTFT */
+   };
+ 
+ cMenuEditChannel::cMenuEditChannel(cChannel *Channel, bool New)
+@@ -453,6 +456,9 @@
+   cMenuChannels(void);
+   ~cMenuChannels();
+   virtual eOSState ProcessKey(eKeys Key);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return "MenuChannels"; }
++//#endif /* GRAPHTFT */
+   };
+ 
+ cMenuChannels::cMenuChannels(void)
+@@ -945,6 +951,9 @@
+   virtual ~cMenuTimers();
+   virtual void Display(void);
+   virtual eOSState ProcessKey(eKeys Key);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return "MenuTimers"; }
++//#endif /* GRAPHTFT */
+   };
+ 
+ cMenuTimers::cMenuTimers(void)
+@@ -1309,6 +1318,9 @@
+   static void SetCurrentChannel(int ChannelNr) { currentChannel = ChannelNr; }
+   static const cEvent *ScheduleEvent(void);
+   virtual eOSState ProcessKey(eKeys Key);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return now ? "MenuWhatsOnNow" : "MenuWhatsOnNext"; }
++//#endif /* GRAPHTFT */
+   };
+ 
+ int cMenuWhatsOn::currentChannel = 0;
+@@ -1475,6 +1487,9 @@
+   cMenuSchedule(void);
+   virtual ~cMenuSchedule();
+   virtual eOSState ProcessKey(eKeys Key);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return "MenuSchedule"; }
++//#endif /* GRAPHTFT */
+   };
+ 
+ cMenuSchedule::cMenuSchedule(void)
+@@ -1982,6 +1997,9 @@
+   cMenuRecording(const cRecording *Recording, bool WithButtons = false);
+   virtual void Display(void);
+   virtual eOSState ProcessKey(eKeys Key);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return "MenuRecording"; }
++//#endif /* GRAPHTFT */
+ };
+ 
+ cMenuRecording::cMenuRecording(const cRecording *Recording, bool WithButtons)
+@@ -2542,6 +2560,9 @@
+   cMenuSetupOSD(void);
+   virtual ~cMenuSetupOSD();
+   virtual eOSState ProcessKey(eKeys Key);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return "MenuSetupOsd"; }
++//#endif
+   };
+ 
+ cMenuSetupOSD::cMenuSetupOSD(void)
+@@ -2645,6 +2666,9 @@
+ public:
+   cMenuSetupEPG(void);
+   virtual eOSState ProcessKey(eKeys Key);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return "MenuSetupEpg"; }
++//#endif
+   };
+ 
+ cMenuSetupEPG::cMenuSetupEPG(void)
+@@ -2741,6 +2765,9 @@
+ public:
+   cMenuSetupDVB(void);
+   virtual eOSState ProcessKey(eKeys Key);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return "MenuSetupDvb"; }
++//#endif
+   };
+ 
+ cMenuSetupDVB::cMenuSetupDVB(void)
+@@ -2834,6 +2861,9 @@
+ public:
+   cMenuSetupLNB(void);
+   virtual eOSState ProcessKey(eKeys Key);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return "MenuSetupLnb"; }
++//#endif
+   };
+ 
+ cMenuSetupLNB::cMenuSetupLNB(void)
+@@ -2898,6 +2928,9 @@
+ public:
+   cMenuSetupCICAM(void);
+   virtual eOSState ProcessKey(eKeys Key);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return "MenuSetupCiCam"; }
++//#endif
+   };
+ 
+ cMenuSetupCICAM::cMenuSetupCICAM(void)
+@@ -3060,6 +3093,9 @@
+ public:
+   cMenuSetupPlugins(void);
+   virtual eOSState ProcessKey(eKeys Key);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return "MenuSetupPlugins"; }
++//#endif /* GRAPHTFT */
+   };
+ 
+ cMenuSetupPlugins::cMenuSetupPlugins(void)
+@@ -3113,6 +3149,9 @@
+ public:
+   cMenuSetup(void);
+   virtual eOSState ProcessKey(eKeys Key);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return "MenuSetup"; }
++//#endif /* GRAPHTFT */
+   };
+ 
+ cMenuSetup::cMenuSetup(void)
+diff -urNad vdr-1.4.7~/menu.h vdr-1.4.7/menu.h
+--- vdr-1.4.7~/menu.h	2007-08-22 21:25:48.000000000 +0200
++++ vdr-1.4.7/menu.h	2007-08-22 21:25:48.000000000 +0200
+@@ -29,6 +29,9 @@
+   void SetText(const char *Text);
+   virtual void Display(void);
+   virtual eOSState ProcessKey(eKeys Key);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return "MenuText"; }
++//#endif /* GRAPHTFT */
+   };
+ 
+ class cMenuEditTimer : public cOsdMenu {
+@@ -45,6 +48,9 @@
+   cMenuEditTimer(cTimer *Timer, bool New = false);
+   virtual ~cMenuEditTimer();
+   virtual eOSState ProcessKey(eKeys Key);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return "MenuTimerEdit"; }
++//#endif /* GRAPHTFT */
+   };
+ 
+ class cMenuEvent : public cOsdMenu {
+@@ -54,6 +60,9 @@
+   cMenuEvent(const cEvent *Event, bool CanSwitch = false, bool Buttons = false);
+   virtual void Display(void);
+   virtual eOSState ProcessKey(eKeys Key);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return "MenuEvent"; }
++//#endif /* GRAPHTFT */
+   };
+ 
+ class cMenuMain : public cOsdMenu {
+@@ -72,6 +81,9 @@
+   cMenuMain(eOSState State = osUnknown);
+   virtual eOSState ProcessKey(eKeys Key);
+   static cOsdObject *PluginOsdObject(void);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return "MenuMain"; }
++//#endif /* GRAPHTFT */
+   };
+ 
+ class cDisplayChannel : public cOsdObject {
+@@ -141,6 +153,9 @@
+   cMenuCam(cCiMenu *CiMenu);
+   virtual ~cMenuCam();
+   virtual eOSState ProcessKey(eKeys Key);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return "MenuCam"; }
++//#endif /* GRAPHTFT */
+   };
+ 
+ class cMenuCamEnquiry : public cOsdMenu {
+@@ -153,6 +168,9 @@
+   cMenuCamEnquiry(cCiEnquiry *CiEnquiry);
+   virtual ~cMenuCamEnquiry();
+   virtual eOSState ProcessKey(eKeys Key);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return "MenuCamEnquiry"; }
++//#endif /* GRAPHTFT */
+   };
+ 
+ cOsdObject *CamControl(void);
+@@ -180,6 +198,9 @@
+   cMenuRecordings(const char *Base = NULL, int Level = 0, bool OpenSubMenus = false);
+   ~cMenuRecordings();
+   virtual eOSState ProcessKey(eKeys Key);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return "MenuRecordings"; }
++//#endif /* GRAPHTFT */
+   };
+ 
+ class cRecordControl {
+diff -urNad vdr-1.4.7~/menuitems.h vdr-1.4.7/menuitems.h
+--- vdr-1.4.7~/menuitems.h	2007-08-22 21:25:48.000000000 +0200
++++ vdr-1.4.7/menuitems.h	2007-08-22 21:25:48.000000000 +0200
+@@ -179,6 +179,9 @@
+   cMenuSetupPage(void);
+   virtual eOSState ProcessKey(eKeys Key);
+   void SetPlugin(cPlugin *Plugin);
++//#ifdef USE_GRAPHTFT
++  const char* MenuKind() { return "MenuSetupPage"; }
++//#endif /* GRAPHTFT */
+   };
+ 
+ #endif //__MENUITEMS_H
+diff -urNad vdr-1.4.7~/osdbase.c vdr-1.4.7/osdbase.c
+--- vdr-1.4.7~/osdbase.c	2007-08-22 21:25:48.000000000 +0200
++++ vdr-1.4.7/osdbase.c	2007-08-22 21:25:48.000000000 +0200
+@@ -100,6 +100,9 @@
+   free(status);
+   displayMenu->Clear();
+   cStatus::MsgOsdClear();
++//#ifdef USE_GRAPHTFT
++  cStatus::MsgOsdMenuDestroy();
++//#endif /* GRAPHTFT */
+   if (!--displayMenuCount)
+      DELETENULL(displayMenu);
+ }
+@@ -195,6 +198,9 @@
+   displayMenu->SetMessage(mtStatus, NULL);
+   displayMenu->Clear();
+   cStatus::MsgOsdClear();
++//#ifdef USE_GRAPHTFT
++  cStatus::MsgOsdMenuDisplay(MenuKind());
++//#endif /* GRAPHTFT */
+   displayMenu->SetTabs(cols[0], cols[1], cols[2], cols[3], cols[4]);//XXX
+   displayMenu->SetTitle(title);
+   cStatus::MsgOsdTitle(title);
+diff -urNad vdr-1.4.7~/osdbase.h vdr-1.4.7/osdbase.h
+--- vdr-1.4.7~/osdbase.h	2007-08-22 21:25:48.000000000 +0200
++++ vdr-1.4.7/osdbase.h	2007-08-22 21:25:48.000000000 +0200
+@@ -127,6 +127,9 @@
+   void Ins(cOsdItem *Item, bool Current = false, cOsdItem *Before = NULL);
+   virtual void Display(void);
+   virtual eOSState ProcessKey(eKeys Key);
++//#ifdef USE_GRAPHTFT
++  virtual const char* MenuKind() { return "MenuUnknown"; }
++//#endif /* GRAPHTFT */
+   };
+ 
+ #endif //__OSDBASE_H
+diff -urNad vdr-1.4.7~/status.c vdr-1.4.7/status.c
+--- vdr-1.4.7~/status.c	2007-08-22 21:25:42.000000000 +0200
++++ vdr-1.4.7/status.c	2007-08-22 21:25:48.000000000 +0200
+@@ -112,3 +112,19 @@
+   for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+       sm->OsdProgramme(PresentTime, PresentTitle, PresentSubtitle, FollowingTime, FollowingTitle, FollowingSubtitle);
+ }
++
++
++//#ifdef USE_GRAPHTFT
++void cStatus::MsgOsdMenuDisplay(const char* kind)
++{
++  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
++      sm->OsdMenuDisplay(kind);
++}
++
++void cStatus::MsgOsdMenuDestroy()
++{
++  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
++      sm->OsdMenuDestroy();
++}
++//#endif /* GRAPHTFT */
++
+diff -urNad vdr-1.4.7~/status.h vdr-1.4.7/status.h
+--- vdr-1.4.7~/status.h	2007-08-22 21:25:42.000000000 +0200
++++ vdr-1.4.7/status.h	2007-08-22 21:28:34.000000000 +0200
+@@ -67,6 +67,12 @@
+                // The OSD displays the single line Text with the current channel information.
+   virtual void OsdProgramme(time_t PresentTime, const char *PresentTitle, const char *PresentSubtitle, time_t FollowingTime, const char *FollowingTitle, const char *FollowingSubtitle) {}
+                // The OSD displays the given programme information.
++//#ifdef USE_GRAPHTFT
++  virtual void OsdMenuDisplay(const char* kind) {}
++               // report menu creation
++  virtual void OsdMenuDestroy() {}
++               // report menu destruvtion
++//#endif /* GRAPHTFT */
+ public:
+   cStatus(void);
+   virtual ~cStatus();
+@@ -86,6 +92,10 @@
+   static void MsgOsdTextItem(const char *Text,  bool Scroll = false);
+   static void MsgOsdChannel(const char *Text);
+   static void MsgOsdProgramme(time_t PresentTime, const char *PresentTitle, const char *PresentSubtitle, time_t FollowingTime, const char *FollowingTitle, const char *FollowingSubtitle);
++//#ifdef USE_GRAPHTFT
++  static void MsgOsdMenuDisplay(const char* kind);
++  static void MsgOsdMenuDestroy();
++//#endif /* GRAPHTFT */
+   };
+ 
+ #endif //__STATUS_H

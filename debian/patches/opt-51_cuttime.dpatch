@@ -1,0 +1,139 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## opt-32_cuttime.dpatch by Udo Richter <udo_richter@gmx.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Modifies the start time of recordings to the first cutting mark..
+## DP: 
+## DP: 2007-07-01 Tobias Grimm <tg@e-tobi.net>
+## DP:     - Added setup option to enable/disable CutTime
+
+@DPATCH@
+diff -urNad vdr-1.4.7~/config.c vdr-1.4.7/config.c
+--- vdr-1.4.7~/config.c	2007-08-05 10:28:22.000000000 +0200
++++ vdr-1.4.7/config.c	2007-08-05 10:31:33.000000000 +0200
+@@ -250,6 +250,7 @@
+ 
+ cSetup::cSetup(void)
+ {
++  CutTimePatchEnabled = 0;
+   OSDLanguage = 0;
+   strcpy(OSDSkin, "sttng");
+   strcpy(OSDTheme, "default");
+@@ -550,6 +551,7 @@
+   else if (!strcasecmp(Name, "ShowRecLength"))       ShowRecLength      = atoi(Value);
+   else if (!strcasecmp(Name, "ShowProgressBar"))     ShowProgressBar    = atoi(Value);
+   else if (!strcasecmp(Name, "MenuCmdPosition"))     MenuCmdPosition    = atoi(Value);
++  else if (!strcasecmp(Name, "CutTimePatchEnabled")) CutTimePatchEnabled= atoi(Value);
+   else
+      return false;
+   return true;
+@@ -635,6 +637,7 @@
+   Store("ShowRecLength",      ShowRecLength);
+   Store("ShowProgressBar",    ShowProgressBar);
+   Store("MenuCmdPosition",    MenuCmdPosition);
++  Store("CutTimePatchEnabled",CutTimePatchEnabled);
+ 
+   Sort();
+ 
+diff -urNad vdr-1.4.7~/config.h vdr-1.4.7/config.h
+--- vdr-1.4.7~/config.h	2007-08-05 10:28:22.000000000 +0200
++++ vdr-1.4.7/config.h	2007-08-05 10:28:23.000000000 +0200
+@@ -293,6 +293,7 @@
+   int InitialChannel;
+   int InitialVolume;
+   int ShowRecDate, ShowRecTime, ShowRecLength, ShowProgressBar, MenuCmdPosition;
++  int CutTimePatchEnabled;
+   int __EndData__;
+   cSetup(void);
+   cSetup& operator= (const cSetup &s);
+diff -urNad vdr-1.4.7~/cutter.c vdr-1.4.7/cutter.c
+--- vdr-1.4.7~/cutter.c	2006-07-30 12:22:08.000000000 +0200
++++ vdr-1.4.7/cutter.c	2007-08-05 10:28:23.000000000 +0200
+@@ -190,6 +190,14 @@
+      error = false;
+      ended = false;
+      cRecording Recording(FileName);
++     
++     if (Setup.CutTimePatchEnabled) {
++        cMarks FromMarks;
++        FromMarks.Load(FileName);
++        cMark *First=FromMarks.First();
++        if (First) Recording.SetStartTime(Recording.start+((First->position/FRAMESPERSEC+30)/60)*60);
++     }
++     
+      const char *evn = Recording.PrefixFileName('%');
+      if (evn && RemoveVideoFile(evn) && MakeDirs(evn, true)) {
+         // XXX this can be removed once RenameVideoFile() follows symlinks (see videodir.c)
+diff -urNad vdr-1.4.7~/i18n.c vdr-1.4.7/i18n.c
+--- vdr-1.4.7~/i18n.c	2007-08-05 10:28:22.000000000 +0200
++++ vdr-1.4.7/i18n.c	2007-08-05 10:28:23.000000000 +0200
+@@ -4367,6 +4367,28 @@
+     "Opdel redigerede filer",
+     "Dìlit editované soubory",
+   },
++  { "Setup.CutTimePatch$Adapt start time to cutting marks",
++    "Startzeit an Schnittmarken anpassen",
++    "",
++    "",
++    "",
++    "",
++    "",
++    "",
++    "",
++    "",
++    "",
++    "",
++    "",
++    "",
++    "",
++    "",
++    "",
++    "",
++    "",
++    "",
++    "",
++  },
+   { "Setup.Replay$Multi speed mode",
+     "Mehrstufiger Vor-/Rücklauf",
+     "Re¾im z veè hitrostmi",
+diff -urNad vdr-1.4.7~/menu.c vdr-1.4.7/menu.c
+--- vdr-1.4.7~/menu.c	2007-08-05 10:28:22.000000000 +0200
++++ vdr-1.4.7/menu.c	2007-08-05 10:28:23.000000000 +0200
+@@ -3028,6 +3028,7 @@
+   Add(new cMenuEditBoolItem(tr("Setup.Recording$Show date"),                 &data.ShowRecDate));
+   Add(new cMenuEditBoolItem(tr("Setup.Recording$Show time"),                 &data.ShowRecTime));
+   Add(new cMenuEditBoolItem(tr("Setup.Recording$Show length"),               &data.ShowRecLength));
++  Add(new cMenuEditBoolItem(tr("Setup.CutTimePatch$Adapt start time to cutting marks"), &data.CutTimePatchEnabled));
+ }
+ 
+ // --- cMenuSetupReplay ------------------------------------------------------
+diff -urNad vdr-1.4.7~/recording.c vdr-1.4.7/recording.c
+--- vdr-1.4.7~/recording.c	2007-08-05 10:28:22.000000000 +0200
++++ vdr-1.4.7/recording.c	2007-08-05 10:28:23.000000000 +0200
+@@ -796,6 +796,15 @@
+   return titleBuffer;
+ }
+ 
++void cRecording::SetStartTime(time_t Start) 
++{
++  start=Start;
++  if (fileName) {
++  	 free(fileName);
++  	 fileName = NULL;
++  	 }
++}
++
+ const char *cRecording::PrefixFileName(char Prefix)
+ {
+   cString p = PrefixVideoFileName(FileName(), Prefix);
+diff -urNad vdr-1.4.7~/recording.h vdr-1.4.7/recording.h
+--- vdr-1.4.7~/recording.h	2007-08-05 10:28:22.000000000 +0200
++++ vdr-1.4.7/recording.h	2007-08-05 10:28:23.000000000 +0200
+@@ -87,6 +87,7 @@
+   const char *FileName(void) const;
+   const char *Title(char Delimiter = ' ', bool NewIndicator = false, int Level = -1, bool Original = true) const;
+   const cRecordingInfo *Info(void) const { return info; }
++  void SetStartTime(time_t Start);
+   const char *PrefixFileName(char Prefix);
+   int HierarchyLevels(void) const;
+   void ResetResume(void) const;

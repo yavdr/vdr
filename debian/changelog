@@ -1,3 +1,20 @@
+vdr (1.4.7-3) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+  * Synced optional patches with e-tobi.net version of the VDR package
+    - Added opt-50_graphtft-0.1.dpatch
+    - Added opt-51_cuttime.dpatch
+    - Added opt-39_noepg.dpatch
+    - Added opt-32_iptv.dpatch
+    - Added opt-43-x_recordshowfree.dpatch
+    - Added opt-37-x_menuorg.dpatch
+    - Added opt-31-x_reelchannelscan.dpatch
+    - Added opt-48-x_pin.dpatch
+    - Removed opt-37_submenu.dpatch
+    - Updated opt-48_pin.dpatch
+
+ -- Tobias Grimm <tg@e-tobi.net>  Mon, 29 Oct 2007 19:53:15 +0100
+
 vdr (1.4.7-2) unstable; urgency=low
 
   [ Thomas Schmidt ]
