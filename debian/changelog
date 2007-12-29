@@ -1,4 +1,4 @@
-vdr (1.4.7-3) UNRELEASED; urgency=low
+vdr (1.4.7-3) unstable; urgency=low
 
   [ Tobias Grimm ]
   * Synced optional patches with e-tobi.net version of the VDR package
@@ -23,9 +23,9 @@ vdr (1.4.7-3) UNRELEASED; urgency=low
   * Use ${binary:Version} instead of ${Source-Version} to make package
     binNMUable
   * Converted debian/copyright to UTF-8
-  * Removed override for lintian warning menu-command-not-in-package 
+  * Removed override for lintian warning menu-command-not-in-package
 
- -- Thomas Schmidt <tschmidt@debian.org>  Sat, 29 Dec 2007 16:56:33 +0100
+ -- Thomas Schmidt <tschmidt@debian.org>  Sat, 29 Dec 2007 18:06:09 +0100
 
 vdr (1.4.7-2) unstable; urgency=low
 
