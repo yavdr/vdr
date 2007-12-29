@@ -4,9 +4,10 @@ Priority: extra
 Maintainer: Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>
 Uploaders: Thomas Schmidt <tschmidt@debian.org>, Tobias Grimm <tg@e-tobi.net>, Thomas Günther <tom@toms-cafe.de>
 Build-Depends: debhelper (>= 4.1.16), libjpeg62-dev, dpatch, libcap-dev, libncurses5-dev
-Standards-Version: 3.7.2
-XS-Vcs-Svn: svn://svn.debian.org/pkg-vdr-dvb/vdr/vdr/trunk/
-XS-Vcs-Browser: http://svn.debian.org/wsvn/pkg-vdr-dvb/vdr/vdr/trunk/
+Standards-Version: 3.7.3
+Vcs-Svn: svn://svn.debian.org/pkg-vdr-dvb/vdr/vdr/trunk/
+Vcs-Browser: http://svn.debian.org/wsvn/pkg-vdr-dvb/vdr/vdr/trunk/
+Homepage: http://www.cadsoft.de/vdr/
 
 Package: vdr
 Architecture: any
@@ -46,7 +47,7 @@ XB-VDR-Patchlevel: ${vdr:Patchlevel}
 
 Package: vdr-plugin-sky
 Architecture: any 
-Depends: ${shlibs:Depends}, vdr (= ${Source-Version})
+Depends: ${shlibs:Depends}, vdr (= ${binary:Version})
 Description: Plugin for using a Sky Digibox with vdr
  Video Disk Recorder (VDR) is a digital sat-receiver program using
  Linux and DVB technologies. It allows one to record MPEG2 streams,
@@ -60,7 +61,7 @@ XB-VDR-Patchlevel: ${vdr:Patchlevel}
 
 Package: vdr-plugin-examples
 Architecture: any 
-Depends: ${shlibs:Depends}, vdr (= ${Source-Version})
+Depends: ${shlibs:Depends}, vdr (= ${binary:Version})
 Description: Plugins for vdr to show some possible features
  Video Disk Recorder (VDR) is a digital sat-receiver program using
  Linux and DVB technologies. It allows one to record MPEG2 streams,

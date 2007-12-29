@@ -57,8 +57,8 @@ clean-patched:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
-	-$(MAKE) -o .dependencies clean-plugins $(MAKE_OPTIONS)
-	-$(MAKE) -o .dependencies clean $(MAKE_OPTIONS)
+	$(MAKE) -o .dependencies clean-plugins $(MAKE_OPTIONS)
+	$(MAKE) -o .dependencies clean $(MAKE_OPTIONS)
 	rm -f vdr-kbd
 	rm -rf PLUGINS/lib
 	rm -f vdr-newplugin

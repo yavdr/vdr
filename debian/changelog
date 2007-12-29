@@ -1,6 +1,6 @@
 vdr (1.4.7-3) UNRELEASED; urgency=low
 
-  * NOT RELEASED YET
+  [ Tobias Grimm ]
   * Synced optional patches with e-tobi.net version of the VDR package
     - Added opt-50_graphtft-0.1.dpatch
     - Added opt-51_cuttime.dpatch
@@ -13,7 +13,19 @@ vdr (1.4.7-3) UNRELEASED; urgency=low
     - Removed opt-37_submenu.dpatch
     - Updated opt-48_pin.dpatch
 
- -- Tobias Grimm <tg@e-tobi.net>  Mon, 29 Oct 2007 19:53:15 +0100
+  [ Thomas Schmidt ]
+  * Do not ignore errors in clean-target
+  * Added Homepage field to debian/control
+  * Renamed XS-Vcs-* fields to Vcs-* in debian/control
+  * Bumped Standards-Version to 3.7.3
+  * Removed menu file, vdr should allways be used as daemon
+  * Do not include empty directory /usr/lib/vdr/plugins
+  * Use ${binary:Version} instead of ${Source-Version} to make package
+    binNMUable
+  * Converted debian/copyright to UTF-8
+  * Removed override for lintian warning menu-command-not-in-package 
+
+ -- Thomas Schmidt <tschmidt@debian.org>  Sat, 29 Dec 2007 16:56:33 +0100
 
 vdr (1.4.7-2) unstable; urgency=low
 
