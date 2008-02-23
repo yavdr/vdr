@@ -80,6 +80,12 @@
 #       - Added prepare_burn to use backgrounds from standard packages
 #       - Fixed substitions for debianize-vdrplugin in prepare_vdr
 #       - Fixed detection of *.vdr files in vompserver plugin
+#
+#    2008-02-10: Version 0.7
+#       - Updated prepare_text2skin to use skin locales from standard packages
+#       - Added substition for vdr-skins suggestion in prepare_text2skin
+#       - Exclude documentation files (README etc.) from substitions
+#       - Preserve mode, ownership and timestamps
 
 
 main()
@@ -112,8 +118,9 @@ prepare()
     if [ ! -e "${SAVE_DIR}" ]; then
         echo "prepare: save all in subdirectory ${SAVE_DIR}"
         /bin/mkdir "${SAVE_DIR}"
-        /bin/cp -r $(/usr/bin/find ./ -mindepth 1 -maxdepth 1 \
-                                   -not -name "${SAVE_DIR}") "${SAVE_DIR}"
+        /bin/chmod -R +w .
+        /bin/cp -af $(/usr/bin/find ./ -mindepth 1 -maxdepth 1 \
+                                    -not -name "${SAVE_DIR}") "${SAVE_DIR}"
 
         # Create tempfile
         TMP_FILE=$(/bin/mktemp)
@@ -230,8 +237,17 @@ prepare_common()
            s/dvdr${SPECIAL_VDR_SUFFIX}ead/dvdread/g"
     FILES=$(/usr/bin/find ./ -type f -not -regex "./${SAVE_DIR}/.*" \
                           -not -regex "./debian/changelog" \
+                          -not -regex "./debian/copyright" \
                           -not -regex "./debian/make-special-vdr.sh" \
-                          -not -regex "./debian/plugin-template/.*")
+                          -not -regex "./debian/plugin-template/.*" \
+                          -not -regex "./README.*" \
+                          -not -regex "./LIESMICH.*" \
+                          -not -regex "./AUTHORS.*" \
+                          -not -regex "./CONTRIBUTORS.*" \
+                          -not -regex "./FAQ.*" \
+                          -not -regex "./MANUAL.*" \
+                          -not -regex "./TODO.*" \
+                          -not -regex "./TROUBLESHOOTING.*")
     set -f; OLD_IFS="${IFS}"; IFS="
 "; set -- ${FILES}; IFS="${OLD_IFS}"; set +f
     subst_in_files "${SUBST}" "$@"
@@ -630,11 +646,30 @@ prepare_text2skin()
 {
     echo "prepare_text2skin: use skins from standard packages"
     /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
+--- debian/control
++++ debian/control
+@@ -15,1 +15,1 @@
+-Suggests: vdr${SPECIAL_VDR_SUFFIX}-skins
++Suggests: vdr-skins
 --- debian/links  1970-01-01 00:00:00.000000000 +0000
 +++ debian/links
 @@ -0,0 +1 @@
 +var/lib/vdr/plugins/text2skin  var/lib/vdr${SPECIAL_VDR_SUFFIX}/plugins/text2skin
 EOF
+
+    if /usr/bin/dpkg --compare-versions "$(/usr/bin/dpkg-parsechangelog | /bin/egrep '^Version:' | /usr/bin/cut -f 2 -d ' ')" \
+                                        ge "1.0+cvs20080122.2311-1"; then
+        echo "prepare_text2skin: use skin locales from standard packages"
+        /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
+--- debian/patches/95_text2skin-1.1-cvs-locale.dpatch
++++ debian/patches/95_text2skin-1.1-cvs-locale.dpatch
+@@ -185,2 +185,2 @@
+-+	mIdentity   = std::string("vdr${SPECIAL_VDR_SUFFIX}-"PLUGIN_NAME_I18N"-") + Skin;
+-+	I18nRegister(mIdentity.substr(mIdentity.find('-') + 1).c_str());
+++	mIdentity   = std::string("vdr-"PLUGIN_NAME_I18N"-") + Skin;
+++	extern char *bindtextdomain(const char *, const char *); bindtextdomain(mIdentity.c_str(), "/usr/share/locale");
+EOF
+    fi
 }
 
 prepare_vdrc()
@@ -754,7 +789,7 @@ cleanup()
         /bin/rm -rf $(/usr/bin/find ./ -mindepth 1 -maxdepth 1 \
                                     -not -name "${SAVE_DIR}")
         cd "${SAVE_DIR}"
-        /bin/cp -r $(/usr/bin/find ./ -mindepth 1 -maxdepth 1) ..
+        /bin/cp -af $(/usr/bin/find ./ -mindepth 1 -maxdepth 1) ..
         cd ..
         /bin/rm -rf "${SAVE_DIR}"
     fi

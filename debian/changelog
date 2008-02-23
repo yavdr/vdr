@@ -1,13 +1,18 @@
 vdr (1.4.7-4) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
+
+  [ Tobias Grimm ]
   * Using empty directory /usr/lib/vdr/plugins again and adding lintian
     override for "package-contains-empty-directory" warning - VDR
     requires the plugin directory!
   * Added short description to the NAME section of the manpages to fix the
     Lintian manpage-has-bad-whatis-entry warning
 
- -- Tobias Grimm <tg@e-tobi.net>  Fri, 18 Jan 2008 18:55:37 +0100
+  [ Thomas Günther ]
+  * Upgraded make-special-vdr.sh to version 0.7
+
+ -- Thomas Günther <tom@toms-cafe.de>  Sat, 23 Feb 2008 21:32:52 +0100
 
 vdr (1.4.7-3) unstable; urgency=low
 
