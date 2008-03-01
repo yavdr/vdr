@@ -1,8 +1,38 @@
-vdr (1.4.7-4) UNRELEASED; urgency=low
 
-  * NOT RELEASED YET
-
-  [ Tobias Grimm ]
+  * Merged from the vdr 1.5.16-1ctvdr2:
+  
+  [ Tobias Grimm]
+  * New upstream release
+  * Updated 03_cmdsubmenu.dpatch
+  * Updated 09_sort_options.dpatch
+  * Upgraded opt-20_liemikuutio.dpatch to version 1.18
+  * Updated opt-31-x_reelchannelscan
+  * Updated opt-37-x_menuorg.dpatch
+  * Updated opt-38_disableDoubleEpgEntrys.dpatch, to avoid sprintf buffer
+    overflows
+  * Updated opt-41-x_timer-info.dpatch
+  * Updated opt-43-x_recordshowfree.dpatch
+  * Updated opt-47_sourcecaps
+  * Updated opt-48-x_pin.dpatch
+  * Applied modification from Michaël Nival to opt-45_yaepg.dpatch that fixes a
+    small bug
+  * Removed opt-36_CutterQueue.dpatch
+  * Removed opt-36_CutterQueue-AutoDelete.dpatch
+  * Removed opt-46_dmh-dvd-archive.dpatch
+  * Removed opt-46_dvdarchive.dpatch
+  * Removed opt-46-x_dmh-dvd-archive-debian.dpatch
+  * Removed opt-49_sharelnb.dpatch
+  * Adapted 15_dvbplayer.dpatch
+  * Added 01_pic2mpg-debian.dpatch
+  * Added 99_ncursesw-include.dpatch
+  * Added 99_invalid-char-fix.dpatch (closes: #467512)
+  * Added opt-49-x_pvrinput.dpatch
+  * Added opt_40-iptv.dpatch
+  * Added latest version of pin patch opt-48_pin-0.1.7.dpatch
+  * Added installation of the pictures plug-in
+  * Line-wrapped dependencies in debian/control
+  * COMPAT=5, debhelper (>= 5)
+  * Made debianize-vdrplugin create cdbs based plugin packages
   * Using empty directory /usr/lib/vdr/plugins again and adding lintian
     override for "package-contains-empty-directory" warning - VDR
     requires the plugin directory!
@@ -10,9 +40,34 @@ vdr (1.4.7-4) UNRELEASED; urgency=low
     Lintian manpage-has-bad-whatis-entry warning
 
   [ Thomas Günther ]
+  * Adapted 04_newplugin.dpatch
+  * Adapted 10_dd-record-option.dpatch
+  * Adapted opt-24_jumpplay.dpatch
+  * Adapted opt-28_audioindexer.dpatch
+  * Updated opt-39_noepg.dpatch
+  * Updated opt-44_rotor.dpatch
+  * Adapted opt-45_yaepg.dpatch
+  * Adapted opt-50_graphtft.dpatch
+  * Adapted opt-50_graphtft-0.1.dpatch
+  * Adapted opt-51_cuttime.dpatch
+  * Removed 02_Makefile-CFGDIR.dpatch
+  * Removed 17_epg-conv-iso6937.dpatch
+  * Removed opt-27-x_subtitles-ttxtsubs-volumebar-fix.dpatch (now
+    integrated in opt-27_subtitles-ttxtsubs.dpatch)
+  * Removed opt-40_wareagle-icons.dpatch
+  * Added opt-29_syncearly.dpatch and opt-29_syncearly-audioindexer.dpatch
+  * Added opt-48_pin-submenu.dpatch
+  * Added opt-50_graphtft-0.1.dpatch
+  * Replaced opt-27_subtitles-ttxtsubs.dpatch with opt-27_ttxtsubs.dpatch
+    (subtitles support now integrated in upstream)
+  * Added gettext to Build-Depends
+  * Added libfreetype6-dev and libfontconfig-dev to Build-Depends
+  * Replaced libncurses5-dev with libncursesw5-dev in Build-Depends
+  * Added ttf-bitstream-vera | ttf-freefont to vdr Recommends
+  * Added URL for developer version to debian/watch
   * Upgraded make-special-vdr.sh to version 0.7
 
- -- Thomas Günther <tom@toms-cafe.de>  Sat, 23 Feb 2008 21:32:52 +0100
+ -- Tobias Grimm <tg@e-tobi.net>  Fri, 18 Jan 2008 18:55:37 +0100
 
 vdr (1.4.7-3) unstable; urgency=low
 
