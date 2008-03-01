@@ -1,74 +1,71 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
 ## opt-38_disableDoubleEpgEntrys.dpatch by Emanuel Wontorra <hoerzu2vdr@wontorra.net>
-## http://vdrportal.de/board/thread.php?postid=316384#post316384
+## http://vdrportal.de/board/thread.php?postid=317214#post317214
 ##
 ## Thomas Günther <tom@toms-cafe.de>:
-##   - adapted to VDR-1.3.32
-##
-## Stefan Wagner <stefanwag@gmx.at>:
-##   - adapted to VDR-1.3.43
-##
-## Tobias Grimm <tg@e-tobi.net>:
-##   - adapted to VDR-1.4.0 maintenance patch 1.4.0-2
+##   - adapted to VDR-1.5.1
+##   - adapted to VDR-1.5.7
+##   - added buffer overflow fix from:
+##     http://vdrportal.de/board/thread.php?postid=683477#post683477
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: This patch suppresses double EPG entries.
 
 @DPATCH@
-diff -urNad vdr-1.4.0~/config.c vdr-1.4.0/config.c
---- vdr-1.4.0~/config.c	2006-06-06 02:07:33.000000000 +0200
-+++ vdr-1.4.0/config.c	2006-06-06 02:07:33.000000000 +0200
-@@ -303,6 +303,10 @@
-   MinUserInactivity = 300;
-   MultiSpeedMode = 0;
-   ShowReplayMode = 0;
+diff -Naurp vdr-1.5.13/config.c vdr-1.5.13-disableDoubleEpgEntrys/config.c
+--- vdr-1.5.13/config.c	2007-11-25 13:46:27.000000000 +0000
++++ vdr-1.5.13-disableDoubleEpgEntrys/config.c	2008-01-14 21:33:25.000000000 +0000
+@@ -242,6 +242,10 @@ cSetup::cSetup(void)
+   SubtitleFgTransparency = 0;
+   SubtitleBgTransparency = 0;
+   EPGLanguages[0] = -1;
 +  DoubleEpgTimeDelta = 15;
-+  DoubleEpgAction = 0;  
++  DoubleEpgAction = 0;
 +  MixEpgAction = 0;
 +  DisableVPS = 0;
-   ResumeID = 0;
-   JumpPlay = 0;
-   PlayJump = 0;
-@@ -473,6 +477,10 @@
-   else if (!strcasecmp(Name, "MinUserInactivity"))   MinUserInactivity  = atoi(Value);
-   else if (!strcasecmp(Name, "MultiSpeedMode"))      MultiSpeedMode     = atoi(Value);
-   else if (!strcasecmp(Name, "ShowReplayMode"))      ShowReplayMode     = atoi(Value);
+   EPGScanTimeout = 5;
+   EPGBugfixLevel = 3;
+   EPGLinger = 0;
+@@ -418,6 +422,10 @@ bool cSetup::Parse(const char *Name, con
+   else if (!strcasecmp(Name, "SubtitleFgTransparency")) SubtitleFgTransparency = atoi(Value);
+   else if (!strcasecmp(Name, "SubtitleBgTransparency")) SubtitleBgTransparency = atoi(Value);
+   else if (!strcasecmp(Name, "EPGLanguages"))        return ParseLanguages(Value, EPGLanguages);
 +  else if (!strcasecmp(Name, "DoubleEpgTimeDelta"))  DoubleEpgTimeDelta = atoi(Value);
 +  else if (!strcasecmp(Name, "DoubleEpgAction"))     DoubleEpgAction    = atoi(Value);
-+  else if (!strcasecmp(Name, "MixEpgAction"))        MixEpgAction    	= atoi(Value);
-+  else if (!strcasecmp(Name, "DisableVPS"))        DisableVPS    	= atoi(Value);
-   else if (!strcasecmp(Name, "ResumeID"))            ResumeID           = atoi(Value);
-   else if (!strcasecmp(Name, "JumpPlay"))            JumpPlay           = atoi(Value);
-   else if (!strcasecmp(Name, "PlayJump"))            PlayJump           = atoi(Value);
-@@ -548,6 +556,10 @@
-   Store("SplitEditedFiles",   SplitEditedFiles);
-   Store("MinEventTimeout",    MinEventTimeout);
-   Store("MinUserInactivity",  MinUserInactivity);
-+  Store("DoubleEpgAction",    DoubleEpgAction);
-+  Store("MixEpgAction",	      MixEpgAction);
-+  Store("DisableVPS",	      DisableVPS);
++  else if (!strcasecmp(Name, "MixEpgAction"))        MixEpgAction       = atoi(Value);
++  else if (!strcasecmp(Name, "DisableVPS"))          DisableVPS         = atoi(Value);
+   else if (!strcasecmp(Name, "EPGScanTimeout"))      EPGScanTimeout     = atoi(Value);
+   else if (!strcasecmp(Name, "EPGBugfixLevel"))      EPGBugfixLevel     = atoi(Value);
+   else if (!strcasecmp(Name, "EPGLinger"))           EPGLinger          = atoi(Value);
+@@ -501,6 +509,10 @@ bool cSetup::Save(void)
+   Store("SubtitleFgTransparency", SubtitleFgTransparency);
+   Store("SubtitleBgTransparency", SubtitleBgTransparency);
+   StoreLanguages("EPGLanguages", EPGLanguages);
 +  Store("DoubleEpgTimeDelta", DoubleEpgTimeDelta);
-   Store("MultiSpeedMode",     MultiSpeedMode);
-   Store("ShowReplayMode",     ShowReplayMode);
-   Store("ResumeID",           ResumeID);
-diff -urNad vdr-1.4.0~/config.h vdr-1.4.0/config.h
---- vdr-1.4.0~/config.h	2006-06-06 02:07:33.000000000 +0200
-+++ vdr-1.4.0/config.h	2006-06-06 02:07:33.000000000 +0200
-@@ -268,6 +268,10 @@
-   int MinEventTimeout, MinUserInactivity;
-   int MultiSpeedMode;
-   int ShowReplayMode;
++  Store("DoubleEpgAction",    DoubleEpgAction);
++  Store("MixEpgAction",       MixEpgAction);
++  Store("DisableVPS",         DisableVPS);
+   Store("EPGScanTimeout",     EPGScanTimeout);
+   Store("EPGBugfixLevel",     EPGBugfixLevel);
+   Store("EPGLinger",          EPGLinger);
+diff -Naurp vdr-1.5.13/config.h vdr-1.5.13-disableDoubleEpgEntrys/config.h
+--- vdr-1.5.13/config.h	2007-11-25 13:45:48.000000000 +0000
++++ vdr-1.5.13-disableDoubleEpgEntrys/config.h	2008-01-14 21:33:25.000000000 +0000
+@@ -225,6 +225,10 @@ public:
+   int SubtitleOffset;
+   int SubtitleFgTransparency, SubtitleBgTransparency;
+   int EPGLanguages[I18N_MAX_LANGUAGES + 1];
 +  int DoubleEpgTimeDelta;
 +  int DoubleEpgAction;
 +  int MixEpgAction;
 +  int DisableVPS;
-   int ResumeID;
-   int JumpPlay;
-   int PlayJump;
-diff -urNad vdr-1.4.0~/eit.c vdr-1.4.0/eit.c
---- vdr-1.4.0~/eit.c	2006-06-06 02:07:33.000000000 +0200
-+++ vdr-1.4.0/eit.c	2006-06-06 02:13:14.000000000 +0200
-@@ -72,7 +72,83 @@
+   int EPGScanTimeout;
+   int EPGBugfixLevel;
+   int EPGLinger;
+diff -Naurp vdr-1.5.13/eit.c vdr-1.5.13-disableDoubleEpgEntrys/eit.c
+--- vdr-1.5.13/eit.c	2007-08-26 10:56:33.000000000 +0000
++++ vdr-1.5.13-disableDoubleEpgEntrys/eit.c	2008-01-14 21:33:50.000000000 +0000
+@@ -72,7 +72,83 @@ cEIT::cEIT(cSchedules *Schedules, int So
           // not be overwritten.
           if (pEvent->TableID() == 0x00) {
              if (pEvent->Version() == getVersionNumber())
@@ -153,16 +150,16 @@ diff -urNad vdr-1.4.0~/eit.c vdr-1.4.0/eit.c
              HasExternalData = ExternalData = true;
              }
           // If the new event has a higher table ID, let's skip it.
-@@ -95,7 +171,7 @@
-          pEvent->SetDuration(SiEitEvent.getDuration());
-          }
+@@ -97,7 +173,7 @@ cEIT::cEIT(cSchedules *Schedules, int So
+       if (newEvent)
+          pSchedule->AddEvent(newEvent);
        if (Tid == 0x4E) { // we trust only the present/following info on the actual TS
 -         if (SiEitEvent.getRunningStatus() >= SI::RunningStatusNotRunning)
 +         if (Setup.DisableVPS == 0 && SiEitEvent.getRunningStatus() >= SI::RunningStatusNotRunning)
              pSchedule->SetRunningStatus(pEvent, SiEitEvent.getRunningStatus(), channel);
           }
        if (OnlyRunningStatus)
-@@ -249,6 +325,80 @@
+@@ -259,6 +335,80 @@ cEIT::cEIT(cSchedules *Schedules, int So
        if (LinkChannels)
           channel->SetLinkChannels(LinkChannels);
        Modified = true;
@@ -195,10 +192,10 @@ diff -urNad vdr-1.4.0~/eit.c vdr-1.4.0/eit.c
 +       			int len_short_extern = 0;
 +       			
 +       			if (pEvent->ShortText())
-+       				len_short_intern = sprintf (buffer_short_intern, "%s", pEvent->ShortText());
++       				len_short_intern = snprintf (buffer_short_intern, sizeof(buffer_short_intern), "%s", pEvent->ShortText());
 +       				
 +       			if (pPreviousEvent->ShortText())
-+       				len_short_extern = sprintf (buffer_short_extern, "%s",pPreviousEvent->ShortText());
++       				len_short_extern = snprintf (buffer_short_extern, sizeof(buffer_short_extern), "%s",pPreviousEvent->ShortText());
 + 			
 +       			if(len_short_intern > 0)
 +       			{
@@ -216,10 +213,10 @@ diff -urNad vdr-1.4.0~/eit.c vdr-1.4.0/eit.c
 +       				int len_title_extern = 0;
 +       				
 +       				if (pEvent->Description())
-+       					len_title_intern = sprintf (buffer_title_intern, "%s", pEvent->Description());
++       					len_title_intern = snprintf (buffer_title_intern, sizeof(buffer_title_intern), "%s", pEvent->Description());
 +       					
 +       				if (pPreviousEvent->Description())
-+       					len_title_extern = sprintf (buffer_title_extern, "%s", pPreviousEvent->Description());
++       					len_title_extern = snprintf (buffer_title_extern, sizeof(buffer_title_extern), "%s", pPreviousEvent->Description());
 +       				
 +       				if(len_title_intern > 0)
 + 	      			{
@@ -243,10 +240,10 @@ diff -urNad vdr-1.4.0~/eit.c vdr-1.4.0/eit.c
        }
    if (Empty && Tid == 0x4E && getSectionNumber() == 0)
       // ETR 211: an empty entry in section 0 of table 0x4E means there is currently no event running
-diff -urNad vdr-1.4.0~/epg.c vdr-1.4.0/epg.c
---- vdr-1.4.0~/epg.c	2006-06-06 02:07:33.000000000 +0200
-+++ vdr-1.4.0/epg.c	2006-06-06 02:07:33.000000000 +0200
-@@ -734,6 +734,29 @@
+diff -Naurp vdr-1.5.13/epg.c vdr-1.5.13-disableDoubleEpgEntrys/epg.c
+--- vdr-1.5.13/epg.c	2007-06-10 12:52:19.000000000 +0000
++++ vdr-1.5.13-disableDoubleEpgEntrys/epg.c	2008-01-14 21:33:25.000000000 +0000
+@@ -741,6 +741,29 @@ const cEvent *cSchedule::GetEventAround(
    return pe;
  }
  
@@ -275,107 +272,49 @@ diff -urNad vdr-1.4.0~/epg.c vdr-1.4.0/epg.c
 +
  void cSchedule::SetRunningStatus(cEvent *Event, int RunningStatus, cChannel *Channel)
  {
-   for (cEvent *p = events.First(); p; p = events.Next(p)) {
-diff -urNad vdr-1.4.0~/epg.h vdr-1.4.0/epg.h
---- vdr-1.4.0~/epg.h	2006-03-25 13:39:39.000000000 +0100
-+++ vdr-1.4.0/epg.h	2006-06-06 02:07:33.000000000 +0200
-@@ -136,6 +136,7 @@
+   hasRunning = false;
+diff -Naurp vdr-1.5.13/epg.h vdr-1.5.13-disableDoubleEpgEntrys/epg.h
+--- vdr-1.5.13/epg.h	2006-10-07 13:47:19.000000000 +0000
++++ vdr-1.5.13-disableDoubleEpgEntrys/epg.h	2008-01-14 21:33:25.000000000 +0000
+@@ -137,6 +137,7 @@ public:
    void DropOutdated(time_t SegmentStart, time_t SegmentEnd, uchar TableID, uchar Version);
    void Cleanup(time_t Time);
    void Cleanup(void);
-+	const cEvent *GetPreviousEvent(cEvent *Event) const; //:EW
++  const cEvent *GetPreviousEvent(cEvent *Event) const; //:EW
    cEvent *AddEvent(cEvent *Event);
    void DelEvent(cEvent *Event);
    void HashEvent(cEvent *Event);
-diff -urNad vdr-1.4.0~/i18n.c vdr-1.4.0/i18n.c
---- vdr-1.4.0~/i18n.c	2006-06-06 02:07:33.000000000 +0200
-+++ vdr-1.4.0/i18n.c	2006-06-06 02:07:33.000000000 +0200
-@@ -4630,6 +4630,74 @@
-     "som før",
-     "jako naposledy",
-   },
-+  { "Setup.EPG$Period for double EPG search(min)",
-+    "Zeitspanne für dop. EPG-Suche(min)",
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+  },
-+  { "Setup.EPG$extern double Epg entry",
-+    "Doppelten externen EPG-Eintrag",
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+  },
-+  { "Setup.EPG$Mix intern and extern EPG",
-+    "Internen und externen EPG mischen",
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+  },
-+  { "Setup.EPG$Disable running VPS event",
-+    "Erk. des lauf. VPS-Events abschalten",
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+    "",// TODO
-+  },
-   // The days of the week:
-   { "MTWTFSS",
-     "MDMDFSS",
-diff -urNad vdr-1.4.0~/menu.c vdr-1.4.0/menu.c
---- vdr-1.4.0~/menu.c	2006-06-06 02:07:33.000000000 +0200
-+++ vdr-1.4.0/menu.c	2006-06-06 02:07:33.000000000 +0200
-@@ -2467,6 +2467,10 @@
-   Add(new cMenuEditIntItem( tr("Setup.EPG$Preferred languages"),       &numLanguages, 0, I18nNumLanguages));
+diff -Naurp vdr-1.5.13/menu.c vdr-1.5.13-disableDoubleEpgEntrys/menu.c
+--- vdr-1.5.13/menu.c	2008-01-13 13:59:33.000000000 +0000
++++ vdr-1.5.13-disableDoubleEpgEntrys/menu.c	2008-01-14 21:33:25.000000000 +0000
+@@ -2354,6 +2354,10 @@ void cMenuSetupEPG::Setup(void)
    for (int i = 0; i < numLanguages; i++)
-      Add(new cMenuEditStraItem(tr("Setup.EPG$Preferred language"),     &data.EPGLanguages[i], I18nNumLanguages, I18nLanguages()));
-+  Add(new cMenuEditIntItem(tr("Setup.EPG$Period for double EPG search(min)"),         &data.DoubleEpgTimeDelta));
-+  Add(new cMenuEditBoolItem(tr("Setup.EPG$extern double Epg entry"),         &data.DoubleEpgAction, "adjust", "delete"));
-+  Add(new cMenuEditBoolItem(tr("Setup.EPG$Mix intern and extern EPG"),         &data.MixEpgAction));
-+  Add(new cMenuEditBoolItem(tr("Setup.EPG$Disable running VPS event"),         &data.DisableVPS));
+       // TRANSLATORS: note the singular!
+       Add(new cMenuEditStraItem(tr("Setup.EPG$Preferred language"),    &data.EPGLanguages[i], I18nLanguages()->Size(), &I18nLanguages()->At(0)));
++  Add(new cMenuEditIntItem(tr("Setup.EPG$Period for double EPG search(min)"), &data.DoubleEpgTimeDelta));
++  Add(new cMenuEditBoolItem(tr("Setup.EPG$extern double Epg entry"),   &data.DoubleEpgAction, "adjust", "delete"));
++  Add(new cMenuEditBoolItem(tr("Setup.EPG$Mix intern and extern EPG"), &data.MixEpgAction));
++  Add(new cMenuEditBoolItem(tr("Setup.EPG$Disable running VPS event"), &data.DisableVPS));
  
    SetCurrent(Get(current));
    Display();
+diff -Naurp vdr-1.5.13/po/de_DE.po vdr-1.5.13-disableDoubleEpgEntrys/po/de_DE.po
+--- vdr-1.5.13/po/de_DE.po	2008-01-13 15:06:32.000000000 +0000
++++ vdr-1.5.13-disableDoubleEpgEntrys/po/de_DE.po	2008-01-14 21:33:25.000000000 +0000
+@@ -552,2 +552,14 @@
+-msgid "Button$Scan"
+-msgstr "Scan"
++msgid "Button$Scan"
++msgstr "Scan"
++
++msgid "Setup.EPG$Period for double EPG search(min)"
++msgstr "Zeitspanne für dop. EPG-Suche(min)"
++
++msgid "Setup.EPG$extern double Epg entry"
++msgstr "Doppelten externen EPG-Eintrag"
++
++msgid "Setup.EPG$Mix intern and extern EPG"
++msgstr "Internen und externen EPG mischen"
++
++msgid "Setup.EPG$Disable running VPS event"
++msgstr "Erk. des lauf. VPS-Events abschalten"

@@ -1,48 +1,53 @@
-This package was debianized by Andreas Mueller <amu@debian.org> on
-Sat, 10 Jan 2004 15:25:27 +0100.
+Upstream Homepage:
+    http://www.cadsoft.de/vdr/
 
-It was downloaded from http://www.cadsoft.de/people/kls/vdr/download.htm
-
-Upstream Author: Klaus Schmidinger <kls@cadsoft.de> and others
+Upstream Author: 
+    Klaus Schmidinger <kls@cadsoft.de> and others
 
 Patch Authors:
-  ttxtsubs  - Ragnar Sundblad <ragge@nada.kth.se>
-              http://www.nada.kth.se/~ragge/vdr/ttxtsubs/
+    ttxtsubs  - Ragnar Sundblad <ragge@nada.kth.se>
+                http://www.nada.kth.se/~ragge/vdr/ttxtsubs/
 
-  jumpplay  -  Torsten Kunkel <vdr@tkunkel.de> (initial version)
-               Thomas Günther <tom@toms-cafe.de> (current version)
+    jumpplay  -  Torsten Kunkel <vdr@tkunkel.de> (initial version)
+                 Thomas Günther <tom@toms-cafe.de> (current version)
 
 Theme Authors:
-  Blue LCARS - (debian/themes/sttng-blue.theme) from Sascha Volkenandt
-               <sascha@akv-soft.de> was downloaded from 
-               http://www.magoa.net/sttng-blue.theme
+    Blue LCARS - (debian/themes/sttng-blue.theme) from Sascha Volkenandt
+                 <sascha@akv-soft.de> was downloaded from 
+                 http://www.magoa.net/sttng-blue.theme
 
-  Cool       - (debian/themes/sttng-cool.theme) from 
-               clocker@vdrportal.de, downloaded from 
-               http://vdrportal.de/board/thread.php?postid=260715#post260715
+    Cool       - (debian/themes/sttng-cool.theme) from 
+                 clocker@vdrportal.de, downloaded from 
+                 http://vdrportal.de/board/thread.php?postid=260715#post260715
 
 Debian Maintainers:
+    Tobias Grimm <tg@e-tobi.net>
+    Thomas Günther <tom@toms-cafe.de>
+    Thomas Schmidt <tschmidt@debian.org>
 
-  Tobias Grimm <tg@e-tobi.net>
-  Thomas Günther <tom@toms-cafe.de>
-  Thomas Schmidt <tschmidt@debian.org>
+Copyright (Debian packaging):
+    (C) 2001 - 2002 Eduard Bloch
+    (C) 2003 - 2004 Andreas Müller
+    (C) 2002 - 2007 Tobias Grimm, Thomas Günther, Thomas Schmidt
 
-Copyright:
+License:
+    This package is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; version 2 dated June, 1991.
 
-   This package is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; version 2 dated June, 1991.
+    This package is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-   This package is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with this package; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+    MA 02110-1301, USA.
 
-   You should have received a copy of the GNU General Public License
-   along with this package; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
-   MA 02110-1301, USA.
+    On Debian systems, the complete text of the GNU General
+    Public License can be found in `/usr/share/common-licenses/GPL-2'.
 
-On Debian systems, the complete text of the GNU General
-Public License can be found in `/usr/share/common-licenses/GPL'.
-
+License (Debian packaging):
+    The Debian packaging is licensed under the GPL, version 2 or any
+    later version, see /usr/share/common-licenses/GPL-2.

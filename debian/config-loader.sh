@@ -62,8 +62,10 @@ KEYB_TTY=""
 # on startup
 KEYB_TTY_SWITCH=0
 
-# Locale which is used when running vdr (Default is C, because vdr does 
-# not run on systems where the default is UTF8 like on Etch)
-VDR_LANG=C
+# get locale which is used for running vdr from /etc/environment, in case of 
+# an error, use "C"
+[ -e /etc/environment ] && . /etc/environment
+[ -z "$LANG" ] && LANG="C"
+VDR_LANG=$LANG
 
 test -f /etc/default/vdr && . /etc/default/vdr

@@ -3,13 +3,18 @@
 ## http://linvdr.org/mailinglists/vdr/2004/08/msg00521.html
 ## http://article.gmane.org/gmane.linux.vdr/27260/
 ##
+## Thomas Günther <tom@toms-cafe.de>:
+##   - adapted to VDR-1.5.0
+## Tobias Grimm <tg@e-tobi.net>:
+##   - adapted to VDR-1.5.16
+##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Patch for assigning special satellites to one dvb card.
 
 @DPATCH@
-diff -rNu vdr-1.3.39/config.c vdr-1.3.39+SourceCaps/config.c
---- vdr-1.3.39/config.c	2006-01-13 16:19:37.000000000 +0100
-+++ vdr-1.3.39+SourceCaps/config.c	2006-01-21 13:50:24.433469136 +0100
+diff -urNad vdr-1.5.16~/config.c vdr-1.5.16/config.c
+--- vdr-1.5.16~/config.c	2008-02-25 21:00:06.000000000 +0100
++++ vdr-1.5.16/config.c	2008-02-25 21:00:06.000000000 +0100
 @@ -15,6 +15,7 @@
  #include "interface.h"
  #include "plugin.h"
@@ -18,7 +23,7 @@ diff -rNu vdr-1.3.39/config.c vdr-1.3.39+SourceCaps/config.c
  
  // IMPORTANT NOTE: in the 'sscanf()' calls there is a blank after the '%d'
  // format characters in order to allow any number of blanks after a numeric
-@@ -228,6 +229,8 @@
+@@ -264,6 +265,8 @@
    LnbFrequLo =  9750;
    LnbFrequHi = 10600;
    DiSEqC = 0;
@@ -27,7 +32,7 @@ diff -rNu vdr-1.3.39/config.c vdr-1.3.39+SourceCaps/config.c
    SetSystemTime = 0;
    TimeSource = 0;
    TimeTransponder = 0;
-@@ -370,6 +373,49 @@
+@@ -436,6 +439,49 @@
    return true;
  }
  
@@ -55,29 +60,29 @@ diff -rNu vdr-1.3.39/config.c vdr-1.3.39+SourceCaps/config.c
 +  char *p;
 +  int d = strtol(Value, &p, 10)-1, i = 0;
 +  while (p < Value+strlen(Value)) {
-+     	if (*p==0) return true;
-+     	if (isblank(*p)) ++p;
-+     	if (isalpha(*p)) {
-+	   int source = cSource::FromString(p);
-+	   if (source != cSource::stNone) {
-+	      SourceCaps[d][i++] = source;
-+	      SourceCapsSet = true;
-+	      }
-+	   else
-+	      return false;
-+	   while (!isblank(*p) && *p)
-+		 ++p;
-+	   if (i>MAXSOURCECAPS) 
-+	      return false;
-+     	   }
++        if (*p==0) return true;
++        if (isblank(*p)) ++p;
++        if (isalpha(*p)) {
++           int source = cSource::FromString(p);
++           if (source != cSource::stNone) {
++              SourceCaps[d][i++] = source;
++              SourceCapsSet = true;
++              }
++           else
++              return false;
++           while (!isblank(*p) && *p)
++                 ++p;
++           if (i>MAXSOURCECAPS)
++              return false;
++           }
 +        }
 +  return true;
 +}
 +
  bool cSetup::Parse(const char *Name, const char *Value)
  {
-   if      (!strcasecmp(Name, "OSDLanguage"))         OSDLanguage        = atoi(Value);
-@@ -388,6 +434,7 @@
+   if      (!strcasecmp(Name, "OSDLanguage"))       { strn0cpy(OSDLanguage, Value, sizeof(OSDLanguage)); I18nSetLocale(OSDLanguage); }
+@@ -454,6 +500,7 @@
    else if (!strcasecmp(Name, "LnbFrequLo"))          LnbFrequLo         = atoi(Value);
    else if (!strcasecmp(Name, "LnbFrequHi"))          LnbFrequHi         = atoi(Value);
    else if (!strcasecmp(Name, "DiSEqC"))              DiSEqC             = atoi(Value);
@@ -85,7 +90,7 @@ diff -rNu vdr-1.3.39/config.c vdr-1.3.39+SourceCaps/config.c
    else if (!strcasecmp(Name, "SetSystemTime"))       SetSystemTime      = atoi(Value);
    else if (!strcasecmp(Name, "TimeSource"))          TimeSource         = cSource::FromString(Value);
    else if (!strcasecmp(Name, "TimeTransponder"))     TimeTransponder    = atoi(Value);
-@@ -455,6 +502,7 @@
+@@ -557,6 +604,7 @@
    Store("LnbFrequLo",         LnbFrequLo);
    Store("LnbFrequHi",         LnbFrequHi);
    Store("DiSEqC",             DiSEqC);
@@ -93,10 +98,10 @@ diff -rNu vdr-1.3.39/config.c vdr-1.3.39+SourceCaps/config.c
    Store("SetSystemTime",      SetSystemTime);
    Store("TimeSource",         cSource::ToString(TimeSource));
    Store("TimeTransponder",    TimeTransponder);
-diff -rNu vdr-1.3.39/config.h vdr-1.3.39+SourceCaps/config.h
---- vdr-1.3.39/config.h	2006-01-13 16:17:19.000000000 +0100
-+++ vdr-1.3.39+SourceCaps/config.h	2006-01-21 13:50:24.440468072 +0100
-@@ -30,6 +30,9 @@
+diff -urNad vdr-1.5.16~/config.h vdr-1.5.16/config.h
+--- vdr-1.5.16~/config.h	2008-02-25 21:00:06.000000000 +0100
++++ vdr-1.5.16/config.h	2008-02-25 21:00:06.000000000 +0100
+@@ -54,6 +54,9 @@
  #define MINOSDHEIGHT 324
  #define MAXOSDHEIGHT 567
  
@@ -106,7 +111,7 @@ diff -rNu vdr-1.3.39/config.h vdr-1.3.39+SourceCaps/config.h
  #define MaxFileName 256
  #define MaxSkinName 16
  #define MaxThemeName 16
-@@ -179,6 +182,8 @@
+@@ -217,6 +220,8 @@
    void StoreLanguages(const char *Name, int *Values);
    bool ParseLanguages(const char *Value, int *Values);
    bool Parse(const char *Name, const char *Value);
@@ -115,7 +120,7 @@ diff -rNu vdr-1.3.39/config.h vdr-1.3.39+SourceCaps/config.h
    cSetupLine *Get(const char *Name, const char *Plugin = NULL);
    void Store(const char *Name, const char *Value, const char *Plugin = NULL, bool AllowMultiple = false);
    void Store(const char *Name, int Value, const char *Plugin = NULL);
-@@ -201,6 +206,8 @@
+@@ -239,6 +244,8 @@
    int LnbFrequLo;
    int LnbFrequHi;
    int DiSEqC;
@@ -124,10 +129,10 @@ diff -rNu vdr-1.3.39/config.h vdr-1.3.39+SourceCaps/config.h
    int SetSystemTime;
    int TimeSource;
    int TimeTransponder;
-diff -rNu vdr-1.3.39/device.c vdr-1.3.39+SourceCaps/device.c
---- vdr-1.3.39/device.c	2006-01-08 12:39:37.000000000 +0100
-+++ vdr-1.3.39+SourceCaps/device.c	2006-01-21 13:50:24.441467920 +0100
-@@ -174,8 +174,10 @@
+diff -urNad vdr-1.5.16~/device.c vdr-1.5.16/device.c
+--- vdr-1.5.16~/device.c	2008-02-25 21:00:06.000000000 +0100
++++ vdr-1.5.16/device.c	2008-02-25 21:00:06.000000000 +0100
+@@ -253,8 +253,10 @@
    for (int i = 0; i < MAXRECEIVERS; i++)
        receiver[i] = NULL;
  
@@ -139,17 +144,17 @@ diff -rNu vdr-1.3.39/device.c vdr-1.3.39+SourceCaps/device.c
    else
       esyslog("ERROR: too many devices!");
  }
-@@ -313,6 +315,17 @@
-   return d;
+@@ -457,6 +459,17 @@
+   camSlot = CamSlot;
  }
  
 +void cDevice::SetSourceCaps(int Index)
 +{
 +  for (int d = 0; d < numDevices; d++) {
 +      if (Index < 0 || Index == device[d]->CardIndex()) {
-+	 for (int i = 0; i < MAXSOURCECAPS; i++)
-+	     device[d]->sourceCaps[i] = Setup.SourceCaps[device[d]->CardIndex()][i];
-+	 }
++         for (int i = 0; i < MAXSOURCECAPS; i++)
++             device[d]->sourceCaps[i] = Setup.SourceCaps[device[d]->CardIndex()][i];
++         }
 +      }
 +}
 +
@@ -157,27 +162,27 @@ diff -rNu vdr-1.3.39/device.c vdr-1.3.39+SourceCaps/device.c
  void cDevice::Shutdown(void)
  {
    primaryDevice = NULL;
-diff -rNu vdr-1.3.39/device.h vdr-1.3.39+SourceCaps/device.h
---- vdr-1.3.39/device.h	2006-01-08 11:10:26.000000000 +0100
-+++ vdr-1.3.39+SourceCaps/device.h	2006-01-21 13:50:24.443467616 +0100
-@@ -23,7 +23,6 @@
- #include "thread.h"
+diff -urNad vdr-1.5.16~/device.h vdr-1.5.16/device.h
+--- vdr-1.5.16~/device.h	2008-02-25 21:00:06.000000000 +0100
++++ vdr-1.5.16/device.h	2008-02-25 21:00:50.000000000 +0100
+@@ -25,7 +25,6 @@
  #include "tools.h"
+ #include <linux/dvb/frontend.h>
  
 -#define MAXDEVICES         16 // the maximum number of devices in the system
  #define MAXPIDHANDLES      64 // the maximum number of different PIDs per device
  #define MAXRECEIVERS       16 // the maximum number of receivers per device
  #define MAXVOLUME         255
-@@ -133,6 +132,8 @@
-          ///< given Priority.
-          ///< See ProvidesChannel() for more information on how
-          ///< priorities are handled, and the meaning of NeedsDetachReceivers.
+@@ -150,6 +149,8 @@
+   static void SetAvoidDevice(cDevice *Device) { avoidDevice = Device; }
+          ///< Sets the given Device to be temporarily avoided in the next call to
+          ///< GetDevice(const cChannel, int, bool).
 +  static void SetSourceCaps(int Index = -1);
-+	 ///< Sets the SourceCaps of the given device according to the Setup data.
++         ///< Sets the SourceCaps of the given device according to the Setup data.
    static void Shutdown(void);
           ///< Closes down all devices.
           ///< Must be called at the end of the program.
-@@ -140,6 +141,7 @@
+@@ -157,6 +158,7 @@
    static int nextCardIndex;
    int cardIndex;
  protected:
@@ -185,35 +190,26 @@ diff -rNu vdr-1.3.39/device.h vdr-1.3.39+SourceCaps/device.h
    cDevice(void);
    virtual ~cDevice();
    virtual bool Ready(void);
-diff -rNu vdr-1.3.39/dvbdevice.c vdr-1.3.39+SourceCaps/dvbdevice.c
---- vdr-1.3.39/dvbdevice.c	2006-01-14 16:57:36.000000000 +0100
-+++ vdr-1.3.39+SourceCaps/dvbdevice.c	2006-01-21 13:50:24.444467464 +0100
-@@ -751,10 +751,17 @@
+diff -urNad vdr-1.5.16~/dvbdevice.c vdr-1.5.16/dvbdevice.c
+--- vdr-1.5.16~/dvbdevice.c	2008-02-25 21:00:06.000000000 +0100
++++ vdr-1.5.16/dvbdevice.c	2008-02-25 21:00:06.000000000 +0100
+@@ -762,6 +762,12 @@
  bool cDvbDevice::ProvidesSource(int Source) const
  {
    int type = Source & cSource::st_Mask;
--  return type == cSource::stNone
--      || type == cSource::stCable && frontendType == FE_QAM
--      || type == cSource::stSat   && frontendType == FE_QPSK
--      || type == cSource::stTerr  && frontendType == FE_OFDM;
 +  if (Setup.SourceCapsSet && type == cSource::stSat && frontendType == FE_QPSK) {
 +     for (int i = 0; i < MAXSOURCECAPS; i++)
 +         if (sourceCaps[i] == Source)
 +            return true;
 +     return false;
 +     }
-+  else
-+     return type == cSource::stNone				 
-+    	 || type == cSource::stCable && frontendType == FE_QAM	 
-+    	 || type == cSource::stSat   && frontendType == FE_QPSK  
-+    	 || type == cSource::stTerr  && frontendType == FE_OFDM; 
- }
- 
- bool cDvbDevice::ProvidesTransponder(const cChannel *Channel) const
-diff -rNu vdr-1.3.39/sources.c vdr-1.3.39+SourceCaps/sources.c
---- vdr-1.3.39/sources.c	2004-12-26 12:58:52.000000000 +0100
-+++ vdr-1.3.39+SourceCaps/sources.c	2006-01-21 13:50:24.445467312 +0100
-@@ -68,7 +68,7 @@
+   return type == cSource::stNone
+       || type == cSource::stCable && frontendType == FE_QAM
+       || type == cSource::stSat   && frontendType == FE_QPSK
+diff -urNad vdr-1.5.16~/sources.c vdr-1.5.16/sources.c
+--- vdr-1.5.16~/sources.c	2008-02-25 21:00:06.000000000 +0100
++++ vdr-1.5.16/sources.c	2008-02-25 21:00:06.000000000 +0100
+@@ -70,7 +70,7 @@
       int pos = 0;
       bool dot = false;
       bool neg = false;

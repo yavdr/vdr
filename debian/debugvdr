@@ -1,0 +1,48 @@
+#! /bin/sh
+#
+# Start debug version of vdr with the same options as the normal vdr daemon
+#
+# Options:
+#          -r <port>     Start with gdbserver host:<port> instead of gdb.
+#                        (Default port is 1000)
+#
+
+. /usr/lib/vdr/config-loader.sh
+
+GDB_SERVER="no"
+GDB_SERVER_PORT="1000"
+
+if [ "$1" = "-r" ] ; then
+    GDB_SERVER="yes" ;
+    [ -x $2 ] || GDB_SERVER_PORT="$2"
+fi
+
+PLUGINS=""
+
+. /usr/lib/vdr/commands-loader.sh
+. /usr/lib/vdr/plugin-loader.sh
+
+getplugins
+mergecommands "commands"
+mergecommands "reccmds"
+
+VDRCOMMANDLINE="-v $VIDEO_DIR -c $CFG_DIR -L $PLUGIN_DIR  -r $REC_CMD \
+  -E $EPG_FILE $PLUGINS $OPTIONS --lirc"
+
+/etc/init.d/vdr stop
+
+if [ "$GDB_SERVER" = "yes" ] ; then
+    gdbserver host:"$GDB_SERVER_PORT" /usr/bin/vdr-dbg \
+      `echo $VDRCOMMANDLINE | sed s/\"//g`
+
+else
+    GDB_COMMANDS_FILE=/tmp/gdbcommands
+     
+    echo "set args $VDRCOMMANDLINE"         >$GDB_COMMANDS_FILE
+    echo "echo -----------------------\n"   >>$GDB_COMMANDS_FILE
+    echo "echo ---- VDR-Debugging ----\n"   >>$GDB_COMMANDS_FILE
+    echo "echo -----------------------\n\n" >>$GDB_COMMANDS_FILE
+    echo "echo type 'run' to start vdr\n\n" >>$GDB_COMMANDS_FILE
+
+    gdb -x $GDB_COMMANDS_FILE /usr/bin/vdr-dbg 
+fi

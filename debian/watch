@@ -1,2 +1,3 @@
 version=2
 ftp://ftp.cadsoft.de/vdr/vdr-([\d\.]+)\.tar\.bz2
+#ftp://ftp.cadsoft.de/vdr/Developer/vdr-([\d\.]+)\.tar\.bz2

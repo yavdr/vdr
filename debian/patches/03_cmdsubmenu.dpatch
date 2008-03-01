@@ -7,9 +7,9 @@
 ## DP: To create a submenu entry, prefix the name by one ore more "-".
 
 @DPATCH@
-diff -Naur vdr-1.4.0/README.cmdsubmenu vdr-1.4.0-cmdsubmenu-0.7/README.cmdsubmenu
---- vdr-1.4.0/README.cmdsubmenu	1970-01-01 01:00:00.000000000 +0100
-+++ vdr-1.4.0-cmdsubmenu-0.7/README.cmdsubmenu	2006-05-15 13:49:50.000000000 +0200
+diff -urNad vdr-1.5.15~/README.cmdsubmenu vdr-1.5.15/README.cmdsubmenu
+--- vdr-1.5.15~/README.cmdsubmenu	1970-01-01 01:00:00.000000000 +0100
++++ vdr-1.5.15/README.cmdsubmenu	2008-02-17 21:01:18.000000000 +0100
 @@ -0,0 +1,54 @@
 +CmdSubmenu patch for VDR
 +------------------------
@@ -65,9 +65,9 @@ diff -Naur vdr-1.4.0/README.cmdsubmenu vdr-1.4.0-cmdsubmenu-0.7/README.cmdsubmen
 +  2006-05-15: Version 0.7 - Thomas Günther <tom@toms-cafe.de>
 +    - Fixed build with G++ 4.1 (extra qualification)
 +    http://toms-cafe.de/vdr/download/vdr-cmdsubmenu-0.7-1.4.0.diff
-diff -Naur vdr-1.4.0/config.c vdr-1.4.0-cmdsubmenu-0.7/config.c
---- vdr-1.4.0/config.c	2006-04-17 14:43:57.000000000 +0200
-+++ vdr-1.4.0-cmdsubmenu-0.7/config.c	2006-05-15 13:45:23.000000000 +0200
+diff -urNad vdr-1.5.15~/config.c vdr-1.5.15/config.c
+--- vdr-1.5.15~/config.c	2008-02-17 14:39:00.000000000 +0100
++++ vdr-1.5.15/config.c	2008-02-17 21:03:48.000000000 +0100
 @@ -28,18 +28,26 @@
  {
    title = command = NULL;
@@ -95,7 +95,7 @@ diff -Naur vdr-1.4.0/config.c vdr-1.4.0-cmdsubmenu-0.7/config.c
       int l = p - s;
       if (l > 0) {
          title = MALLOC(char, l + 1);
-@@ -86,6 +94,18 @@
+@@ -85,6 +93,18 @@
    return result;
  }
  
@@ -111,10 +111,10 @@ diff -Naur vdr-1.4.0/config.c vdr-1.4.0-cmdsubmenu-0.7/config.c
 +  childs->AddConfig(newChild);
 +}
 +
- // -- cSVDRPhost -------------------------------------------------------------
+ // --- cSVDRPhost ------------------------------------------------------------
  
  cSVDRPhost::cSVDRPhost(void)
-@@ -125,6 +145,21 @@
+@@ -126,6 +146,21 @@
  cCommands Commands;
  cCommands RecordingCommands;
  
@@ -133,13 +133,13 @@ diff -Naur vdr-1.4.0/config.c vdr-1.4.0-cmdsubmenu-0.7/config.c
 +  cConfig<cCommand>::Add(Object);
 +}
 +
- // -- cSVDRPhosts ------------------------------------------------------------
+ // --- cSVDRPhosts -----------------------------------------------------------
  
  cSVDRPhosts SVDRPhosts;
-diff -Naur vdr-1.4.0/config.h vdr-1.4.0-cmdsubmenu-0.7/config.h
---- vdr-1.4.0/config.h	2006-04-29 11:24:07.000000000 +0200
-+++ vdr-1.4.0-cmdsubmenu-0.7/config.h	2006-05-15 14:54:26.000000000 +0200
-@@ -35,6 +35,8 @@
+diff -urNad vdr-1.5.15~/config.h vdr-1.5.15/config.h
+--- vdr-1.5.15~/config.h	2008-02-05 16:35:11.000000000 +0100
++++ vdr-1.5.15/config.h	2008-02-17 21:01:18.000000000 +0100
+@@ -36,6 +36,8 @@
  // plugins to work with newer versions of the core VDR as long as no
  // VDR header files have changed.
  
@@ -148,7 +148,7 @@ diff -Naur vdr-1.4.0/config.h vdr-1.4.0-cmdsubmenu-0.7/config.h
  #define MAXPRIORITY 99
  #define MAXLIFETIME 99
  
-@@ -47,11 +49,15 @@
+@@ -48,11 +50,15 @@
  #define MaxSkinName 16
  #define MaxThemeName 16
  
@@ -164,7 +164,7 @@ diff -Naur vdr-1.4.0/config.h vdr-1.4.0-cmdsubmenu-0.7/config.h
    static char *result;
  public:
    cCommand(void);
-@@ -60,6 +66,12 @@
+@@ -61,6 +67,12 @@
    const char *Title(void) { return title; }
    bool Confirm(void) { return confirm; }
    const char *Execute(const char *Parameters = NULL);
@@ -177,7 +177,7 @@ diff -Naur vdr-1.4.0/config.h vdr-1.4.0-cmdsubmenu-0.7/config.h
    };
  
  typedef uint32_t in_addr_t; //XXX from /usr/include/netinet/in.h (apparently this is not defined on systems with glibc < 2.2)
-@@ -87,6 +99,7 @@
+@@ -88,6 +100,7 @@
  public:
    cConfig(void) { fileName = NULL; }
    virtual ~cConfig() { free(fileName); }
@@ -185,7 +185,7 @@ diff -Naur vdr-1.4.0/config.h vdr-1.4.0-cmdsubmenu-0.7/config.h
    const char *FileName(void) { return fileName; }
    bool Load(const char *FileName = NULL, bool AllowComments = false, bool MustExist = false)
    {
-@@ -116,7 +129,7 @@
+@@ -117,7 +130,7 @@
                  if (!isempty(s)) {
                     T *l = new T;
                     if (l->Parse(s))
@@ -194,7 +194,7 @@ diff -Naur vdr-1.4.0/config.h vdr-1.4.0-cmdsubmenu-0.7/config.h
                     else {
                        esyslog("ERROR: error in %s, line %d", fileName, line);
                        delete l;
-@@ -158,7 +171,10 @@
+@@ -159,7 +172,10 @@
    }
    };
  
@@ -206,17 +206,17 @@ diff -Naur vdr-1.4.0/config.h vdr-1.4.0-cmdsubmenu-0.7/config.h
  
  class cSVDRPhosts : public cConfig<cSVDRPhost> {
  public:
-diff -Naur vdr-1.4.0/menu.c vdr-1.4.0-cmdsubmenu-0.7/menu.c
---- vdr-1.4.0/menu.c	2006-04-28 14:48:01.000000000 +0200
-+++ vdr-1.4.0-cmdsubmenu-0.7/menu.c	2006-05-15 13:45:23.000000000 +0200
-@@ -1522,6 +1522,10 @@
+diff -urNad vdr-1.5.15~/menu.c vdr-1.5.15/menu.c
+--- vdr-1.5.15~/menu.c	2008-02-16 14:53:26.000000000 +0100
++++ vdr-1.5.15/menu.c	2008-02-17 21:04:33.000000000 +0100
+@@ -1579,6 +1579,10 @@
+   cCommand *command = commands->Get(Current());
    if (command) {
-      char *buffer = NULL;
       bool confirmed = true;
 +     if (command->hasChilds()) {
 +        AddSubMenu(new cMenuCommands(command->Title(), command->getChilds(), parameters));
 +        return osContinue;
 +        }
-      if (command->Confirm()) {
-         asprintf(&buffer, "%s?", command->Title());
-         confirmed = Interface->Confirm(buffer);
+      if (command->Confirm())
+         confirmed = Interface->Confirm(cString::sprintf("%s?", command->Title()));
+      if (confirmed) {

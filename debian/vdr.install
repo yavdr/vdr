@@ -3,10 +3,16 @@ debian/scripts/vdr-daemon usr/bin/
 debian/scripts/vdr-lirc   usr/bin/
 debian/scripts/vdr-rcu    usr/bin/
 
+debian/runvdr usr/sbin/
+
+debian/config-loader.sh   usr/lib/vdr/
+debian/plugin-loader.sh   usr/lib/vdr/
+debian/commands-loader.sh usr/lib/vdr/
+debian/vdr-groups.sh      usr/lib/vdr/
+
 epg2html.pl  usr/lib/vdr/
 svdrpsend.pl usr/lib/vdr/
 
-debian/runvdr usr/sbin/
 
 debian/order.conf etc/vdr/plugins/
 
@@ -16,11 +22,6 @@ debian/order.reccmds.conf  etc/vdr/command-hooks/
 debian/commands.custom.conf             etc/vdr/command-hooks/
 debian/reccmds.custom.conf              etc/vdr/command-hooks/
 debian/commands.update-recordings.conf  usr/share/vdr/command-hooks/
-
-debian/config-loader.sh   usr/lib/vdr/
-debian/plugin-loader.sh   usr/lib/vdr/
-debian/commands-loader.sh usr/lib/vdr/
-debian/vdr-groups.sh      usr/lib/vdr/
 
 diseqc.conf       etc/vdr/
 keymacros.conf    etc/vdr/
@@ -39,3 +40,5 @@ debian/vdr-shutdown.wrapper usr/lib/vdr/
 debian/S90.custom           etc/vdr/shutdown-hooks/
 
 debian/lintian/vdr usr/share/lintian/overrides/
+
+locale                                  usr/share/

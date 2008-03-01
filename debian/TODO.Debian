@@ -1,0 +1,4 @@
+TODO: Make runvdr more equal to official Debian version
+TODO: When plugin could not be loaded, log stderr output somewhere
+TODO: Remove all vdr 1.2.6 upgrade code and conflict with 1.2.6
+TODO: Manpage for pic2mpg

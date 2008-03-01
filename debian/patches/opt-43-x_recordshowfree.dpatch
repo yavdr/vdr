@@ -6,10 +6,10 @@
 ## DP: (Requires timer-info patch)
 
 @DPATCH@
-diff -urNad vdr-1.4.7~/menu.c vdr-1.4.7/menu.c
---- vdr-1.4.7~/menu.c	2007-07-01 21:00:57.000000000 +0200
-+++ vdr-1.4.7/menu.c	2007-07-01 21:01:09.000000000 +0200
-@@ -2309,6 +2309,19 @@
+diff -urNad vdr-1.5.15~/menu.c vdr-1.5.15/menu.c
+--- vdr-1.5.15~/menu.c	2008-02-17 22:09:26.000000000 +0100
++++ vdr-1.5.15/menu.c	2008-02-17 22:10:29.000000000 +0100
+@@ -2317,6 +2317,19 @@
           }
        }
    free(LastItemText);
@@ -26,6 +26,6 @@ diff -urNad vdr-1.4.7~/menu.c vdr-1.4.7/menu.c
 +  free(buffer);
 +//kw
 +  
+   Refresh |= SetFreeDiskDisplay(Refresh);
    if (Refresh)
       Display();
- }

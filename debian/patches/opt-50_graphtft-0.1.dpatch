@@ -1,276 +1,245 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
-## opt-50_graphtft.dpatch by Jörg Wendel (Horchi)
+## opt-50_graphtft-0.1.dpatch by Jörg Wendel (Horchi)
+##
+## Thomas Günther <tom@toms-cafe.de>:
+##   - adapted to pin patch
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: Patch from teh Graphtft plugin version 0.0.15
+## DP: Patch from the Graphtft plugin version 0.1.6.alpha
 ## DP: http://www.jwendel.de/vdr/
 
 @DPATCH@
-diff -urNad vdr-1.4.7~/menu.c vdr-1.4.7/menu.c
---- vdr-1.4.7~/menu.c	2007-08-22 21:25:48.000000000 +0200
-+++ vdr-1.4.7/menu.c	2007-08-22 21:25:48.000000000 +0200
-@@ -228,6 +228,9 @@
+diff -urNad vdr-1.5.8~/menu.c vdr-1.5.8/menu.c
+--- vdr-1.5.8~/menu.c	2007-08-26 00:24:15.000000000 +0200
++++ vdr-1.5.8/menu.c	2007-08-26 00:24:15.000000000 +0200
+@@ -230,6 +230,7 @@
  public:
    cMenuEditChannel(cChannel *Channel, bool New = false);
    virtual eOSState ProcessKey(eKeys Key);
-+//#ifdef USE_GRAPHTFT
 +  virtual const char* MenuKind() { return "MenuEditChannel"; }
-+//#endif /* GRAPHTFT */
    };
  
  cMenuEditChannel::cMenuEditChannel(cChannel *Channel, bool New)
-@@ -453,6 +456,9 @@
+@@ -447,6 +448,7 @@
    cMenuChannels(void);
    ~cMenuChannels();
    virtual eOSState ProcessKey(eKeys Key);
-+//#ifdef USE_GRAPHTFT
 +  virtual const char* MenuKind() { return "MenuChannels"; }
-+//#endif /* GRAPHTFT */
    };
  
  cMenuChannels::cMenuChannels(void)
-@@ -945,6 +951,9 @@
+@@ -939,6 +941,7 @@
    virtual ~cMenuTimers();
    virtual void Display(void);
    virtual eOSState ProcessKey(eKeys Key);
-+//#ifdef USE_GRAPHTFT
 +  virtual const char* MenuKind() { return "MenuTimers"; }
-+//#endif /* GRAPHTFT */
    };
  
  cMenuTimers::cMenuTimers(void)
-@@ -1309,6 +1318,9 @@
+@@ -1304,6 +1307,7 @@
    static void SetCurrentChannel(int ChannelNr) { currentChannel = ChannelNr; }
    static const cEvent *ScheduleEvent(void);
    virtual eOSState ProcessKey(eKeys Key);
-+//#ifdef USE_GRAPHTFT
 +  virtual const char* MenuKind() { return now ? "MenuWhatsOnNow" : "MenuWhatsOnNext"; }
-+//#endif /* GRAPHTFT */
    };
  
  int cMenuWhatsOn::currentChannel = 0;
-@@ -1475,6 +1487,9 @@
+@@ -1470,6 +1474,7 @@
    cMenuSchedule(void);
    virtual ~cMenuSchedule();
    virtual eOSState ProcessKey(eKeys Key);
-+//#ifdef USE_GRAPHTFT
 +  virtual const char* MenuKind() { return "MenuSchedule"; }
-+//#endif /* GRAPHTFT */
    };
  
  cMenuSchedule::cMenuSchedule(void)
-@@ -1982,6 +1997,9 @@
+@@ -1742,6 +1747,7 @@
+   cMenuCommands(const char *Title, cCommands *Commands, const char *Parameters = NULL);
+   virtual ~cMenuCommands();
+   virtual eOSState ProcessKey(eKeys Key);
++  virtual const char* MenuKind() { return "MenuCommands"; }
+   };
+ 
+ cMenuCommands::cMenuCommands(const char *Title, cCommands *Commands, const char *Parameters)
+@@ -1824,6 +1830,7 @@
+   cMenuCam(cCamSlot *CamSlot);
+   virtual ~cMenuCam();
+   virtual eOSState ProcessKey(eKeys Key);
++  virtual const char* MenuKind() { return "MenuCam"; }
+   };
+ 
+ cMenuCam::cMenuCam(cCamSlot *CamSlot)
+@@ -2002,6 +2009,7 @@
    cMenuRecording(const cRecording *Recording, bool WithButtons = false);
    virtual void Display(void);
    virtual eOSState ProcessKey(eKeys Key);
-+//#ifdef USE_GRAPHTFT
 +  virtual const char* MenuKind() { return "MenuRecording"; }
-+//#endif /* GRAPHTFT */
  };
  
  cMenuRecording::cMenuRecording(const cRecording *Recording, bool WithButtons)
-@@ -2542,6 +2560,9 @@
+@@ -2579,6 +2587,7 @@
    cMenuSetupOSD(void);
    virtual ~cMenuSetupOSD();
    virtual eOSState ProcessKey(eKeys Key);
-+//#ifdef USE_GRAPHTFT
 +  virtual const char* MenuKind() { return "MenuSetupOsd"; }
-+//#endif
    };
  
  cMenuSetupOSD::cMenuSetupOSD(void)
-@@ -2645,6 +2666,9 @@
+@@ -2725,6 +2734,7 @@
  public:
    cMenuSetupEPG(void);
    virtual eOSState ProcessKey(eKeys Key);
-+//#ifdef USE_GRAPHTFT
 +  virtual const char* MenuKind() { return "MenuSetupEpg"; }
-+//#endif
    };
  
  cMenuSetupEPG::cMenuSetupEPG(void)
-@@ -2741,6 +2765,9 @@
+@@ -2823,6 +2833,7 @@
  public:
    cMenuSetupDVB(void);
    virtual eOSState ProcessKey(eKeys Key);
-+//#ifdef USE_GRAPHTFT
 +  virtual const char* MenuKind() { return "MenuSetupDvb"; }
-+//#endif
    };
  
  cMenuSetupDVB::cMenuSetupDVB(void)
-@@ -2834,6 +2861,9 @@
+@@ -2916,6 +2927,7 @@
  public:
    cMenuSetupLNB(void);
    virtual eOSState ProcessKey(eKeys Key);
-+//#ifdef USE_GRAPHTFT
 +  virtual const char* MenuKind() { return "MenuSetupLnb"; }
-+//#endif
    };
  
  cMenuSetupLNB::cMenuSetupLNB(void)
-@@ -2898,6 +2928,9 @@
+@@ -2996,6 +3008,7 @@
  public:
-   cMenuSetupCICAM(void);
+   cMenuSetupCAM(void);
    virtual eOSState ProcessKey(eKeys Key);
-+//#ifdef USE_GRAPHTFT
-+  virtual const char* MenuKind() { return "MenuSetupCiCam"; }
-+//#endif
++  virtual const char* MenuKind() { return "MenuSetupCam"; }
    };
  
- cMenuSetupCICAM::cMenuSetupCICAM(void)
-@@ -3060,6 +3093,9 @@
+ cMenuSetupCAM::cMenuSetupCAM(void)
+@@ -3165,6 +3178,7 @@
  public:
    cMenuSetupPlugins(void);
    virtual eOSState ProcessKey(eKeys Key);
-+//#ifdef USE_GRAPHTFT
 +  virtual const char* MenuKind() { return "MenuSetupPlugins"; }
-+//#endif /* GRAPHTFT */
    };
  
  cMenuSetupPlugins::cMenuSetupPlugins(void)
-@@ -3113,6 +3149,9 @@
+@@ -3218,6 +3232,7 @@
  public:
    cMenuSetup(void);
    virtual eOSState ProcessKey(eKeys Key);
-+//#ifdef USE_GRAPHTFT
 +  virtual const char* MenuKind() { return "MenuSetup"; }
-+//#endif /* GRAPHTFT */
    };
  
  cMenuSetup::cMenuSetup(void)
-diff -urNad vdr-1.4.7~/menu.h vdr-1.4.7/menu.h
---- vdr-1.4.7~/menu.h	2007-08-22 21:25:48.000000000 +0200
-+++ vdr-1.4.7/menu.h	2007-08-22 21:25:48.000000000 +0200
-@@ -29,6 +29,9 @@
+diff -urNad vdr-1.5.8~/menu.h vdr-1.5.8/menu.h
+--- vdr-1.5.8~/menu.h	2007-08-26 00:24:15.000000000 +0200
++++ vdr-1.5.8/menu.h	2007-08-26 00:24:15.000000000 +0200
+@@ -29,6 +29,7 @@
    void SetText(const char *Text);
    virtual void Display(void);
    virtual eOSState ProcessKey(eKeys Key);
-+//#ifdef USE_GRAPHTFT
 +  virtual const char* MenuKind() { return "MenuText"; }
-+//#endif /* GRAPHTFT */
    };
  
  class cMenuEditTimer : public cOsdMenu {
-@@ -45,6 +48,9 @@
+@@ -45,6 +46,7 @@
    cMenuEditTimer(cTimer *Timer, bool New = false);
    virtual ~cMenuEditTimer();
    virtual eOSState ProcessKey(eKeys Key);
-+//#ifdef USE_GRAPHTFT
 +  virtual const char* MenuKind() { return "MenuTimerEdit"; }
-+//#endif /* GRAPHTFT */
    };
  
  class cMenuEvent : public cOsdMenu {
-@@ -54,6 +60,9 @@
+@@ -54,6 +56,7 @@
    cMenuEvent(const cEvent *Event, bool CanSwitch = false, bool Buttons = false);
    virtual void Display(void);
    virtual eOSState ProcessKey(eKeys Key);
-+//#ifdef USE_GRAPHTFT
 +  virtual const char* MenuKind() { return "MenuEvent"; }
-+//#endif /* GRAPHTFT */
    };
  
  class cMenuMain : public cOsdMenu {
-@@ -72,6 +81,9 @@
+@@ -72,6 +75,7 @@
    cMenuMain(eOSState State = osUnknown);
    virtual eOSState ProcessKey(eKeys Key);
    static cOsdObject *PluginOsdObject(void);
-+//#ifdef USE_GRAPHTFT
 +  virtual const char* MenuKind() { return "MenuMain"; }
-+//#endif /* GRAPHTFT */
    };
  
  class cDisplayChannel : public cOsdObject {
-@@ -141,6 +153,9 @@
-   cMenuCam(cCiMenu *CiMenu);
-   virtual ~cMenuCam();
-   virtual eOSState ProcessKey(eKeys Key);
-+//#ifdef USE_GRAPHTFT
-+  virtual const char* MenuKind() { return "MenuCam"; }
-+//#endif /* GRAPHTFT */
-   };
- 
- class cMenuCamEnquiry : public cOsdMenu {
-@@ -153,6 +168,9 @@
-   cMenuCamEnquiry(cCiEnquiry *CiEnquiry);
-   virtual ~cMenuCamEnquiry();
-   virtual eOSState ProcessKey(eKeys Key);
-+//#ifdef USE_GRAPHTFT
-+  virtual const char* MenuKind() { return "MenuCamEnquiry"; }
-+//#endif /* GRAPHTFT */
-   };
- 
- cOsdObject *CamControl(void);
-@@ -180,6 +198,9 @@
+@@ -155,6 +159,7 @@
    cMenuRecordings(const char *Base = NULL, int Level = 0, bool OpenSubMenus = false);
    ~cMenuRecordings();
    virtual eOSState ProcessKey(eKeys Key);
-+//#ifdef USE_GRAPHTFT
 +  virtual const char* MenuKind() { return "MenuRecordings"; }
-+//#endif /* GRAPHTFT */
    };
  
  class cRecordControl {
-diff -urNad vdr-1.4.7~/menuitems.h vdr-1.4.7/menuitems.h
---- vdr-1.4.7~/menuitems.h	2007-08-22 21:25:48.000000000 +0200
-+++ vdr-1.4.7/menuitems.h	2007-08-22 21:25:48.000000000 +0200
-@@ -179,6 +179,9 @@
+diff -urNad vdr-1.5.8~/menuitems.h vdr-1.5.8/menuitems.h
+--- vdr-1.5.8~/menuitems.h	2007-08-26 00:24:15.000000000 +0200
++++ vdr-1.5.8/menuitems.h	2007-08-26 00:24:15.000000000 +0200
+@@ -188,6 +188,7 @@
    cMenuSetupPage(void);
    virtual eOSState ProcessKey(eKeys Key);
    void SetPlugin(cPlugin *Plugin);
-+//#ifdef USE_GRAPHTFT
 +  const char* MenuKind() { return "MenuSetupPage"; }
-+//#endif /* GRAPHTFT */
    };
  
  #endif //__MENUITEMS_H
-diff -urNad vdr-1.4.7~/osdbase.c vdr-1.4.7/osdbase.c
---- vdr-1.4.7~/osdbase.c	2007-08-22 21:25:48.000000000 +0200
-+++ vdr-1.4.7/osdbase.c	2007-08-22 21:25:48.000000000 +0200
-@@ -100,6 +100,9 @@
+diff -urNad vdr-1.5.8~/osdbase.c vdr-1.5.8/osdbase.c
+--- vdr-1.5.8~/osdbase.c	2007-08-26 00:24:15.000000000 +0200
++++ vdr-1.5.8/osdbase.c	2007-08-26 00:24:15.000000000 +0200
+@@ -98,6 +98,7 @@
    free(status);
    displayMenu->Clear();
    cStatus::MsgOsdClear();
-+//#ifdef USE_GRAPHTFT
 +  cStatus::MsgOsdMenuDestroy();
-+//#endif /* GRAPHTFT */
    if (!--displayMenuCount)
       DELETENULL(displayMenu);
  }
-@@ -195,6 +198,9 @@
+@@ -203,6 +204,7 @@
    displayMenu->SetMessage(mtStatus, NULL);
    displayMenu->Clear();
    cStatus::MsgOsdClear();
-+//#ifdef USE_GRAPHTFT
 +  cStatus::MsgOsdMenuDisplay(MenuKind());
-+//#endif /* GRAPHTFT */
    displayMenu->SetTabs(cols[0], cols[1], cols[2], cols[3], cols[4]);//XXX
    displayMenu->SetTitle(title);
    cStatus::MsgOsdTitle(title);
-diff -urNad vdr-1.4.7~/osdbase.h vdr-1.4.7/osdbase.h
---- vdr-1.4.7~/osdbase.h	2007-08-22 21:25:48.000000000 +0200
-+++ vdr-1.4.7/osdbase.h	2007-08-22 21:25:48.000000000 +0200
-@@ -127,6 +127,9 @@
+@@ -534,6 +536,7 @@
+      eOSState state = subMenu->ProcessKey(Key);
+      if (state == osBack)
+         return CloseSubMenu();
++
+      return state;
+      }
+ 
+diff -urNad vdr-1.5.8~/osdbase.h vdr-1.5.8/osdbase.h
+--- vdr-1.5.8~/osdbase.h	2007-08-26 00:24:15.000000000 +0200
++++ vdr-1.5.8/osdbase.h	2007-08-26 00:24:15.000000000 +0200
+@@ -46,6 +46,7 @@
+                 osUser10,
+               };
+ 
++
+ class cOsdItem : public cListObject {
+ private:
+   char *text;
+@@ -131,6 +132,7 @@
    void Ins(cOsdItem *Item, bool Current = false, cOsdItem *Before = NULL);
    virtual void Display(void);
    virtual eOSState ProcessKey(eKeys Key);
-+//#ifdef USE_GRAPHTFT
 +  virtual const char* MenuKind() { return "MenuUnknown"; }
-+//#endif /* GRAPHTFT */
    };
  
  #endif //__OSDBASE_H
-diff -urNad vdr-1.4.7~/status.c vdr-1.4.7/status.c
---- vdr-1.4.7~/status.c	2007-08-22 21:25:42.000000000 +0200
-+++ vdr-1.4.7/status.c	2007-08-22 21:25:48.000000000 +0200
-@@ -112,3 +112,19 @@
+diff -urNad vdr-1.5.8~/status.c vdr-1.5.8/status.c
+--- vdr-1.5.8~/status.c	2005-12-31 16:10:10.000000000 +0100
++++ vdr-1.5.8/status.c	2007-08-26 00:24:15.000000000 +0200
+@@ -112,3 +112,15 @@
    for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
        sm->OsdProgramme(PresentTime, PresentTitle, PresentSubtitle, FollowingTime, FollowingTitle, FollowingSubtitle);
  }
 +
-+
-+//#ifdef USE_GRAPHTFT
 +void cStatus::MsgOsdMenuDisplay(const char* kind)
 +{
 +  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
@@ -282,32 +251,26 @@ diff -urNad vdr-1.4.7~/status.c vdr-1.4.7/status.c
 +  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
 +      sm->OsdMenuDestroy();
 +}
-+//#endif /* GRAPHTFT */
-+
-diff -urNad vdr-1.4.7~/status.h vdr-1.4.7/status.h
---- vdr-1.4.7~/status.h	2007-08-22 21:25:42.000000000 +0200
-+++ vdr-1.4.7/status.h	2007-08-22 21:28:34.000000000 +0200
-@@ -67,6 +67,12 @@
+diff -urNad vdr-1.5.8~/status.h vdr-1.5.8/status.h
+--- vdr-1.5.8~/status.h	2007-08-12 12:34:40.000000000 +0200
++++ vdr-1.5.8/status.h	2007-08-26 00:25:00.000000000 +0200
+@@ -67,6 +67,10 @@
                 // The OSD displays the single line Text with the current channel information.
    virtual void OsdProgramme(time_t PresentTime, const char *PresentTitle, const char *PresentSubtitle, time_t FollowingTime, const char *FollowingTitle, const char *FollowingSubtitle) {}
                 // The OSD displays the given programme information.
-+//#ifdef USE_GRAPHTFT
 +  virtual void OsdMenuDisplay(const char* kind) {}
 +               // report menu creation
 +  virtual void OsdMenuDestroy() {}
 +               // report menu destruvtion
-+//#endif /* GRAPHTFT */
  public:
    cStatus(void);
    virtual ~cStatus();
-@@ -86,6 +92,10 @@
+@@ -86,6 +90,8 @@
    static void MsgOsdTextItem(const char *Text,  bool Scroll = false);
    static void MsgOsdChannel(const char *Text);
    static void MsgOsdProgramme(time_t PresentTime, const char *PresentTitle, const char *PresentSubtitle, time_t FollowingTime, const char *FollowingTitle, const char *FollowingSubtitle);
-+//#ifdef USE_GRAPHTFT
 +  static void MsgOsdMenuDisplay(const char* kind);
 +  static void MsgOsdMenuDestroy();
-+//#endif /* GRAPHTFT */
    };
  
  #endif //__STATUS_H

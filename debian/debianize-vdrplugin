@@ -69,7 +69,7 @@ check_dh_make
 detect_plugin_name
 create_orig_tarball
 
-dh_make="/usr/bin/dh_make -t /usr/share/vdr-dev/plugin-template -d -s -p vdr-plugin-$PLUGIN"
+dh_make="/usr/bin/dh_make -t /usr/share/vdr-dev/plugin-template -b -p vdr-plugin-$PLUGIN"
 if [ ! -e $ORIGTARBALL ] ; then
     dh_make="$dh_make -r"
 fi

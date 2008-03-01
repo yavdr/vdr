@@ -23,7 +23,7 @@ patch-stamp:
 unpatch:
 endif
 
-MAKE_OPTIONS = VFAT=1 DVBDIR=/usr CFGDIR=/var/lib/vdr \
+MAKE_OPTIONS = VFAT=1 REMOTE=LIRC CONFDIR=/var/lib/vdr LOCDIR=/usr/share/locale \
                VIDEODIR=/var/lib/video.00 PLUGINLIBDIR=/usr/lib/vdr/plugins
 
 configure: configure-stamp
@@ -35,6 +35,14 @@ build: build-stamp
 build-stamp: configure-stamp
 	dh_testdir
 
+	# build unoptimized vdr with debugging symbols
+	touch po/vdr.pot po/*.po
+	$(MAKE) all $(MAKE_OPTIONS) VDRDEBUG=yes
+	cp vdr vdr-dbg
+	$(MAKE) -o .dependencies clean $(MAKE_OPTIONS)
+
+	# build "productive" vdr
+	touch po/vdr.pot po/*.po
 	$(MAKE) all $(MAKE_OPTIONS)
 	ln -f vdr vdr-kbd
 
@@ -59,6 +67,7 @@ clean-patched:
 	rm -f build-stamp configure-stamp
 	$(MAKE) -o .dependencies clean-plugins $(MAKE_OPTIONS)
 	$(MAKE) -o .dependencies clean $(MAKE_OPTIONS)
+	rm -f vdr-dbg
 	rm -f vdr-kbd
 	rm -rf PLUGINS/lib
 	rm -f vdr-newplugin
@@ -99,7 +108,7 @@ binary-indep: build install
 	dh_fixperms -i
 #	dh_makeshlibs -i
 	dh_installdeb -i
-#	dh_perl -i
+	dh_perl -i
 	dh_shlibdeps -i
 	sh debian/patchlevel.sh subst
 	dh_gencontrol -i
@@ -125,13 +134,14 @@ binary-arch: build install
 #	dh_undocumented -a
 	dh_installchangelogs -pvdr HISTORY
 	dh_installchangelogs -pvdr-plugin-sky PLUGINS/src/sky/HISTORY
+	dh_installchangelogs -pvdr-plugin-pictures PLUGINS/src/pictures/HISTORY
 	dh_link -a
-	dh_strip -a
+	dh_strip -a -Xvdr-dbg
 	dh_compress -a
 	dh_fixperms -a
 #	dh_makeshlibs -a
 	dh_installdeb -a
-#	dh_perl -a
+	dh_perl -a
 	dh_shlibdeps -a
 	sh debian/patchlevel.sh subst
 	dh_gencontrol -a

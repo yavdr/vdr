@@ -3,7 +3,8 @@ Section: misc
 Priority: extra
 Maintainer: Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>
 Uploaders: Thomas Schmidt <tschmidt@debian.org>, Tobias Grimm <tg@e-tobi.net>, Thomas Günther <tom@toms-cafe.de>
-Build-Depends: debhelper (>= 4.1.16), libjpeg62-dev, dpatch, libcap-dev, libncurses5-dev
+Build-Depends: debhelper (>= 5), dpatch, libjpeg62-dev, libcap-dev,
+ libncursesw5-dev, libfreetype6-dev, libfontconfig-dev, gettext
 Standards-Version: 3.7.3
 Vcs-Svn: svn://svn.debian.org/pkg-vdr-dvb/vdr/vdr/trunk/
 Vcs-Browser: http://svn.debian.org/wsvn/pkg-vdr-dvb/vdr/vdr/trunk/
@@ -12,7 +13,7 @@ Homepage: http://www.cadsoft.de/vdr/
 Package: vdr
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, makedev (>=2.3.1-66), adduser, psmisc
-Recommends: lirc
+Recommends: lirc, ttf-bitstream-vera | ttf-freefont
 Provides: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu
 Conflicts: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu, vdradmin (<< 3.4.3)
 Replaces: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu
@@ -45,6 +46,15 @@ Description: Video Disk Recorder for DVB cards
  You need this package to be able to build vdr-plugins!
 XB-VDR-Patchlevel: ${vdr:Patchlevel}
 
+Package: vdr-dbg
+Architecture: any 
+Depends: ${shlibs:Depends}, ${misc:Depends}, vdr (= ${binary:Version}), gdb,
+ valgrind
+Description: Debuggable version of the VDR Video Disk Recorder
+ This package installs an unoptimized vdr binary with debugging symbols as well
+ as some helper scripts to debug VDR and its plugins.
+XB-VDR-Patchlevel: ${vdr:Patchlevel}
+
 Package: vdr-plugin-sky
 Architecture: any 
 Depends: ${shlibs:Depends}, vdr (= ${binary:Version})
@@ -71,4 +81,21 @@ Description: Plugins for vdr to show some possible features
  svcsvr, skincurses, status and svdrpdemo from the vdr-source. 
  These plugins do not have useful features, they only demonstrate 
  how vdr-plugins work and what is possible to do with them.
+XB-VDR-Patchlevel: ${vdr:Patchlevel}
+
+Package: vdr-plugin-pictures
+Architecture: any 
+Section: misc
+Depends: ${shlibs:Depends}, vdr (= ${binary:Version}), ${perl:Depends},
+ libimage-size-perl, netpbm, mjpegtools | ffmpeg
+Description: Plugin for vdr providing a very basic picture viewer
+ Video Disk Recorder (VDR) is a digital sat-receiver program using
+ Linux and DVB technologies. It allows one to record MPEG2 streams,
+ as well as output the stream to TV.
+ .
+ This package contains the pictures-plugin, which provides a very
+ basic picture viewer. It assumes, that the pictures are converted
+ to MPEG frames.
+ .
+ A separate tool called `pic2mpg' is provided to convert pictures.
 XB-VDR-Patchlevel: ${vdr:Patchlevel}

@@ -1,5 +1,4 @@
-
-  * Merged from the vdr 1.5.16-1ctvdr2:
+vdr (1.5.16-1) UNRELEASED; urgency=low
   
   [ Tobias Grimm]
   * New upstream release
@@ -67,7 +66,13 @@
   * Added URL for developer version to debian/watch
   * Upgraded make-special-vdr.sh to version 0.7
 
- -- Tobias Grimm <tg@e-tobi.net>  Fri, 18 Jan 2008 18:55:37 +0100
+  [ Thomas Schmidt ]
+  * Added vdr-dbg-package + scripts vdrleaktest, debugvdr and
+    vdrdbg-buildpackage from Tobias repository
+  * Updated debian/copyright
+  * Changed config-loader.sh to get default $LANG from /etc/environment
+
+ -- Thomas Schmidt <tschmidt@debian.org>  Sat, 01 Mar 2008 22:47:25 +0100
 
 vdr (1.4.7-3) unstable; urgency=low
 

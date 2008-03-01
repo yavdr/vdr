@@ -1,0 +1,297 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## opt-27_ttxtsubs.dpatch by Rolf Ahrenberg <Rolf.Ahrenberg AT sci.fi>
+## http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.5.14-ttxtsubs-0.0.5.diff.gz
+##
+## Thomas Günther <tom@toms-cafe.de>:
+##   - adapted to dd-record-option patch (UseDolbyDigital -> RecordDolbyDigital)
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: This patch is needed for the ttxtsubs plugin.
+
+@DPATCH@
+diff -Nru vdr-1.5.14-vanilla/Makefile vdr-1.5.14-ttxtsubs/Makefile
+--- vdr-1.5.14-vanilla/Makefile	2008-01-27 23:04:26.000000000 +0200
++++ vdr-1.5.14-ttxtsubs/Makefile	2008-01-27 23:06:23.000000000 +0200
+@@ -43,6 +43,8 @@
+        skinclassic.o skins.o skinsttng.o sources.o spu.o status.o svdrp.o themes.o thread.o\
+        timers.o tools.o transfer.o vdr.o videodir.o
+ 
++OBJS += vdrttxtsubshooks.o
++
+ ifndef NO_KBD
+ DEFINES += -DREMOTE_KBD
+ endif
+diff -Nru vdr-1.5.14-vanilla/dvbplayer.c vdr-1.5.14-ttxtsubs/dvbplayer.c
+--- vdr-1.5.14-vanilla/dvbplayer.c	2008-01-27 23:04:26.000000000 +0200
++++ vdr-1.5.14-ttxtsubs/dvbplayer.c	2008-01-27 23:06:23.000000000 +0200
+@@ -14,6 +14,7 @@
+ #include "ringbuffer.h"
+ #include "thread.h"
+ #include "tools.h"
++#include "vdrttxtsubshooks.h"
+ 
+ // --- cBackTrace ------------------------------------------------------------
+ 
+@@ -312,6 +313,32 @@
+   firstPacket = true;
+ }
+ 
++static void StripExtendedPackets(uchar *b, int Length)
++{
++  for (int i = 0; i < Length - 6; i++) {
++      if (b[i] == 0x00 && b[i + 1] == 0x00 && b[i + 2] == 0x01) {
++         uchar c = b[i + 3];
++         int l = b[i + 4] * 256 + b[i + 5] + 6;
++         switch (c) {
++           case 0xBD: // dolby
++                // EBU Teletext data, ETSI EN 300 472
++                if (b[i + 8] == 0x24 && b[i + 45] >= 0x10 && b[i + 45] < 0x20) {
++                   cVDRTtxtsubsHookListener::Hook()->PlayerTeletextData(&b[i], l);
++                   // continue with deleting the data - otherwise it disturbs DVB replay
++                   int n = l;
++                   for (int j = i; j < Length && n--; j++)
++                       b[j] = 0x00;
++                   }
++                break;
++           default:
++                break;
++           }
++         if (l)
++            i += l - 1; // the loop increments, too!
++         }
++      }
++}
++
+ bool cDvbPlayer::NextFile(uchar FileNumber, int FileOffset)
+ {
+   if (FileNumber > 0)
+@@ -503,6 +530,7 @@
+                     }
+                  }
+               if (p) {
++                 StripExtendedPackets(p, pc);
+                  int w = PlayPes(p, pc, playMode != pmPlay);
+                  if (w > 0) {
+                     p += w;
+diff -Nru vdr-1.5.14-vanilla/menu.c vdr-1.5.14-ttxtsubs/menu.c
+--- vdr-1.5.14-vanilla/menu.c	2008-01-27 23:04:26.000000000 +0200
++++ vdr-1.5.14-ttxtsubs/menu.c	2008-01-27 23:06:23.000000000 +0200
+@@ -28,6 +28,7 @@
+ #include "themes.h"
+ #include "timers.h"
+ #include "transfer.h"
++#include "vdrttxtsubshooks.h"
+ #include "videodir.h"
+ 
+ #define MAXWAIT4EPGINFO   3 // seconds
+@@ -3737,8 +3738,10 @@
+   isyslog("record %s", fileName);
+   if (MakeDirs(fileName, true)) {
+      const cChannel *ch = timer->Channel();
+-     recorder = new cRecorder(fileName, ch->GetChannelID(), timer->Priority(), ch->Vpid(), ch->Apids(), ch->Dpids(), ch->Spids());
++     cTtxtSubsRecorderBase *subsRecorder = cVDRTtxtsubsHookListener::Hook()->NewTtxtSubsRecorder(device, ch);
++     recorder = new cRecorder(fileName, ch->GetChannelID(), timer->Priority(), ch->Vpid(), ch->Apids(), ch->Dpids(), ch->Spids(), subsRecorder);
+      if (device->AttachReceiver(recorder)) {
++        if (subsRecorder) subsRecorder->DeviceAttach();
+         Recording.WriteInfo();
+         cStatus::MsgRecording(device, Recording.Name(), Recording.FileName(), true);
+         if (!Timer && !cReplayControl::LastReplayed()) // an instant recording, maybe from cRecordControls::PauseLiveVideo()
+diff -Nru vdr-1.5.14-vanilla/osd.c vdr-1.5.14-ttxtsubs/osd.c
+--- vdr-1.5.14-vanilla/osd.c	2008-01-27 23:04:26.000000000 +0200
++++ vdr-1.5.14-ttxtsubs/osd.c	2008-01-27 23:06:23.000000000 +0200
+@@ -15,6 +15,7 @@
+ #include <sys/stat.h>
+ #include <sys/unistd.h>
+ #include "tools.h"
++#include "vdrttxtsubshooks.h"
+ 
+ // --- cPalette --------------------------------------------------------------
+ 
+diff -Nru vdr-1.5.14-vanilla/recorder.c vdr-1.5.14-ttxtsubs/recorder.c
+--- vdr-1.5.14-vanilla/recorder.c	2008-01-27 23:04:26.000000000 +0200
++++ vdr-1.5.14-ttxtsubs/recorder.c	2008-01-27 23:06:23.000000000 +0200
+@@ -11,6 +11,7 @@
+ #include <stdarg.h>
+ #include <stdio.h>
+ #include <unistd.h>
++#include <stdint.h>
+ #include "shutdown.h"
+ 
+ #define RECORDERBUFSIZE  MEGABYTE(5)
+@@ -26,6 +27,7 @@
+ 
+ class cFileWriter : public cThread {
+ private:
++  cTtxtSubsRecorderBase *ttxtSubsRecorder;
+   cRemux *remux;
+   cFileName *fileName;
+   cIndexFile *index;
+@@ -38,13 +40,14 @@
+ protected:
+   virtual void Action(void);
+ public:
+-  cFileWriter(const char *FileName, cRemux *Remux);
++  cFileWriter(const char *FileName, cRemux *Remux, cTtxtSubsRecorderBase *tsr);
+   virtual ~cFileWriter();
+   };
+ 
+-cFileWriter::cFileWriter(const char *FileName, cRemux *Remux)
++cFileWriter::cFileWriter(const char *FileName, cRemux *Remux, cTtxtSubsRecorderBase *tsr)
+ :cThread("file writer")
+ {
++  ttxtSubsRecorder = tsr;
+   fileName = NULL;
+   remux = Remux;
+   index = NULL;
+@@ -67,6 +70,8 @@
+   Cancel(3);
+   delete index;
+   delete fileName;
++  if (ttxtSubsRecorder)
++     delete ttxtSubsRecorder;
+ }
+ 
+ bool cFileWriter::RunningLowOnDiskSpace(void)
+@@ -111,6 +116,16 @@
+                  }
+               fileSize += Count;
+               remux->Del(Count);
++              // not sure if the pictureType test is needed, but it seems we can get
++              // incomplete pes packets from remux if we are not getting pictures?
++              if (ttxtSubsRecorder && pictureType != NO_PICTURE) {
++                 uint8_t *subsp;
++                 size_t len;
++                 if (ttxtSubsRecorder->GetPacket(&subsp, &len)) {
++                    recordFile->Write(subsp, len);
++                    fileSize += len;
++                    }
++                 }
+               }
+            else
+               break;
+@@ -126,7 +141,7 @@
+ 
+ // --- cRecorder -------------------------------------------------------------
+ 
+-cRecorder::cRecorder(const char *FileName, tChannelID ChannelID, int Priority, int VPid, const int *APids, const int *DPids, const int *SPids)
++cRecorder::cRecorder(const char *FileName, tChannelID ChannelID, int Priority, int VPid, const int *APids, const int *DPids, const int *SPids, cTtxtSubsRecorderBase *tsr)
+ :cReceiver(ChannelID, Priority, VPid, APids, Setup.RecordDolbyDigital ? DPids : NULL, SPids)
+ ,cThread("recording")
+ {
+@@ -137,7 +152,7 @@
+   ringBuffer = new cRingBufferLinear(RECORDERBUFSIZE, TS_SIZE * 2, true, "Recorder");
+   ringBuffer->SetTimeouts(0, 100);
+   remux = new cRemux(VPid, APids, Setup.RecordDolbyDigital ? DPids : NULL, SPids, true);
+-  writer = new cFileWriter(FileName, remux);
++  writer = new cFileWriter(FileName, remux, tsr);
+ }
+ 
+ cRecorder::~cRecorder()
+diff -Nru vdr-1.5.14-vanilla/recorder.h vdr-1.5.14-ttxtsubs/recorder.h
+--- vdr-1.5.14-vanilla/recorder.h	2008-01-27 23:04:26.000000000 +0200
++++ vdr-1.5.14-ttxtsubs/recorder.h	2008-01-27 23:06:23.000000000 +0200
+@@ -15,6 +15,7 @@
+ #include "remux.h"
+ #include "ringbuffer.h"
+ #include "thread.h"
++#include "vdrttxtsubshooks.h"
+ 
+ class cFileWriter;
+ 
+@@ -28,7 +29,7 @@
+   virtual void Receive(uchar *Data, int Length);
+   virtual void Action(void);
+ public:
+-  cRecorder(const char *FileName, tChannelID ChannelID, int Priority, int VPid, const int *APids, const int *DPids, const int *SPids);
++  cRecorder(const char *FileName, tChannelID ChannelID, int Priority, int VPid, const int *APids, const int *DPids, const int *SPids, cTtxtSubsRecorderBase *tsr);
+                // Creates a new recorder for the channel with the given ChannelID and
+                // the given Priority that will record the given PIDs into the file FileName.
+   virtual ~cRecorder();
+diff -Nru vdr-1.5.14-vanilla/vdrttxtsubshooks.c vdr-1.5.14-ttxtsubs/vdrttxtsubshooks.c
+--- vdr-1.5.14-vanilla/vdrttxtsubshooks.c	1970-01-01 02:00:00.000000000 +0200
++++ vdr-1.5.14-ttxtsubs/vdrttxtsubshooks.c	2008-01-27 23:06:23.000000000 +0200
+@@ -0,0 +1,44 @@
++
++#include <stdlib.h>
++#include <stdio.h>
++#include <stdint.h>
++
++#include "vdrttxtsubshooks.h"
++
++// XXX Really should be a list...
++static cVDRTtxtsubsHookListener *gListener;
++
++// ------ class cVDRTtxtsubsHookProxy ------
++
++class cVDRTtxtsubsHookProxy : public cVDRTtxtsubsHookListener
++{
++ public:
++  virtual void HideOSD(void) { if(gListener) gListener->HideOSD(); };
++  virtual void ShowOSD(void) { if(gListener) gListener->ShowOSD(); };
++  virtual void PlayerTeletextData(uint8_t *p, int length)
++    { if(gListener) gListener->PlayerTeletextData(p, length); };
++  virtual cTtxtSubsRecorderBase *NewTtxtSubsRecorder(cDevice *dev, const cChannel *ch)
++    { if(gListener) return gListener->NewTtxtSubsRecorder(dev, ch); else return NULL; };
++};
++
++
++// ------ class cVDRTtxtsubsHookListener ------
++
++cVDRTtxtsubsHookListener::~cVDRTtxtsubsHookListener()
++{
++  gListener = 0;
++}
++
++void cVDRTtxtsubsHookListener::HookAttach(void)
++{
++  gListener = this;
++  //printf("cVDRTtxtsubsHookListener::HookAttach\n");
++}
++
++static cVDRTtxtsubsHookProxy gProxy;
++
++cVDRTtxtsubsHookListener *cVDRTtxtsubsHookListener::Hook(void)
++{
++  return &gProxy;
++}
++
+diff -Nru vdr-1.5.14-vanilla/vdrttxtsubshooks.h vdr-1.5.14-ttxtsubs/vdrttxtsubshooks.h
+--- vdr-1.5.14-vanilla/vdrttxtsubshooks.h	1970-01-01 02:00:00.000000000 +0200
++++ vdr-1.5.14-ttxtsubs/vdrttxtsubshooks.h	2008-01-27 23:06:23.000000000 +0200
+@@ -0,0 +1,36 @@
++
++#ifndef __VDRTTXTSUBSHOOKS_H
++#define __VDRTTXTSUBSHOOKS_H
++
++class cDevice;
++class cChannel;
++
++#define VDRTTXTSUBSHOOKS
++
++class cTtxtSubsRecorderBase {
++ public:
++  virtual ~cTtxtSubsRecorderBase() {};
++
++  // returns a PES packet if there is data to add to the recording
++  virtual uint8_t *GetPacket(uint8_t **buf, size_t *len) { return NULL; };
++  virtual void DeviceAttach(void) {};
++};
++
++class cVDRTtxtsubsHookListener {
++ public:
++  cVDRTtxtsubsHookListener(void) {};
++  virtual ~cVDRTtxtsubsHookListener();
++
++  void HookAttach(void);
++  
++  virtual void HideOSD(void) {};
++  virtual void ShowOSD(void) {};
++  virtual void PlayerTeletextData(uint8_t *p, int length) {};
++  virtual cTtxtSubsRecorderBase *NewTtxtSubsRecorder(cDevice *dev, const cChannel *ch)
++    { return NULL; };
++
++  // used by VDR to call hook listeners
++  static cVDRTtxtsubsHookListener *Hook(void);
++};
++
++#endif

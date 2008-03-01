@@ -1,0 +1,5 @@
+#!/bin/sh
+
+export DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS nostrip"
+export VDRDEBUG=yes
+dpkg-buildpackage $*

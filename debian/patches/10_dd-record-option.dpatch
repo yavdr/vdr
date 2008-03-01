@@ -1,9 +1,11 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
-## 10_dd_replay_option.dpatch by Thomas Schmidt <tschmidt@debian.org>
+## 10_dd-record-option.dpatch by Thomas Schmidt <tschmidt@debian.org>
 ##
 ## Thomas Günther <tom@toms-cafe.de>:
-##   - adapted to VDR-1.3.48
+##   - adapted to VDR-1.5.0
 ##   - fixed i18n texts for replay
+##   - adapted to VDR-1.5.7
+##     http://toms-cafe.de/vdr/download/vdr-dd-record-option-1.5.7.diff
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Allowes to choose if to record and to replay Dolby Digital 
@@ -11,9 +13,9 @@
 ## DP: dvd-plugin)
 
 @DPATCH@
---- vdr-1.3.48/config.c
-+++ vdr-1.3.48/config.c
-@@ -252,6 +252,7 @@
+--- vdr-1.5.7/config.c
++++ vdr-1.5.7/config.c
+@@ -255,6 +255,7 @@
    VideoDisplayFormat = 1;
    VideoFormat = 0;
    UpdateChannels = 5;
@@ -21,7 +23,7 @@
    UseDolbyDigital = 1;
    ChannelInfoPos = 0;
    ChannelInfoTime = 5;
-@@ -413,6 +414,7 @@
+@@ -425,6 +426,7 @@
    else if (!strcasecmp(Name, "VideoDisplayFormat"))  VideoDisplayFormat = atoi(Value);
    else if (!strcasecmp(Name, "VideoFormat"))         VideoFormat        = atoi(Value);
    else if (!strcasecmp(Name, "UpdateChannels"))      UpdateChannels     = atoi(Value);
@@ -29,7 +31,7 @@
    else if (!strcasecmp(Name, "UseDolbyDigital"))     UseDolbyDigital    = atoi(Value);
    else if (!strcasecmp(Name, "ChannelInfoPos"))      ChannelInfoPos     = atoi(Value);
    else if (!strcasecmp(Name, "ChannelInfoTime"))     ChannelInfoTime    = atoi(Value);
-@@ -481,6 +483,7 @@
+@@ -502,6 +504,7 @@
    Store("VideoDisplayFormat", VideoDisplayFormat);
    Store("VideoFormat",        VideoFormat);
    Store("UpdateChannels",     UpdateChannels);
@@ -37,9 +39,9 @@
    Store("UseDolbyDigital",    UseDolbyDigital);
    Store("ChannelInfoPos",     ChannelInfoPos);
    Store("ChannelInfoTime",    ChannelInfoTime);
---- vdr-1.3.48/config.h
-+++ vdr-1.3.48/config.h
-@@ -235,6 +235,7 @@
+--- vdr-1.5.7/config.h
++++ vdr-1.5.7/config.h
+@@ -237,6 +237,7 @@
    int VideoDisplayFormat;
    int VideoFormat;
    int UpdateChannels;
@@ -47,44 +49,9 @@
    int UseDolbyDigital;
    int ChannelInfoPos;
    int ChannelInfoTime;
---- vdr-1.3.48/i18n.c
-+++ vdr-1.3.48/i18n.c
-@@ -3656,8 +3656,30 @@
-     "Video format",
-     "Formát videa",
-   },
--  { "Setup.DVB$Use Dolby Digital",
--    "Dolby-Digital-Ton benutzen",
-+  { "Setup.DVB$Record Dolby Digital", // English
-+    "Dolby-Digital-Ton aufzeichnen", // Deutsch / German
-+    "", // Slovenski / Slovenian
-+    "", // Italiano / Italian
-+    "", // Nederlands / Dutch
-+    "", // Português / Portuguese
-+    "", // Français / French
-+    "", // Norsk / Norwegian
-+    "", // suomi / Finnish
-+    "", // Polski / Polish
-+    "", // Español / Spanish
-+    "", // ÅëëçíéêÜ / Greek
-+    "", // Svenska / Swedish
-+    "", // Românã / Romanian
-+    "", // Magyar / Hungarian
-+    "", // Català / Catalanian
-+    "", // ÀãááÚØÙ / Russian
-+    "", // Hrvatski / Croatian
-+    "", // Eesti / Estonian
-+    "", // Dansk / Danish
-+    "", // Èesky / Czech
-+  },
-+  { "Setup.DVB$Replay Dolby Digital",
-+    "Dolby-Digital-Ton wiedergeben",
-     "Uporabljaj Dolby Digital",
-     "",//TODO
-     "Dolby Digital gebruiken",
---- vdr-1.3.48/menu.c
-+++ vdr-1.3.48/menu.c
-@@ -2339,7 +2339,8 @@
+--- vdr-1.5.7/menu.c
++++ vdr-1.5.7/menu.c
+@@ -2437,7 +2437,8 @@
    Add(new cMenuEditBoolItem(tr("Setup.DVB$Video format"),          &data.VideoFormat, "4:3", "16:9"));
    if (data.VideoFormat == 0)
       Add(new cMenuEditStraItem(tr("Setup.DVB$Video display format"), &data.VideoDisplayFormat, 3, videoDisplayFormatTexts));
@@ -92,20 +59,30 @@
 +  Add(new cMenuEditBoolItem(tr("Setup.DVB$Record Dolby Digital"),  &data.RecordDolbyDigital));
 +  Add(new cMenuEditBoolItem(tr("Setup.DVB$Replay Dolby Digital"),  &data.UseDolbyDigital));
    Add(new cMenuEditStraItem(tr("Setup.DVB$Update channels"),       &data.UpdateChannels, 6, updateChannelsTexts));
-   Add(new cMenuEditIntItem( tr("Setup.DVB$Audio languages"),       &numAudioLanguages, 0, I18nNumLanguages));
+   Add(new cMenuEditIntItem( tr("Setup.DVB$Audio languages"),       &numAudioLanguages, 0, I18nLanguages()->Size()));
    for (int i = 0; i < numAudioLanguages; i++)
---- vdr-1.3.48/recorder.c
-+++ vdr-1.3.48/recorder.c
-@@ -122,7 +122,7 @@
- }
+--- vdr-1.5.7/po/de_DE.po
++++ vdr-1.5.7/po/de_DE.po
+@@ -803,2 +803,5 @@
+-msgid "Setup.DVB$Use Dolby Digital"
+-msgstr "Dolby-Digital-Ton benutzen"
++msgid "Setup.DVB$Record Dolby Digital"
++msgstr "Dolby-Digital-Ton aufzeichnen"
++
++msgid "Setup.DVB$Replay Dolby Digital"
++msgstr "Dolby-Digital-Ton wiedergeben"
+--- vdr-1.5.7/recorder.c
++++ vdr-1.5.7/recorder.c
+@@ -127,7 +127,7 @@
+ // --- cRecorder -------------------------------------------------------------
  
- cRecorder::cRecorder(const char *FileName, int Ca, int Priority, int VPid, const int *APids, const int *DPids, const int *SPids)
--:cReceiver(Ca, Priority, VPid, APids, Setup.UseDolbyDigital ? DPids : NULL, SPids)
-+:cReceiver(Ca, Priority, VPid, APids, Setup.RecordDolbyDigital ? DPids : NULL, SPids)
+ cRecorder::cRecorder(const char *FileName, tChannelID ChannelID, int Priority, int VPid, const int *APids, const int *DPids, const int *SPids)
+-:cReceiver(ChannelID, Priority, VPid, APids, Setup.UseDolbyDigital ? DPids : NULL, SPids)
++:cReceiver(ChannelID, Priority, VPid, APids, Setup.RecordDolbyDigital ? DPids : NULL, SPids)
  ,cThread("recording")
  {
    // Make sure the disk is up and running:
-@@ -131,7 +131,7 @@
+@@ -136,7 +136,7 @@
  
    ringBuffer = new cRingBufferLinear(RECORDERBUFSIZE, TS_SIZE * 2, true, "Recorder");
    ringBuffer->SetTimeouts(0, 100);

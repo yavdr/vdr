@@ -4,15 +4,15 @@ Upstream Homepage:
 Upstream Author(s):
     <put author(s) name and email here>
 
-Debian Maintainers:
-    <put Debian maintainer(s) name and email here>
+Debian Maintainer(s):
+    #USERNAME# <#EMAIL#>
 
 Copyright:
     <put the year(s) of the copyright, and the names of the copyright
      holder(s) here>
 
 Copyright (Debian packaging):
-    (C) #YEAR# #USERNAME# <#EMAIL#>
+    (C) #YEAR# #USERNAME#
 
 License:
     This program is free software; you can redistribute it and/or modify
@@ -25,17 +25,16 @@ License:
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 
-    02110-1301, USA.
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
     The complete text of the GNU General Public License can be found
-    in /usr/share/common-licenses/GPL on most Debian systems.
+    in /usr/share/common-licenses/GPL-2 on most Debian systems.
 
 License (Debian packaging):
     The Debian packaging is licensed under the GPL, version 2 or any
-    later version, see /usr/share/common-licenses/GPL.
+    later version, see /usr/share/common-licenses/GPL-2.
 
 # Please also look if there are files or directories which have a
 # different copyright/license attached and list them in this file.

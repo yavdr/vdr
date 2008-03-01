@@ -4,21 +4,23 @@
 
 . /usr/lib/vdr/config-loader.sh
 
-OPTIONS="$*"
+VDRCMD="LANG=$VDR_LANG LC_ALL=$VDR_LANG /usr/bin/vdr $*"
 
-VDRCMD="LANG=$VDR_LANG LC_ALL=$VDR_LANG /usr/bin/vdr $OPTIONS"
+KVERS_2_6=`uname -r | grep -e '2.6'`
 
-function get_modulenames ()
+function get_modulenames()
 {
-    KVERS=`uname -r | grep -e '2.6'`
-    if [ -z "$KVERS" ]; then
-        MODULES=`lsmod | grep dvb-core | cut -d'[' -f2 | cut -d']' -f1`
+    if [ "$KVERS_2_6" ]; then
+        MODULES=`lsmod | awk '/^dvb_core/ {gsub(/,/,"\n", $4); print $4}' | tac`
+        [ "$MODULES" ] && MODULES="$MODULES dvb_core"
     else
-        MODULES=`lsmod | grep ^dvb_core | awk '{print $4;}' | awk '{ gsub(/,/," ", $1); print }'`
+        MODULES=`lsmod | grep dvb-core | cut -d'[' -f2 | cut -d']' -f1`
+        [ "$MODULES" ] && MODULES="$MODULES dvb-core"
     fi
 }
 
-function set_permissions ()
+# TODO: check if udev handles this on newer systems!?
+function set_permissions()
 {
     for FILE in av7110_ir budget_ci_ir; do
         if [ -e "/proc/$FILE" ]; then
@@ -27,29 +29,66 @@ function set_permissions ()
     done
 }
 
-get_modulenames
+function load_dvb_modules()
+{
+    if modprobe dvb >/dev/null 2>&1 ; then
+        get_modulenames
+    else
+        if [ "$MODULES" ]; then
+            for MODULE in $MODULES; do
+                modprobe $MODULE >/dev/null 2>&1
+            done
+        else
+            modprobe dvb-ttpci >/dev/null 2>&1 #2.4
+            modprobe dvb_ttpci >/dev/null 2>&1 #2.6
+            get_modulenames
+        fi
+        if [ "$KVERS_2_6" ]; then
+            wait `pidof udev`
+        fi
+    fi
+    if [ "$KVERS_2_6" ]; then
+        sleep 15
+    fi
+}
 
-if [ -z "$MODULES" ]; then               # If no DVB-Modules were found, try to load
-    modprobe dvb > /dev/null 2>&1        # the module with the name dvb, this could
-    get_modulenames                      # be an alias for the dvb-ttpci-module or
-fi                                       # another dvb-module
-
-MODULES="$MODULES dvb-core"
-
-while (true) do
-    set_permissions
-    eval $VDRCMD >/dev/null 2>&1
-    if test $? -eq 0; then exit; fi
-    logger "restarting VDR"
-    /usr/bin/killall -q -TERM /usr/bin/vdr
-    sleep 10
-
+function unload_dvb_modules()
+{
     for MODULE in $MODULES; do
         rmmod $MODULE >/dev/null 2>&1
         wait `pidof rmmod`
     done
+}
 
-    for MODULE in $MODULES; do
-        modprobe $MODULE >/dev/null 2>&1
-    done
+VDR_ERR=`mktemp -p /tmp vdr-err.XXXXXX`
+
+get_modulenames
+
+[ -z "$MODULES" ] && load_dvb_modules
+
+while (true) do
+    
+    set_permissions
+    
+    eval $VDRCMD >/dev/null 2>"$VDR_ERR"
+    
+
+    case $? in
+        0)
+            exit
+        ;;
+        2)
+            ERROR=`cat "$VDR_ERR"`
+            logger -t runvdr "stopping after fatal fail ($ERROR)"
+            exit
+        ;;
+    esac
+
+    logger -t runvdr "restarting VDR"
+    killall -q -TERM /usr/bin/vdr
+    wait `pidof vdr`
+    unload_dvb_modules
+    sleep 2
+    load_dvb_modules
+
 done

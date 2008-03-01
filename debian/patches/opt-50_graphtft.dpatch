@@ -1,8 +1,12 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
 ## opt-50_graphtft.dpatch by Jörg Wendel (Horchi)
 ##
+## Thomas Günther <tom@toms-cafe.de>:
+##   - adapted to VDR-1.5.0
+##   - adapted to pin patch
+##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: Patch from teh Graphtft plugin version 0.0.15
+## DP: Patch from the Graphtft plugin version 0.0.15
 ## DP: http://www.jwendel.de/vdr/
 
 @DPATCH@
@@ -108,22 +112,6 @@ diff -urNad vdr-1.4.6~/menu.h vdr-1.4.6/menu.h
    };
  
  class cDisplayChannel : public cOsdObject {
-@@ -143,6 +147,7 @@
-   cMenuCam(cCiMenu *CiMenu);
-   virtual ~cMenuCam();
-   virtual eOSState ProcessKey(eKeys Key);
-+  virtual eOsdMenuKind MenuKind() { return omCam; }
-   };
- 
- class cMenuCamEnquiry : public cOsdMenu {
-@@ -155,6 +160,7 @@
-   cMenuCamEnquiry(cCiEnquiry *CiEnquiry);
-   virtual ~cMenuCamEnquiry();
-   virtual eOSState ProcessKey(eKeys Key);
-+  virtual eOsdMenuKind MenuKind() { return omCamEnquiry; }
-   };
- 
- cOsdObject *CamControl(void);
 @@ -182,6 +188,7 @@
    cMenuRecordings(const char *Base = NULL, int Level = 0, bool OpenSubMenus = false);
    ~cMenuRecordings();

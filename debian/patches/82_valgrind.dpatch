@@ -1,0 +1,94 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 82_valgrind.dpatch by Tobias Grimm <tg@e-tobi.net>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad vdr-1.3.49~/plugin.c vdr-1.3.49/plugin.c
+--- vdr-1.3.49~/plugin.c	2006-04-17 11:20:05.000000000 +0200
++++ vdr-1.3.49/plugin.c	2006-05-01 12:17:01.000000000 +0200
+@@ -144,6 +144,10 @@
+ 
+ // --- cDll ------------------------------------------------------------------
+ 
++#ifdef VDRDEBUG
++bool cDll::keepPlugins = false;
++#endif
++
+ cDll::cDll(const char *FileName, const char *Args)
+ {
+   fileName = strdup(FileName);
+@@ -155,8 +159,16 @@
+ cDll::~cDll()
+ {
+   delete plugin;
++#ifdef VDRDEBUG
++  if (!keepPlugins)
++  {
++    if (handle)
++       dlclose(handle);
++    }
++#else
+   if (handle)
+      dlclose(handle);
++#endif
+   free(args);
+   free(fileName);
+ }
+diff -urNad vdr-1.3.49~/plugin.h vdr-1.3.49/plugin.h
+--- vdr-1.3.49~/plugin.h	2006-04-17 11:18:16.000000000 +0200
++++ vdr-1.3.49/plugin.h	2006-05-01 12:16:44.000000000 +0200
+@@ -67,6 +67,9 @@
+   void *handle;
+   cPlugin *plugin;
+ public:
++  #ifdef VDRDEBUG
++  static bool keepPlugins;
++  #endif
+   cDll(const char *FileName, const char *Args);
+   virtual ~cDll();
+   bool Load(bool Log = false);
+diff -urNad vdr-1.3.49~/vdr.c vdr-1.3.49/vdr.c
+--- vdr-1.3.49~/vdr.c	2006-05-01 12:13:12.000000000 +0200
++++ vdr-1.3.49/vdr.c	2006-05-01 12:17:12.000000000 +0200
+@@ -213,6 +213,9 @@
+       { "epgfile",  required_argument, NULL, 'E' },
+       { "grab",     required_argument, NULL, 'g' },
+       { "help",     no_argument,       NULL, 'h' },
++#ifdef VDRDEBUG
++      { "keep-plugins", no_argument,   NULL, 'k' },
++#endif
+       { "lib",      required_argument, NULL, 'L' },
+       { "lirc",     optional_argument, NULL, 'l' | 0x100 },
+       { "log",      required_argument, NULL, 'l' },
+@@ -233,7 +236,7 @@
+     };
+ 
+   int c;
+-  while ((c = getopt_long(argc, argv, "a:c:dD:E:g:hl:L:mp:P:r:s:t:u:v:Vw:", long_options, NULL)) != -1) {
++  while ((c = getopt_long(argc, argv, "a:c:dD:E:g:hkl:L:mp:P:r:s:t:u:v:Vw:", long_options, NULL)) != -1) {
+         switch (c) {
+           case 'a': AudioCommand = optarg;
+                     break;
+@@ -256,6 +259,10 @@
+                     break;
+           case 'h': DisplayHelp = true;
+                     break;
++#ifdef VDRDEBUG
++          case 'k': cDll::keepPlugins = true;
++                    break;
++#endif
+           case 'l': {
+                       char *p = strchr(optarg, '.');
+                       if (p)
+@@ -385,6 +392,9 @@
+                "                           existing directory, without any \"..\", double '/'\n"
+                "                           or symlinks (default: none, same as -g-)\n"
+                "  -h,       --help         print this help and exit\n"
++#ifdef VDRDEBUG
++               "  -k        --keep-plugins Support valgrind by not unloading plugins\n"
++#endif
+                "  -l LEVEL, --log=LEVEL    set log level (default: 3)\n"
+                "                           0 = no logging, 1 = errors only,\n"
+                "                           2 = errors and info, 3 = errors, info and debug\n"
