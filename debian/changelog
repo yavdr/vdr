@@ -37,6 +37,7 @@ vdr (1.5.16-1) UNRELEASED; urgency=low
     requires the plugin directory!
   * Added short description to the NAME section of the manpages to fix the
     Lintian manpage-has-bad-whatis-entry warning
+  * Removed upgrade code for VDR 1.2.6 from postinst
 
   [ Thomas Günther ]
   * Adapted 04_newplugin.dpatch

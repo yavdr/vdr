@@ -30,31 +30,7 @@ case "$1" in
     configure)
         
         . /usr/share/debconf/confmodule
-        
-        # Try to stop vdr a second time when we are upgrading
-        # from a version smaller 1.2.6-9, because the init-script
-        # of the old version can not stop vdr without a existing
-        # /usr/bin/vdr
-        if [ ! -z $2 ]; then
-           if `dpkg --compare-versions $2 lt 1.2.6-9`; then
-              if [ -x "/etc/init.d/vdr" ]; then
-                 if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-                    invoke-rc.d vdr stop
-                 else
-                    /etc/init.d/vdr stop
-                 fi
-              fi
-           fi
-        fi
-        
-        # move cfg-files from /etc/vdr to /var/lib/vdr
-        for FILE in remote.conf setup.conf timers.conf; do
-                if [ -e /etc/vdr/$FILE ] && [ ! -e /var/lib/vdr/$FILE ]; then
-                        printf "Note: Moving /etc/vdr/$FILE to /var/lib/vdr/$FILE\n"
-                        mv /etc/vdr/$FILE /var/lib/vdr/$FILE
-                fi
-        done
-        
+    
         # install/move channels.conf 
         if [ ! -e /var/lib/vdr/channels.conf ]; then
                 if  [ -e /etc/vdr/channels.conf ]; then
