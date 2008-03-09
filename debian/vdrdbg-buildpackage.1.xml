@@ -1,0 +1,98 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
+
+  <!ENTITY dhfirstname "<firstname>Tobias</firstname>">
+  <!ENTITY dhsurname   "<surname>Grimm</surname>">
+  <!-- Please adjust the date whenever revising the manpage. -->
+  <!ENTITY dhdate      "<date>2008-03-09</date>">
+  <!ENTITY dhsection   "<manvolnum>1</manvolnum>">
+  <!ENTITY dhemail     "<email>tg@e-tobi.net</email>">
+  <!ENTITY dhusername  "Tobias Grimm">
+  <!ENTITY dhucpackage "<refentrytitle>vdrdbg-buildpackage</refentrytitle>">
+  <!ENTITY dhpackage   "vdrdbg-buildpackage">
+
+  <!ENTITY debian      "<productname>Debian</productname>">
+  <!ENTITY gnu         "<acronym>GNU</acronym>">
+  <!ENTITY gpl         "&gnu; <acronym>GPL</acronym>">
+]>
+
+<!--
+
+Process this file with an XSLT processor: `xsltproc \
+-''-nonet /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/\
+manpages/docbook.xsl manpage.dbk'.  A manual page
+<package>.<section> will be generated.  You may view the
+manual page with: nroff -man <package>.<section> | less'.  A
+typical entry in a Makefile or Makefile.am is:
+
+DB2MAN=/usr/share/sgml/docbook/stylesheet/xsl/nwalsh/\
+manpages/docbook.xsl
+XP=xsltproc -''-nonet
+
+manpage.1: manpage.dbk
+        $(XP) $(DB2MAN) $<
+    
+The xsltproc binary is found in the xsltproc package.  The
+XSL files are in docbook-xsl.  Please remember that if you
+create the nroff version in one of the debian/rules file
+targets (such as build), you will need to include xsltproc
+and docbook-xsl in your Build-Depends control field.
+
+-->
+
+<refentry>
+  <refentryinfo>
+    <address>&dhemail;</address>
+    <copyright>
+      <year>2008</year>
+      <holder>&dhusername;</holder>
+    </copyright>
+    &dhdate;
+  </refentryinfo>
+
+  <refmeta>
+    &dhucpackage;
+    &dhsection;
+  </refmeta>
+
+  <refnamediv>
+    <refname>&dhpackage;</refname>
+    <refpurpose>builds a VDR plug-in for debugging</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>&dhpackage; [dpkg-puildpackage-options]</command>
+    </cmdsynopsis>
+    <para>All dpkg-buildpackage options are available for vdrdbg-buildpackage as well.</para>
+  </refsynopsisdiv>
+
+  <refsect1>
+    <title>DESCRIPTION</title>
+    <para>
+      <command>&dhpackage;</command> is a small wrapper for dpkg-buildpackage,
+      which sets all options needed to compile a VDR plug-in for debugging.
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>SEE ALSO</title>
+    <para>dpkg-buildpackage (1)</para>
+  </refsect1>
+
+  <refsect1>
+    <title>AUTHOR</title>
+    <para>
+      This manual page was written by &dhusername; &dhemail; for
+      the &debian; system (but may be used by others).  Permission is
+      granted to copy, distribute and/or modify this document under
+      the terms of the &gnu; General Public License, Version 2 or any 
+      ater version published by the Free Software Foundation.
+    </para>
+    <para>
+      On Debian systems, the complete text of the GNU General Public
+      License can be found in /usr/share/common-licenses/GPL-2.
+    </para>
+  </refsect1>
+</refentry>

@@ -23,15 +23,22 @@ patch-stamp:
 unpatch:
 endif
 
+DB2MAN = /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/manpages/docbook.xsl
+MANPAGES = debian/vdrdbg-buildpackage.1 debian/debugvdr.1 debian/vdr-dbg.1 \
+           debian/vdrleaktest.1
+
 MAKE_OPTIONS = VFAT=1 REMOTE=LIRC CONFDIR=/var/lib/vdr LOCDIR=/usr/share/locale \
                VIDEODIR=/var/lib/video.00 PLUGINLIBDIR=/usr/lib/vdr/plugins
+
+%.1: %.1.xml
+	xsltproc -o $@ --nonet $(DB2MAN) $<
 
 configure: configure-stamp
 configure-stamp: patch-stamp
 	dh_testdir
 	touch configure-stamp
 
-build: build-stamp
+build: build-stamp $(MANPAGES)
 build-stamp: configure-stamp
 	dh_testdir
 
@@ -74,6 +81,7 @@ clean-patched:
 	rm -f debian/vdr-shutdown.wrapper
 	sh debian/patchlevel.sh clean
 	rm -f debian/patchinfo
+	rm -f $(MANPAGES)
 	dh_clean
 
 install: build patchlevel

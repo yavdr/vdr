@@ -1,0 +1,100 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" [
+
+  <!ENTITY dhfirstname "<firstname>Tobias</firstname>">
+  <!ENTITY dhsurname   "<surname>Grimm</surname>">
+  <!-- Please adjust the date whenever revising the manpage. -->
+  <!ENTITY dhdate      "<date>2008-03-09</date>">
+  <!ENTITY dhsection   "<manvolnum>1</manvolnum>">
+  <!ENTITY dhemail     "<email>tg@e-tobi.net</email>">
+  <!ENTITY dhusername  "Tobias Grimm">
+  <!ENTITY dhucpackage "<refentrytitle>vdrleaktest</refentrytitle>">
+  <!ENTITY dhpackage   "vdrleaktest">
+
+  <!ENTITY debian      "<productname>Debian</productname>">
+  <!ENTITY gnu         "<acronym>GNU</acronym>">
+  <!ENTITY gpl         "&gnu; <acronym>GPL</acronym>">
+]>
+
+<!--
+
+Process this file with an XSLT processor: `xsltproc \
+-''-nonet /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/\
+manpages/docbook.xsl manpage.dbk'.  A manual page
+<package>.<section> will be generated.  You may view the
+manual page with: nroff -man <package>.<section> | less'.  A
+typical entry in a Makefile or Makefile.am is:
+
+DB2MAN=/usr/share/sgml/docbook/stylesheet/xsl/nwalsh/\
+manpages/docbook.xsl
+XP=xsltproc -''-nonet
+
+manpage.1: manpage.dbk
+        $(XP) $(DB2MAN) $<
+    
+The xsltproc binary is found in the xsltproc package.  The
+XSL files are in docbook-xsl.  Please remember that if you
+create the nroff version in one of the debian/rules file
+targets (such as build), you will need to include xsltproc
+and docbook-xsl in your Build-Depends control field.
+
+-->
+
+<refentry>
+  <refentryinfo>
+    <address>&dhemail;</address>
+    <copyright>
+      <year>2008</year>
+      <holder>&dhusername;</holder>
+    </copyright>
+    &dhdate;
+  </refentryinfo>
+
+  <refmeta>
+    &dhucpackage;
+    &dhsection;
+  </refmeta>
+
+  <refnamediv>
+    <refname>&dhpackage;</refname>
+    <refpurpose>Runs the VDR debugging binary with the Valgrind.</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv>
+    <cmdsynopsis>
+      <command>&dhpackage; [vdr-options]</command>
+    <para>All vdr options are available for vdrleaktest as well.</para>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+  <refsect1>
+    <title>DESCRIPTION</title>
+    <para>
+      <command></command> 
+      will stop any running VDR daemon and start the debugging version of VDR with Valgrind.
+      No plug-ins will be loaded automatically. In order to test VDR plug-ins with
+      &dhpackage;, you need to pass the appropriate  VDR argumnts (e.g. -P plugin-name).
+    </para>
+  </refsect1>
+
+  <refsect1>
+    <title>SEE ALSO</title>
+    <para>vdr (1), valgrind(1)</para>
+  </refsect1>
+
+  <refsect1>
+    <title>AUTHOR</title>
+    <para>
+      This manual page was written by &dhusername; &dhemail; for
+      the &debian; system (but may be used by others).  Permission is
+      granted to copy, distribute and/or modify this document under
+      the terms of the &gnu; General Public License, Version 2 or any 
+      ater version published by the Free Software Foundation.
+    </para>
+    <para>
+      On Debian systems, the complete text of the GNU General Public
+      License can be found in /usr/share/common-licenses/GPL-2.
+    </para>
+  </refsect1>
+</refentry>

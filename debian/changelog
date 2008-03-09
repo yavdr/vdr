@@ -40,6 +40,8 @@ vdr (1.5.17-1) UNRELEASED; urgency=low
   * Added some lines of documentation to README.Debian, explaining that
     plug-ins manually copied to /usr/lib/vdr/plugins will only be loaded
     when PLUGIN_CHECK_PATCHLEVEL=no (closes: #426921)
+  * Added manpages for vdr-dbg, debugvdr, vdrleaktest, vdrdbg-buildpackage
+    and pic2mpg
 
   [ Thomas Günther ]
   * Adapted 04_newplugin.dpatch
