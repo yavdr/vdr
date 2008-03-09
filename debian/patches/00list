@@ -14,7 +14,6 @@
 82_valgrind
 
 99_ncursesw-include
-99_invalid-char-fix
 # 99_dvb-api-wrapper
 
 # Patch collection (replaces enAIO).

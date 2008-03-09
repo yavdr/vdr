@@ -1,7 +1,7 @@
 vdr (1.5.17-1) UNRELEASED; urgency=low
 
   [ Tobias Grimm]
-  * New upstream release
+  * New upstream release (closes: #467512)
   * Updated 03_cmdsubmenu.dpatch
   * Updated 09_sort_options.dpatch
   * Upgraded opt-20_liemikuutio.dpatch to version 1.18
@@ -24,7 +24,6 @@ vdr (1.5.17-1) UNRELEASED; urgency=low
   * Adapted 15_dvbplayer.dpatch
   * Added 01_pic2mpg-debian.dpatch
   * Added 99_ncursesw-include.dpatch
-  * Added 99_invalid-char-fix.dpatch (closes: #467512)
   * Added opt-49-x_pvrinput.dpatch
   * Added opt_40-iptv.dpatch
   * Added latest version of pin patch opt-48_pin-0.1.7.dpatch
