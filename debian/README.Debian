@@ -54,6 +54,9 @@ PLUGIN_CHECK_PATCHLEVEL="<yes|no>"
     Set this to "yes" to force VDR to load only plugins with a matching patch
     level. This is especially useful, if you run patched VDR versions from third
     party repositories like the ctvdr dirstribution.
+    If this option is set to "yes", then only plugins are loaded, which were
+    installed by a Debian package. In order to load plug-ins that you have
+    manually copied to /usr/lib/vdr/plugins, this option must be set to "no".
 
 PLUGIN_CHECK_STARTABLE="<yes|no>"
 

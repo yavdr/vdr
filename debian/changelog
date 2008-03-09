@@ -38,6 +38,9 @@ vdr (1.5.17-1) UNRELEASED; urgency=low
   * Added short description to the NAME section of the manpages to fix the
     Lintian manpage-has-bad-whatis-entry warning
   * Removed upgrade code for VDR 1.2.6 from postinst
+  * Added some lines of documentation to README.Debian, explaining that
+    plug-ins manually copied to /usr/lib/vdr/plugins will only be loaded
+    when PLUGIN_CHECK_PATCHLEVEL=no (closes: #426921)
 
   [ Thomas Günther ]
   * Adapted 04_newplugin.dpatch
