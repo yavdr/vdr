@@ -1,17 +1,20 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
 ## opt-20_liemikuutio.dpatch by Rolf Ahrenberg <Rolf.Ahrenberg AT sci.fi>
-## http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.5.15-liemikuutio-1.18.diff.gz
+## http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.5.17-liemikuutio-1.19.diff.gz
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Patch collection - see HISTORY-liemikuutio for details.
 
 @DPATCH@
-diff -Nru vdr-1.5.15-vanilla/HISTORY-liemikuutio vdr-1.5.15-liemikuutio/HISTORY-liemikuutio
---- vdr-1.5.15-vanilla/HISTORY-liemikuutio	1970-01-01 02:00:00.000000000 +0200
-+++ vdr-1.5.15-liemikuutio/HISTORY-liemikuutio	2008-02-17 18:08:07.000000000 +0200
-@@ -0,0 +1,89 @@
-+Liemikuutio Revision History
-+----------------------------
+diff -Nru vdr-1.5.17-vanilla/HISTORY-liemikuutio vdr-1.5.17-liemikuutio/HISTORY-liemikuutio
+--- vdr-1.5.17-vanilla/HISTORY-liemikuutio	1970-01-01 02:00:00.000000000 +0200
++++ vdr-1.5.17-liemikuutio/HISTORY-liemikuutio	2008-03-02 22:25:16.000000000 +0200
+@@ -0,0 +1,97 @@
++-----------------------------------
++Liemikuutio for Video Disc Recorder
++
++Maintainer: Rolf Ahrenberg
++-----------------------------------
 +
 +2006-01-08: Version 1.0
 +
@@ -99,9 +102,14 @@ diff -Nru vdr-1.5.15-vanilla/HISTORY-liemikuutio vdr-1.5.15-liemikuutio/HISTORY-
 +
 +- Updated for vdr-1.5.15.
 +
-diff -Nru vdr-1.5.15-vanilla/config.c vdr-1.5.15-liemikuutio/config.c
---- vdr-1.5.15-vanilla/config.c	2008-02-17 17:21:42.000000000 +0200
-+++ vdr-1.5.15-liemikuutio/config.c	2008-02-17 17:22:17.000000000 +0200
++2008-03-02: Version 1.19
++
++- Modified binary skip to use kPrev and kNext keys and the skip is now
++  always shortened after a direction change (Thanks to Timo Eskola).
++- Readded k1_k3_jumps_20s patch.
+diff -Nru vdr-1.5.17-vanilla/config.c vdr-1.5.17-liemikuutio/config.c
+--- vdr-1.5.17-vanilla/config.c	2008-03-02 19:09:57.000000000 +0200
++++ vdr-1.5.17-liemikuutio/config.c	2008-03-02 19:10:40.000000000 +0200
 @@ -289,6 +289,11 @@
    InitialChannel = 0;
    InitialVolume = -1;
@@ -138,14 +146,14 @@ diff -Nru vdr-1.5.15-vanilla/config.c vdr-1.5.15-liemikuutio/config.c
  
    Sort();
  
-diff -Nru vdr-1.5.15-vanilla/config.h vdr-1.5.15-liemikuutio/config.h
---- vdr-1.5.15-vanilla/config.h	2008-02-17 17:21:42.000000000 +0200
-+++ vdr-1.5.15-liemikuutio/config.h	2008-02-17 18:07:28.000000000 +0200
+diff -Nru vdr-1.5.17-vanilla/config.h vdr-1.5.17-liemikuutio/config.h
+--- vdr-1.5.17-vanilla/config.h	2008-03-02 19:09:57.000000000 +0200
++++ vdr-1.5.17-liemikuutio/config.h	2008-03-02 22:10:34.000000000 +0200
 @@ -36,6 +36,8 @@
  // plugins to work with newer versions of the core VDR as long as no
  // VDR header files have changed.
  
-+#define LIEMIKUUTIO  118
++#define LIEMIKUUTIO  119
 +
  #define MAXPRIORITY 99
  #define MAXLIFETIME 99
@@ -158,9 +166,9 @@ diff -Nru vdr-1.5.15-vanilla/config.h vdr-1.5.15-liemikuutio/config.h
    int __EndData__;
    cSetup(void);
    cSetup& operator= (const cSetup &s);
-diff -Nru vdr-1.5.15-vanilla/menu.c vdr-1.5.15-liemikuutio/menu.c
---- vdr-1.5.15-vanilla/menu.c	2008-02-17 17:21:42.000000000 +0200
-+++ vdr-1.5.15-liemikuutio/menu.c	2008-02-17 18:07:13.000000000 +0200
+diff -Nru vdr-1.5.17-vanilla/menu.c vdr-1.5.17-liemikuutio/menu.c
+--- vdr-1.5.17-vanilla/menu.c	2008-03-02 19:09:57.000000000 +0200
++++ vdr-1.5.17-liemikuutio/menu.c	2008-03-02 22:08:14.000000000 +0200
 @@ -13,6 +13,7 @@
  #include <stdio.h>
  #include <stdlib.h>
@@ -246,7 +254,7 @@ diff -Nru vdr-1.5.15-vanilla/menu.c vdr-1.5.15-liemikuutio/menu.c
              }
           }
        }
-@@ -1882,7 +1903,7 @@
+@@ -1883,7 +1904,7 @@
    fileName = strdup(Recording->FileName());
    name = NULL;
    totalEntries = newEntries = 0;
@@ -255,7 +263,7 @@ diff -Nru vdr-1.5.15-vanilla/menu.c vdr-1.5.15-liemikuutio/menu.c
    if (*Text() == '\t')
       name = strdup(Text() + 2); // 'Text() + 2' to skip the two '\t'
  }
-@@ -1898,13 +1919,133 @@
+@@ -1899,13 +1920,133 @@
    totalEntries++;
    if (New)
       newEntries++;
@@ -391,7 +399,7 @@ diff -Nru vdr-1.5.15-vanilla/menu.c vdr-1.5.15-liemikuutio/menu.c
  {
    base = Base ? strdup(Base) : NULL;
    level = Setup.RecordingDirs ? Level : -1;
-@@ -2135,6 +2276,19 @@
+@@ -2136,6 +2277,19 @@
    return osContinue;
  }
  
@@ -411,7 +419,7 @@ diff -Nru vdr-1.5.15-vanilla/menu.c vdr-1.5.15-liemikuutio/menu.c
  eOSState cMenuRecordings::ProcessKey(eKeys Key)
  {
    bool HadSubMenu = HasSubMenu();
-@@ -2149,7 +2303,12 @@
+@@ -2150,7 +2304,12 @@
         case kYellow: return Delete();
         case kInfo:
         case kBlue:   return Info();
@@ -425,7 +433,7 @@ diff -Nru vdr-1.5.15-vanilla/menu.c vdr-1.5.15-liemikuutio/menu.c
         case kNone:   if (Recordings.StateChanged(recordingsState))
                          Set(true);
                       break;
-@@ -2275,6 +2434,7 @@
+@@ -2276,6 +2435,7 @@
    Add(new cMenuEditBoolItem(tr("Setup.OSD$Scroll wraps"),           &data.MenuScrollWrap));
    Add(new cMenuEditBoolItem(tr("Setup.OSD$Menu key closes"),        &data.MenuKeyCloses));
    Add(new cMenuEditBoolItem(tr("Setup.OSD$Recording directories"),  &data.RecordingDirs));
@@ -433,7 +441,7 @@ diff -Nru vdr-1.5.15-vanilla/menu.c vdr-1.5.15-liemikuutio/menu.c
    SetCurrent(Get(current));
    Display();
  }
-@@ -2379,6 +2539,7 @@
+@@ -2380,6 +2540,7 @@
    Add(new cMenuEditIntItem( tr("Setup.EPG$EPG scan timeout (h)"),      &data.EPGScanTimeout));
    Add(new cMenuEditIntItem( tr("Setup.EPG$EPG bugfix level"),          &data.EPGBugfixLevel, 0, MAXEPGBUGFIXLEVEL));
    Add(new cMenuEditIntItem( tr("Setup.EPG$EPG linger time (min)"),     &data.EPGLinger, 0));
@@ -441,7 +449,7 @@ diff -Nru vdr-1.5.15-vanilla/menu.c vdr-1.5.15-liemikuutio/menu.c
    Add(new cMenuEditBoolItem(tr("Setup.EPG$Set system time"),           &data.SetSystemTime));
    if (data.SetSystemTime)
       Add(new cMenuEditTranItem(tr("Setup.EPG$Use time from transponder"), &data.TimeTransponder, &data.TimeSource));
-@@ -2757,6 +2918,9 @@
+@@ -2758,6 +2919,9 @@
    Add(new cMenuEditIntItem( tr("Setup.Recording$Instant rec. time (min)"),   &data.InstantRecordTime, 1, MAXINSTANTRECTIME));
    Add(new cMenuEditIntItem( tr("Setup.Recording$Max. video file size (MB)"), &data.MaxVideoFileSize, MINVIDEOFILESIZE, MAXVIDEOFILESIZE));
    Add(new cMenuEditBoolItem(tr("Setup.Recording$Split edited files"),        &data.SplitEditedFiles));
@@ -451,7 +459,7 @@ diff -Nru vdr-1.5.15-vanilla/menu.c vdr-1.5.15-liemikuutio/menu.c
  }
  
  // --- cMenuSetupReplay ------------------------------------------------------
-@@ -3044,6 +3208,7 @@
+@@ -3045,6 +3209,7 @@
       // Replay control:
       if (replaying && !stopReplayItem)
          // TRANSLATORS: note the leading blank!
@@ -459,7 +467,7 @@ diff -Nru vdr-1.5.15-vanilla/menu.c vdr-1.5.15-liemikuutio/menu.c
          Add(stopReplayItem = new cOsdItem(tr(" Stop replaying"), osStopReplay));
       else if (stopReplayItem && !replaying) {
          Del(stopReplayItem->Index());
-@@ -3058,6 +3223,7 @@
+@@ -3059,6 +3224,7 @@
    bool CutterActive = cCutter::Active();
    if (CutterActive && !cancelEditingItem) {
       // TRANSLATORS: note the leading blank!
@@ -467,7 +475,7 @@ diff -Nru vdr-1.5.15-vanilla/menu.c vdr-1.5.15-liemikuutio/menu.c
       Add(cancelEditingItem = new cOsdItem(tr(" Cancel editing"), osCancelEdit));
       result = true;
       }
-@@ -3078,6 +3244,7 @@
+@@ -3079,6 +3245,7 @@
       while ((s = cRecordControls::GetInstantId(s)) != NULL) {
             cOsdItem *item = new cOsdItem(osStopRecord);
             item->SetText(cString::sprintf("%s%s", tr(STOP_RECORDING), s));
@@ -475,52 +483,76 @@ diff -Nru vdr-1.5.15-vanilla/menu.c vdr-1.5.15-liemikuutio/menu.c
             Add(item);
             if (!stopRecordingItem)
                stopRecordingItem = item;
-@@ -4055,6 +4222,9 @@
+@@ -4056,6 +4223,10 @@
  
  // --- cReplayControl --------------------------------------------------------
  
-+#define REPLAYCONTROLSKIPSECONDS 60   // s
++#define REPLAYCONTROLSKIPLIMIT   9    // s
++#define REPLAYCONTROLSKIPSECONDS 90   // s
 +#define REPLAYCONTROLSKIPTIMEOUT 5000 // ms
 +
  cReplayControl *cReplayControl::currentReplayControl = NULL;
  char *cReplayControl::fileName = NULL;
  char *cReplayControl::title = NULL;
-@@ -4068,6 +4238,8 @@
+@@ -4069,6 +4240,9 @@
    lastCurrent = lastTotal = -1;
    lastPlay = lastForward = false;
    lastSpeed = -2; // an invalid value
 +  lastSkipKey = kNone;
 +  lastSkipSeconds = REPLAYCONTROLSKIPSECONDS;
++  lastSkipTimeout.Set(0);
    timeoutShow = 0;
    timeSearchActive = false;
    marks.Load(fileName);
-@@ -4428,9 +4600,21 @@
-     case kRight:   Forward(); break;
-     case kRed:     TimeSearch(); break;
-     case kGreen|k_Repeat:
--    case kGreen:   SkipSeconds(-60); break;
-+    case kGreen:   if (lastSkipTimeout.TimedOut())
+@@ -4432,6 +4606,32 @@
+     case kGreen:   SkipSeconds(-60); break;
+     case kYellow|k_Repeat:
+     case kYellow:  SkipSeconds( 60); break;
++    case k1|k_Repeat:
++    case k1:       SkipSeconds(-20); break;
++    case k3|k_Repeat:
++    case k3:       SkipSeconds( 20); break;
++    case kPrev|k_Repeat:
++    case kPrev:    if (lastSkipTimeout.TimedOut()) {
 +                      lastSkipSeconds = REPLAYCONTROLSKIPSECONDS;
-+                   else if (ISREALKEY(lastSkipKey) && (RAWKEY(lastSkipKey) != kGreen) && (lastSkipSeconds > 10))
++                      lastSkipKey = kPrev;
++                   }
++                   else if (RAWKEY(lastSkipKey) != kPrev && lastSkipSeconds > (2 * REPLAYCONTROLSKIPLIMIT)) {
 +                      lastSkipSeconds /= 2;
-+                   lastSkipKey = kGreen;
++                      lastSkipKey = kNone;
++                   }
 +                   lastSkipTimeout.Set(REPLAYCONTROLSKIPTIMEOUT);
 +                   SkipSeconds(-lastSkipSeconds); break;
-     case kYellow|k_Repeat:
--    case kYellow:  SkipSeconds( 60); break;
-+    case kYellow:  if (lastSkipTimeout.TimedOut())
++    case kNext|k_Repeat:
++    case kNext:    if (lastSkipTimeout.TimedOut()) {
 +                      lastSkipSeconds = REPLAYCONTROLSKIPSECONDS;
-+                   else if (ISREALKEY(lastSkipKey) && (RAWKEY(lastSkipKey) != kYellow) && (lastSkipSeconds > 10))
++                      lastSkipKey = kNext;	
++                   }
++                   else if (RAWKEY(lastSkipKey) != kNext && lastSkipSeconds > (2 * REPLAYCONTROLSKIPLIMIT)) {
 +                      lastSkipSeconds /= 2;
-+                   lastSkipKey = kYellow;
++                      lastSkipKey = kNone;
++                   }
 +                   lastSkipTimeout.Set(REPLAYCONTROLSKIPTIMEOUT);
 +                   SkipSeconds(lastSkipSeconds); break;
      case kStop:
      case kBlue:    Hide();
                     Stop();
-diff -Nru vdr-1.5.15-vanilla/menu.h vdr-1.5.15-liemikuutio/menu.h
---- vdr-1.5.15-vanilla/menu.h	2008-02-17 17:21:42.000000000 +0200
-+++ vdr-1.5.15-liemikuutio/menu.h	2008-02-17 17:22:17.000000000 +0200
+@@ -4441,12 +4641,8 @@
+       switch (Key) {
+         // Editing:
+         case kMarkToggle:      MarkToggle(); break;
+-        case kPrev|k_Repeat:
+-        case kPrev:
+         case kMarkJumpBack|k_Repeat:
+         case kMarkJumpBack:    MarkJump(false); break;
+-        case kNext|k_Repeat:
+-        case kNext:
+         case kMarkJumpForward|k_Repeat:
+         case kMarkJumpForward: MarkJump(true); break;
+         case kMarkMoveBack|k_Repeat:
+diff -Nru vdr-1.5.17-vanilla/menu.h vdr-1.5.17-liemikuutio/menu.h
+--- vdr-1.5.17-vanilla/menu.h	2008-03-02 19:09:57.000000000 +0200
++++ vdr-1.5.17-liemikuutio/menu.h	2008-03-02 19:10:40.000000000 +0200
 @@ -35,6 +35,7 @@
  private:
    cTimer *timer;
@@ -547,9 +579,9 @@ diff -Nru vdr-1.5.15-vanilla/menu.h vdr-1.5.15-liemikuutio/menu.h
    time_t timeoutShow;
    bool timeSearchActive, timeSearchHide;
    int timeSearchTime, timeSearchPos;
-diff -Nru vdr-1.5.15-vanilla/osdbase.c vdr-1.5.15-liemikuutio/osdbase.c
---- vdr-1.5.15-vanilla/osdbase.c	2008-02-17 17:21:42.000000000 +0200
-+++ vdr-1.5.15-liemikuutio/osdbase.c	2008-02-17 17:22:17.000000000 +0200
+diff -Nru vdr-1.5.17-vanilla/osdbase.c vdr-1.5.17-liemikuutio/osdbase.c
+--- vdr-1.5.17-vanilla/osdbase.c	2008-03-02 19:09:57.000000000 +0200
++++ vdr-1.5.17-liemikuutio/osdbase.c	2008-03-02 19:10:40.000000000 +0200
 @@ -77,6 +77,7 @@
  {
    isMenu = true;
@@ -644,9 +676,9 @@ diff -Nru vdr-1.5.15-vanilla/osdbase.c vdr-1.5.15-liemikuutio/osdbase.c
      case kUp|k_Repeat:
      case kUp:   CursorUp();   break;
      case kDown|k_Repeat:
-diff -Nru vdr-1.5.15-vanilla/osdbase.h vdr-1.5.15-liemikuutio/osdbase.h
---- vdr-1.5.15-vanilla/osdbase.h	2008-02-17 17:21:42.000000000 +0200
-+++ vdr-1.5.15-liemikuutio/osdbase.h	2008-02-17 17:22:17.000000000 +0200
+diff -Nru vdr-1.5.17-vanilla/osdbase.h vdr-1.5.17-liemikuutio/osdbase.h
+--- vdr-1.5.17-vanilla/osdbase.h	2008-03-02 19:09:57.000000000 +0200
++++ vdr-1.5.17-liemikuutio/osdbase.h	2008-03-02 19:10:40.000000000 +0200
 @@ -95,6 +95,8 @@
    char *status;
    int digit;
@@ -656,9 +688,9 @@ diff -Nru vdr-1.5.15-vanilla/osdbase.h vdr-1.5.15-liemikuutio/osdbase.h
  protected:
    void SetDisplayMenu(void);
    cSkinDisplayMenu *DisplayMenu(void) { return displayMenu; }
-diff -Nru vdr-1.5.15-vanilla/po/de_DE.po vdr-1.5.15-liemikuutio/po/de_DE.po
---- vdr-1.5.15-vanilla/po/de_DE.po	2008-02-17 17:21:42.000000000 +0200
-+++ vdr-1.5.15-liemikuutio/po/de_DE.po	2008-02-17 18:57:59.000000000 +0200
+diff -Nru vdr-1.5.17-vanilla/po/de_DE.po vdr-1.5.17-liemikuutio/po/de_DE.po
+--- vdr-1.5.17-vanilla/po/de_DE.po	2008-03-02 19:09:57.000000000 +0200
++++ vdr-1.5.17-liemikuutio/po/de_DE.po	2008-03-02 19:10:40.000000000 +0200
 @@ -998,3 +998,36 @@
  #, c-format
  msgid "VDR will shut down in %s minutes"
@@ -696,9 +728,9 @@ diff -Nru vdr-1.5.15-vanilla/po/de_DE.po vdr-1.5.15-liemikuutio/po/de_DE.po
 +
 +msgid "Setup.Recording$Show length"
 +msgstr "Lфnge der Aufnahme anzeigen"
-diff -Nru vdr-1.5.15-vanilla/po/et_EE.po vdr-1.5.15-liemikuutio/po/et_EE.po
---- vdr-1.5.15-vanilla/po/et_EE.po	2008-02-17 17:21:42.000000000 +0200
-+++ vdr-1.5.15-liemikuutio/po/et_EE.po	2008-02-17 18:57:59.000000000 +0200
+diff -Nru vdr-1.5.17-vanilla/po/et_EE.po vdr-1.5.17-liemikuutio/po/et_EE.po
+--- vdr-1.5.17-vanilla/po/et_EE.po	2008-03-02 19:09:57.000000000 +0200
++++ vdr-1.5.17-liemikuutio/po/et_EE.po	2008-03-02 19:10:40.000000000 +0200
 @@ -998,3 +998,36 @@
  #, c-format
  msgid "VDR will shut down in %s minutes"
@@ -736,9 +768,9 @@ diff -Nru vdr-1.5.15-vanilla/po/et_EE.po vdr-1.5.15-liemikuutio/po/et_EE.po
 +
 +msgid "Setup.Recording$Show length"
 +msgstr "Salvestuse pikkus"
-diff -Nru vdr-1.5.15-vanilla/po/fi_FI.po vdr-1.5.15-liemikuutio/po/fi_FI.po
---- vdr-1.5.15-vanilla/po/fi_FI.po	2008-02-17 17:21:42.000000000 +0200
-+++ vdr-1.5.15-liemikuutio/po/fi_FI.po	2008-02-17 18:57:59.000000000 +0200
+diff -Nru vdr-1.5.17-vanilla/po/fi_FI.po vdr-1.5.17-liemikuutio/po/fi_FI.po
+--- vdr-1.5.17-vanilla/po/fi_FI.po	2008-03-02 19:09:57.000000000 +0200
++++ vdr-1.5.17-liemikuutio/po/fi_FI.po	2008-03-02 19:10:40.000000000 +0200
 @@ -1001,3 +1001,36 @@
  #, c-format
  msgid "VDR will shut down in %s minutes"
@@ -776,9 +808,9 @@ diff -Nru vdr-1.5.15-vanilla/po/fi_FI.po vdr-1.5.15-liemikuutio/po/fi_FI.po
 +
 +msgid "Setup.Recording$Show length"
 +msgstr "Nфytф tallenteen kesto"
-diff -Nru vdr-1.5.15-vanilla/po/fr_FR.po vdr-1.5.15-liemikuutio/po/fr_FR.po
---- vdr-1.5.15-vanilla/po/fr_FR.po	2008-02-17 17:21:42.000000000 +0200
-+++ vdr-1.5.15-liemikuutio/po/fr_FR.po	2008-02-17 18:57:59.000000000 +0200
+diff -Nru vdr-1.5.17-vanilla/po/fr_FR.po vdr-1.5.17-liemikuutio/po/fr_FR.po
+--- vdr-1.5.17-vanilla/po/fr_FR.po	2008-03-02 19:09:57.000000000 +0200
++++ vdr-1.5.17-liemikuutio/po/fr_FR.po	2008-03-02 19:10:40.000000000 +0200
 @@ -1004,3 +1004,36 @@
  #, c-format
  msgid "VDR will shut down in %s minutes"
@@ -816,9 +848,9 @@ diff -Nru vdr-1.5.15-vanilla/po/fr_FR.po vdr-1.5.15-liemikuutio/po/fr_FR.po
 +
 +msgid "Setup.Recording$Show length"
 +msgstr "Monter la longueur de l'enregistrement"
-diff -Nru vdr-1.5.15-vanilla/po/ru_RU.po vdr-1.5.15-liemikuutio/po/ru_RU.po
---- vdr-1.5.15-vanilla/po/ru_RU.po	2008-02-17 17:21:42.000000000 +0200
-+++ vdr-1.5.15-liemikuutio/po/ru_RU.po	2008-02-17 18:57:59.000000000 +0200
+diff -Nru vdr-1.5.17-vanilla/po/ru_RU.po vdr-1.5.17-liemikuutio/po/ru_RU.po
+--- vdr-1.5.17-vanilla/po/ru_RU.po	2008-03-02 19:09:57.000000000 +0200
++++ vdr-1.5.17-liemikuutio/po/ru_RU.po	2008-03-02 19:10:40.000000000 +0200
 @@ -999,3 +999,36 @@
  #, c-format
  msgid "VDR will shut down in %s minutes"
@@ -856,9 +888,9 @@ diff -Nru vdr-1.5.15-vanilla/po/ru_RU.po vdr-1.5.15-liemikuutio/po/ru_RU.po
 +
 +msgid "Setup.Recording$Show length"
 +msgstr "Показывать продолжительность записи"
-diff -Nru vdr-1.5.15-vanilla/recording.c vdr-1.5.15-liemikuutio/recording.c
---- vdr-1.5.15-vanilla/recording.c	2008-02-17 17:21:42.000000000 +0200
-+++ vdr-1.5.15-liemikuutio/recording.c	2008-02-17 18:57:17.000000000 +0200
+diff -Nru vdr-1.5.17-vanilla/recording.c vdr-1.5.17-liemikuutio/recording.c
+--- vdr-1.5.17-vanilla/recording.c	2008-03-02 19:09:57.000000000 +0200
++++ vdr-1.5.17-liemikuutio/recording.c	2008-03-02 19:10:40.000000000 +0200
 @@ -46,6 +46,7 @@
  #endif
  #define INFOFILESUFFIX    "/info.vdr"
@@ -911,9 +943,9 @@ diff -Nru vdr-1.5.15-vanilla/recording.c vdr-1.5.15-liemikuutio/recording.c
 +        if (Setup.ShowRecLength && FileName()) {
 +           cString filename = cString::sprintf("%s%s", FileName(), INDEXFILESUFFIX);
 +           if (*filename) {
-+              if (access(*filename, R_OK) == 0) {
++              if (access(filename, R_OK) == 0) {
 +                 struct stat buf;
-+                 if (stat(*filename, &buf) == 0) {
++                 if (stat(filename, &buf) == 0) {
 +                    struct tIndex { int offset; uchar type; uchar number; short reserved; };
 +                    int delta = buf.st_size % sizeof(tIndex);
 +                    if (delta) {
@@ -992,9 +1024,9 @@ diff -Nru vdr-1.5.15-vanilla/recording.c vdr-1.5.15-liemikuutio/recording.c
  // The number of frames to stay off the end in case of time shift:
  #define INDEXSAFETYLIMIT 150 // frames
  
-diff -Nru vdr-1.5.15-vanilla/recording.h vdr-1.5.15-liemikuutio/recording.h
---- vdr-1.5.15-vanilla/recording.h	2008-02-17 17:21:42.000000000 +0200
-+++ vdr-1.5.15-liemikuutio/recording.h	2008-02-17 17:22:18.000000000 +0200
+diff -Nru vdr-1.5.17-vanilla/recording.h vdr-1.5.17-liemikuutio/recording.h
+--- vdr-1.5.17-vanilla/recording.h	2008-03-02 19:09:57.000000000 +0200
++++ vdr-1.5.17-liemikuutio/recording.h	2008-03-02 19:10:40.000000000 +0200
 @@ -19,6 +19,7 @@
  #include "tools.h"
  
@@ -1022,9 +1054,9 @@ diff -Nru vdr-1.5.15-vanilla/recording.h vdr-1.5.15-liemikuutio/recording.h
    };
  
  class cRecordings : public cList<cRecording>, public cThread {
-diff -Nru vdr-1.5.15-vanilla/svdrp.c vdr-1.5.15-liemikuutio/svdrp.c
---- vdr-1.5.15-vanilla/svdrp.c	2008-02-17 17:21:42.000000000 +0200
-+++ vdr-1.5.15-liemikuutio/svdrp.c	2008-02-17 17:22:18.000000000 +0200
+diff -Nru vdr-1.5.17-vanilla/svdrp.c vdr-1.5.17-liemikuutio/svdrp.c
+--- vdr-1.5.17-vanilla/svdrp.c	2008-03-02 19:09:57.000000000 +0200
++++ vdr-1.5.17-liemikuutio/svdrp.c	2008-03-02 19:10:40.000000000 +0200
 @@ -296,6 +296,8 @@
    "REMO [ on | off ]\n"
    "    Turns the remote control on or off. Without a parameter, the current\n"
@@ -1081,9 +1113,9 @@ diff -Nru vdr-1.5.15-vanilla/svdrp.c vdr-1.5.15-liemikuutio/svdrp.c
    else if (CMD("SCAN"))  CmdSCAN(s);
    else if (CMD("STAT"))  CmdSTAT(s);
    else if (CMD("UPDT"))  CmdUPDT(s);
-diff -Nru vdr-1.5.15-vanilla/svdrp.h vdr-1.5.15-liemikuutio/svdrp.h
---- vdr-1.5.15-vanilla/svdrp.h	2008-02-17 17:21:42.000000000 +0200
-+++ vdr-1.5.15-liemikuutio/svdrp.h	2008-02-17 17:22:18.000000000 +0200
+diff -Nru vdr-1.5.17-vanilla/svdrp.h vdr-1.5.17-liemikuutio/svdrp.h
+--- vdr-1.5.17-vanilla/svdrp.h	2008-03-02 19:09:57.000000000 +0200
++++ vdr-1.5.17-liemikuutio/svdrp.h	2008-03-02 19:10:40.000000000 +0200
 @@ -79,6 +79,7 @@
    void CmdPLUG(const char *Option);
    void CmdPUTE(const char *Option);

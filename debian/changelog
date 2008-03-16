@@ -4,7 +4,7 @@ vdr (1.5.18-1) UNRELEASED; urgency=low
   * New upstream release (closes: #467512)
   * Updated 03_cmdsubmenu.dpatch
   * Updated 09_sort_options.dpatch
-  * Upgraded opt-20_liemikuutio.dpatch to version 1.18
+  * Upgraded opt-20_liemikuutio.dpatch to version 1.19
   * Updated opt-31-x_reelchannelscan
   * Updated opt-37-x_menuorg.dpatch
   * Updated opt-38_disableDoubleEpgEntrys.dpatch, to avoid sprintf buffer

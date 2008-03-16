@@ -5,19 +5,20 @@
 ##   - adapted to VDR-1.5.8
 ## Tobias Grimm <tg@e-tobi.net>:
 ##   - adapted to VDR-1.5.16
+##   - adapted to VDR-1.5.18
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Makes VDR aware of the reelchannelscan plugin.
 
 @DPATCH@
-diff -urNad vdr-1.5.16~/vdr.c vdr-1.5.16/vdr.c
---- vdr-1.5.16~/vdr.c	2008-02-25 20:52:42.000000000 +0100
-+++ vdr-1.5.16/vdr.c	2008-02-25 20:56:26.000000000 +0100
-@@ -740,7 +740,14 @@
+diff -urNad vdr-1.5.18~/vdr.c vdr-1.5.18/vdr.c
+--- vdr-1.5.18~/vdr.c	2008-03-14 14:22:39.000000000 +0100
++++ vdr-1.5.18/vdr.c	2008-03-16 15:59:55.000000000 +0100
+@@ -731,7 +731,14 @@
          // Make sure we have a visible programme in case device usage has changed:
          if (!EITScanner.Active() && cDevice::PrimaryDevice()->HasDecoder() && !cDevice::PrimaryDevice()->HasProgramme()) {
             static time_t lastTime = 0;
--           if (!Menu && Now - lastTime > MINCHANNELWAIT) { // !Menu to avoid interfering with the CAM if a CAM menu is open
+-           if ((!Menu || CheckHasProgramme) && Now - lastTime > MINCHANNELWAIT) { // !Menu to avoid interfering with the CAM if a CAM menu is open
 +
 +           bool reelChannelscanIsScanningOnReceivingDevice;
 +           if (!cPluginManager::CallFirstService("ReelChannelscan::IsScanningOnReceivingDevice", &reelChannelscanIsScanningOnReceivingDevice))
@@ -25,7 +26,7 @@ diff -urNad vdr-1.5.16~/vdr.c vdr-1.5.16/vdr.c
 +             reelChannelscanIsScanningOnReceivingDevice = false;
 +           }
 +
-+           if (!reelChannelscanIsScanningOnReceivingDevice && !Menu && Now - lastTime > MINCHANNELWAIT) { // !Menu to avoid interfering with the CAM if a CAM menu is open
++           if (!reelChannelscanIsScanningOnReceivingDevice && (!Menu || CheckHasProgramme) && Now - lastTime > MINCHANNELWAIT) { // !Menu to avoid interfering with the CAM if a CAM menu is open
                cChannel *Channel = Channels.GetByNumber(cDevice::CurrentChannel());
                if (Channel && (Channel->Vpid() || Channel->Apid(0))) {
                   if (!Channels.SwitchTo(cDevice::CurrentChannel()) // try to switch to the original channel...

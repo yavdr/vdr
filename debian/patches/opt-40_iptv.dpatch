@@ -1,15 +1,15 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
 ## opt-40_iptv.dpatch by Tobias Grimm <tg@e-tobi.net>
-## from version 0.0.6 of the IPTV plug-in
+## from version 0.0.7 of the IPTV plug-in
 ## http://www.saunalahti.fi/~rahrenbe/vdr/iptv/
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Patch required for the IPTV plug-in
 
 @DPATCH@
-diff -urNad vdr-1.5.15~/channels.c vdr-1.5.15/channels.c
---- vdr-1.5.15~/channels.c	2008-02-10 16:45:38.000000000 +0100
-+++ vdr-1.5.15/channels.c	2008-02-18 17:23:54.000000000 +0100
+diff -urNad vdr-1.5.18~/channels.c vdr-1.5.18/channels.c
+--- vdr-1.5.18~/channels.c	2008-03-16 16:08:41.000000000 +0100
++++ vdr-1.5.18/channels.c	2008-03-16 16:08:41.000000000 +0100
 @@ -166,6 +166,7 @@
    shortName = strdup("");
    provider = strdup("");
@@ -53,17 +53,17 @@ diff -urNad vdr-1.5.15~/channels.c vdr-1.5.15/channels.c
 +bool cChannel::SetPlugTransponderData(int Source, int Frequency, const char *PluginParam)
 +{
 +  if (source != Source || frequency != Frequency || (strcmp(pluginParam, PluginParam) != 0)) {
-+       if (Number()) {
-+          dsyslog("changing transponder data of channel %d from %s:%d:%s to %s:%d:%s", Number(), *cSource::ToString(source), frequency, pluginParam, *cSource::ToString(Source), Frequency, PluginParam);
-+          modification |= CHANNELMOD_TRANSP;
-+          Channels.SetModified();
-+          }
-+       source = Source;
-+       frequency = Frequency;
-+       pluginParam = strcpyrealloc(pluginParam, PluginParam);
-+       schedule = NULL;
-+       }
-+    return true;
++     if (Number()) {
++        dsyslog("changing transponder data of channel %d from %s:%d:%s to %s:%d:%s", Number(), *cSource::ToString(source), frequency, pluginParam, *cSource::ToString(Source), Frequency, PluginParam);
++        modification |= CHANNELMOD_TRANSP;
++        Channels.SetModified();
++        }
++     source = Source;
++     frequency = Frequency;
++     pluginParam = strcpyrealloc(pluginParam, PluginParam);
++     schedule = NULL;
++     }
++  return true;
 +}
 +
  bool cChannel::SetSatTransponderData(int Source, int Frequency, char Polarization, int Srate, int CoderateH)
@@ -131,9 +131,9 @@ diff -urNad vdr-1.5.15~/channels.c vdr-1.5.15/channels.c
  
          free(parambuf);
          free(sourcebuf);
-diff -urNad vdr-1.5.15~/channels.h vdr-1.5.15/channels.h
---- vdr-1.5.15~/channels.h	2008-02-08 14:48:31.000000000 +0100
-+++ vdr-1.5.15/channels.h	2008-02-18 17:23:54.000000000 +0100
+diff -urNad vdr-1.5.18~/channels.h vdr-1.5.18/channels.h
+--- vdr-1.5.18~/channels.h	2008-02-08 14:48:31.000000000 +0100
++++ vdr-1.5.18/channels.h	2008-03-16 16:08:41.000000000 +0100
 @@ -114,6 +114,7 @@
    char *shortName;
    char *provider;
@@ -173,9 +173,9 @@ diff -urNad vdr-1.5.15~/channels.h vdr-1.5.15/channels.h
    void SetPids(int Vpid, int Ppid, int *Apids, char ALangs[][MAXLANGCODE2], int *Dpids, char DLangs[][MAXLANGCODE2], int *Spids, char SLangs[][MAXLANGCODE2], int Tpid);
    void SetCaIds(const int *CaIds); // list must be zero-terminated
    void SetCaDescriptors(int Level);
-diff -urNad vdr-1.5.15~/config.h vdr-1.5.15/config.h
---- vdr-1.5.15~/config.h	2008-02-05 16:35:11.000000000 +0100
-+++ vdr-1.5.15/config.h	2008-02-18 17:23:54.000000000 +0100
+diff -urNad vdr-1.5.18~/config.h vdr-1.5.18/config.h
+--- vdr-1.5.18~/config.h	2008-03-16 16:08:41.000000000 +0100
++++ vdr-1.5.18/config.h	2008-03-16 16:08:41.000000000 +0100
 @@ -30,6 +30,8 @@
  #define APIVERSION  "1.5.15"
  #define APIVERSNUM   10515  // Version * 10000 + Major * 100 + Minor
@@ -185,10 +185,10 @@ diff -urNad vdr-1.5.15~/config.h vdr-1.5.15/config.h
  // When loading plugins, VDR searches them by their APIVERSION, which
  // may be smaller than VDRVERSION in case there have been no changes to
  // VDR header files since the last APIVERSION. This allows compiled
-diff -urNad vdr-1.5.15~/menu.c vdr-1.5.15/menu.c
---- vdr-1.5.15~/menu.c	2008-02-16 14:53:26.000000000 +0100
-+++ vdr-1.5.15/menu.c	2008-02-18 17:23:54.000000000 +0100
-@@ -253,6 +253,7 @@
+diff -urNad vdr-1.5.18~/menu.c vdr-1.5.18/menu.c
+--- vdr-1.5.18~/menu.c	2008-03-16 16:08:41.000000000 +0100
++++ vdr-1.5.18/menu.c	2008-03-16 16:08:41.000000000 +0100
+@@ -256,6 +256,7 @@
    cChannel *channel;
    cChannel data;
    char name[256];
@@ -196,7 +196,7 @@ diff -urNad vdr-1.5.15~/menu.c vdr-1.5.15/menu.c
    void Setup(void);
  public:
    cMenuEditChannel(cChannel *Channel, bool New = false);
-@@ -285,6 +286,7 @@
+@@ -288,6 +289,7 @@
  
    // Parameters for all types of sources:
    strn0cpy(name, data.name, sizeof(name));
@@ -204,7 +204,7 @@ diff -urNad vdr-1.5.15~/menu.c vdr-1.5.15/menu.c
    Add(new cMenuEditStrItem( tr("Name"),          name, sizeof(name)));
    Add(new cMenuEditSrcItem( tr("Source"),       &data.source));
    Add(new cMenuEditIntItem( tr("Frequency"),    &data.frequency));
-@@ -315,6 +317,7 @@
+@@ -318,6 +320,7 @@
    ST("  T")  Add(new cMenuEditMapItem( tr("Transmission"), &data.transmission, TransmissionValues));
    ST("  T")  Add(new cMenuEditMapItem( tr("Guard"),        &data.guard,        GuardValues));
    ST("  T")  Add(new cMenuEditMapItem( tr("Hierarchy"),    &data.hierarchy,    HierarchyValues, tr("none")));
@@ -212,7 +212,7 @@ diff -urNad vdr-1.5.15~/menu.c vdr-1.5.15/menu.c
  
    SetCurrent(Get(current));
    Display();
-@@ -329,6 +332,7 @@
+@@ -332,6 +335,7 @@
       if (Key == kOk) {
          if (Channels.HasUniqueChannelID(&data, channel)) {
             data.name = strcpyrealloc(data.name, name);
@@ -220,22 +220,29 @@ diff -urNad vdr-1.5.15~/menu.c vdr-1.5.15/menu.c
             if (channel) {
                *channel = data;
                isyslog("edited channel %d %s", channel->Number(), *data.ToText());
-diff -urNad vdr-1.5.15~/po/fi_FI.po vdr-1.5.15/po/fi_FI.po
---- vdr-1.5.15~/po/fi_FI.po	2008-02-17 14:45:14.000000000 +0100
-+++ vdr-1.5.15/po/fi_FI.po	2008-02-18 17:25:37.000000000 +0100
-@@ -18,6 +18,9 @@
- "Content-Type: text/plain; charset=ISO-8859-15\n"
- "Content-Transfer-Encoding: 8bit\n"
+diff -urNad vdr-1.5.18~/po/fi_FI.po vdr-1.5.18/po/fi_FI.po
+--- vdr-1.5.18~/po/fi_FI.po	2008-03-16 16:08:41.000000000 +0100
++++ vdr-1.5.18/po/fi_FI.po	2008-03-16 16:09:59.000000000 +0100
+@@ -1034,3 +1034,6 @@
  
+ msgid "Setup.Recording$Show length"
+ msgstr "Näytä tallenteen kesto"
++
 +msgid "Parameters"
 +msgstr "Parametrit"
-+
- msgid "*** Invalid Channel ***"
- msgstr "*** Virheellinen kanavavalinta ***"
+diff -urNad vdr-1.5.18~/po/fr_FR.po vdr-1.5.18/po/fr_FR.po
+--- vdr-1.5.18~/po/fr_FR.po	2008-03-16 16:08:41.000000000 +0100
++++ vdr-1.5.18/po/fr_FR.po	2008-03-16 16:10:20.000000000 +0100
+@@ -1037,3 +1037,6 @@
  
-diff -urNad vdr-1.5.15~/sources.c vdr-1.5.15/sources.c
---- vdr-1.5.15~/sources.c	2008-02-10 15:07:26.000000000 +0100
-+++ vdr-1.5.15/sources.c	2008-02-18 17:23:54.000000000 +0100
+ msgid "Setup.Recording$Show length"
+ msgstr "Monter la longueur de l'enregistrement"
++
++msgid "Parameters"
++msgstr "Paramètres"
+diff -urNad vdr-1.5.18~/sources.c vdr-1.5.18/sources.c
+--- vdr-1.5.18~/sources.c	2008-02-10 15:07:26.000000000 +0100
++++ vdr-1.5.18/sources.c	2008-03-16 16:08:41.000000000 +0100
 @@ -37,6 +37,7 @@
    char buffer[16];
    char *q = buffer;
@@ -252,9 +259,9 @@ diff -urNad vdr-1.5.15~/sources.c vdr-1.5.15/sources.c
      case 'C': type = stCable; break;
      case 'S': type = stSat;   break;
      case 'T': type = stTerr;  break;
-diff -urNad vdr-1.5.15~/sources.conf vdr-1.5.15/sources.conf
---- vdr-1.5.15~/sources.conf	2007-02-17 17:15:13.000000000 +0100
-+++ vdr-1.5.15/sources.conf	2008-02-18 17:23:54.000000000 +0100
+diff -urNad vdr-1.5.18~/sources.conf vdr-1.5.18/sources.conf
+--- vdr-1.5.18~/sources.conf	2007-02-17 17:15:13.000000000 +0100
++++ vdr-1.5.18/sources.conf	2008-03-16 16:08:41.000000000 +0100
 @@ -188,3 +188,7 @@
  # Terrestrial
  
@@ -263,9 +270,9 @@ diff -urNad vdr-1.5.15~/sources.conf vdr-1.5.15/sources.conf
 +# Plugin
 +
 +P       Plugin
-diff -urNad vdr-1.5.15~/sources.h vdr-1.5.15/sources.h
---- vdr-1.5.15~/sources.h	2005-05-14 11:30:41.000000000 +0200
-+++ vdr-1.5.15/sources.h	2008-02-18 17:23:54.000000000 +0100
+diff -urNad vdr-1.5.18~/sources.h vdr-1.5.18/sources.h
+--- vdr-1.5.18~/sources.h	2005-05-14 11:30:41.000000000 +0200
++++ vdr-1.5.18/sources.h	2008-03-16 16:08:41.000000000 +0100
 @@ -16,10 +16,11 @@
  public:
    enum eSourceType {

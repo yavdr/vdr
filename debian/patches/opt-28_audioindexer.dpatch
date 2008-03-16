@@ -1,8 +1,10 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
-## opt-28_audioindexer.dpatch by Tobias Grimm <tg@e-tobi.net>
+## opt-28_audioindexer.dpatch by Reinhard Nissl <rnissl@gmx.de>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+## DP: Fixes cRemux to only generate an index entry whenever
+## DP: the recorded amount of music crosses a 40 ms boundary.
+## DP: This should fix problems with the length of radio recordings.
 
 @DPATCH@
 diff -urNad vdr-1.5.10~/remux.c vdr-1.5.10/remux.c
