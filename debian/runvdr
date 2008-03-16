@@ -1,10 +1,13 @@
-#!/bin/bash
-#
-#
+#!/bin/bash -p
 
 . /usr/lib/vdr/config-loader.sh
 
-VDRCMD="LANG=$VDR_LANG LC_ALL=$VDR_LANG /usr/bin/vdr $*"
+VDR_ENV="LANG=$VDR_LANG LC_ALL=$VDR_LANG"
+if [ -n $VDR_CHARSET_OVERRIDE ] ; then
+   VDR_ENV="$VDR_ENV VDR_CHARSET_OVERRIDE=$VDR_CHARSET_OVERRIDE"
+fi
+
+VDRCMD="$VDR_ENV /usr/bin/vdr $*"
 
 KVERS_2_6=`uname -r | grep -e '2.6'`
 
@@ -22,11 +25,14 @@ function get_modulenames()
 # TODO: check if udev handles this on newer systems!?
 function set_permissions()
 {
-    for FILE in av7110_ir budget_ci_ir; do
-        if [ -e "/proc/$FILE" ]; then
-            chown $USER.$GROUP /proc/$FILE
-        fi
-    done
+    if [ "$USER" -o "$GROUP" ]; then
+        for FILE in av7110_ir budget_ci_ir; do
+            if [ -e "/proc/$FILE" ]; then
+                chown $USER.$GROUP /proc/$FILE
+            fi
+        done
+    fi
+    chmod o+r /dev/input/event*
 }
 
 function load_dvb_modules()
@@ -60,6 +66,7 @@ function unload_dvb_modules()
     done
 }
 
+
 VDR_ERR=`mktemp -p /tmp vdr-err.XXXXXX`
 
 get_modulenames
@@ -67,11 +74,10 @@ get_modulenames
 [ -z "$MODULES" ] && load_dvb_modules
 
 while (true) do
-    
+
     set_permissions
-    
+
     eval $VDRCMD >/dev/null 2>"$VDR_ERR"
-    
 
     case $? in
         0)

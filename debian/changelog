@@ -1,4 +1,4 @@
-vdr (1.5.17-1) UNRELEASED; urgency=low
+vdr (1.5.18-1) UNRELEASED; urgency=low
 
   [ Tobias Grimm]
   * New upstream release (closes: #467512)
@@ -42,6 +42,7 @@ vdr (1.5.17-1) UNRELEASED; urgency=low
     when PLUGIN_CHECK_PATCHLEVEL=no (closes: #426921)
   * Added manpages for vdr-dbg, debugvdr, vdrleaktest, vdrdbg-buildpackage
     and pic2mpg
+  * Added support for VDR_CHARSET_OVERRIDE=<CHARSET> in /etc/default/vdr
 
   [ Thomas Günther ]
   * Adapted 04_newplugin.dpatch
