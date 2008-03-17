@@ -43,6 +43,8 @@ vdr (1.5.18-1) UNRELEASED; urgency=low
   * Added manpages for vdr-dbg, debugvdr, vdrleaktest, vdrdbg-buildpackage
     and pic2mpg
   * Added support for VDR_CHARSET_OVERRIDE=<CHARSET> in /etc/default/vdr
+  * Made vdrleaktest and debugvdr explicitly using bash, because
+    commands-loader.sh and plugin-loader.sh contain bashisms
 
   [ Thomas Günther ]
   * Adapted 04_newplugin.dpatch

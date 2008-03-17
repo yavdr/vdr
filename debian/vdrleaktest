@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # c't-VDR Memory Leak Tester
 #

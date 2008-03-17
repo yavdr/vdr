@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 #
 # Start debug version of vdr with the same options as the normal vdr daemon
 #
