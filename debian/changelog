@@ -45,6 +45,9 @@ vdr (1.5.18-1) UNRELEASED; urgency=low
   * Added support for VDR_CHARSET_OVERRIDE=<CHARSET> in /etc/default/vdr
   * Made vdrleaktest and debugvdr explicitly using bash, because
     commands-loader.sh and plugin-loader.sh contain bashisms
+  * Instead of setting VFAT=1 at compile time, introduced a new
+    configuration option in /etc/defautl/vdr (using VDR's 
+    --vfat option), so that the VFAT support can be disabled 
 
   [ Thomas Günther ]
   * Adapted 04_newplugin.dpatch

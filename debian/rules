@@ -27,7 +27,7 @@ DB2MAN = /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/manpages/docbook.xsl
 MANPAGES = debian/vdrdbg-buildpackage.1 debian/debugvdr.1 debian/vdr-dbg.1 \
            debian/vdrleaktest.1
 
-MAKE_OPTIONS = VFAT=1 REMOTE=LIRC CONFDIR=/var/lib/vdr LOCDIR=/usr/share/locale \
+MAKE_OPTIONS = REMOTE=LIRC CONFDIR=/var/lib/vdr LOCDIR=/usr/share/locale \
                VIDEODIR=/var/lib/video.00 PLUGINLIBDIR=/usr/lib/vdr/plugins
 
 %.1: %.1.xml

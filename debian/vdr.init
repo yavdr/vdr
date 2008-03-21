@@ -35,6 +35,7 @@ test "$ENABLE_SHUTDOWN" = "1" && VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown.wrapper"
 . /usr/lib/vdr/plugin-loader.sh
 . /usr/lib/vdr/commands-loader.sh
 
+
 clean_console()
 {
     if [ "$KEYB_TTY" != "" ]; then
@@ -79,6 +80,11 @@ startvdr()
             mergecommands "commands"
             mergecommands "reccmds"
             configure_console_input
+
+            if [ "$VFAT" == "1" ]; then
+                $OPTIONS="--vfat $OPTIONS"
+            fi
+
             start-stop-daemon --start --quiet --startas $DAEMON --background \
                 --name $(basename $DAEMON) --pidfile $PIDFILE --make-pidfile -- \
                 -v $VIDEO_DIR -c $CFG_DIR -L $PLUGIN_DIR -r $REC_CMD \

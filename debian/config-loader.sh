@@ -68,4 +68,7 @@ KEYB_TTY_SWITCH=0
 [ -z "$LANG" ] && LANG="C"
 VDR_LANG=$LANG
 
+# Enable VFAT file system support by default
+VFAT=1
+
 test -f /etc/default/vdr && . /etc/default/vdr

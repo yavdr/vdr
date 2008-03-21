@@ -41,12 +41,6 @@ KEYB_TTY_SWITCH=<0|1>
     Set this to 1, to make VDR switch to the console specified in KEYB_TTY
     on startup.
 
-NONPTL=<0|1>
-
-    Default: 0
-
-    Change this to 1, if you want VDR to not use NPTL.
-
 PLUGIN_CHECK_PATCHLEVEL="<yes|no>"
 
     Default: "no"
@@ -90,7 +84,7 @@ USER=<USERNAME>
 
     Username under which vdr will run. All plugins and commands invoked by VDR
     will be executed with this users rights.
-  
+
 VDR_CHARSET_OVERRIDE=<CHARSET>
 
     Default: not set
@@ -107,6 +101,15 @@ VDR_LANG=<LANG>
 
     Locale which is used when running vdr (Default is C, because vdr does 
     not run on systems where the default is UTF8 like on Etch)
+
+VFAT=<0|1>
+
+    Default: 1
+
+    This corresponds to VDR's --vfat option. If videos are stored on a VFAT file
+    system or a SAMBA share, VFAT should be set to 1. With VFAT=1, the encoding
+    and length of file names will be tweaked, so that it can be correctly stored
+    on VFAT file systems.
 
 VIDEO_DIR="<VIDEODIR>"
 
