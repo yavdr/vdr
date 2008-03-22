@@ -82,7 +82,7 @@ startvdr()
             configure_console_input
 
             if [ "$VFAT" == "1" ]; then
-                $OPTIONS="--vfat $OPTIONS"
+                OPTIONS="--vfat $OPTIONS"
             fi
 
             start-stop-daemon --start --quiet --startas $DAEMON --background \
