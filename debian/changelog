@@ -1,4 +1,4 @@
-vdr (1.5.18-1) UNRELEASED; urgency=low
+vdr (1.6.0-1) UNRELEASED; urgency=low
 
   [ Tobias Grimm]
   * New upstream release (closes: #467512)
@@ -83,7 +83,7 @@ vdr (1.5.18-1) UNRELEASED; urgency=low
   * Updated debian/copyright
   * Changed config-loader.sh to get default $LANG from /etc/environment
 
- -- Thomas Schmidt <tschmidt@debian.org>  Sat, 01 Mar 2008 22:47:25 +0100
+ -- Thomas Schmidt <tschmidt@debian.org>  Sun, 23 Mar 2008 12:27:48 +0100
 
 vdr (1.4.7-3) unstable; urgency=low
 
