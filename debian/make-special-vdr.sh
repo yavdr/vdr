@@ -86,6 +86,12 @@
 #       - Added substition for vdr-skins suggestion in prepare_text2skin
 #       - Exclude documentation files (README etc.) from substitions
 #       - Preserve mode, ownership and timestamps
+#
+#    2008-03-24: Version 0.8
+#
+#       - Updated prepare_sudoku and prepare_wapd for cdbs build system
+#       - Added prepare_osdteletext (no substitution in README)
+#       - Updated substitution for the plugin debianizer script in prepare_vdr
 
 
 main()
@@ -141,6 +147,9 @@ prepare()
         fi
         if check_package "vdr${SPECIAL_VDR_SUFFIX}-plugin-mediamvp"; then
             prepare_mediamvp
+        fi
+        if check_package "vdr${SPECIAL_VDR_SUFFIX}-plugin-osdteletext"; then
+            prepare_osdteletext
         fi
         if check_package "vdr${SPECIAL_VDR_SUFFIX}-plugin-pin"; then
             prepare_pin
@@ -491,8 +500,8 @@ EOF
 -    ORIGTARBALL="../vdr${SPECIAL_VDR_SUFFIX}-plugin-$PLUGIN"_"$VERSION.orig.tar.gz"
 +    ORIGTARBALL="../vdr-plugin-$PLUGIN"_"$VERSION.orig.tar.gz"
 @@ -72 +72 @@
--dh_make="/usr/bin/dh_make -t /usr/share/vdr${SPECIAL_VDR_SUFFIX}-dev/plugin-template -d -s -p vdr${SPECIAL_VDR_SUFFIX}-plugin-$PLUGIN"
-+dh_make="/usr/bin/dh_make -t /usr/share/vdr${SPECIAL_VDR_SUFFIX}-dev/plugin-template -d -s -p vdr-plugin-$PLUGIN"
+-dh_make="/usr/bin/dh_make -t /usr/share/vdr${SPECIAL_VDR_SUFFIX}-dev/plugin-template -b -p vdr${SPECIAL_VDR_SUFFIX}-plugin-$PLUGIN"
++dh_make="/usr/bin/dh_make -t /usr/share/vdr${SPECIAL_VDR_SUFFIX}-dev/plugin-template -b -p vdr-plugin-$PLUGIN"
 EOF
 }
 
@@ -594,6 +603,27 @@ prepare_mediamvp()
     /bin/mv "debian/mvploader" "debian/mvploader_vdr${SPECIAL_VDR_SUFFIX}"
 }
 
+prepare_osdteletext()
+{
+    echo "prepare_osdteletext: correct 02_tmp-path-fix.dpatch"
+    /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
+--- debian/patches/02_tmp-path-fix.dpatch
++++ debian/patches/02_tmp-path-fix.dpatch
+@@ -43 +43 @@
+-+                                  (standard value: /var/cache/vdr${SPECIAL_VDR_SUFFIX}/vtx,
+++                                  (standard value: /var/cache/vdr/vtx,
+@@ -45 +45 @@
+-                                    or /var/cache/vdr${SPECIAL_VDR_SUFFIX}/osdteletext.)
++                                    or /var/cache/vdr/osdteletext.)
+@@ -56 +56 @@
+-+                                  (Voreinstellung: /var/cache/vdr${SPECIAL_VDR_SUFFIX}/vtx,
+++                                  (Voreinstellung: /var/cache/vdr/vtx,
+@@ -58 +58 @@
+-                                    oder /var/cache/vdr${SPECIAL_VDR_SUFFIX}/osdteletext.)
++                                    oder /var/cache/vdr/osdteletext.)
+EOF
+}
+
 prepare_pin()
 {
     echo "prepare_pin: rename fskcheck -> fskcheck_vdr${SPECIAL_VDR_SUFFIX}"
@@ -632,7 +662,14 @@ EOF
 prepare_sudoku()
 {
     echo "prepare_sudoku: rename sudoku_generator -> sudoku_generator_vdr${SPECIAL_VDR_SUFFIX}"
-    /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
+    if /usr/bin/dpkg --compare-versions "$(/usr/bin/dpkg-parsechangelog | /bin/egrep '^Version:' | /usr/bin/cut -f 2 -d ' ')" \
+                                        ge "0.2.0-1"; then
+        /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' >> debian/rules
+common-binary-post-install-arch::
+	cd debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-sudoku/usr/bin; mv sudoku_generator sudoku_generator_vdr${SPECIAL_VDR_SUFFIX}
+EOF
+    else
+        /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
 --- debian/rules
 +++ debian/rules
 @@ -53,1 +53,2 @@
@@ -640,6 +677,7 @@ prepare_sudoku()
 +	dh_install
 +	cd debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-sudoku/usr/bin; mv sudoku_generator sudoku_generator_vdr${SPECIAL_VDR_SUFFIX}
 EOF
+    fi
 }
 
 prepare_text2skin()
@@ -739,7 +777,14 @@ EOF
 prepare_wapd()
 {
     echo "prepare_wapd: rename wappasswd -> wappasswd_vdr${SPECIAL_VDR_SUFFIX}"
-    /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
+    if /usr/bin/dpkg --compare-versions "$(/usr/bin/dpkg-parsechangelog | /bin/egrep '^Version:' | /usr/bin/cut -f 2 -d ' ')" \
+                                        ge "0.9-1"; then
+        /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' >> debian/rules
+common-binary-post-install-arch::
+	cd debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-wapd/usr/bin; mv wappasswd wappasswd_vdr${SPECIAL_VDR_SUFFIX}
+EOF
+    else
+        /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
 --- debian/rules
 +++ debian/rules
 @@ -53,1 +53,2 @@
@@ -747,6 +792,7 @@ prepare_wapd()
 +	dh_install
 +	cd debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-wapd/usr/bin; mv wappasswd wappasswd_vdr${SPECIAL_VDR_SUFFIX}
 EOF
+    fi
 }
 
 prepare_xine()
