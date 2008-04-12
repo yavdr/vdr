@@ -1,6 +1,6 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
 ## 03_cmdsubmenu.dpatch by Albu at vdrportal.de
-## http://toms-cafe.de/vdr/download/vdr-cmdsubmenu-0.7-1.4.0.diff (applicable to VDR >= 1.3.36)
+## http://toms-cafe.de/vdr/download/vdr-cmdsubmenu-0.7-1.5.15.diff
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Adds submenus within the commands and recording commands menu.
@@ -10,7 +10,7 @@
 diff -urNad vdr-1.5.15~/README.cmdsubmenu vdr-1.5.15/README.cmdsubmenu
 --- vdr-1.5.15~/README.cmdsubmenu	1970-01-01 01:00:00.000000000 +0100
 +++ vdr-1.5.15/README.cmdsubmenu	2008-02-17 21:01:18.000000000 +0100
-@@ -0,0 +1,54 @@
+@@ -0,0 +1,58 @@
 +CmdSubmenu patch for VDR
 +------------------------
 +
@@ -65,6 +65,10 @@ diff -urNad vdr-1.5.15~/README.cmdsubmenu vdr-1.5.15/README.cmdsubmenu
 +  2006-05-15: Version 0.7 - Thomas Günther <tom@toms-cafe.de>
 +    - Fixed build with G++ 4.1 (extra qualification)
 +    http://toms-cafe.de/vdr/download/vdr-cmdsubmenu-0.7-1.4.0.diff
++
++  2007-02-17:             - Tobias Grimm <tg@e-tobi.net>
++    - Adapted to vdr-1.5.15
++    http://toms-cafe.de/vdr/download/vdr-cmdsubmenu-0.7-1.5.15.diff
 diff -urNad vdr-1.5.15~/config.c vdr-1.5.15/config.c
 --- vdr-1.5.15~/config.c	2008-02-17 14:39:00.000000000 +0100
 +++ vdr-1.5.15/config.c	2008-02-17 21:03:48.000000000 +0100
