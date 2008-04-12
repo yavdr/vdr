@@ -20,6 +20,7 @@ set -e
 
 case "$1" in
     purge)
+        rm -f /var/cache/vdr/plugin_search_cache* > /dev/null 2>&1 || true
         rm -f /var/cache/vdr/commands.conf > /dev/null 2>&1 || true
         rm -f /var/cache/vdr/reccmds.conf > /dev/null 2>&1 || true
         rm -f /var/cache/vdr/epg.data > /dev/null 2>&1 || true

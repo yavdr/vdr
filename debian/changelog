@@ -3,6 +3,17 @@ vdr (1.6.0-2) UNRELEASED; urgency=low
   [ Tobias Grimm ]
   * Removed makedev dependency (not needed anymore since 1.4.7-2)
   * Added dependency to at (required by shutdown scripts)
+  * Modified 81_Make_config.dpatch to set the default CXXFLAGS and CFLAGS
+    required for building VDR and VDR plugins. This was necessary, because newer
+    versions of dpkg-buildpackage export CXXFLAGS. Because the upstream's
+    Makefile of VDR and VDR plugins usually define the compiler arguments
+    as "CXXFLAGS ?=...", these settings are ignored when an environment variable
+    CXXFLAGS exists. On non-i386 builds this causes a FTBFS for all plugins,
+    because of the missing -fPIC. Plugins, that require special compiler
+    arguments, should from now on pass CXXFLAGS as an arguemtn to the make call
+    in debian/rules. (closes: #475710)
+  * Added caching to plugin-loader.sh to speed up the initial startup of vdr
+    (Patch provided by Michael Burian <michael.burian@sbg.at>)
 
   [ Thomas Günther ]
   * Upgraded make-special-vdr.sh to version 0.8

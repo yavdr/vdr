@@ -6,17 +6,29 @@
 ## DP: Add Make.config to compile debug versions.
 
 @DPATCH@
-diff -urNad vdr-1.3.49~/Make.config vdr-1.3.49/Make.config
---- vdr-1.3.49~/Make.config	1970-01-01 01:00:00.000000000 +0100
-+++ vdr-1.3.49/Make.config	2006-04-30 15:58:07.000000000 +0200
-@@ -0,0 +1,10 @@
-+# 
-+# Create an unoptimized binary with debug symbols for gdb, if VDRDEBUG
-+# is set
+diff -urNad vdr-1.6.0~/Make.config vdr-1.6.0/Make.config
+--- vdr-1.6.0~/Make.config	1970-01-01 01:00:00.000000000 +0100
++++ vdr-1.6.0/Make.config	2008-04-12 21:40:20.000000000 +0200
+@@ -0,0 +1,22 @@
++#
++# The following compiler settings are requiered for Debian builds and will be
++# included by the Makefile of VDR and most plug-ins.
 +#
 +
-+ifdef VDRDEBUG
-+    CXXFLAGS += -O0 -g -ggdb
-+    CFLAGS += -O0 -g -ggdb
++CFLAGS   = -g -Wall
++CXXFLAGS = -g -Wall -Woverloaded-virtual -Wno-parentheses
++
++ifndef VDRDEBUG
++    CXXFLAGS += -O2
++    CFLAGS += -O2
++else
++    # No Optimization for debug builds
++    CXXFLAGS += -O0
++    CFLAGS += -O0
 +    DEFINES += -DVDRDEBUG
++endif
++
++ifndef BUILDVDR
++    # Requiered for plug-ins only, not for VDR itself
++    CXXFLAGS += -fPIC
 +endif

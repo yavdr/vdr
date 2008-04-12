@@ -20,20 +20,39 @@ getplugins ()
 
     vdrcmd="/usr/bin/vdr -u $USER $OPTIONS"
 
+    CACHE_DIR="/var/cache/vdr"
+    CACHE_FILE="${CACHE_DIR}/plugin_search_cache"
+    CACHE_MD5="${CACHE_FILE}.md5"
+
     version=`eval "$vdrcmd -V -L/usr/bin/vdr 2>/dev/null | sed 's/.*(\(.*\)).*/\1/'"`
     test "$version" || version="unknown version"
 
     PLUGINS=""
 
-    echo -ne "\nSearching for plugins (VDR $version):"
+    echo -ne "\nSearching for plugins (VDR $version) "
 
     # find installed plugins
     version=`echo "$version" | sed 's:.*/::'`
-    plugins=(`find ${PLUGIN_DIR} -maxdepth 1 \
-                   -name "${PLUGIN_PREFIX}*.so.${version}" | \
-              xargs -r dpkg -S 2>&1 | \
-              sed "s/^dpkg:/'':/" | \
-              sed "s/:.*${PLUGIN_PREFIX}\([^\.]\+\)\.so\.${version}.*$/:\1/"`)
+    # cached plugin index up to date ?
+    if [ -e ${CACHE_MD5} ] && \
+       [ -e ${CACHE_FILE} ] && \
+       md5sum ${PLUGIN_DIR}/*.so.* ${CACHE_FILE} | diff -q ${CACHE_MD5} /dev/stdin 1>/dev/null
+    then
+        plugins=`cat ${CACHE_FILE}`
+        echo -ne "(cache hit):"
+    else
+        echo -ne "(cache miss):"
+        # clear stale cache files
+        rm -f ${CACHE_FILE} ${CACHE_MD5}
+        plugins=(`find ${PLUGIN_DIR} -maxdepth 1 \
+                       -name "${PLUGIN_PREFIX}*.so.${version}" | \
+                   xargs -r dpkg -S 2>&1 | \
+                   sed "s/^dpkg:/'':/" | \
+                   sed "s/:.*${PLUGIN_PREFIX}\([^\.]\+\)\.so\.${version}.*$/:\1/"`)
+        # write results into cache
+        echo ${plugins[@]} > ${CACHE_FILE}
+        md5sum ${PLUGIN_DIR}/*.so.* ${CACHE_FILE} > ${CACHE_MD5}
+    fi
     installed_plugins=(`echo ${plugins[@]} | sed 's/[^ ]*://g'`)
     packages=(   vdr   `echo ${plugins[@]} | sed 's/:[^ ]*//g'`)
 
