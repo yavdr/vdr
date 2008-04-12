@@ -12,7 +12,7 @@ Homepage: http://www.cadsoft.de/vdr/
 
 Package: vdr
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, makedev (>=2.3.1-66), adduser, psmisc
+Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, psmisc, at
 Recommends: lirc, ttf-bitstream-vera | ttf-freefont
 Provides: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu
 Conflicts: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu, vdradmin (<< 3.4.3)
@@ -33,7 +33,7 @@ Description: Video Disk Recorder for DVB cards
 XB-VDR-Patchlevel: ${vdr:Patchlevel}
 
 Package: vdr-dev
-Architecture:  all
+Architecture: all
 Depends: ${misc:Depends}, debhelper
 Suggests: dh-make
 Description: Video Disk Recorder for DVB cards
