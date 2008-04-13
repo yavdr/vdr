@@ -1,5 +1,5 @@
 #!/bin/sh
 
-export DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS nostrip"
+export DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS noopt nostrip"
 export VDRDEBUG=yes
 dpkg-buildpackage $*

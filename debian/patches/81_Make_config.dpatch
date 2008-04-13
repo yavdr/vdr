@@ -8,8 +8,8 @@
 @DPATCH@
 diff -urNad vdr-1.6.0~/Make.config vdr-1.6.0/Make.config
 --- vdr-1.6.0~/Make.config	1970-01-01 01:00:00.000000000 +0100
-+++ vdr-1.6.0/Make.config	2008-04-12 21:40:20.000000000 +0200
-@@ -0,0 +1,22 @@
++++ vdr-1.6.0/Make.config	2008-04-13 12:11:55.000000000 +0200
+@@ -0,0 +1,28 @@
 +#
 +# The following compiler settings are requiered for Debian builds and will be
 +# included by the Makefile of VDR and most plug-ins.
@@ -18,17 +18,23 @@ diff -urNad vdr-1.6.0~/Make.config vdr-1.6.0/Make.config
 +CFLAGS   = -g -Wall
 +CXXFLAGS = -g -Wall -Woverloaded-virtual -Wno-parentheses
 +
-+ifndef VDRDEBUG
++ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 +    CXXFLAGS += -O2
 +    CFLAGS += -O2
 +else
-+    # No Optimization for debug builds
 +    CXXFLAGS += -O0
 +    CFLAGS += -O0
-+    DEFINES += -DVDRDEBUG
 +endif
 +
 +ifndef BUILDVDR
 +    # Requiered for plug-ins only, not for VDR itself
 +    CXXFLAGS += -fPIC
++    CFLAGS += -fPIC
++endif
++
++ifdef VDRDEBUG
++    # Required for special debug build of VDR, where plugins are 
++    # not unloaded at runtime to give valgrind a chance to detect
++    # memory leaks in the plugin libs
++    DEFINES += -DVDRDEBUG
 +endif

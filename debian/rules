@@ -44,7 +44,7 @@ build-stamp: configure-stamp
 
 	# build unoptimized vdr with debugging symbols
 	touch po/vdr.pot po/*.po
-	$(MAKE) all $(MAKE_OPTIONS) BUILDVDR=yes VDRDEBUG=yes
+	$(MAKE) all $(MAKE_OPTIONS) BUILDVDR=yes VDRDEBUG=yes DEB_BUILD_OPTIONS=nostrip,noopt
 	cp vdr vdr-dbg
 	$(MAKE) -o .dependencies clean $(MAKE_OPTIONS)
 
