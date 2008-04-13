@@ -19,11 +19,11 @@ diff -urNad vdr-1.6.0~/Make.config vdr-1.6.0/Make.config
 +CXXFLAGS = -g -Wall -Woverloaded-virtual -Wno-parentheses
 +
 +ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-+    CXXFLAGS += -O2
-+    CFLAGS += -O2
-+else
 +    CXXFLAGS += -O0
 +    CFLAGS += -O0
++else
++    CXXFLAGS += -O2
++    CFLAGS += -O2
 +endif
 +
 +ifndef BUILDVDR
