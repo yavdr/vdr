@@ -9,12 +9,12 @@
 14_cap-memsize
 15_dvbplayer
 16_channels.conf.terr-fix
+17_vdr-maintenance-1.6.0-1
 
 81_Make_config
 82_valgrind
 
 99_ncursesw-include
-# 99_dvb-api-wrapper
 
 # Patch collection (replaces enAIO).
 # opt-20_liemikuutio
@@ -80,9 +80,6 @@
 
 # Patch required for the GraphTFT plugin
 # opt-50_graphtft
-
-# Patch required for the GraphTFT plugin >= 0.1
-# opt-50_graphtft-0.1
 
 # Modifies the start time of recordings to the first cutting mark
 # (disabled by default - enable in VDR's recording setup)

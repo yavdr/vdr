@@ -3,7 +3,6 @@
 # Define some patch levels here: foo="patch1 patch2 ..."
 #
 standard="\
-    02_Makefile-CFGDIR \
     03_cmdsubmenu \
     04_newplugin \
     06_default_svdrp_port_0 \
@@ -14,49 +13,50 @@ standard="\
     14_cap-memsize \
     15_dvbplayer \
     16_channels.conf.terr-fix \
-    17_epg-conv-iso6937"
+    17_vdr-maintenance-1.6.0-1 \
+    81_Make_config \
+    82_valgrind \
+    99_ncursesw-include"
 multipatch="$standard \
     opt-20_liemikuutio \
     opt-24_jumpplay \
-    opt-27_subtitles-ttxtsubs \
-    opt-27-x_subtitles-ttxtsubs-volumebar-fix \
+    opt-27_ttxtsubs \
+    opt-28_audioindexer \
+    opt-29_syncearly-audioindexer \
     opt-30-x_analogtv \
     opt-31-x_reelchannelscan \
-    opt-32_iptv \
     opt-37-x_menuorg \
     opt-38_disableDoubleEpgEntrys \
     opt-39_noepg \
-    opt-40_wareagle-icons \
+    opt-40_iptv \
     opt-41-x_timer-info \
     opt-42-x_MainMenuHooks \
+    opt-43-x_recordshowfree \
     opt-44_rotor \
     opt-45_yaepg \
     opt-47_sourcecaps \
     opt-48-x_pin \
-    opt-50_graphtft-0.1 \
+    opt-49-x_pvrinput \
+    opt-50_graphtft \
     opt-51_cuttime"
 testpatch="$standard \
     opt-20_liemikuutio \
     opt-24_jumpplay \
-    opt-27_subtitles-ttxtsubs \
-    opt-27-x_subtitles-ttxtsubs-volumebar-fix \
+    opt-27_ttxtsubs \
+    opt-29_syncearly \
     opt-30-x_analogtv \
     opt-31-x_reelchannelscan \
-    opt-32_iptv \
-    opt-36_CutterQueue-AutoDelete \
     opt-37-x_menuorg \
     opt-38_disableDoubleEpgEntrys \
     opt-39_noepg \
+    opt-40_iptv \
     opt-41-x_timer-info \
     opt-42-x_MainMenuHooks \
     opt-44_rotor \
     opt-45_yaepg \
-    opt-46_dvdarchive \
-    opt-46_dmh-dvd-archive \
-    opt-46-x_dmh-dvd-archive-debian \
     opt-48-x_pin \
-    opt-49_sharelnb \
-    opt-50_graphtft-0.1"
+    opt-49-x_pvrinput \
+    opt-50_graphtft"
 mustfail_patch="XX_patchtest-patch-error"
 mustfail_compile="XX_patchtest-compile-error"
 

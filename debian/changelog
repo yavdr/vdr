@@ -17,6 +17,13 @@ vdr (1.6.0-2) UNRELEASED; urgency=low
     (see also Debian Policy 3.7.3.0 section 10.1)
   * Added caching to plugin-loader.sh to speed up the initial startup of vdr
     (Patch provided by Michael Burian <michael.burian@sbg.at>)
+  * Added 17_vdr-maintenance-1.6.0-1.dpatch
+  * Updated opt-20_liemikuutio.dpatch
+  * Updated opt-48-x_pin.dpatch
+  * Upgraded opt-37-x_menuorg.dpatch to version 0.4.2
+  * Upgraded opt-50_graphtft-0.1.dpatch to current version 0.1.7~alpha of the
+    GraphTFT plug-in (taken from the Zulu Extensions Patch 56) and renamed it
+    to opt-50_graphtft.dpatch (deleted old opt-50_graphtft.dpatch)
 
   [ Thomas Günther ]
   * Upgraded make-special-vdr.sh to version 0.8
