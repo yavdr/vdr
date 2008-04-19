@@ -26,7 +26,7 @@ vdr (1.6.0-2) UNRELEASED; urgency=low
     to opt-50_graphtft.dpatch (deleted old opt-50_graphtft.dpatch)
 
   [ Thomas Günther ]
-  * Upgraded make-special-vdr.sh to version 0.8
+  * Upgraded make-special-vdr.sh to version 0.9
   * Upgraded opt-41-x_timer-info.dpatch to version 0.5
 
  -- Tobias Grimm <tg@e-tobi.net>  Sat, 12 Apr 2008 23:24:29 +0200

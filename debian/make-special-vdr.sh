@@ -88,10 +88,14 @@
 #       - Preserve mode, ownership and timestamps
 #
 #    2008-03-24: Version 0.8
-#
 #       - Updated prepare_sudoku and prepare_wapd for cdbs build system
 #       - Added prepare_osdteletext (no substitution in README)
 #       - Updated substitution for the plugin debianizer script in prepare_vdr
+#
+#    2008-04-16: Version 0.9
+#       - Updated prepare_softdevice for cdbs build system
+#       - Use version of vdr-dev instead of vdrdevel-dev in the plugin
+#         debianizer script
 
 
 main()
@@ -499,6 +503,9 @@ EOF
 @@ -27 +27 @@
 -    ORIGTARBALL="../vdr${SPECIAL_VDR_SUFFIX}-plugin-$PLUGIN"_"$VERSION.orig.tar.gz"
 +    ORIGTARBALL="../vdr-plugin-$PLUGIN"_"$VERSION.orig.tar.gz"
+@@ -54 +54 @@
+-    VDRVERSION=`dpkg -s vdr${SPECIAL_VDR_SUFFIX}-dev | awk '/Version/ { print $2 }'`
++    VDRVERSION=`dpkg -s vdr-dev | awk '/Version/ { print $2 }'`
 @@ -72 +72 @@
 -dh_make="/usr/bin/dh_make -t /usr/share/vdr${SPECIAL_VDR_SUFFIX}-dev/plugin-template -b -p vdr${SPECIAL_VDR_SUFFIX}-plugin-$PLUGIN"
 +dh_make="/usr/bin/dh_make -t /usr/share/vdr${SPECIAL_VDR_SUFFIX}-dev/plugin-template -b -p vdr-plugin-$PLUGIN"
@@ -649,7 +656,14 @@ EOF
 prepare_softdevice()
 {
     echo "prepare_softdevice: ShmClient -> ShmClient_vdr${SPECIAL_VDR_SUFFIX}"
-    /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
+    if /usr/bin/dpkg --compare-versions "$(/usr/bin/dpkg-parsechangelog | /bin/egrep '^Version:' | /usr/bin/cut -f 2 -d ' ')" \
+                                        ge "0.4.0+cvs20070830-8"; then
+        /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' >> debian/rules
+common-binary-post-install-arch::
+	cd debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-softdevice/usr/bin; mv ShmClient ShmClient_vdr${SPECIAL_VDR_SUFFIX}
+EOF
+    else
+        /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
 --- debian/rules
 +++ debian/rules
 @@ -54,1 +54,2 @@
@@ -657,6 +671,7 @@ prepare_softdevice()
 +	dh_install
 +	cd debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-softdevice/usr/bin; mv ShmClient ShmClient_vdr${SPECIAL_VDR_SUFFIX}
 EOF
+    fi
 }
 
 prepare_sudoku()
