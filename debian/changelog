@@ -28,6 +28,7 @@ vdr (1.6.0-2) UNRELEASED; urgency=low
   [ Thomas Günther ]
   * Upgraded make-special-vdr.sh to version 0.9
   * Upgraded opt-41-x_timer-info.dpatch to version 0.5
+  * Improved caching in plugin-loader.sh
 
  -- Tobias Grimm <tg@e-tobi.net>  Sat, 12 Apr 2008 23:24:29 +0200
 

@@ -36,7 +36,7 @@ getplugins ()
     # cached plugin index up to date ?
     if [ -e ${CACHE_MD5} ] && \
        [ -e ${CACHE_FILE} ] && \
-       md5sum ${PLUGIN_DIR}/*.so.* ${CACHE_FILE} | diff -q ${CACHE_MD5} /dev/stdin 1>/dev/null
+       md5sum ${PLUGIN_DIR}/${PLUGIN_PREFIX}*.so.${version} ${CACHE_FILE} 2>&1 | cmp -s - ${CACHE_MD5}
     then
         plugins=`cat ${CACHE_FILE}`
         echo -ne "(cache hit):"
@@ -51,7 +51,7 @@ getplugins ()
                    sed "s/:.*${PLUGIN_PREFIX}\([^\.]\+\)\.so\.${version}.*$/:\1/"`)
         # write results into cache
         echo ${plugins[@]} > ${CACHE_FILE}
-        md5sum ${PLUGIN_DIR}/*.so.* ${CACHE_FILE} > ${CACHE_MD5}
+        md5sum ${PLUGIN_DIR}/${PLUGIN_PREFIX}*.so.${version} ${CACHE_FILE} > ${CACHE_MD5} 2>&1
     fi
     installed_plugins=(`echo ${plugins[@]} | sed 's/[^ ]*://g'`)
     packages=(   vdr   `echo ${plugins[@]} | sed 's/:[^ ]*//g'`)
