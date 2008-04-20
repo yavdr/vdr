@@ -2,6 +2,7 @@ vdr (1.6.0-2) UNRELEASED; urgency=low
 
   [ Tobias Grimm ]
   * Removed makedev dependency (not needed anymore since 1.4.7-2)
+    (closes: #477062)
   * Added dependency to at (required by shutdown scripts)
   * Modified 81_Make_config.dpatch to set the default CXXFLAGS and CFLAGS
     required for building VDR and VDR plugins. This was necessary, because newer
