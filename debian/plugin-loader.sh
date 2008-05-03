@@ -12,7 +12,7 @@ getplugins ()
     local arguments
     local plugins
     local packages
-    local patchelvels
+    local patchlevels
     local leftout
     local leftout2
     local vdrcmd

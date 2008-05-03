@@ -3,20 +3,20 @@ vdr for Debian
 
 Comments to the Debian version:
 
- - You need a DVB card and with a driver using the "Linux DVB API"
+ - You need a DVB card and a driver using the "Linux DVB API"
    (http://www.linuxtv.org/developer/dvbapi.xml). The standard VDR 
-   (without special plugins) requires a DVB-Card with an integrated 
-   mpeg-decoder, a so called Full-Featured Card. (For example the 
+   (without special plugins) requires a DVB-card with an integrated 
+   mpeg-decoder, a so called Full-Featured card. (For example the 
    Hauppauge Nexus, or a TechnoTrend FullFeatured 1.x)
  - all the small scripts and tools distributed with the package are located in
    /usr/lib/vdr/. You may use and modify them for you own purposes.
  - if you want to use the vdr-initscript, edit /etc/default/vdr and change
-   ENABLED=0 to ENABLED=1, and the other Options in this file
+   ENABLED=0 to ENABLED=1, and the other options in this file
  - video-dir is moved to /var/lib/video see #234429
  - cfg-dir was moved to /var/lib/vdr, to be FHS-compliant
  - The selection of your favourite vdr-binary (vdr-daemon, vdr-kbd, vdr-lirc or 
-   vdr-rcu) is now handeled via update-alternatives, so if you have more than 
-   one of this packages installed, and are not happy with the default 
+   vdr-rcu) is now handled via update-alternatives, so if you have more than 
+   one of these packages installed, and are not happy with the default 
    priorities, you can select the binary via "update-alternatives --config vdr"
 
  -- Thomas Schmidt <tschmidt@debian.org>,  Tue, 28 Dec 2004 14:22:21 +0100
@@ -47,9 +47,9 @@ PLUGIN_CHECK_PATCHLEVEL="<yes|no>"
 
     Set this to "yes" to force VDR to load only plugins with a matching patch
     level. This is especially useful, if you run patched VDR versions from third
-    party repositories like the ctvdr dirstribution.
+    party repositories like the ctvdr distribution.
     If this option is set to "yes", then only plugins are loaded, which were
-    installed by a Debian package. In order to load plug-ins that you have
+    installed by a Debian package. In order to load plugins that you have
     manually copied to /usr/lib/vdr/plugins, this option must be set to "no".
 
 PLUGIN_CHECK_STARTABLE="<yes|no>"
@@ -58,7 +58,7 @@ PLUGIN_CHECK_STARTABLE="<yes|no>"
 
     Before starting VDR with the plugins, the loadability of the plugin
     libraries will be checked with "vdr -V -P plugin". This will catch
-    some binary incompatibilties and problems with the plugins
+    some binary incompatibilities and problems with the plugins
     initialization code. Set this to "no" to load the plugins without
     any testing.
 
@@ -83,14 +83,14 @@ USER=<USERNAME>
     Default: vdr
 
     Username under which vdr will run. All plugins and commands invoked by VDR
-    will be executed with this users rights.
+    will be executed with the rights of this user.
 
 VDR_CHARSET_OVERRIDE=<CHARSET>
 
     Default: not set
 
     Workaround for broadcasters not correctly implementing the standard.
-    According to "ETSI EN 300 468" the default character set is ISO6937. But
+    According to "ETSI EN 300 468" the default character set is ISO-6937. But
     unfortunately some broadcasters actually use ISO-8859-9, but fail to
     correctly announce that. If you set VDR_CHARSET_OVERRIDE=ISO-8859-9, then VDR
     uses ISO-8859-9 as default.
@@ -211,7 +211,7 @@ If you press the power key on your remote control, VDR executes a script
 provided by the command line option -s. By default, this script will
 execute all files in /usr/share/vdr/shutdown-hooks/ in their alphabetical order. 
 If a file in there is not executable, it is treated as a shell script. These
-so called "Shutdown Hooks" should follow this naming scheme:
+so called "shutdown hooks" should follow this naming scheme:
 
 S<XX>.<identifier>
 
@@ -311,10 +311,10 @@ create their own customized vdr distribution.
 
  -- Tobias Grimm <tg@e-tobi.net>,  Thu, 3 Jun 2004 02:20:00 +0100
 
-The Pictures Plug-in
+The Pictures Plugin
 --------------------
 
-The pictures plug-in requires the pictures to be already converted to mpeg files.
+The pictures plugin requires the pictures to be already converted to mpeg files.
 A separate tool called `pic2mpg' is provided to convert a directory of pictures.
 
 This tool will use the mjpegtools package to convert the pictures to MPEG2, if 
@@ -322,12 +322,12 @@ available. mjpegtools is not part of Debian, but is available at
 http://mjpeg.sourceforge.net or in third party repositories like
 http://debian-multimedia.org.
 
-If mjpegools is not available, ffmpeg will be used to convert the pictures to
+If mjpegtools is not available, ffmpeg will be used to convert the pictures to
 MPEG1 instead.
 
-In order to display the pictures, you must tell the plug-in, where to find them.
+In order to display the pictures, you must tell the plugin, where to find them.
 You can do so in /etc/vdr/plugins/plugin.pictures.conf.
 
 Please read the documentation in /usr/share/doc/vdr-plugin-pictures/README
-carefully, as the pictures plug-in is very restrictiv about the picture
+carefully, as the pictures plugin is very restrictive about the picture
 directory layout.

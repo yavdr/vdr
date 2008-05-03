@@ -12,7 +12,7 @@ diff -urNad vdr-1.6.0~/Make.config vdr-1.6.0/Make.config
 @@ -0,0 +1,28 @@
 +#
 +# The following compiler settings are required for Debian builds and will be
-+# included by the Makefile of VDR and most plug-ins.
++# included by the Makefile of VDR and most plugins.
 +#
 +
 +CFLAGS   = -g -Wall
@@ -27,7 +27,7 @@ diff -urNad vdr-1.6.0~/Make.config vdr-1.6.0/Make.config
 +endif
 +
 +ifndef BUILDVDR
-+    # Required for plug-ins only, not for VDR itself
++    # Required for plugins only, not for VDR itself
 +    CXXFLAGS += -fPIC
 +    CFLAGS += -fPIC
 +endif

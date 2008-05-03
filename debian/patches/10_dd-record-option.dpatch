@@ -8,7 +8,7 @@
 ##     http://toms-cafe.de/vdr/download/vdr-dd-record-option-1.5.7.diff
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: Allowes to choose if to record and to replay Dolby Digital 
+## DP: Allows to choose if to record and to replay Dolby Digital 
 ## DP: independently (to work around some audio issues with the 
 ## DP: dvd-plugin)
 

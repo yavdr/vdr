@@ -73,8 +73,8 @@ and docbook-xsl in your Build-Depends control field.
     <para>
       <command></command> 
       will stop any running VDR daemon and start the debugging version of VDR with Valgrind.
-      No plug-ins will be loaded automatically. In order to test VDR plug-ins with
-      &dhpackage;, you need to pass the appropriate  VDR argumnts (e.g. -P plugin-name).
+      No plugins will be loaded automatically. In order to test VDR plugins with
+      &dhpackage;, you need to pass the appropriate  VDR arguments (e.g. -P plugin-name).
     </para>
   </refsect1>
 
@@ -90,7 +90,7 @@ and docbook-xsl in your Build-Depends control field.
       the &debian; system (but may be used by others).  Permission is
       granted to copy, distribute and/or modify this document under
       the terms of the &gnu; General Public License, Version 2 or any 
-      ater version published by the Free Software Foundation.
+      later version published by the Free Software Foundation.
     </para>
     <para>
       On Debian systems, the complete text of the GNU General Public

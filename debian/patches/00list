@@ -50,7 +50,7 @@
 # Patch to disable normal epg update for specified channels.
 # opt-39_noepg
 
-# Patch required by the IPTV plug-in
+# Patch required by the IPTV plugin
 # opt-40_iptv
 
 # Patch to show an info, if it is possible to record an event in the timer-info.

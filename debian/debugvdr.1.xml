@@ -73,7 +73,7 @@ and docbook-xsl in your Build-Depends control field.
     <para>
       <command>&dhpackage;</command> 
       will start VDR with the GDB debugger with the same command line arguments as
-      the VDR daemon. This means, all installed plug-ins will be loaded. If VDR is still
+      the VDR daemon. This means, all installed plugins will be loaded. If VDR is still
       running, it will be automatically stopped before starting the debugging version.
     </para>
   </refsect1>
@@ -102,7 +102,7 @@ and docbook-xsl in your Build-Depends control field.
       the &debian; system (but may be used by others).  Permission is
       granted to copy, distribute and/or modify this document under
       the terms of the &gnu; General Public License, Version 2 or any 
-      ater version published by the Free Software Foundation.
+      later version published by the Free Software Foundation.
     </para>
     <para>
       On Debian systems, the complete text of the GNU General Public

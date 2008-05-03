@@ -1,10 +1,10 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
 ## opt-40_iptv.dpatch by Tobias Grimm <tg@e-tobi.net>
-## from version 0.0.7 of the IPTV plug-in
+## from version 0.0.7 of the IPTV plugin
 ## http://www.saunalahti.fi/~rahrenbe/vdr/iptv/
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: Patch required for the IPTV plug-in
+## DP: Patch required for the IPTV plugin
 
 @DPATCH@
 diff -urNad vdr-1.5.18~/channels.c vdr-1.5.18/channels.c

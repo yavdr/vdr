@@ -58,7 +58,7 @@ and docbook-xsl in your Build-Depends control field.
 
   <refnamediv>
     <refname>&dhpackage;</refname>
-    <refpurpose>builds a VDR plug-in for debugging</refpurpose>
+    <refpurpose>builds a VDR plugin for debugging</refpurpose>
   </refnamediv>
 
   <refsynopsisdiv>
@@ -72,7 +72,7 @@ and docbook-xsl in your Build-Depends control field.
     <title>DESCRIPTION</title>
     <para>
       <command>&dhpackage;</command> is a small wrapper for dpkg-buildpackage,
-      which sets all options needed to compile a VDR plug-in for debugging.
+      which sets all options needed to compile a VDR plugin for debugging.
     </para>
   </refsect1>
 

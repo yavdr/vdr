@@ -1,4 +1,4 @@
-# patchlevel.sh - maintain the patchlevel of vdr packages
+# patchlevel.sh - maintain the patch level of vdr packages
 #
 # This script is called in debian/rules of the vdr package and all vdr plugins.
 #
