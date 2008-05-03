@@ -63,7 +63,7 @@ Description: Plugin for using a Sky Digibox with vdr
  Linux and DVB technologies. It allows one to record MPEG2 streams,
  as well as output the stream to TV.
  .
- This package contains the sky-plugin, wich allows you to connect 
+ This package contains the sky-plugin, which allows you to connect 
  the analog a/v output of a Sky Digibox to VDR, so that you can 
  enjoy the full recording flexibility of VDR with your Sky 
  subscription. 

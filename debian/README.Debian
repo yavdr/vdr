@@ -22,7 +22,7 @@ Comments to the Debian version:
  -- Thomas Schmidt <tschmidt@debian.org>,  Tue, 28 Dec 2004 14:22:21 +0100
 
 
-Additonal configuration options
+Additional configuration options
 -------------------------------
 
 The following options can be configured in /etc/default/vdr.
@@ -129,7 +129,7 @@ will be created automatically.
 
 If a file /etc/vdr/plugins/plugin.<plugin_name>.conf exists, it will be
 parsed for command line arguments for the specified plugin. This file may
-contain comments preceeded by a "#" and the command line arguments may also be
+contain comments prefixed by a "#" and the command line arguments may also be
 distributed across several lines.
 
  -- Tobias Grimm <tg@e-tobi.net>,  Sun, 23 May 2004 18:00:00 +0100

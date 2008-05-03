@@ -82,7 +82,7 @@ vdr (1.6.0-1) experimental; urgency=low
   * Made vdrleaktest and debugvdr explicitly using bash, because
     commands-loader.sh and plugin-loader.sh contain bashisms
   * Instead of setting VFAT=1 at compile time, introduced a new
-    configuration option in /etc/defautl/vdr (using VDR's 
+    configuration option in /etc/default/vdr (using VDR's 
     --vfat option), so that the VFAT support can be disabled 
 
   [ Thomas Günther ]
@@ -142,7 +142,7 @@ vdr (1.4.7-3) unstable; urgency=low
   * Added Homepage field to debian/control
   * Renamed XS-Vcs-* fields to Vcs-* in debian/control
   * Bumped Standards-Version to 3.7.3
-  * Removed menu file, vdr should allways be used as daemon
+  * Removed menu file, vdr should always be used as daemon
   * Do not include empty directory /usr/lib/vdr/plugins
   * Use ${binary:Version} instead of ${Source-Version} to make package
     binNMUable
@@ -154,7 +154,7 @@ vdr (1.4.7-3) unstable; urgency=low
 vdr (1.4.7-2) unstable; urgency=low
 
   [ Thomas Schmidt ]
-  * Removed support for starting vdr without NTPL-support as glibc 2.5 does
+  * Removed support for starting vdr without NPTL-support as glibc 2.5 does
     not support this anymore
   * removed creation of dvb-devices in postinst - should be created on every
     system automatically (closes: #428695)
@@ -196,7 +196,7 @@ vdr (1.4.7-1) unstable; urgency=low
     for additional information
   * New upstream release
   * Added XS-Vcs-Svn and XS-Vcs-Browser fields to debian/control
-  * Removed version from Build-Dependancy to dpatch - even Sarge has the
+  * Removed version from build-dependency to dpatch - even Sarge has the
     required version
 
  -- Thomas Schmidt <tschmidt@debian.org>  Mon, 28 May 2007 14:16:19 +0200
@@ -233,8 +233,8 @@ vdr (1.4.5-1) experimental; urgency=low
   [ Tobias Grimm ]
   * Removed Conflicts line from plugin template
   * Added Lintian override to vdr-dev regarding reports about
-    /usr/share/vdr-dev/plugin-template/rules not beeing a valid shell script
-  * Added linitan source overrided for "debian-rules-not-a-makefile"
+    /usr/share/vdr-dev/plugin-template/rules not being a valid shell script
+  * Added lintian source override for "debian-rules-not-a-makefile"
   * Removed lintian override for menu-command-not-in-package /usr/lib/menu/vdr:2
   * Added the complete list of optional patches from the vdr package at e-tobi.net
     (Ubuntu might want to use them)
@@ -266,8 +266,8 @@ vdr (1.4.4-1) unstable; urgency=low
     /etc/default/vdr in /etc/vdr/
 
   [ Thomas Schmidt ]
-  * Removed linux-kernel-headers build-dependancy, not needed anymore
-  * Removed vdr-dev dependancy on dvb-dev | linux-kernel-headers
+  * Removed linux-kernel-headers build-dependency, not needed anymore
+  * Removed vdr-dev dependency on dvb-dev | linux-kernel-headers
     (Ubuntu Bug #65340)
 
  -- Thomas Schmidt <tschmidt@debian.org>  Sun,  5 Nov 2006 17:40:44 +0100
@@ -302,7 +302,7 @@ vdr (1.4.1-1) unstable; urgency=low
     VDR may take pretty long to shut down gracefully
   * Moved some of the default values in vdr.default to the config loader
     and added description to README.Debian
-  * Added KEYB_TTY-option which may be overriden in /etc/default/vdr to make
+  * Added KEYB_TTY-option which may be overridden in /etc/default/vdr to make
     VDR switch to and accept input from the specified console
 
   [ Thomas Schmidt ]
@@ -424,7 +424,7 @@ vdr (1.3.39-1) unstable; urgency=low
       + Added 19_vdr-1.3.39-clre-crash-fix.dpatch
       + Added 20_vdr-1.3.39-schedule-crash-fix.dpatch
       + Added 21_vdr-1.3.39-keys-fix.dpatch
-    - Changed init-script to use allmoast the same start and stop 
+    - Changed init-script to use almost the same start and stop 
       functions like ctvdr
   * Thomas Günther <tom@toms-cafe.de>
     - Added option "-g /tmp" to vdr call in debian/vdr.init (necessary
@@ -441,7 +441,7 @@ vdr (1.3.38-1) unstable; urgency=low
       + Removed 07_not_as_root.dpatch
       + Removed 08_security_CAN-2005-0071.dpatch
       + Added 18_vdr-1.3.38-root-fix.dpatch
-    - Do not try to install ca.conf, because it is not needed anmore
+    - Do not try to install ca.conf, because it is not needed anymore
     - Removed option to set group under which vdr should run from the
       init-script
 
@@ -675,7 +675,7 @@ vdr (1.3.23-1) experimental; urgency=low
       + Removed opt-23_osdpip-0.0.3.dpatch
       + Removed opt-20_elchiaio4d+1.dpatch
       + Removed opt-22_8bitcolor.dpatch
-      + Updated jumplay patch to version 0.6
+      + Updated jumpplay patch to version 0.6
     - Use LD_ASSUME_KERNEL=2.4.1 when calling vdr in plugins-loader.sh
     - Changes suggested by Thomas Günther <tom@toms-cafe.de>
       + debian/watch: Updated to show the newest developer versions
@@ -708,7 +708,7 @@ vdr (1.2.6-13) unstable; urgency=medium
 
   * Darren Salt <linux@youmustbejoking.demon.co.uk>
     - Make the usage of NPTL configurable in /etc/default/vdr
-    - Disable the usage of NPTL on amd64 in runvdr (this allways 
+    - Disable the usage of NPTL on amd64 in runvdr (this always 
       overrides  the setting in /etc/default/vdr) (closes: #305098)
   * Thomas Schmidt <tschmidt@debian.org>
     - Added psmisc to the depends of the package vdr (thanks to Martin 
@@ -744,7 +744,7 @@ vdr (1.2.6-10) unstable; urgency=low
     - Fixed small typos in the package descriptions of vdr and 
       vdr-dev (closes: #300042, #300074)
     - Add user vdr to group cdrom in postinst, so that vdr is able to
-      play dvd's with the dvd-plugin again
+      play DVDs with the dvd-plugin again
 
  -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Sat, 09 Apr 2005 18:32:59 +0200
 
@@ -836,7 +836,7 @@ vdr (1.2.6-6) unstable; urgency=high
       again you have to change ENABLE_SHUTDOWN=0 to 1 in /etc/default/vdr
     - Changed package vdr to Architecture: any, because it now contains
       a binary file
-    - Added patch from Ludwig Nussel to be able to syncronize the system-
+    - Added patch from Ludwig Nussel to be able to synchronize the system-
       time via DVB, even when vdr runs as user
     - Build-depend on libcap-dev
     - Package vdr: depend on adduser
@@ -861,14 +861,14 @@ vdr (1.2.6-6) unstable; urgency=high
       c't-vdr
     - Added lintian-override to avoid the lintian-warnings for the
       plugin-template-scripts
-    - Default VIDEO_DIR is now /var/lib/video.00, so new harddiscs can
+    - Default VIDEO_DIR is now /var/lib/video.00, so new harddisks can
       be added very easy by mounting them to /var/lib/video.0{1,2,...}
       (if the old directory /var/lib/video exists, create 
       /var/lib/video.00 as symlink to the old directory, if it does
       not exist, /var/lib/video will be a symlink to /var/lib/video.00)
     - Removed unnecessary debconf-question about creating the dvb 
       devices, they will now be created without any question when they
-      are not existing allready
+      are not existing already
     - Removed libncurses5-dev from Build-Depends
 
  -- Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>  Wed, 19 Jan 2005 00:12:03 +0100
@@ -998,7 +998,7 @@ vdr (1.2.6-1) unstable; urgency=low
   * Declared ca.conf, diseqc.conf, keymacros.conf, sources.conf and
     svdrphosts.conf as conffiles.
   * Added lirc dependency to vdr-lirc.
-  * Removed loading of hello pluging (in /etc/default/vdr) as it is useless.
+  * Removed loading of hello plugin (in /etc/default/vdr) as it is useless.
   * Modified runvdr script to accept lsmod output of module-init-tools (kernel
     2.6). (Closes: #227059)
   * Used the --port=0 option (in /etc/default/vdr) to disable SVDRP port.
