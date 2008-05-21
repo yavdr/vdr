@@ -3,8 +3,9 @@ Section: misc
 Priority: extra
 Maintainer: Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>
 Uploaders: Thomas Schmidt <tschmidt@debian.org>, Tobias Grimm <tg@e-tobi.net>, Thomas Günther <tom@toms-cafe.de>
-Build-Depends: debhelper (>= 5), dpatch, xsltproc, docbook-xsl, libjpeg62-dev, libcap-dev,
- libncursesw5-dev, libfreetype6-dev, libfontconfig-dev, gettext
+Build-Depends: debhelper (>= 5), dpatch, libjpeg62-dev, libcap-dev,
+  libncursesw5-dev, libfreetype6-dev, libfontconfig-dev, gettext,
+  txt2man
 Standards-Version: 3.7.3
 Vcs-Svn: svn://svn.debian.org/pkg-vdr-dvb/vdr/vdr/trunk/
 Vcs-Browser: http://svn.debian.org/wsvn/pkg-vdr-dvb/vdr/vdr/trunk/

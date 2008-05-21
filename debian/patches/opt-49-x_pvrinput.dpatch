@@ -5,6 +5,9 @@
 ## DP: This patch is required by the pvrinput plugin and was taken from
 ## DP: version 2007-11-29 of the plugin.
 ## DP: http://drseltsam.device.name/vdr/pvr/src/pvrinput
+## DP:
+## DP: 2008-05-14: Added CA-Id's 0xA1 and 0xA2, required by pvrusb2
+## DP:             (as suggested by Christian Jarczyk)
 
 @DPATCH@
 diff -urNad vdr-1.5.15~/dvbdevice.c vdr-1.5.15/dvbdevice.c
@@ -15,7 +18,7 @@ diff -urNad vdr-1.5.15~/dvbdevice.c vdr-1.5.15/dvbdevice.c
    bool hasPriority = Priority < 0 || Priority > this->Priority();
    bool needsDetachReceivers = false;
 -
-+  if (Channel->Ca(0) == 0xA1) return false; /* this caid marks a pvrinput plugin channel, no dvb */
++  if (Channel->Ca(0) == 0xA0 || Channel->Ca(0) == 0xA1 || Channel->Ca(0) == 0xA2) return false; /* this caid marks a pvrinput plugin channel, no dvb */
    if (ProvidesSource(Channel->Source())) {
       result = hasPriority;
       if (Priority >= 0 && Receiving(true)) {

@@ -84,3 +84,6 @@
 # Modifies the start time of recordings to the first cutting mark
 # (disabled by default - enable in VDR's recording setup)
 # opt-51_cuttime
+
+# Records into smaller files and uses hardlinks to speed up cutting
+# opt-52_hard_link_cutter

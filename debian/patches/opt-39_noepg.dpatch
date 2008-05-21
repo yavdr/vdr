@@ -1,69 +1,103 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
-## opt-39_noepg.dpatch by Torsten/WarEagle at vdrportal.de
-## http://vdrportal.de/board/thread.php?postid=658080#post658080
-##
-## Thomas Günther <tom@toms-cafe.de>:
-##   - solved conflicts with other patches
+## opt-39_noepg.dpatch from version the vdr-noepgmenu plugin 0.0.6.beta3
+## http://winni.vdr-developer.org/noepgmenu/downloads/beta
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: The patch allows to disable normal epg update for specified channels.
 ## DP: This is useful if you get epg data of the channels from external sources.
 
 @DPATCH@
-diff -u -x '*~' -x runvdr -x Makefile vdr-1.5.9-org/config.c vdr-1.5.9+noEPG/config.c
---- vdr-1.5.9-org/config.c	2007-08-12 14:09:37.000000000 +0200
-+++ vdr-1.5.9+noEPG/config.c	2007-10-12 16:25:28.000000000 +0200
-@@ -286,1 +286,3 @@
--  InitialVolume = -1;
-+  InitialVolume = -1;
-+  noEPGMode = 0;
+diff -urNad vdr-1.6.0~/config.c vdr-1.6.0/config.c
+--- vdr-1.6.0~/config.c	2008-05-11 03:35:16.000000000 +0200
++++ vdr-1.6.0/config.c	2008-05-11 03:35:44.000000000 +0200
+@@ -339,11 +339,20 @@
+   ShowRecLength = 0;
+   ShowProgressBar = 0;
+   MenuCmdPosition = 0;
++  noEPGMode=0;
 +  noEPGList=strdup("");
-@@ -450,1 +452,6 @@
--  else if (!strcasecmp(Name, "ShowReplayMode"))      ShowReplayMode     = atoi(Value);
-+  else if (!strcasecmp(Name, "ShowReplayMode"))      ShowReplayMode     = atoi(Value);
++}
++
++cSetup::~cSetup()
++{
++  free(noEPGList);
+ }
+ 
+ cSetup& cSetup::operator= (const cSetup &s)
+ {
+   memcpy(&__BeginData__, &s.__BeginData__, (char *)&s.__EndData__ - (char *)&s.__BeginData__);
++  free(noEPGList);
++  noEPGList = strdup(s.noEPGList);
+   return *this;
+ }
+ 
+@@ -504,6 +513,11 @@
+   else if (!strcasecmp(Name, "FontOsdSize"))         FontOsdSize        = atoi(Value);
+   else if (!strcasecmp(Name, "FontSmlSize"))         FontSmlSize        = atoi(Value);
+   else if (!strcasecmp(Name, "FontFixSize"))         FontFixSize        = atoi(Value);
 +  else if (!strcasecmp(Name, "noEPGMode"))           noEPGMode          = atoi(Value);
-+  else if (!strcasecmp(Name, "noEPGList")){
++  else if (!strcasecmp(Name, "noEPGList")) {
 +    free(noEPGList);
-+    noEPGList=strdup(Value);
++    noEPGList=strdup(Value ? Value : "");
 +  }
-@@ -533,1 +540,3 @@
--  Store("InitialVolume",      InitialVolume);
-+  Store("InitialVolume",      InitialVolume);
+   else if (!strcasecmp(Name, "MaxVideoFileSize"))    MaxVideoFileSize   = atoi(Value);
+   else if (!strcasecmp(Name, "SplitEditedFiles"))    SplitEditedFiles   = atoi(Value);
+   else if (!strcasecmp(Name, "MinEventTimeout"))     MinEventTimeout    = atoi(Value);
+@@ -599,6 +613,8 @@
+   Store("FontOsd",            FontOsd);
+   Store("FontSml",            FontSml);
+   Store("FontFix",            FontFix);
 +  Store("noEPGMode",          noEPGMode);
 +  Store("noEPGList",          noEPGList);
-diff -u -x '*~' -x runvdr -x Makefile vdr-1.5.9-org/config.h vdr-1.5.9+noEPG/config.h
---- vdr-1.5.9+jumpplay/config.h	2007-09-10 15:26:17.000000000 +0200
-+++ vdr-1.5.9+jumpplay+noepg/config.h	2007-10-13 18:18:37.000000000 +0200
-@@ -264,1 +264,3 @@
--  int InitialVolume;
-+  int InitialVolume;
-+  char *noEPGList;
+   Store("FontOsdSize",        FontOsdSize);
+   Store("FontSmlSize",        FontSmlSize);
+   Store("FontFixSize",        FontFixSize);
+diff -urNad vdr-1.6.0~/config.h vdr-1.6.0/config.h
+--- vdr-1.6.0~/config.h	2008-05-11 03:35:16.000000000 +0200
++++ vdr-1.6.0/config.h	2008-05-11 03:35:16.000000000 +0200
+@@ -280,6 +280,7 @@
+   int FontOsdSize;
+   int FontSmlSize;
+   int FontFixSize;
 +  int noEPGMode;
-diff -u -x '*~' -x runvdr -x Makefile vdr-1.5.9-org/eit.c vdr-1.5.9+noEPG/eit.c
---- vdr-1.5.9-org/eit.c	2007-07-28 15:16:43.000000000 +0200
-+++ vdr-1.5.9+noEPG/eit.c	2007-10-12 16:25:28.000000000 +0200
+   int MaxVideoFileSize;
+   int SplitEditedFiles;
+   int MinEventTimeout, MinUserInactivity;
+@@ -299,7 +300,9 @@
+   int EmergencyExit;
+   int ShowRecDate, ShowRecTime, ShowRecLength, ShowProgressBar, MenuCmdPosition;
+   int __EndData__;
++  char *noEPGList; // pointer not to be flat-copied
+   cSetup(void);
++  ~cSetup();
+   cSetup& operator= (const cSetup &s);
+   bool Load(const char *FileName);
+   bool Save(void);
+diff -urNad vdr-1.6.0~/eit.c vdr-1.6.0/eit.c
+--- vdr-1.6.0~/eit.c	2008-05-11 03:35:16.000000000 +0200
++++ vdr-1.6.0/eit.c	2008-05-11 03:35:16.000000000 +0200
 @@ -22,8 +22,28 @@
  class cEIT : public SI::EIT {
  public:
    cEIT(cSchedules *Schedules, int Source, u_char Tid, const u_char *Data, bool OnlyRunningStatus = false);
++
 +private:
 +  bool allowedEPG(tChannelID kanalID);
    };
  
-+bool cEIT::allowedEPG(tChannelID kanalID){
++bool cEIT::allowedEPG(tChannelID kanalID) {
 +  bool rc;
 +
-+  if (Setup.noEPGMode == 1){
-+    rc=false;
-+    if (strstr(::Setup.noEPGList,kanalID.ToString())!=NULL){
-+      rc=true;
-+    }
-+  }else{
-+    rc=true;
-+    if (strstr(::Setup.noEPGList,kanalID.ToString())!=NULL){
-+      rc=false;
-+    }
-+  }
++  if (Setup.noEPGMode == 1) {
++     rc=false;
++     if (strstr(::Setup.noEPGList,kanalID.ToString())!=NULL)
++        rc=true;
++     }
++  else {
++     rc=true;
++     if (strstr(::Setup.noEPGList,kanalID.ToString())!=NULL)
++        rc=false;
++     }
 +
 +  return rc;
 +}
@@ -71,36 +105,23 @@ diff -u -x '*~' -x runvdr -x Makefile vdr-1.5.9-org/eit.c vdr-1.5.9+noEPG/eit.c
  cEIT::cEIT(cSchedules *Schedules, int Source, u_char Tid, const u_char *Data, bool OnlyRunningStatus)
  :SI::EIT(Data, false)
  {
-@@ -35,6 +55,15 @@
+@@ -35,6 +55,12 @@
    if (!channel)
       return; // only collect data for known channels
  
-+  // noepg >>>
-+  //only use epg from channels not blocked by noEPG-patch
++  // only use epg from channels not blocked by noEPG-patch
 +  tChannelID kanalID;
 +  kanalID=channel->GetChannelID();
-+  if (!allowedEPG(kanalID)){
++  if (!allowedEPG(kanalID))
 +    return;
-+  }
-+  // noepg <<<
 +
    cSchedule *pSchedule = (cSchedule *)Schedules->GetSchedule(channel, true);
  
    bool Empty = true;
-
-diff -u -x '*~' -x runvdr -x Makefile vdr-1.5.9-org/po/de_DE.po vdr-1.5.9+noEPG/po/de_DE.po
---- vdr-1.5.9-org/po/de_DE.po	2007-08-19 13:53:29.000000000 +0200
-+++ vdr-1.5.9+noEPG/po/de_DE.po	2007-10-12 16:26:36.000000000 +0200
-@@ -1268,1 +1284,4 @@
-+msgid "Setup.EPG$Mode of noEPG-Patch"
-+msgstr "Art des noEPG-Patches"
-+
-+msgid "VDR will shut down in %s minutes"
--msgid "VDR will shut down in %s minutes"
-diff -u -x '*~' -x runvdr -x Makefile vdr-1.5.9-org/po/de_DE.po vdr-1.5.9+noEPG/po/de_DE.po
---- vdr-1.5.9+jumpplay/menu.c	2007-09-10 15:26:17.000000000 +0200
-+++ vdr-1.5.9+jumpplay+noepg/menu.c	2007-10-13 18:30:33.000000000 +0200
-@@ -2307,6 +2307,7 @@
+diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
+--- vdr-1.6.0~/menu.c	2008-05-11 03:35:16.000000000 +0200
++++ vdr-1.6.0/menu.c	2008-05-11 03:35:16.000000000 +0200
+@@ -2604,6 +2604,7 @@
  
  class cMenuSetupEPG : public cMenuSetupBase {
  private:
@@ -108,7 +129,7 @@ diff -u -x '*~' -x runvdr -x Makefile vdr-1.5.9-org/po/de_DE.po vdr-1.5.9+noEPG/
    int originalNumLanguages;
    int numLanguages;
    void Setup(void);
-@@ -2329,6 +2330,9 @@
+@@ -2626,6 +2627,9 @@
  {
    int current = Current();
  
@@ -118,7 +139,11 @@ diff -u -x '*~' -x runvdr -x Makefile vdr-1.5.9-org/po/de_DE.po vdr-1.5.9+noEPG/
    Clear();
  
    Add(new cMenuEditIntItem( tr("Setup.EPG$EPG scan timeout (h)"),      &data.EPGScanTimeout));
-@@ -2344,1 +2348,2 @@
--      Add(new cMenuEditStraItem(tr("Setup.EPG$Preferred language"),    &data.EPGLanguages[i], I18nLanguages()->Size(), &I18nLanguages()->At(0)));
-+      Add(new cMenuEditStraItem(tr("Setup.EPG$Preferred language"),    &data.EPGLanguages[i], I18nLanguages()->Size(), &I18nLanguages()->At(0)));
+@@ -2644,6 +2648,7 @@
+   Add(new cMenuEditBoolItem(tr("Setup.EPG$extern double Epg entry"),   &data.DoubleEpgAction, "adjust", "delete"));
+   Add(new cMenuEditBoolItem(tr("Setup.EPG$Mix intern and extern EPG"), &data.MixEpgAction));
+   Add(new cMenuEditBoolItem(tr("Setup.EPG$Disable running VPS event"), &data.DisableVPS));
 +  Add(new cMenuEditStraItem(tr("Setup.EPG$Mode noEPG-Patch"),          &data.noEPGMode, 2, noEPGModes));
+ 
+   SetCurrent(Get(current));
+   Display();

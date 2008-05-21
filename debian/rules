@@ -23,22 +23,26 @@ patch-stamp:
 unpatch:
 endif
 
-DB2MAN = /usr/share/sgml/docbook/stylesheet/xsl/nwalsh/manpages/docbook.xsl
-MANPAGES = debian/vdrdbg-buildpackage.1 debian/debugvdr.1 debian/vdr-dbg.1 \
-           debian/vdrleaktest.1
+TXT2MANPAGES = debian/vdr-dbg.1
+MANPAGES = debian/vdrdbg-buildpackage.1 debian/debugvdr.1 debian/vdrleaktest.1
 
 MAKE_OPTIONS = REMOTE=LIRC CONFDIR=/var/lib/vdr LOCDIR=/usr/share/locale \
                VIDEODIR=/var/lib/video.00 PLUGINLIBDIR=/usr/lib/vdr/plugins
 
-%.1: %.1.xml
-	xsltproc -o $@ --nonet $(DB2MAN) $<
+$(MANPAGES): %.1: %
+	sh $< -h | \
+	  eval "`cat $< | grep "^### txt2man" | sed "s/### //"`" >$@
+
+$(TXT2MANPAGES): %.1: %.1.txt
+	cat $< | grep -v "^###" | \
+	  eval "`cat $< | grep "^### txt2man" | sed "s/### //"`" >$@
 
 configure: configure-stamp
 configure-stamp: patch-stamp
 	dh_testdir
 	touch configure-stamp
 
-build: build-stamp $(MANPAGES)
+build: build-stamp $(MANPAGES) $(TXT2MANPAGES)
 build-stamp: configure-stamp
 	dh_testdir
 

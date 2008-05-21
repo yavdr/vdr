@@ -1,3 +1,17 @@
+vdr (1.6.0-3) UNRELEASED; urgency=low
+
+  * Modified opt-49-x_pvrinput.dpatch: Added CA-Id's 0xA1 and 0xA2, required by
+    pvrusb2 as suggested by Christian Jarczyk
+  * Using txt2man for manpages that used docbook before
+  * Upgraded opt-21_liemikuutio.dpatch to version 1.21
+  * Updated opt-48_pin.dpatch
+  * Upgraded extensions patch to version 61
+  * Upgraded opt-39_noepg.dpatch to the patch taken from the vdr-noepgmenu
+    plugin 0.0.6.beta3
+  * Added opt-52_hard_link_cutter.dpatch
+
+ -- Tobias Grimm <tg@e-tobi.net>  Mon, 12 May 2008 18:29:55 +0200
+
 vdr (1.6.0-2) unstable; urgency=low
 
   [ Tobias Grimm ]
