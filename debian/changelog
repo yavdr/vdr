@@ -1,17 +1,3 @@
-vdr (1.6.0-3) UNRELEASED; urgency=low
-
-  * Modified opt-49-x_pvrinput.dpatch: Added CA-Id's 0xA1 and 0xA2, required by
-    pvrusb2 as suggested by Christian Jarczyk
-  * Using txt2man for manpages that used docbook before
-  * Upgraded opt-21_liemikuutio.dpatch to version 1.21
-  * Updated opt-48_pin.dpatch
-  * Upgraded extensions patch to version 61
-  * Upgraded opt-39_noepg.dpatch to the patch taken from the vdr-noepgmenu
-    plugin 0.0.6.beta3
-  * Added opt-52_hard_link_cutter.dpatch
-
- -- Tobias Grimm <tg@e-tobi.net>  Wed, 21 May 2008 11:33:00 +0200
-
 vdr (1.6.0-2) unstable; urgency=low
 
   [ Tobias Grimm ]
@@ -40,6 +26,16 @@ vdr (1.6.0-2) unstable; urgency=low
     GraphTFT plugin (taken from the Zulu Extensions Patch 56) and renamed it
     to opt-50_graphtft.dpatch (deleted old opt-50_graphtft.dpatch)
   * Applied a lot of spelling fixes (Thanks to Michael Nork!)
+  * Modified opt-49-x_pvrinput.dpatch: Added CA-Id's 0xA1 and 0xA2, required by
+    pvrusb2 as suggested by Christian Jarczyk
+  * Using txt2man for manpages that used docbook before
+  * Upgraded opt-21_liemikuutio.dpatch to version 1.21
+  * Updated opt-48_pin.dpatch
+  * Upgraded extensions patch to version 61
+  * Upgraded opt-39_noepg.dpatch to the patch taken from the vdr-noepgmenu
+    plugin 0.0.6.beta3
+  * Added opt-52_hard_link_cutter.dpatch
+
 
   [ Thomas Günther ]
   * Upgraded make-special-vdr.sh to version 0.9
@@ -50,7 +46,7 @@ vdr (1.6.0-2) unstable; urgency=low
   * Added Galician debconf translation (gl.po) from Jacobo Tarrio
     (closes: #482132)
 
- -- Thomas Schmidt <tschmidt@debian.org>  Wed, 21 May 2008 08:44:38 +0200
+ -- Thomas Schmidt <tschmidt@debian.org>  Wed, 21 May 2008 22:03:28 +0200
 
 vdr (1.6.0-1) experimental; urgency=low
 
