@@ -14,7 +14,7 @@ vdr (1.6.0-2) unstable; urgency=low
     arguments, should from now on pass CXXFLAGS as an argument to the make call
     in debian/rules. (closes: #475710)
   * Made Make.config handle DEB_BUILD_OPTIONS=noopt, so all plugins including
-    Make.config in their Makefile will inherently suppport noopt as well 
+    Make.config in their Makefile will inherently support noopt as well 
     (see also Debian Policy 3.7.3.0 section 10.1)
   * Added caching to plugin-loader.sh to speed up the initial startup of vdr
     (Patch provided by Michael Burian <michael.burian@sbg.at>)
