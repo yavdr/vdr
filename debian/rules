@@ -95,6 +95,9 @@ install: build patchlevel
 	dh_installdirs
 	dh_install
 	chmod +x $(CURDIR)/debian/vdr/usr/lib/vdr/vdr-*
+	for example in hello osddemo pictures servicedemo skincurses status svdrpdemo; do \
+	    install -D PLUGINS/src/$$example/README $(CURDIR)/debian/vdr-plugin-examples/usr/share/doc/vdr-plugin-examples/README.$$example; \
+	done
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -132,7 +135,7 @@ binary-arch: build install
 	dh_testdir -a
 	dh_testroot -a
 	dh_installdebconf -a
-	dh_installdocs -a -Nvdr-dbg -Nvdr-plugin-examples
+	dh_installdocs -a -Nvdr-dbg
 	dh_installexamples -a
 	dh_installmenu -a
 #	dh_installlogrotate -a
@@ -146,7 +149,7 @@ binary-arch: build install
 #	dh_undocumented -a
 	dh_installchangelogs -pvdr HISTORY
 	dh_installchangelogs -pvdr-plugin-sky PLUGINS/src/sky/HISTORY
-	dh_installchangelogs -pvdr-plugin-pictures PLUGINS/src/pictures/HISTORY
+	dh_installchangelogs -pvdr-plugin-examples
 	dh_link -a
 	dh_strip -a -Xvdr-dbg
 	dh_compress -a

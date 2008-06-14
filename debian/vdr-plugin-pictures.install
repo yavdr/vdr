@@ -1,3 +1,0 @@
-PLUGINS/lib/libvdr-pictures.so.* usr/lib/vdr/plugins/
-PLUGINS/src/pictures/pic2mpg     usr/bin/
-debian/plugin.pictures.conf      etc/vdr/plugins/

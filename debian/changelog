@@ -1,3 +1,9 @@
+vdr (1.6.0-3) UNRELEASED; urgency=low
+
+  * Installing the pictures plugin now with vdr-plugin-examples
+
+ -- Tobias Grimm <tg@e-tobi.net>  Sat, 14 Jun 2008 15:39:38 +0200
+
 vdr (1.6.0-2) unstable; urgency=low
 
   [ Tobias Grimm ]

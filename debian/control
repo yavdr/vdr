@@ -83,20 +83,3 @@ Description: Plugins for vdr to show some possible features
  These plugins do not have useful features, they only demonstrate 
  how vdr-plugins work and what is possible to do with them.
 XB-VDR-Patchlevel: ${vdr:Patchlevel}
-
-Package: vdr-plugin-pictures
-Architecture: any 
-Section: misc
-Depends: ${shlibs:Depends}, vdr (= ${binary:Version}), ${perl:Depends},
- libimage-size-perl, netpbm, mjpegtools | ffmpeg
-Description: Plugin for vdr providing a very basic picture viewer
- Video Disk Recorder (VDR) is a digital sat-receiver program using
- Linux and DVB technologies. It allows one to record MPEG2 streams,
- as well as output the stream to TV.
- .
- This package contains the pictures-plugin, which provides a very
- basic picture viewer. It assumes, that the pictures are converted
- to MPEG frames.
- .
- A separate tool called `pic2mpg' is provided to convert pictures.
-XB-VDR-Patchlevel: ${vdr:Patchlevel}
