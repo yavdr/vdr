@@ -1,8 +1,10 @@
-vdr (1.6.0-3) UNRELEASED; urgency=low
+vdr (1.6.0-3) unstable; urgency=low
 
   * Installing the pictures plugin now with vdr-plugin-examples
+  * Replaced usage of 'at' with 'nohupc -c "( command )" >/dev/null 2>&1 &'
+  * Removed debian/linda
 
- -- Tobias Grimm <tg@e-tobi.net>  Sat, 14 Jun 2008 15:39:38 +0200
+ -- Tobias Grimm <tg@e-tobi.net>  Wed, 18 Jun 2008 00:52:58 +0200
 
 vdr (1.6.0-2) unstable; urgency=low
 

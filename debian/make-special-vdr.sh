@@ -438,11 +438,11 @@ EOF
 --- debian/commands.switch-vdr.conf  1970-01-01 00:00:00.000000000 +0000
 +++ debian/commands.switch-vdr.conf
 @@ -0,0 +1 @@
-+VDR-Standardversion starten : echo "/usr/lib/vdr${SPECIAL_VDR_SUFFIX}/ctvdr${SPECIAL_VDR_SUFFIX}wrapper --stop && /bin/sleep 5 && /usr/lib/vdr/ctvdrwrapper --restart" | at now
++VDR-Standardversion starten : nohup sh -c "( /usr/lib/vdr${SPECIAL_VDR_SUFFIX}/ctvdr${SPECIAL_VDR_SUFFIX}wrapper --stop && /bin/sleep 5 && /usr/lib/vdr/ctvdrwrapper --restart )" >/dev/null 2>&1 &
 --- debian/commands.switch-vdr${SPECIAL_VDR_SUFFIX}.conf  1970-01-01 00:00:00.000000000 +0000
 +++ debian/commands.switch-vdr${SPECIAL_VDR_SUFFIX}.conf
 @@ -0,0 +1 @@
-+VDR-Entwicklerversion vdr${SPECIAL_VDR_SUFFIX} starten : echo "/usr/lib/vdr/ctvdrwrapper --stop && /bin/sleep 5 && /usr/lib/vdr${SPECIAL_VDR_SUFFIX}/ctvdr${SPECIAL_VDR_SUFFIX}wrapper --restart" | at now
++VDR-Entwicklerversion vdr${SPECIAL_VDR_SUFFIX} starten : nohup sh -c "( /usr/lib/vdr/ctvdrwrapper --stop && /bin/sleep 5 && /usr/lib/vdr${SPECIAL_VDR_SUFFIX}/ctvdr${SPECIAL_VDR_SUFFIX}wrapper --restart )" >/dev/null 2>&1 &
 --- debian/vdr${SPECIAL_VDR_SUFFIX}.install
 +++ debian/vdr${SPECIAL_VDR_SUFFIX}.install
 @@ -0,0 +1,2 @@
