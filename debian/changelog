@@ -1,3 +1,10 @@
+vdr (1.6.0-4) UNRELEASED; urgency=low
+
+  * Made valgrind a Suggests and check in vdrleaktest, if valgrind exists
+    (Closes: #489003)
+
+ -- Tobias Grimm <tg@e-tobi.net>  Thu, 03 Jul 2008 01:00:38 +0200
+
 vdr (1.6.0-3) unstable; urgency=low
 
   * Installing the pictures plugin now with vdr-plugin-examples

@@ -49,8 +49,8 @@ XB-VDR-Patchlevel: ${vdr:Patchlevel}
 
 Package: vdr-dbg
 Architecture: any 
-Depends: ${shlibs:Depends}, ${misc:Depends}, vdr (= ${binary:Version}), gdb,
- valgrind
+Depends: ${shlibs:Depends}, ${misc:Depends}, vdr (= ${binary:Version}), gdb
+Suggests: valgrind
 Description: Debuggable version of the VDR Video Disk Recorder
  This package installs an unoptimized vdr binary with debugging symbols as well
  as some helper scripts to debug VDR and its plugins.

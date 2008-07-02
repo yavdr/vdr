@@ -45,6 +45,15 @@ do
 done
 
 #
+# Check for Valgrind
+#
+
+if [ ! -x /usr/bin/valgrind ] ; then
+    echo "ERROR: Please install valgrind first!" >&2
+    exit 1
+fi
+
+#
 # c't-VDR Memory Leak Tester
 #
 
