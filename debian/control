@@ -6,7 +6,7 @@ Uploaders: Thomas Schmidt <tschmidt@debian.org>, Tobias Grimm <tg@e-tobi.net>, T
 Build-Depends: debhelper (>= 5), dpatch, libjpeg62-dev, libcap-dev,
   libncursesw5-dev, libfreetype6-dev, libfontconfig-dev, gettext,
   txt2man
-Standards-Version: 3.7.3
+Standards-Version: 3.8.0
 Vcs-Svn: svn://svn.debian.org/pkg-vdr-dvb/vdr/vdr/trunk/
 Vcs-Browser: http://svn.debian.org/wsvn/pkg-vdr-dvb/vdr/vdr/trunk/
 Homepage: http://www.cadsoft.de/vdr/
