@@ -10,7 +10,7 @@ PATCHES_FILE = 'debian/.vdr-patches'
 def get_active_patches():
     active_patches = {}
     for line in open("debian/patches/00list", "r"):
-        match = re.match('^([^#]+)', line.rstrip())
+        match = re.match('^(?!00_)([^#]+)', line.rstrip())
         if match:
             patchFileName = "debian/patches/" + match.group(1)
             if not os.path.exists(patchFileName):
