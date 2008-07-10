@@ -5,7 +5,7 @@ Maintainer: Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>
 Uploaders: Thomas Schmidt <tschmidt@debian.org>, Tobias Grimm <tg@e-tobi.net>, Thomas Günther <tom@toms-cafe.de>
 Build-Depends: debhelper (>= 5), dpatch, libjpeg62-dev, libcap-dev,
   libncursesw5-dev, libfreetype6-dev, libfontconfig-dev, gettext,
-  txt2man
+  txt2man, python
 Standards-Version: 3.8.0
 Vcs-Svn: svn://svn.debian.org/pkg-vdr-dvb/vdr/vdr/trunk/
 Vcs-Browser: http://svn.debian.org/wsvn/pkg-vdr-dvb/vdr/vdr/trunk/
@@ -15,7 +15,7 @@ Package: vdr
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, psmisc
 Recommends: lirc, ttf-bitstream-vera | ttf-freefont
-Provides: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu
+Provides: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu, ${vdr:Provides}
 Conflicts: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu, vdradmin (<< 3.4.3)
 Replaces: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu
 Description: Video Disk Recorder for DVB cards
@@ -31,7 +31,6 @@ Description: Video Disk Recorder for DVB cards
  programs. Also the standard VDR (without special plugins) requires 
  a DVB-Card with an integrated mpeg-decoder, a so called 
  Full-Featured Card.
-XB-VDR-Patchlevel: ${vdr:Patchlevel}
 
 Package: vdr-dev
 Architecture: all
@@ -45,7 +44,6 @@ Description: Video Disk Recorder for DVB cards
  .
  This package contains the header files of VDR.
  You need this package to be able to build vdr-plugins!
-XB-VDR-Patchlevel: ${vdr:Patchlevel}
 
 Package: vdr-dbg
 Architecture: any 
@@ -54,7 +52,6 @@ Suggests: valgrind
 Description: Debuggable version of the VDR Video Disk Recorder
  This package installs an unoptimized vdr binary with debugging symbols as well
  as some helper scripts to debug VDR and its plugins.
-XB-VDR-Patchlevel: ${vdr:Patchlevel}
 
 Package: vdr-plugin-sky
 Architecture: any 
@@ -68,7 +65,6 @@ Description: Plugin for using a Sky Digibox with vdr
  the analog a/v output of a Sky Digibox to VDR, so that you can 
  enjoy the full recording flexibility of VDR with your Sky 
  subscription. 
-XB-VDR-Patchlevel: ${vdr:Patchlevel}
 
 Package: vdr-plugin-examples
 Architecture: any 
@@ -82,4 +78,3 @@ Description: Plugins for vdr to show some possible features
  svcsvr, skincurses, status and svdrpdemo from the vdr-source. 
  These plugins do not have useful features, they only demonstrate 
  how vdr-plugins work and what is possible to do with them.
-XB-VDR-Patchlevel: ${vdr:Patchlevel}

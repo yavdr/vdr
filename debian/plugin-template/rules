@@ -16,5 +16,4 @@ cleanbuilddir::
 	rm -f libvdr-*.so.*
 
 common-binary-predeb-arch::
-	sh /usr/share/vdr-dev/patchlevel.sh subst
 	sh /usr/share/vdr-dev/dependencies.sh

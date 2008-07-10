@@ -13,9 +13,9 @@
 
 set -e
 
-FIRST_VERSION=$(dpkg -s vdr-dev | awk '/Version/ { print $2 }')
+ABI_VERSION=`cat /usr/share/vdr-dev/abi-version.txt`
 
-# Set conflicts with previous vdr version in control
+# A plugin requires exactly the VDR ABI version it was compiled for
 for p in $(dh_listpackages); do
-    echo "vdr:Depends=vdr (>= $FIRST_VERSION)" >> debian/$p.substvars
+    echo "vdr:Depends=$ABI_VERSION" >> debian/$p.substvars
 done

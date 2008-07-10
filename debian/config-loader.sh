@@ -48,9 +48,6 @@ ENABLE_SHUTDOWN=0
 # Video-Directory
 VIDEO_DIR="/var/lib/video.00"
 
-# Set this to load only plugins with the correct patch level
-PLUGIN_CHECK_PATCHLEVEL="no"
-
 # Set this to load only startable plugins (check with "vdr -V -P plugin")
 PLUGIN_CHECK_STARTABLE="yes"
 

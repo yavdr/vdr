@@ -12,7 +12,6 @@ getplugins ()
     local arguments
     local plugins
     local packages
-    local patchlevels
     local leftout
     local leftout2
     local vdrcmd
@@ -55,25 +54,6 @@ getplugins ()
     fi
     installed_plugins=(`echo ${plugins[@]} | sed 's/[^ ]*://g'`)
     packages=(   vdr   `echo ${plugins[@]} | sed 's/:[^ ]*//g'`)
-
-    if [ "$PLUGIN_CHECK_PATCHLEVEL" = "yes" ]; then
-        # extract patchlevel info
-        eval "patchlevels=($(LANG=C;dpkg -s ${packages[@]} 2>&1 | awk -F ':' '\
-            /^Package: /                         {p=$2} \
-            /^Package.*is not installed/         {print "\"\""} \
-            (/[pP]atchlevel:/ || /^$/) && p!=""  {print "\""$2"\"";p=""}'))"
-
-        # move plugins with incompatible patchlevel to $leftout
-        for (( i=1 ; i<${#patchlevels[@]} ; i++ )); do
-            if [ "${patchlevels[0]}" != "${patchlevels[$i]}" ]; then
-                leftout="${leftout} ${installed_plugins[$((i-1))]}"
-                unset installed_plugins[$((i-1))]
-            fi
-        done
-
-        # cleanup the installed_plugins array
-        installed_plugins=( "${installed_plugins[@]}" )
-    fi
 
     if [ "$PLUGIN_CHECK_STARTABLE" = "yes" ]; then
 

@@ -41,17 +41,6 @@ KEYB_TTY_SWITCH=<0|1>
     Set this to 1, to make VDR switch to the console specified in KEYB_TTY
     on startup.
 
-PLUGIN_CHECK_PATCHLEVEL="<yes|no>"
-
-    Default: "no"
-
-    Set this to "yes" to force VDR to load only plugins with a matching patch
-    level. This is especially useful, if you run patched VDR versions from third
-    party repositories like the ctvdr distribution.
-    If this option is set to "yes", then only plugins are loaded, which were
-    installed by a Debian package. In order to load plugins that you have
-    manually copied to /usr/lib/vdr/plugins, this option must be set to "no".
-
 PLUGIN_CHECK_STARTABLE="<yes|no>"
 
     Default: "yes"
@@ -291,17 +280,6 @@ patches in the vdr package, all plugins must be recompiled with the new vdr-dev
 package! There is only one exception from this rule - patches named 
 opt-<nn>-x_<patch name> do not affect the plugin interfaces and can therefore 
 be enabled or disabled without the need to recompile the plugins.
-
-If you decide to compile your own patched vdr packages, you should set
-PLUGIN_CHECK_PATCHLEVEL="yes" in /etc/default/vdr. With this enabled, vdr
-will only load plugins, that have been compiled with the correct vdr patch. This
-checking is done by using a custom control field called "VDR-Patchlevel". When
-compiling vdr with some optional patches enabled, these patches will be listed
-in this control field and added to vdr-dev as /usr/include/vdr/patchlevel.
-When compiling a plugin, this patchlevel file is added as the "VDR-Patchlevel"
-control field to the plugins binary package. By comparing the "VDR-Patchlevel"
-field of vdr and the plugin packages, the vdr package can decide whether to
-load a plugin or not.
 
 Keep in mind, that if you enable any optional patches, you can't use apt-get
 anymore on the official Debian repositories to update existing vdr or plugin
