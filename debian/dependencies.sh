@@ -13,7 +13,7 @@
 
 set -e
 
-ABI_VERSION=`cat /usr/share/vdr-dev/abi-version.txt`
+ABI_VERSION=`cat /usr/share/vdr-dev/abi-version`
 
 # A plugin requires exactly the VDR ABI version it was compiled for
 for p in $(dh_listpackages); do

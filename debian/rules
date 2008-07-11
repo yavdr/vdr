@@ -37,8 +37,27 @@ $(TXT2MANPAGES): %.1: %.1.txt
 	cat $< | grep -v "^###" | \
 	  eval "`cat $< | grep "^### txt2man" | sed "s/### //"`" >$@
 
+OOLIST := debian/patches/00list
+ABIVERSION := debian/abi-version
+ifdef PATCHVARIANT
+    OOLIST := $(OOLIST).$(PATCHVARIANT)
+    ABIVERSION := $(ABIVERSION).$(PATCHVARIANT)
+    PATCHCHECKOPTION := -p $(PATCHVARIANT)
+endif
+
+prepare-00list:
+	python debian/patchcheck.py -c $(PATCHCHECKOPTION)
+	[ "$(OOLIST)" == "debian/patches/00list" ] || \
+	  cp -b $(OOLIST) debian/patches/00list
+
+restore-00list:
+	[ ! -e debian/patches/00list~ ] || mv debian/patches/00list~ debian/patches/00list
+
+accept-patches:
+	python debian/patchcheck.py -u $(PATCHCHECKOPTION)
+
 configure: configure-stamp
-configure-stamp: patch-stamp
+configure-stamp: prepare-00list patch-stamp
 	dh_testdir
 	touch configure-stamp
 
@@ -68,10 +87,9 @@ build-stamp: configure-stamp
 	touch build-stamp
 
 patchinfo:
-	python debian/patchcheck.py -c
 	sh debian/extract-patchinfo >debian/patchinfo
 
-clean: clean-patched unpatch
+clean: clean-patched unpatch restore-00list
 clean-patched:
 	dh_testdir
 	dh_testroot
@@ -98,7 +116,8 @@ install: patchinfo build
 	    install -D PLUGINS/src/$$example/README $(CURDIR)/debian/vdr-plugin-examples/usr/share/doc/vdr-plugin-examples/README.$$example; \
 	done
 	echo -n "vdr:Provides=" >> debian/vdr.substvars
-	cat debian/abi-version.txt >> debian/vdr.substvars
+	cat $(ABIVERSION) >> debian/vdr.substvars
+	install -m644 $(ABIVERSION) $(CURDIR)/debian/vdr-dev/usr/share/vdr-dev/abi-version
 
 
 # Build architecture-independent files here.
