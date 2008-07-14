@@ -59,11 +59,14 @@ KEYB_TTY=""
 # on startup
 KEYB_TTY_SWITCH=0
 
-# get locale which is used for running vdr from /etc/environment, in case of 
-# an error, use "C"
-[ -e /etc/environment ] && . /etc/environment
-[ -z "$LANG" ] && LANG="C"
-VDR_LANG=$LANG
+# get locale which is used for running vdr from /etc/default/locale or
+# /etc/environment or fall back to "C"
+ENV_FILE="none"
+[ -r /etc/environment ] && ENV_FILE="/etc/environment"
+[ -r /etc/default/locale ] && ENV_FILE="/etc/default/locale"
+[ $ENV_FILE = none ] || \
+  VDR_LANG=$(egrep "^[^#]*${var}=" $ENV_FILE | tail -n1 | cut -d= -f2)
+[ -z "$VDR_LANG" ] && VDR_LANG="C"
 
 # Enable VFAT file system support by default
 VFAT=1
