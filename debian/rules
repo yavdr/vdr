@@ -47,7 +47,7 @@ endif
 
 prepare-00list:
 	python debian/patchcheck.py -c $(PATCHCHECKOPTION)
-	[ "$(OOLIST)" == "debian/patches/00list" ] || \
+	[ "$(OOLIST)" = "debian/patches/00list" ] || \
 	  cp -b $(OOLIST) debian/patches/00list
 
 restore-00list:
