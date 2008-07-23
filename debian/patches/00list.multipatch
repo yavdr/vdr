@@ -9,6 +9,7 @@
 15_dvbplayer
 16_channels.conf.terr-fix
 17_vdr-maintenance-1.6.0-1
+18_signalhandler-fix
 
 81_Make_config
 82_valgrind

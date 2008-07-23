@@ -14,7 +14,7 @@ standard="\
     15_dvbplayer \
     16_channels.conf.terr-fix \
     17_vdr-maintenance-1.6.0-1 \
-    81_Make_config \
+    18_signalhandler-fix \
     82_valgrind \
     99_ncursesw-include"
 multipatch="$standard \
