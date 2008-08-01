@@ -8,8 +8,9 @@ vdr (1.6.0-6) UNRELEASED; urgency=low
   * Added opt-21_internal-cam-devices.dpatch
   * Added opt-53_dvbsetup.dpatch
   * Added opt-54_deltimeshiftrec.dpatch
+  * Replaced libcap-dev build dependency by libcap2-dev | libcap-dev (Closes: #492681)
 
- -- Tobias Grimm <tg@e-tobi.net>  Fri, 01 Aug 2008 23:59:53 +0200
+ -- Tobias Grimm <tg@e-tobi.net>  Sat, 02 Aug 2008 00:05:23 +0200
 
 vdr (1.6.0-5) unstable; urgency=low
 
