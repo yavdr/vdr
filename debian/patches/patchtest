@@ -15,6 +15,7 @@ standard="\
     16_channels.conf.terr-fix \
     17_vdr-maintenance-1.6.0-1 \
     18_signalhandler-fix \
+    81_Make_config \
     82_valgrind \
     99_ncursesw-include"
 multipatch="$standard \
@@ -39,7 +40,9 @@ multipatch="$standard \
     opt-49-x_pvrinput \
     opt-50_graphtft \
     opt-51_cuttime \
-    opt-52_hard_link_cutter"
+    opt-52_hard_link_cutter \
+    opt-53_dvbsetup \
+    opt-54_deltimeshiftrec"
 testpatch="$standard \
     opt-20_liemikuutio \
     opt-24_jumpplay \

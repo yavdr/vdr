@@ -19,6 +19,10 @@
 # Patch collection (replaces enAIO).
 # opt-20_liemikuutio
 
+# Allows to tune to non-FTA channels provided by internal devices, 
+# like streamdev
+# opt-21_internal-cam-devices
+
 # The Jump patch allows automatic jumping over cutting marks.
 # opt-24_jumpplay
 
@@ -87,3 +91,9 @@
 
 # Records into smaller files and uses hardlinks to speed up cutting
 # opt-52_hard_link_cutter
+
+# Setup for AC3 transfer, QAM_256, disable primary tuner
+# opt-53_dvbsetup
+
+# Offers the choice to delete timeshift recordings
+# opt-54_deltimeshiftrec

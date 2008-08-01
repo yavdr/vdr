@@ -5,8 +5,11 @@ vdr (1.6.0-6) UNRELEASED; urgency=low
 
   [ Tobias Grimm ]
   * Added 18_signalhandler-fix.dpatch
+  * Added opt-21_internal-cam-devices.dpatch
+  * Added opt-53_dvbsetup.dpatch
+  * Added opt-54_deltimeshiftrec.dpatch
 
- -- Tobias Grimm <tg@e-tobi.net>  Thu, 24 Jul 2008 00:46:15 +0200
+ -- Tobias Grimm <tg@e-tobi.net>  Fri, 01 Aug 2008 23:59:53 +0200
 
 vdr (1.6.0-5) unstable; urgency=low
 

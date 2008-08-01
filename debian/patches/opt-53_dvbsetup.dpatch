@@ -1,0 +1,150 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## opt-53_dvbsetup.dpatch by Tobias Grimm <tg@e-tobi.net>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Setup for AC3 transfer, QAM_256, disable primary tuner
+## DP: Taken from the Zulu extensions patch
+## DP: See http://www.zulu-entertainment.de/download.php?group=VDR
+
+@DPATCH@
+diff -urNad vdr-1.6.0~/config.c vdr-1.6.0/config.c
+--- vdr-1.6.0~/config.c	2008-07-25 23:53:03.000000000 +0200
++++ vdr-1.6.0/config.c	2008-07-25 23:53:52.000000000 +0200
+@@ -253,6 +253,9 @@
+   strcpy(OSDLanguage, ""); // default is taken from environment
+   strcpy(OSDSkin, "sttng");
+   strcpy(OSDTheme, "default");
++  DolbyTransferFix = 1;
++  NoQamOnDecoder = 0;
++  TurnOffPrimary = 0;
+   PrimaryDVB = 1;
+   ShowInfoOnChSwitch = 1;
+   TimeoutRequChInfo = 1;
+@@ -497,6 +500,9 @@
+   if      (!strcasecmp(Name, "OSDLanguage"))       { strn0cpy(OSDLanguage, Value, sizeof(OSDLanguage)); I18nSetLocale(OSDLanguage); }
+   else if (!strcasecmp(Name, "OSDSkin"))             Utf8Strn0Cpy(OSDSkin, Value, MaxSkinName);
+   else if (!strcasecmp(Name, "OSDTheme"))            Utf8Strn0Cpy(OSDTheme, Value, MaxThemeName);
++  else if (!strcasecmp(Name, "DolbyTransferFix"))    DolbyTransferFix   = atoi(Value);
++  else if (!strcasecmp(Name, "NoQamOnDecoder"))      NoQamOnDecoder     = atoi(Value);
++  else if (!strcasecmp(Name, "TurnOffPrimary"))      TurnOffPrimary     = atoi(Value);
+   else if (!strcasecmp(Name, "PrimaryDVB"))          PrimaryDVB         = atoi(Value);
+   else if (!strcasecmp(Name, "ShowInfoOnChSwitch"))  ShowInfoOnChSwitch = atoi(Value);
+   else if (!strcasecmp(Name, "TimeoutRequChInfo"))   TimeoutRequChInfo  = atoi(Value);
+@@ -601,6 +607,9 @@
+ 
+ bool cSetup::Save(void)
+ {
++  Store("DolbyTransferFix",   DolbyTransferFix);
++  Store("NoQamOnDecoder",     NoQamOnDecoder);
++  Store("TurnOffPrimary",     TurnOffPrimary);
+   Store("OSDLanguage",        OSDLanguage);
+   Store("OSDSkin",            OSDSkin);
+   Store("OSDTheme",           OSDTheme);
+diff -urNad vdr-1.6.0~/config.h vdr-1.6.0/config.h
+--- vdr-1.6.0~/config.h	2008-07-25 23:53:03.000000000 +0200
++++ vdr-1.6.0/config.h	2008-07-25 23:53:03.000000000 +0200
+@@ -228,6 +228,9 @@
+ public:
+   // Also adjust cMenuSetup (menu.c) when adding parameters here!
+   int __BeginData__;
++  int DolbyTransferFix;
++  int NoQamOnDecoder;
++  int TurnOffPrimary;
+   char OSDLanguage[I18N_MAX_LOCALE_LEN];
+   char OSDSkin[MaxSkinName];
+   char OSDTheme[MaxThemeName];
+diff -urNad vdr-1.6.0~/dvbdevice.c vdr-1.6.0/dvbdevice.c
+--- vdr-1.6.0~/dvbdevice.c	2008-07-25 23:53:03.000000000 +0200
++++ vdr-1.6.0/dvbdevice.c	2008-07-25 23:53:03.000000000 +0200
+@@ -438,7 +438,10 @@
+   if (fd_frontend >= 0) {
+      dvb_frontend_info feinfo;
+      if (ioctl(fd_frontend, FE_GET_INFO, &feinfo) >= 0) {
+-        frontendType = feinfo.type;
++        if (Setup.TurnOffPrimary)
++           frontendType = n == Setup.PrimaryDVB - 1 ? frontendType : feinfo.type;
++        else
++           frontendType = feinfo.type;
+         dvbTuner = new cDvbTuner(fd_frontend, CardIndex(), frontendType);
+         }
+      else
+@@ -657,6 +660,11 @@
+ 
+ bool cDvbDevice::SetAudioBypass(bool On)
+ {
++ if (Setup.DolbyTransferFix && On) {
++    cChannel *c=Channels.GetByNumber(cDevice::CurrentChannel());
++    if (c->Ca(0) != 0)
++       return false;
++    }
+   if (setTransferModeForDolbyDigital != 1)
+      return false;
+   return ioctl(fd_audio, AUDIO_SET_BYPASS_MODE, On) == 0;
+@@ -776,11 +784,21 @@
+ 
+ bool cDvbDevice::ProvidesTransponder(const cChannel *Channel) const
+ {
++  if (Setup.NoQamOnDecoder) {
++     if (HasDecoder() && (cSource::IsCable(Channel->Source())) && (fe_modulation_t(Channel->Modulation()) == QAM_256))
++        return false;
++     }
++
+   return ProvidesSource(Channel->Source()) && (!cSource::IsSat(Channel->Source()) || !Setup.DiSEqC || Diseqcs.Get(Channel->Source(), Channel->Frequency(), Channel->Polarization()));
+ }
+ 
+ bool cDvbDevice::ProvidesChannel(const cChannel *Channel, int Priority, bool *NeedsDetachReceivers) const
+ {
++  if (Setup.NoQamOnDecoder) {
++     if (HasDecoder() && (cSource::IsCable(Channel->Source())) && (fe_modulation_t(Channel->Modulation()) == QAM_256))
++        return false;
++     }
++
+   bool result = false;
+   bool hasPriority = Priority < 0 || Priority > this->Priority();
+   bool needsDetachReceivers = false;
+diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
+--- vdr-1.6.0~/menu.c	2008-07-25 23:53:03.000000000 +0200
++++ vdr-1.6.0/menu.c	2008-07-25 23:53:03.000000000 +0200
+@@ -3033,6 +3033,10 @@
+      Add(new cMenuEditIntItem( tr("Setup.LNB$High LNB frequency (MHz)"), &data.LnbFrequHi));
+      }
+ 
++  Add(new cMenuEditBoolItem(tr("Setup.DVB$Use AC3-Transfer Fix"),          &data.DolbyTransferFix));
++  Add(new cMenuEditBoolItem(tr("Setup.DVB$No Qam256 on Cards with Decoder"),   &data.NoQamOnDecoder));
++  Add(new cMenuEditBoolItem(tr("Setup.DVB$Turn off Primary Tuner"),        &data.TurnOffPrimary));
++
+   SetCurrent(Get(current));
+   Display();
+ }
+diff -urNad vdr-1.6.0~/remux.c vdr-1.6.0/remux.c
+--- vdr-1.6.0~/remux.c	2008-07-25 23:53:03.000000000 +0200
++++ vdr-1.6.0/remux.c	2008-07-25 23:53:03.000000000 +0200
+@@ -1879,8 +1879,10 @@
+   if (Buf[1] & TS_ERROR)
+      tsErrors++;
+ 
+-  if (!(Buf[3] & (ADAPT_FIELD | PAY_LOAD)))
++  if (!(Buf[3] & (ADAPT_FIELD | PAY_LOAD))) {
++     dsyslog("TS packet discarded due to invalid adaption_field_control");
+      return; // discard TS packet with adaption_field_control set to '00'.
++     }
+ 
+   if ((Buf[3] & PAY_LOAD) && ((Buf[3] ^ ccCounter) & CONT_CNT_MASK)) {
+      // This should check duplicates and packets which do not increase the counter.
+@@ -1892,6 +1894,7 @@
+         // These are the errors I used to get with Nova-T when antenna
+         // was not positioned correcly (not transport errors). //tvr
+         //dsyslog("TS continuity error (%d)", ccCounter);
++        dsyslog("TS continuity error (%d)", ccCounter);
+         }
+      ccCounter = Buf[3] & CONT_CNT_MASK;
+      }
+@@ -1917,6 +1920,8 @@
+ 
+   if (Buf[3] & PAY_LOAD)
+      instant_repack(Buf + 4 + off, TS_SIZE - 4 - off);
++  else if (off + 4 < 188)
++     dsyslog("adaption_field zu short or PAY_LOAD not set");
+ }
+ 
+ // --- cRingBufferLinearPes --------------------------------------------------

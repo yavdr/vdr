@@ -2,6 +2,7 @@ debian/patches/opt-52_hard_link_cutter.dpatch:2a82f643d53300c33da530935c8016a4
 debian/patches/opt-43-x_recordshowfree.dpatch:66152f345b03259d28e89135cda42310
 debian/patches/12_osdbase-maxitems.dpatch:e45d1b62f7d66c3e5d279e3561034107
 debian/patches/11_sortrecordings.dpatch:9ed4cd1e144ee59dab34d4df4aa9af51
+debian/patches/opt-53_dvbsetup.dpatch:dbb3417b0b33548728b43fd8613f7c73
 debian/patches/opt-50_graphtft.dpatch:aeba283cc500591fa0b6d112c063fadf
 debian/patches/16_channels.conf.terr-fix.dpatch:72595733d0b46aa4093a640708d19226
 debian/patches/06_default_svdrp_port_0.dpatch:b49237a9ee246acfa01ee7ec92ad0a52
@@ -10,6 +11,7 @@ debian/patches/opt-42-x_MainMenuHooks.dpatch:1c4c782b5c88c4f0408890a5f50b217b
 debian/patches/opt-44_rotor.dpatch:bbcc27512e0a0b610efadcde8fa67d02
 debian/patches/opt-20_liemikuutio.dpatch:bb8bb6b250b8b2ee24dad87a7c4490f8
 debian/patches/10_dd-record-option.dpatch:56f2327b5930da8d40873b0140f5e051
+debian/patches/opt-21_internal-cam-devices.dpatch:a883c0b09e67b679436b7df1e9807fc8
 debian/patches/09_sort_options.dpatch:3b561fcd7645b216b4dab989d7786fda
 debian/patches/opt-41-x_timer-info.dpatch:92ee6cdf60b795d9fbcf4fdcafe401b4
 debian/patches/opt-24_jumpplay.dpatch:31906df69c18642ddd0996fa0b82a527
@@ -22,6 +24,7 @@ debian/patches/81_Make_config.dpatch:dcff6a00ef9474bca19d955d19574009
 debian/patches/opt-51_cuttime.dpatch:cfbf0a7934f109148fef4e385c3eb465
 debian/patches/opt-40_iptv.dpatch:2cca9430e7f83eaf9d25b1e8ca9e5fa7
 debian/patches/14_cap-memsize.dpatch:7beb9bcecb1bdce4a03c1729acfbbdb3
+debian/patches/18_signalhandler-fix.dpatch:ee4ed6015a0a0a2122ca76db6ff05e44
 debian/patches/opt-48-x_pin.dpatch:5e8f7e1b1ad5ed8ac51736d2aed02f9c
 debian/patches/opt-47_sourcecaps.dpatch:626ed6d141802b9cae8c4b6cab97311e
 debian/patches/opt-37-x_menuorg.dpatch:9fb02cc8bd848add50b3866b6f476644
@@ -29,6 +32,7 @@ debian/patches/opt-45_yaepg.dpatch:351c08a687755050e1140766b56dc27b
 debian/patches/opt-27_ttxtsubs.dpatch:c0b18cf05be89d87b0dff02ddeb14f05
 debian/patches/opt-29_syncearly-audioindexer.dpatch:4093d09329d441bd25703a4892633efb
 debian/patches/opt-39_noepg.dpatch:424391fa1176800ec3a13ec608fafcd7
+debian/patches/opt-54_deltimeshiftrec.dpatch:5ed1505172adbdb45a583a69dfe19763
 debian/patches/opt-49-x_pvrinput.dpatch:213c07a003000b6b93f1a8d004787220
 debian/patches/04_newplugin.dpatch:e99f8d21734a19b3eb93d9e3f11b680a
 debian/patches/opt-38_disableDoubleEpgEntrys.dpatch:7899100c3c242d7bcd35f1d3cee9ef9d
