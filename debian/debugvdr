@@ -66,13 +66,14 @@ if [ "$GDB_SERVER" = "yes" ] ; then
       `echo $VDRCOMMANDLINE | sed s/\"//g`
 
 else
-    GDB_COMMANDS_FILE=/tmp/gdbcommands
+    GDB_COMMANDS_FILE=`mktemp`
 
-    echo "set args $VDRCOMMANDLINE"         >$GDB_COMMANDS_FILE
+    echo "set args $VDRCOMMANDLINE"         >>$GDB_COMMANDS_FILE
     echo "echo -----------------------\n"   >>$GDB_COMMANDS_FILE
     echo "echo ---- VDR-Debugging ----\n"   >>$GDB_COMMANDS_FILE
     echo "echo -----------------------\n\n" >>$GDB_COMMANDS_FILE
     echo "echo type 'run' to start vdr\n\n" >>$GDB_COMMANDS_FILE
 
     gdb -x $GDB_COMMANDS_FILE /usr/bin/vdr-dbg 
+    rm $GDB_COMMANDS_FILE
 fi

@@ -70,6 +70,6 @@ LANG=C LD_LIBRARY_PATH="/usr/lib/debug;$LD_LIBRARY_PATH" \
    --suppressions=/usr/share/vdr/valgrind.supp \
    /usr/bin/vdr-dbg -v $VIDEO_DIR -c $CFG_DIR -L $PLUGIN_DIR  -r $REC_CMD \
    -E $EPG_FILE -g /tmp $OPTIONS --port $SVDRP_PORT --lirc \
-   "$@" 2>/tmp/memleaktest.log
+   "$@"
 
 /etc/init.d/vdr restart
