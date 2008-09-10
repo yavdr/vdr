@@ -1,13 +1,13 @@
 vdr (1.6.0-6) UNRELEASED; urgency=low
 
   [ Tobias Grimm ]
-  * Added 18_signalhandler-fix.dpatch
+  * Added 18_vdr-maintenance-1.6.0-2.dpatch (Closes: #485593)
   * Added opt-21_internal-cam-devices.dpatch
   * Added opt-53_dvbsetup.dpatch
   * Added opt-54_deltimeshiftrec.dpatch
   * Replaced libcap-dev build dependency by libcap2-dev | libcap-dev (Closes: #492681)
 
- -- Tobias Grimm <tg@e-tobi.net>  Sat, 02 Aug 2008 00:05:23 +0200
+ -- Tobias Grimm <tg@e-tobi.net>  Wed, 10 Sep 2008 19:59:07 +0200
 
 vdr (1.6.0-7) unstable; urgency=medium
 
