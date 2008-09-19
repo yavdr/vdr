@@ -6,8 +6,10 @@ vdr (1.6.0-6) UNRELEASED; urgency=low
   * Added opt-53_dvbsetup.dpatch
   * Added opt-54_deltimeshiftrec.dpatch
   * Replaced libcap-dev build dependency by libcap2-dev | libcap-dev (Closes: #492681)
+  * Fixed detection of default LANG setting to be used for VDR
+  * Updated README.Debian (Closes: #499047)
 
- -- Tobias Grimm <tg@e-tobi.net>  Wed, 10 Sep 2008 19:59:07 +0200
+ -- Tobias Grimm <tg@e-tobi.net>  Fri, 19 Sep 2008 18:12:43 +0200
 
 vdr (1.6.0-7) unstable; urgency=medium
 

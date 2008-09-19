@@ -86,10 +86,10 @@ VDR_CHARSET_OVERRIDE=<CHARSET>
 
 VDR_LANG=<LANG>
 
-    Default: C
+    Default: read from LANG or LC_ALL in /etc/default/locale or /etc/environment,
+             falling back to C, if no locale is specified
 
-    Locale which is used when running vdr (Default is C, because vdr does 
-    not run on systems where the default is UTF8 like on Etch)
+    Locale which is used when running vdr.
 
 VFAT=<0|1>
 

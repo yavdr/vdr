@@ -65,7 +65,10 @@ ENV_FILE="none"
 [ -r /etc/environment ] && ENV_FILE="/etc/environment"
 [ -r /etc/default/locale ] && ENV_FILE="/etc/default/locale"
 [ $ENV_FILE = none ] || \
-  VDR_LANG=$(egrep "^[^#]*${var}=" $ENV_FILE | tail -n1 | cut -d= -f2)
+  for var in LANG LC_ALL; do
+    eval VDR_LANG=$(egrep "^[^#]*${var}=" $ENV_FILE | tail -n1 | cut -d= -f2)
+    [ -z "$VDR_LANG" ] || break
+  done
 [ -z "$VDR_LANG" ] && VDR_LANG="C"
 
 # Enable VFAT file system support by default
