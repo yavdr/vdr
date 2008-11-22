@@ -5,9 +5,11 @@ vdr (1.6.0-6) UNRELEASED; urgency=low
   * Added opt-21_internal-cam-devices.dpatch
   * Added opt-53_dvbsetup.dpatch
   * Added opt-54_deltimeshiftrec.dpatch
-  * Replaced libcap-dev build dependency by libcap2-dev | libcap-dev (Closes: #492681)
+  * Replaced libcap-dev build dependency by libcap2-dev | libcap-dev
+    (Closes: #492681)
   * Fixed detection of default LANG setting to be used for VDR
   * Updated README.Debian (Closes: #499047)
+  * Fixed reference to /usr/share/doc/vdr/README.Debian.gz in /etc/default/vdr
 
  -- Tobias Grimm <tg@e-tobi.net>  Fri, 19 Sep 2008 18:12:43 +0200
 
