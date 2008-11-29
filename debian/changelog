@@ -1,6 +1,5 @@
-vdr (1.6.0-6) UNRELEASED; urgency=low
+vdr (1.6.0-8) unstable; urgency=low
 
-  [ Tobias Grimm ]
   * Added 18_vdr-maintenance-1.6.0-2.dpatch (Closes: #485593)
   * Added opt-21_internal-cam-devices.dpatch
   * Added opt-53_dvbsetup.dpatch
@@ -11,7 +10,7 @@ vdr (1.6.0-6) UNRELEASED; urgency=low
   * Updated README.Debian (Closes: #499047)
   * Fixed reference to /usr/share/doc/vdr/README.Debian.gz in /etc/default/vdr
 
- -- Tobias Grimm <tg@e-tobi.net>  Fri, 19 Sep 2008 18:12:43 +0200
+ -- Tobias Grimm <etobi@debian.org>  Sat, 29 Nov 2008 13:58:40 +0100
 
 vdr (1.6.0-7) unstable; urgency=medium
 
