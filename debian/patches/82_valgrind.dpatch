@@ -2,7 +2,10 @@
 ## 82_valgrind.dpatch by Tobias Grimm <tg@e-tobi.net>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+## DP: In order to allow valgrind to find memory leaks in VDR plugins, VDR
+## DP: must not unload the plugin libraries when shutting down. This
+## DP: patch adds a new option -k / --keep-plugins (which is only available
+## DP: in the debug build) to disable plugin unloading.
 
 @DPATCH@
 diff -urNad vdr-1.3.49~/plugin.c vdr-1.3.49/plugin.c

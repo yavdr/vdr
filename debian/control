@@ -2,7 +2,7 @@ Source: vdr
 Section: misc
 Priority: extra
 Maintainer: Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>
-Uploaders: Thomas Schmidt <tschmidt@debian.org>, Tobias Grimm <tg@e-tobi.net>, Thomas Günther <tom@toms-cafe.de>
+Uploaders: Thomas Schmidt <tschmidt@debian.org>, Tobias Grimm <etobi@debian.org>, Thomas Günther <tom@toms-cafe.de>
 Build-Depends: debhelper (>= 5), dpatch, libjpeg62-dev, libcap2-dev | libcap-dev,
   libncursesw5-dev, libfreetype6-dev, libfontconfig-dev, gettext,
   txt2man, python

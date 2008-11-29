@@ -2,7 +2,7 @@
 ## 99_ncursesw-include.dpatch by Tobias Grimm <tg@e-tobi.net>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: No description.
+## DP: Use ncursesw header file
 
 @DPATCH@
 diff -urNad vdr-1.5.16~/PLUGINS/src/skincurses/skincurses.c vdr-1.5.16/PLUGINS/src/skincurses/skincurses.c

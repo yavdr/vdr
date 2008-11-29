@@ -9,8 +9,11 @@ vdr (1.6.0-8) unstable; urgency=low
   * Fixed detection of default LANG setting to be used for VDR
   * Updated README.Debian (Closes: #499047)
   * Fixed reference to /usr/share/doc/vdr/README.Debian.gz in /etc/default/vdr
+  * Added missing dpatch descriptions
+  * Removed Lintian ovverride "shell-script-fails-syntax-check" for
+     ./usr/share/vdr-dev/plugin-template/rules
 
- -- Tobias Grimm <etobi@debian.org>  Sat, 29 Nov 2008 13:58:40 +0100
+ -- Tobias Grimm <etobi@debian.org>  Sat, 29 Nov 2008 14:21:04 +0100
 
 vdr (1.6.0-7) unstable; urgency=medium
 

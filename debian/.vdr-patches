@@ -1,5 +1,5 @@
 debian/patches/81_Make_config.dpatch:dcff6a00ef9474bca19d955d19574009
-debian/patches/99_ncursesw-include.dpatch:7b5ffe19bfc180049cb32b434b666587
+debian/patches/99_ncursesw-include.dpatch:90810d58108ff8d9afd768fec67be904
 debian/patches/12_osdbase-maxitems.dpatch:e45d1b62f7d66c3e5d279e3561034107
 debian/patches/10_dd-record-option.dpatch:56f2327b5930da8d40873b0140f5e051
 debian/patches/11_sortrecordings.dpatch:9ed4cd1e144ee59dab34d4df4aa9af51
@@ -11,5 +11,5 @@ debian/patches/17_vdr-maintenance-1.6.0-1.dpatch:3a2ff2c6d3b13489c19eda4e32f2537
 debian/patches/03_cmdsubmenu.dpatch:abff754a3d760764796f06cdf1cf5105
 debian/patches/09_sort_options.dpatch:3b561fcd7645b216b4dab989d7786fda
 debian/patches/18_vdr-maintenance-1.6.0-2.dpatch:ffe53a24b2c592c18dd08b31d35fd655
-debian/patches/82_valgrind.dpatch:ebcc8c81559eeea1dc856e472e1f7b56
+debian/patches/82_valgrind.dpatch:46960921b989f2f4dab829a51622ed85
 debian/patches/15_dvbplayer.dpatch:d1f31f0687c917dea48bc0ba26b7f3bb
