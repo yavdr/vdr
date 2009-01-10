@@ -1,3 +1,11 @@
+vdr (1.6.0-9) UNRELEASED; urgency=low
+
+  * Removed debconf note "VDR needs DVB kernel modules" - DVB modules should
+    be part of the standard kernel (at least on i386 and amd64).
+  * Fixed debconf tonat ask to create /var/lib/video.00 if it already exists
+
+ -- Tobias Grimm <etobi@debian.org>  Sat, 10 Jan 2009 23:10:46 +0100
+
 vdr (1.6.0-8) unstable; urgency=low
 
   * Added 18_vdr-maintenance-1.6.0-2.dpatch (Closes: #485593)

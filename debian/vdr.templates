@@ -1,11 +1,3 @@
-Template: vdr/showinfo
-Type: note
-_Description: VDR needs DVB kernel modules
- VDR needs DVB (Digital Video Broadcasting) kernel modules. You may have to
- separately install these modules. Ensure that the correct modules for your
- DVB hardware get loaded automatically e.g. by adding them to /etc/modules
- otherwise VDR won't work!
-
 Template: vdr/select_dvb_card
 Type: select
 _Choices: Satellite, Terrestrial, Cable
