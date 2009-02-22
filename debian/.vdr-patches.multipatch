@@ -7,7 +7,7 @@ debian/patches/opt-50_graphtft.dpatch:aeba283cc500591fa0b6d112c063fadf
 debian/patches/16_channels.conf.terr-fix.dpatch:72595733d0b46aa4093a640708d19226
 debian/patches/06_default_svdrp_port_0.dpatch:b49237a9ee246acfa01ee7ec92ad0a52
 debian/patches/18_vdr-maintenance-1.6.0-2.dpatch:ffe53a24b2c592c18dd08b31d35fd655
-debian/patches/82_valgrind.dpatch:ebcc8c81559eeea1dc856e472e1f7b56
+debian/patches/82_valgrind.dpatch:46960921b989f2f4dab829a51622ed85
 debian/patches/opt-42-x_MainMenuHooks.dpatch:1c4c782b5c88c4f0408890a5f50b217b
 debian/patches/opt-44_rotor.dpatch:bbcc27512e0a0b610efadcde8fa67d02
 debian/patches/opt-20_liemikuutio.dpatch:bb8bb6b250b8b2ee24dad87a7c4490f8
@@ -19,6 +19,7 @@ debian/patches/opt-24_jumpplay.dpatch:31906df69c18642ddd0996fa0b82a527
 debian/patches/opt-30-x_analogtv.dpatch:3789ff68d9dc9a2482f78519634b27b6
 debian/patches/17_vdr-maintenance-1.6.0-1.dpatch:3a2ff2c6d3b13489c19eda4e32f2537c
 debian/patches/03_cmdsubmenu.dpatch:abff754a3d760764796f06cdf1cf5105
+debian/patches/19_dvb-api-v5.dpatch:6714266c10537521d2440cfa4d50b3f0
 debian/patches/opt-28_audioindexer.dpatch:eab872310fd03a175b3b93a90d22d5db
 debian/patches/opt-31-x_reelchannelscan.dpatch:f8c06ac51888248f68badcab8533c2be
 debian/patches/81_Make_config.dpatch:dcff6a00ef9474bca19d955d19574009
@@ -30,7 +31,7 @@ debian/patches/opt-47_sourcecaps.dpatch:626ed6d141802b9cae8c4b6cab97311e
 debian/patches/opt-37-x_menuorg.dpatch:9fb02cc8bd848add50b3866b6f476644
 debian/patches/opt-45_yaepg.dpatch:351c08a687755050e1140766b56dc27b
 debian/patches/opt-27_ttxtsubs.dpatch:c0b18cf05be89d87b0dff02ddeb14f05
-debian/patches/99_ncursesw-include.dpatch:7b5ffe19bfc180049cb32b434b666587
+debian/patches/99_ncursesw-include.dpatch:90810d58108ff8d9afd768fec67be904
 debian/patches/opt-39_noepg.dpatch:424391fa1176800ec3a13ec608fafcd7
 debian/patches/opt-54_deltimeshiftrec.dpatch:5ed1505172adbdb45a583a69dfe19763
 debian/patches/opt-49-x_pvrinput.dpatch:213c07a003000b6b93f1a8d004787220

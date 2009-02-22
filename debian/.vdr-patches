@@ -3,6 +3,7 @@ debian/patches/99_ncursesw-include.dpatch:90810d58108ff8d9afd768fec67be904
 debian/patches/12_osdbase-maxitems.dpatch:e45d1b62f7d66c3e5d279e3561034107
 debian/patches/10_dd-record-option.dpatch:56f2327b5930da8d40873b0140f5e051
 debian/patches/11_sortrecordings.dpatch:9ed4cd1e144ee59dab34d4df4aa9af51
+debian/patches/19_dvb-api-v5.dpatch:6714266c10537521d2440cfa4d50b3f0
 debian/patches/04_newplugin.dpatch:e99f8d21734a19b3eb93d9e3f11b680a
 debian/patches/14_cap-memsize.dpatch:7beb9bcecb1bdce4a03c1729acfbbdb3
 debian/patches/16_channels.conf.terr-fix.dpatch:72595733d0b46aa4093a640708d19226
