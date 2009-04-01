@@ -5,6 +5,7 @@ vdr (1.6.0-9) UNRELEASED; urgency=low
     be part of the standard kernel (at least on i386 and amd64).
   * Fixed debconf to not ask to create /var/lib/video.00 if it already exists
   * Added 19_dvb-api-v5.dpatch for new DVB API version 5 in kernel 2.6.28
+    (Closes: #522011)
   * Updated debian/copryright
 
   [ Thomas Günther ]
