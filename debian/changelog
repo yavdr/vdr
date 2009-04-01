@@ -5,10 +5,16 @@ vdr (1.6.0-9) UNRELEASED; urgency=low
     be part of the standard kernel (at least on i386 and amd64).
   * Fixed debconf to not ask to create /var/lib/video.00 if it already exists
   * Added 19_dvb-api-v5.dpatch for new DVB API version 5 in kernel 2.6.28
+  * Updated debian/copryright
 
   [ Thomas Günther ]
   * Added removal of vdr-dbg.1 to clean target in debian/rules
   * Fixed substitution of 00list in debian/rules
+  * Added French language texts to 10_dd-record-option.dpatch (Thx to Michaël
+    Nival)
+  * Upgraded opt-24_jumpplay.dpatch to version 1.0
+  * Added French language texts to opt-38_disableDoubleEpgEntrys.dpatch (Thx to
+    Michaël Nival)
 
  -- Tobias Grimm <etobi@debian.org>  Sat, 10 Jan 2009 23:10:46 +0100
 

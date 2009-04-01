@@ -5,17 +5,22 @@
 ## Thomas Günther <tom@toms-cafe.de>:
 ##   - adapted to VDR-1.5.1
 ##   - adapted to VDR-1.5.7
+##     http://toms-cafe.de/vdr/download/vdr-disableDoubleEpgEntrys_0.7.3b-1.5.7.diff
+## Tobias Grimm <tg@e-tobi.net>:
 ##   - added buffer overflow fix from:
 ##     http://vdrportal.de/board/thread.php?postid=683477#post683477
+## Thomas Günther <tom@toms-cafe.de>:
+##   - added French language texts (thanks to Michaël Nival)
+##     http://toms-cafe.de/vdr/download/vdr-disableDoubleEpgEntrys_0.7.3b-1.6.0.diff
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: This patch suppresses double EPG entries.
 
 @DPATCH@
-diff -Naurp vdr-1.5.13/config.c vdr-1.5.13-disableDoubleEpgEntrys/config.c
---- vdr-1.5.13/config.c	2007-11-25 13:46:27.000000000 +0000
-+++ vdr-1.5.13-disableDoubleEpgEntrys/config.c	2008-01-14 21:33:25.000000000 +0000
-@@ -242,6 +242,10 @@ cSetup::cSetup(void)
+diff -Naurp vdr-1.6.0/config.c vdr-1.6.0-disableDoubleEpgEntrys/config.c
+--- vdr-1.6.0/config.c	2008-02-17 13:39:00.000000000 +0000
++++ vdr-1.6.0-disableDoubleEpgEntrys/config.c	2009-03-29 23:25:00.000000000 +0000
+@@ -241,6 +241,10 @@ cSetup::cSetup(void)
    SubtitleFgTransparency = 0;
    SubtitleBgTransparency = 0;
    EPGLanguages[0] = -1;
@@ -26,7 +31,7 @@ diff -Naurp vdr-1.5.13/config.c vdr-1.5.13-disableDoubleEpgEntrys/config.c
    EPGScanTimeout = 5;
    EPGBugfixLevel = 3;
    EPGLinger = 0;
-@@ -418,6 +422,10 @@ bool cSetup::Parse(const char *Name, con
+@@ -414,6 +418,10 @@ bool cSetup::Parse(const char *Name, con
    else if (!strcasecmp(Name, "SubtitleFgTransparency")) SubtitleFgTransparency = atoi(Value);
    else if (!strcasecmp(Name, "SubtitleBgTransparency")) SubtitleBgTransparency = atoi(Value);
    else if (!strcasecmp(Name, "EPGLanguages"))        return ParseLanguages(Value, EPGLanguages);
@@ -37,7 +42,7 @@ diff -Naurp vdr-1.5.13/config.c vdr-1.5.13-disableDoubleEpgEntrys/config.c
    else if (!strcasecmp(Name, "EPGScanTimeout"))      EPGScanTimeout     = atoi(Value);
    else if (!strcasecmp(Name, "EPGBugfixLevel"))      EPGBugfixLevel     = atoi(Value);
    else if (!strcasecmp(Name, "EPGLinger"))           EPGLinger          = atoi(Value);
-@@ -501,6 +509,10 @@ bool cSetup::Save(void)
+@@ -497,6 +505,10 @@ bool cSetup::Save(void)
    Store("SubtitleFgTransparency", SubtitleFgTransparency);
    Store("SubtitleBgTransparency", SubtitleBgTransparency);
    StoreLanguages("EPGLanguages", EPGLanguages);
@@ -48,9 +53,9 @@ diff -Naurp vdr-1.5.13/config.c vdr-1.5.13-disableDoubleEpgEntrys/config.c
    Store("EPGScanTimeout",     EPGScanTimeout);
    Store("EPGBugfixLevel",     EPGBugfixLevel);
    Store("EPGLinger",          EPGLinger);
-diff -Naurp vdr-1.5.13/config.h vdr-1.5.13-disableDoubleEpgEntrys/config.h
---- vdr-1.5.13/config.h	2007-11-25 13:45:48.000000000 +0000
-+++ vdr-1.5.13-disableDoubleEpgEntrys/config.h	2008-01-14 21:33:25.000000000 +0000
+diff -Naurp vdr-1.6.0/config.h vdr-1.6.0-disableDoubleEpgEntrys/config.h
+--- vdr-1.6.0/config.h	2008-03-23 10:26:10.000000000 +0000
++++ vdr-1.6.0-disableDoubleEpgEntrys/config.h	2009-03-29 23:25:00.000000000 +0000
 @@ -225,6 +225,10 @@ public:
    int SubtitleOffset;
    int SubtitleFgTransparency, SubtitleBgTransparency;
@@ -62,9 +67,9 @@ diff -Naurp vdr-1.5.13/config.h vdr-1.5.13-disableDoubleEpgEntrys/config.h
    int EPGScanTimeout;
    int EPGBugfixLevel;
    int EPGLinger;
-diff -Naurp vdr-1.5.13/eit.c vdr-1.5.13-disableDoubleEpgEntrys/eit.c
---- vdr-1.5.13/eit.c	2007-08-26 10:56:33.000000000 +0000
-+++ vdr-1.5.13-disableDoubleEpgEntrys/eit.c	2008-01-14 21:33:50.000000000 +0000
+diff -Naurp vdr-1.6.0/eit.c vdr-1.6.0-disableDoubleEpgEntrys/eit.c
+--- vdr-1.6.0/eit.c	2007-08-26 10:56:33.000000000 +0000
++++ vdr-1.6.0-disableDoubleEpgEntrys/eit.c	2009-03-29 23:25:00.000000000 +0000
 @@ -72,7 +72,83 @@ cEIT::cEIT(cSchedules *Schedules, int So
           // not be overwritten.
           if (pEvent->TableID() == 0x00) {
@@ -240,10 +245,10 @@ diff -Naurp vdr-1.5.13/eit.c vdr-1.5.13-disableDoubleEpgEntrys/eit.c
        }
    if (Empty && Tid == 0x4E && getSectionNumber() == 0)
       // ETR 211: an empty entry in section 0 of table 0x4E means there is currently no event running
-diff -Naurp vdr-1.5.13/epg.c vdr-1.5.13-disableDoubleEpgEntrys/epg.c
---- vdr-1.5.13/epg.c	2007-06-10 12:52:19.000000000 +0000
-+++ vdr-1.5.13-disableDoubleEpgEntrys/epg.c	2008-01-14 21:33:25.000000000 +0000
-@@ -741,6 +741,29 @@ const cEvent *cSchedule::GetEventAround(
+diff -Naurp vdr-1.6.0/epg.c vdr-1.6.0-disableDoubleEpgEntrys/epg.c
+--- vdr-1.6.0/epg.c	2008-02-16 16:09:12.000000000 +0000
++++ vdr-1.6.0-disableDoubleEpgEntrys/epg.c	2009-03-29 23:25:00.000000000 +0000
+@@ -742,6 +742,29 @@ const cEvent *cSchedule::GetEventAround(
    return pe;
  }
  
@@ -273,9 +278,9 @@ diff -Naurp vdr-1.5.13/epg.c vdr-1.5.13-disableDoubleEpgEntrys/epg.c
  void cSchedule::SetRunningStatus(cEvent *Event, int RunningStatus, cChannel *Channel)
  {
    hasRunning = false;
-diff -Naurp vdr-1.5.13/epg.h vdr-1.5.13-disableDoubleEpgEntrys/epg.h
---- vdr-1.5.13/epg.h	2006-10-07 13:47:19.000000000 +0000
-+++ vdr-1.5.13-disableDoubleEpgEntrys/epg.h	2008-01-14 21:33:25.000000000 +0000
+diff -Naurp vdr-1.6.0/epg.h vdr-1.6.0-disableDoubleEpgEntrys/epg.h
+--- vdr-1.6.0/epg.h	2006-10-07 13:47:19.000000000 +0000
++++ vdr-1.6.0-disableDoubleEpgEntrys/epg.h	2009-03-29 23:25:00.000000000 +0000
 @@ -137,6 +137,7 @@ public:
    void DropOutdated(time_t SegmentStart, time_t SegmentEnd, uchar TableID, uchar Version);
    void Cleanup(time_t Time);
@@ -284,10 +289,10 @@ diff -Naurp vdr-1.5.13/epg.h vdr-1.5.13-disableDoubleEpgEntrys/epg.h
    cEvent *AddEvent(cEvent *Event);
    void DelEvent(cEvent *Event);
    void HashEvent(cEvent *Event);
-diff -Naurp vdr-1.5.13/menu.c vdr-1.5.13-disableDoubleEpgEntrys/menu.c
---- vdr-1.5.13/menu.c	2008-01-13 13:59:33.000000000 +0000
-+++ vdr-1.5.13-disableDoubleEpgEntrys/menu.c	2008-01-14 21:33:25.000000000 +0000
-@@ -2354,6 +2354,10 @@ void cMenuSetupEPG::Setup(void)
+diff -Naurp vdr-1.6.0/menu.c vdr-1.6.0-disableDoubleEpgEntrys/menu.c
+--- vdr-1.6.0/menu.c	2008-03-16 11:15:28.000000000 +0000
++++ vdr-1.6.0-disableDoubleEpgEntrys/menu.c	2009-03-29 23:25:00.000000000 +0000
+@@ -2388,6 +2388,10 @@ void cMenuSetupEPG::Setup(void)
    for (int i = 0; i < numLanguages; i++)
        // TRANSLATORS: note the singular!
        Add(new cMenuEditStraItem(tr("Setup.EPG$Preferred language"),    &data.EPGLanguages[i], I18nLanguages()->Size(), &I18nLanguages()->At(0)));
@@ -298,15 +303,13 @@ diff -Naurp vdr-1.5.13/menu.c vdr-1.5.13-disableDoubleEpgEntrys/menu.c
  
    SetCurrent(Get(current));
    Display();
-diff -Naurp vdr-1.5.13/po/de_DE.po vdr-1.5.13-disableDoubleEpgEntrys/po/de_DE.po
---- vdr-1.5.13/po/de_DE.po	2008-01-13 15:06:32.000000000 +0000
-+++ vdr-1.5.13-disableDoubleEpgEntrys/po/de_DE.po	2008-01-14 21:33:25.000000000 +0000
-@@ -552,2 +552,14 @@
--msgid "Button$Scan"
--msgstr "Scan"
-+msgid "Button$Scan"
-+msgstr "Scan"
-+
+diff -Naurp vdr-1.6.0/po/de_DE.po vdr-1.6.0-disableDoubleEpgEntrys/po/de_DE.po
+--- vdr-1.6.0/po/de_DE.po	2008-03-23 10:31:29.000000000 +0000
++++ vdr-1.6.0-disableDoubleEpgEntrys/po/de_DE.po	2009-03-29 23:25:00.000000000 +0000
+@@ -558,6 +558,18 @@ msgstr "EPG"
+ msgid "Button$Scan"
+ msgstr "Scan"
+ 
 +msgid "Setup.EPG$Period for double EPG search(min)"
 +msgstr "Zeitspanne für dop. EPG-Suche(min)"
 +
@@ -318,3 +321,29 @@ diff -Naurp vdr-1.5.13/po/de_DE.po vdr-1.5.13-disableDoubleEpgEntrys/po/de_DE.po
 +
 +msgid "Setup.EPG$Disable running VPS event"
 +msgstr "Erk. des lauf. VPS-Events abschalten"
++
+ msgid "Setup.EPG$EPG scan timeout (h)"
+ msgstr "Zeit bis zur EPG-Aktualisierung (h)"
+ 
+diff -Naurp vdr-1.6.0/po/fr_FR.po vdr-1.6.0-disableDoubleEpgEntrys/po/fr_FR.po
+--- vdr-1.6.0/po/fr_FR.po	2008-03-23 10:31:29.000000000 +0000
++++ vdr-1.6.0-disableDoubleEpgEntrys/po/fr_FR.po	2009-03-29 23:25:58.000000000 +0000
+@@ -564,6 +564,18 @@ msgstr "Guide des programmes"
+ msgid "Button$Scan"
+ msgstr "Scan"
+ 
++msgid "Setup.EPG$Period for double EPG search(min)"
++msgstr "Intervalle de recherche du double EPG(min)"
++
++msgid "Setup.EPG$extern double Epg entry"
++msgstr "Entrée EPG externe en double"
++
++msgid "Setup.EPG$Mix intern and extern EPG"
++msgstr "Mixer EPG interne et externe"
++
++msgid "Setup.EPG$Disable running VPS event"
++msgstr "Désactiver événement VPS"
++
+ msgid "Setup.EPG$EPG scan timeout (h)"
+ msgstr "Inactivité avant rech. EPG (h)"
+ 

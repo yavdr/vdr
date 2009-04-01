@@ -6,16 +6,18 @@
 ##   - fixed i18n texts for replay
 ##   - adapted to VDR-1.5.7
 ##     http://toms-cafe.de/vdr/download/vdr-dd-record-option-1.5.7.diff
+##   - added French language texts (thanks to Michaël Nival)
+##     http://toms-cafe.de/vdr/download/vdr-dd-record-option-1.6.0.diff
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: Allows to choose if to record and to replay Dolby Digital 
-## DP: independently (to work around some audio issues with the 
+## DP: Allows to choose if to record and to replay Dolby Digital
+## DP: independently (to work around some audio issues with the
 ## DP: dvd-plugin)
 
 @DPATCH@
---- vdr-1.5.7/config.c
-+++ vdr-1.5.7/config.c
-@@ -255,6 +255,7 @@
+--- vdr-1.6.0/config.c
++++ vdr-1.6.0/config.c
+@@ -259,6 +259,7 @@ cSetup::cSetup(void)
    VideoDisplayFormat = 1;
    VideoFormat = 0;
    UpdateChannels = 5;
@@ -23,7 +25,7 @@
    UseDolbyDigital = 1;
    ChannelInfoPos = 0;
    ChannelInfoTime = 5;
-@@ -425,6 +426,7 @@
+@@ -432,6 +433,7 @@ bool cSetup::Parse(const char *Name, con
    else if (!strcasecmp(Name, "VideoDisplayFormat"))  VideoDisplayFormat = atoi(Value);
    else if (!strcasecmp(Name, "VideoFormat"))         VideoFormat        = atoi(Value);
    else if (!strcasecmp(Name, "UpdateChannels"))      UpdateChannels     = atoi(Value);
@@ -31,7 +33,7 @@
    else if (!strcasecmp(Name, "UseDolbyDigital"))     UseDolbyDigital    = atoi(Value);
    else if (!strcasecmp(Name, "ChannelInfoPos"))      ChannelInfoPos     = atoi(Value);
    else if (!strcasecmp(Name, "ChannelInfoTime"))     ChannelInfoTime    = atoi(Value);
-@@ -502,6 +504,7 @@
+@@ -515,6 +517,7 @@ bool cSetup::Save(void)
    Store("VideoDisplayFormat", VideoDisplayFormat);
    Store("VideoFormat",        VideoFormat);
    Store("UpdateChannels",     UpdateChannels);
@@ -39,9 +41,9 @@
    Store("UseDolbyDigital",    UseDolbyDigital);
    Store("ChannelInfoPos",     ChannelInfoPos);
    Store("ChannelInfoTime",    ChannelInfoTime);
---- vdr-1.5.7/config.h
-+++ vdr-1.5.7/config.h
-@@ -237,6 +237,7 @@
+--- vdr-1.6.0/config.h
++++ vdr-1.6.0/config.h
+@@ -241,6 +241,7 @@ public:
    int VideoDisplayFormat;
    int VideoFormat;
    int UpdateChannels;
@@ -49,9 +51,9 @@
    int UseDolbyDigital;
    int ChannelInfoPos;
    int ChannelInfoTime;
---- vdr-1.5.7/menu.c
-+++ vdr-1.5.7/menu.c
-@@ -2437,7 +2437,8 @@
+--- vdr-1.6.0/menu.c
++++ vdr-1.6.0/menu.c
+@@ -2488,7 +2488,8 @@ void cMenuSetupDVB::Setup(void)
    Add(new cMenuEditBoolItem(tr("Setup.DVB$Video format"),          &data.VideoFormat, "4:3", "16:9"));
    if (data.VideoFormat == 0)
       Add(new cMenuEditStraItem(tr("Setup.DVB$Video display format"), &data.VideoDisplayFormat, 3, videoDisplayFormatTexts));
@@ -61,9 +63,12 @@
    Add(new cMenuEditStraItem(tr("Setup.DVB$Update channels"),       &data.UpdateChannels, 6, updateChannelsTexts));
    Add(new cMenuEditIntItem( tr("Setup.DVB$Audio languages"),       &numAudioLanguages, 0, I18nLanguages()->Size()));
    for (int i = 0; i < numAudioLanguages; i++)
---- vdr-1.5.7/po/de_DE.po
-+++ vdr-1.5.7/po/de_DE.po
-@@ -803,2 +803,5 @@
+--- vdr-1.6.0/po/de_DE.po
++++ vdr-1.6.0/po/de_DE.po
+@@ -620,8 +620,11 @@ msgstr "Videoformat"
+ msgid "Setup.DVB$Video display format"
+ msgstr "Video-Anzeigeformat"
+ 
 -msgid "Setup.DVB$Use Dolby Digital"
 -msgstr "Dolby-Digital-Ton benutzen"
 +msgid "Setup.DVB$Record Dolby Digital"
@@ -71,9 +76,28 @@
 +
 +msgid "Setup.DVB$Replay Dolby Digital"
 +msgstr "Dolby-Digital-Ton wiedergeben"
---- vdr-1.5.7/recorder.c
-+++ vdr-1.5.7/recorder.c
-@@ -127,7 +127,7 @@
+ 
+ msgid "Setup.DVB$Update channels"
+ msgstr "Kanäle aktualisieren"
+--- vdr-1.6.0/po/fr_FR.po
++++ vdr-1.6.0/po/fr_FR.po
+@@ -626,8 +626,11 @@ msgstr "Format vidéo"
+ msgid "Setup.DVB$Video display format"
+ msgstr "Format d'affichage"
+ 
+-msgid "Setup.DVB$Use Dolby Digital"
+-msgstr "Utiliser le Dolby Digital"
++msgid "Setup.DVB$Record Dolby Digital"
++msgstr "Enregistrer le Dolby Digital"
++
++msgid "Setup.DVB$Replay Dolby Digital"
++msgstr "Lire le Dolby Digital"
+ 
+ msgid "Setup.DVB$Update channels"
+ msgstr "Mettre à jour les chaînes"
+--- vdr-1.6.0/recorder.c
++++ vdr-1.6.0/recorder.c
+@@ -127,7 +127,7 @@ void cFileWriter::Action(void)
  // --- cRecorder -------------------------------------------------------------
  
  cRecorder::cRecorder(const char *FileName, tChannelID ChannelID, int Priority, int VPid, const int *APids, const int *DPids, const int *SPids)
@@ -82,7 +106,7 @@
  ,cThread("recording")
  {
    // Make sure the disk is up and running:
-@@ -136,7 +136,7 @@
+@@ -136,7 +136,7 @@ cRecorder::cRecorder(const char *FileNam
  
    ringBuffer = new cRingBufferLinear(RECORDERBUFSIZE, TS_SIZE * 2, true, "Recorder");
    ringBuffer->SetTimeouts(0, 100);
