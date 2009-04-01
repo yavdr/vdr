@@ -47,11 +47,12 @@ endif
 
 prepare-00list:
 	python debian/patchcheck.py -c $(PATCHCHECKOPTION)
-	[ "$(OOLIST)" = "debian/patches/00list" ] || \
-	  cp -b $(OOLIST) debian/patches/00list
+	cmp -s $(OOLIST) debian/patches/00list || \
+	  cp -b --suffix=.save $(OOLIST) debian/patches/00list
 
 restore-00list:
-	[ ! -e debian/patches/00list~ ] || mv debian/patches/00list~ debian/patches/00list
+	[ ! -e debian/patches/00list.save ] || \
+	  mv debian/patches/00list.save debian/patches/00list
 
 accept-patches:
 	python debian/patchcheck.py -u $(PATCHCHECKOPTION)
@@ -102,7 +103,7 @@ clean-patched:
 	rm -f vdr-newplugin
 	rm -f debian/vdr-shutdown.wrapper
 	rm -f debian/patchinfo
-	rm -f $(MANPAGES)
+	rm -f $(MANPAGES) $(TXT2MANPAGES)
 	dh_clean
 
 install: patchinfo build
