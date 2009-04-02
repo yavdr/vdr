@@ -14,8 +14,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: vdr\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-11-14 13:09+0100\n"
+"Report-Msgid-Bugs-To: vdr@packages.debian.org\n"
+"POT-Creation-Date: 2009-04-02 14:42+0200\n"
 "PO-Revision-Date: 2004-05-15 11:10+0200\n"
 "Last-Translator: Miroslav Kure <kurem@debian.cz>\n"
 "Language-Team: Czech <provoz@debian.cz>\n"
@@ -23,40 +23,21 @@ msgstr ""
 "Content-Type: text/plain; charset=ISO-8859-2\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. Type: note
-#. Description
-#: ../vdr.templates:3
-msgid "VDR needs DVB kernel modules"
-msgstr "VDR vy¾aduje jaderné moduly k DVB"
-
-#. Type: note
-#. Description
-#: ../vdr.templates:3
-msgid ""
-"VDR needs DVB (Digital Video Broadcasting) kernel modules. You may have to "
-"separately install these modules. Ensure that the correct modules for your "
-"DVB hardware get loaded automatically e.g. by adding them to /etc/modules "
-"otherwise VDR won't work!"
-msgstr ""
-"VDR vy¾aduje jaderné moduly pro DVB (Digital Video Broadcasting). Nahrání a "
-"pou¾ití tìchto modulù si budete muset zajistit sami (napøíklad pøidáním "
-"tìchto modulù do /etc/modules). V opaèném pøípadì VDR nebude fungovat!"
-
 #. Type: select
 #. Choices
-#: ../vdr.templates:11
+#: ../vdr.templates:1001
 msgid "Satellite, Terrestrial, Cable"
 msgstr "Satelitní, Pozemní, Kabelová"
 
 #. Type: select
 #. Description
-#: ../vdr.templates:13
+#: ../vdr.templates:1002
 msgid "DVB card type:"
 msgstr "Typ DVB karty:"
 
 #. Type: select
 #. Description
-#: ../vdr.templates:13
+#: ../vdr.templates:1002
 msgid ""
 "VDR needs to know your DVB card type to work correctly. Using your "
 "selection, a channels.conf file will be installed to /var/lib/vdr.  You may "
@@ -68,13 +49,13 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../vdr.templates:21
+#: ../vdr.templates:2001
 msgid "Create /var/lib/video.00?"
 msgstr "Vytvoøit /var/lib/video.00?"
 
 #. Type: boolean
 #. Description
-#: ../vdr.templates:21
+#: ../vdr.templates:2001
 msgid ""
 "By default VDR is configured to use /var/lib/video.00 to store recordings. "
 "You can either create this directory now, or change this behavior later  by "
@@ -83,3 +64,16 @@ msgstr ""
 "Implicitnì je VDR nastaveno pro ukládání nahrávek do /var/lib/video.00. "
 "Tento adresáø se nyní mù¾e vytvoøit automaticky. Jeho umístìní mù¾ete "
 "pozdìji upravit zmìnou promìnné VIDEO_DIR v souboru /etc/default/vdr."
+
+#~ msgid "VDR needs DVB kernel modules"
+#~ msgstr "VDR vy¾aduje jaderné moduly k DVB"
+
+#~ msgid ""
+#~ "VDR needs DVB (Digital Video Broadcasting) kernel modules. You may have "
+#~ "to separately install these modules. Ensure that the correct modules for "
+#~ "your DVB hardware get loaded automatically e.g. by adding them to /etc/"
+#~ "modules otherwise VDR won't work!"
+#~ msgstr ""
+#~ "VDR vy¾aduje jaderné moduly pro DVB (Digital Video Broadcasting). Nahrání "
+#~ "a pou¾ití tìchto modulù si budete muset zajistit sami (napøíklad pøidáním "
+#~ "tìchto modulù do /etc/modules). V opaèném pøípadì VDR nebude fungovat!"

@@ -7,6 +7,7 @@ vdr (1.6.0-9) UNRELEASED; urgency=low
   * Added 19_dvb-api-v5.dpatch for new DVB API version 5 in kernel 2.6.28
     (Closes: #522011)
   * Updated debian/copryright
+  * Added ${misc:Depends} to vdr-plugin-*
 
   [ Thomas Günther ]
   * Added removal of vdr-dbg.1 to clean target in debian/rules

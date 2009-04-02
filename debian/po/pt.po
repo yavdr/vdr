@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: vdr 1.4.4-1\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-01-13 20:26+0100\n"
+"Report-Msgid-Bugs-To: vdr@packages.debian.org\n"
+"POT-Creation-Date: 2009-04-02 14:42+0200\n"
 "PO-Revision-Date: 2007-03-19 12:24+0000\n"
 "Last-Translator: Luísa Lourenço <kikentai@gmail.com>\n"
 "Language-Team: Portuguese <traduz@debianpt.org>\n"
@@ -15,41 +15,21 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. Type: note
-#. Description
-#: ../vdr.templates:1001
-msgid "VDR needs DVB kernel modules"
-msgstr "O VDR precisa de módulos DVB do kernel"
-
-#. Type: note
-#. Description
-#: ../vdr.templates:1001
-msgid ""
-"VDR needs DVB (Digital Video Broadcasting) kernel modules. You may have to "
-"separately install these modules. Ensure that the correct modules for your "
-"DVB hardware get loaded automatically e.g. by adding them to /etc/modules "
-"otherwise VDR won't work!"
-msgstr ""
-"O VDR precisa dos módulos DVB do kernel (Digital Video Broadcasting). Pode "
-"ter que instalar separadamente estes módulos. Assegure-se que os módulos "
-"correctos para o seu hardware DVB são carregados automaticamente p.e. ao "
-"adicioná-los ao /etc/modules caso contrário o VDR não irá funcionar!"
-
 #. Type: select
 #. Choices
-#: ../vdr.templates:2001
+#: ../vdr.templates:1001
 msgid "Satellite, Terrestrial, Cable"
 msgstr "Satélite, Terrestre, Cabo"
 
 #. Type: select
 #. Description
-#: ../vdr.templates:2002
+#: ../vdr.templates:1002
 msgid "DVB card type:"
 msgstr "Tipo de placa DVB:"
 
 #. Type: select
 #. Description
-#: ../vdr.templates:2002
+#: ../vdr.templates:1002
 msgid ""
 "VDR needs to know your DVB card type to work correctly. Using your "
 "selection, a channels.conf file will be installed to /var/lib/vdr.  You may "
@@ -62,18 +42,34 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../vdr.templates:3001
+#: ../vdr.templates:2001
 msgid "Create /var/lib/video.00?"
 msgstr "Criar /var/lib/video.00?"
 
 #. Type: boolean
 #. Description
-#: ../vdr.templates:3001
+#: ../vdr.templates:2001
 msgid ""
 "By default VDR is configured to use /var/lib/video.00 to store recordings. "
 "You can either create this directory now, or change this behavior later  by "
 "modifying the VIDEO_DIR variable in /etc/default/vdr."
 msgstr ""
-"Por omissão o VDR é configurado para usar o /var/lib/video.00 para guardar as "
-"gravações. Poderá tanto criar agora este directório, ou modificar este "
-"comportamento mais tarde modificando a variável VIDEO_DIR em /etc/default/vdr."
+"Por omissão o VDR é configurado para usar o /var/lib/video.00 para guardar "
+"as gravações. Poderá tanto criar agora este directório, ou modificar este "
+"comportamento mais tarde modificando a variável VIDEO_DIR em /etc/default/"
+"vdr."
+
+#~ msgid "VDR needs DVB kernel modules"
+#~ msgstr "O VDR precisa de módulos DVB do kernel"
+
+#~ msgid ""
+#~ "VDR needs DVB (Digital Video Broadcasting) kernel modules. You may have "
+#~ "to separately install these modules. Ensure that the correct modules for "
+#~ "your DVB hardware get loaded automatically e.g. by adding them to /etc/"
+#~ "modules otherwise VDR won't work!"
+#~ msgstr ""
+#~ "O VDR precisa dos módulos DVB do kernel (Digital Video Broadcasting). "
+#~ "Pode ter que instalar separadamente estes módulos. Assegure-se que os "
+#~ "módulos correctos para o seu hardware DVB são carregados automaticamente "
+#~ "p.e. ao adicioná-los ao /etc/modules caso contrário o VDR não irá "
+#~ "funcionar!"

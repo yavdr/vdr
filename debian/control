@@ -55,7 +55,7 @@ Description: Debuggable version of the VDR Video Disk Recorder
 
 Package: vdr-plugin-sky
 Architecture: any 
-Depends: ${shlibs:Depends}, vdr (= ${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, vdr (= ${binary:Version})
 Description: Plugin for using a Sky Digibox with vdr
  Video Disk Recorder (VDR) is a digital sat-receiver program using
  Linux and DVB technologies. It allows one to record MPEG2 streams,
@@ -68,7 +68,7 @@ Description: Plugin for using a Sky Digibox with vdr
 
 Package: vdr-plugin-examples
 Architecture: any 
-Depends: ${shlibs:Depends}, vdr (= ${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, vdr (= ${binary:Version})
 Description: Plugins for vdr to show some possible features
  Video Disk Recorder (VDR) is a digital sat-receiver program using
  Linux and DVB technologies. It allows one to record MPEG2 streams,

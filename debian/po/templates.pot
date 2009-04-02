@@ -1,22 +1,14 @@
-#
-#    Translators, if you are not familiar with the PO format, gettext
-#    documentation is worth reading, especially sections dedicated to
-#    this format, e.g. by running:
-#         info -n '(gettext)PO Files'
-#         info -n '(gettext)Header Entry'
-#
-#    Some information specific to po-debconf are available at
-#            /usr/share/doc/po-debconf/README-trans
-#         or http://www.debian.org/intl/l10n/po-debconf/README-trans
-#
-#    Developers do not need to manually edit POT or PO files.
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-11-14 13:09+0100\n"
+"Report-Msgid-Bugs-To: vdr@packages.debian.org\n"
+"POT-Creation-Date: 2009-04-02 14:42+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,37 +16,21 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. Type: note
-#. Description
-#: ../vdr.templates:3
-msgid "VDR needs DVB kernel modules"
-msgstr ""
-
-#. Type: note
-#. Description
-#: ../vdr.templates:3
-msgid ""
-"VDR needs DVB (Digital Video Broadcasting) kernel modules. You may have to "
-"separately install these modules. Ensure that the correct modules for your "
-"DVB hardware get loaded automatically e.g. by adding them to /etc/modules "
-"otherwise VDR won't work!"
-msgstr ""
-
 #. Type: select
 #. Choices
-#: ../vdr.templates:11
+#: ../vdr.templates:1001
 msgid "Satellite, Terrestrial, Cable"
 msgstr ""
 
 #. Type: select
 #. Description
-#: ../vdr.templates:13
+#: ../vdr.templates:1002
 msgid "DVB card type:"
 msgstr ""
 
 #. Type: select
 #. Description
-#: ../vdr.templates:13
+#: ../vdr.templates:1002
 msgid ""
 "VDR needs to know your DVB card type to work correctly. Using your "
 "selection, a channels.conf file will be installed to /var/lib/vdr.  You may "
@@ -63,13 +39,13 @@ msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../vdr.templates:21
+#: ../vdr.templates:2001
 msgid "Create /var/lib/video.00?"
 msgstr ""
 
 #. Type: boolean
 #. Description
-#: ../vdr.templates:21
+#: ../vdr.templates:2001
 msgid ""
 "By default VDR is configured to use /var/lib/video.00 to store recordings. "
 "You can either create this directory now, or change this behavior later  by "
