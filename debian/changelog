@@ -10,6 +10,7 @@ vdr (1.6.0-9) unstable; urgency=low
   * Added ${misc:Depends} to vdr-plugin-*
   * Changed section of all packages to "video" except vdr-dbg which became
     "debug"
+  * Bumped standards version to 3.8.1
 
   [ Thomas Günther ]
   * Added removal of vdr-dbg.1 to clean target in debian/rules
