@@ -1,5 +1,5 @@
 Source: vdr
-Section: misc
+Section: video
 Priority: extra
 Maintainer: Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>
 Uploaders: Thomas Schmidt <tschmidt@debian.org>, Tobias Grimm <etobi@debian.org>, Thomas Günther <tom@toms-cafe.de>
@@ -46,6 +46,8 @@ Description: Video Disk Recorder for DVB cards
  You need this package to be able to build vdr-plugins!
 
 Package: vdr-dbg
+Section: debug
+Priority: extra
 Architecture: any 
 Depends: ${shlibs:Depends}, ${misc:Depends}, vdr (= ${binary:Version}), gdb
 Suggests: valgrind

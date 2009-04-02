@@ -1,4 +1,4 @@
-vdr (1.6.0-9) UNRELEASED; urgency=low
+vdr (1.6.0-9) unstable; urgency=low
 
   [ Tobias Grimm ]
   * Removed debconf note "VDR needs DVB kernel modules" - DVB modules should
@@ -8,6 +8,8 @@ vdr (1.6.0-9) UNRELEASED; urgency=low
     (Closes: #522011)
   * Updated debian/copryright
   * Added ${misc:Depends} to vdr-plugin-*
+  * Changed section of all packages to "video" except vdr-dbg which became
+    "debug"
 
   [ Thomas Günther ]
   * Added removal of vdr-dbg.1 to clean target in debian/rules
@@ -18,7 +20,7 @@ vdr (1.6.0-9) UNRELEASED; urgency=low
   * Added French language texts to opt-38_disableDoubleEpgEntrys.dpatch (Thx to
     Michaël Nival)
 
- -- Tobias Grimm <etobi@debian.org>  Sat, 10 Jan 2009 23:10:46 +0100
+ -- Tobias Grimm <etobi@debian.org>  Thu, 02 Apr 2009 14:55:20 +0200
 
 vdr (1.6.0-8) unstable; urgency=low
 
