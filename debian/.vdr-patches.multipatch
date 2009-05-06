@@ -10,7 +10,7 @@ debian/patches/18_vdr-maintenance-1.6.0-2.dpatch:ffe53a24b2c592c18dd08b31d35fd65
 debian/patches/82_valgrind.dpatch:46960921b989f2f4dab829a51622ed85
 debian/patches/opt-42-x_MainMenuHooks.dpatch:1c4c782b5c88c4f0408890a5f50b217b
 debian/patches/opt-44_rotor.dpatch:bbcc27512e0a0b610efadcde8fa67d02
-debian/patches/opt-20_liemikuutio.dpatch:bb8bb6b250b8b2ee24dad87a7c4490f8
+debian/patches/opt-20_liemikuutio.dpatch:b75777c886ae836a8d499a0628ae091f
 debian/patches/10_dd-record-option.dpatch:58c3a3dbcd9a3ec4b0ee1814f71d1e88
 debian/patches/opt-21_internal-cam-devices.dpatch:a883c0b09e67b679436b7df1e9807fc8
 debian/patches/09_sort_options.dpatch:3b561fcd7645b216b4dab989d7786fda
@@ -24,7 +24,8 @@ debian/patches/opt-28_audioindexer.dpatch:eab872310fd03a175b3b93a90d22d5db
 debian/patches/opt-31-x_reelchannelscan.dpatch:f8c06ac51888248f68badcab8533c2be
 debian/patches/81_Make_config.dpatch:dcff6a00ef9474bca19d955d19574009
 debian/patches/opt-51_cuttime.dpatch:cfbf0a7934f109148fef4e385c3eb465
-debian/patches/opt-40_iptv.dpatch:2cca9430e7f83eaf9d25b1e8ca9e5fa7
+debian/patches/opt-40_pluginparam.dpatch:9dc3baf2532c9df6e715f0d6c9f7df06
+debian/patches/99_dvb-header-fixes.dpatch:ef5dae99f9ce2566d72a393c84e66741
 debian/patches/14_cap-memsize.dpatch:7beb9bcecb1bdce4a03c1729acfbbdb3
 debian/patches/opt-48-x_pin.dpatch:5e8f7e1b1ad5ed8ac51736d2aed02f9c
 debian/patches/opt-47_sourcecaps.dpatch:626ed6d141802b9cae8c4b6cab97311e

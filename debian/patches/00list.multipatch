@@ -15,6 +15,7 @@
 81_Make_config
 82_valgrind
 
+99_dvb-header-fixes
 99_ncursesw-include
 
 # Patch collection (replaces enAIO).
@@ -55,8 +56,8 @@ opt-38_disableDoubleEpgEntrys
 # Patch to disable normal epg update for specified channels.
 opt-39_noepg
 
-# Patch required by the IPTV plugin
-opt-40_iptv
+# Patch required by the IPTV and other plugins
+opt-40_pluginparam
 
 # Patch to show an info, if it is possible to record an event in the timer-info.
 opt-41-x_timer-info

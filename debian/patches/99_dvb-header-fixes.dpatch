@@ -1,0 +1,52 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 99_dvb-header-fixes.dpatch by Tobias Grimm <etobi@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: This is a workaround for some trouble with the kernel headers
+## DP: in Linux 2.6.29.
+## DP: See: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=523424
+
+@DPATCH@
+diff -urNad vdr-1.6.0~/device.h vdr-1.6.0/device.h
+--- vdr-1.6.0~/device.h	2008-02-23 14:13:04.000000000 +0100
++++ vdr-1.6.0/device.h	2009-04-19 22:39:19.000000000 +0200
+@@ -10,6 +10,7 @@
+ #ifndef __DEVICE_H
+ #define __DEVICE_H
+ 
++#include <asm/types.h>
+ #include "channels.h"
+ #include "ci.h"
+ #include "dvbsubtitle.h"
+diff -urNad vdr-1.6.0~/dvbdevice.c vdr-1.6.0/dvbdevice.c
+--- vdr-1.6.0~/dvbdevice.c	2008-02-09 17:11:44.000000000 +0100
++++ vdr-1.6.0/dvbdevice.c	2009-04-19 22:35:47.000000000 +0200
+@@ -7,6 +7,8 @@
+  * $Id: dvbdevice.c 1.170 2008/02/09 16:11:44 kls Exp $
+  */
+ 
++#include <sys/ioctl.h>
++#include <sys/mman.h>
+ #include "dvbdevice.h"
+ #include <errno.h>
+ #include <limits.h>
+@@ -15,8 +17,6 @@
+ #include <linux/dvb/dmx.h>
+ #include <linux/dvb/frontend.h>
+ #include <linux/dvb/video.h>
+-#include <sys/ioctl.h>
+-#include <sys/mman.h>
+ #include "channels.h"
+ #include "diseqc.h"
+ #include "dvbci.h"
+diff -urNad vdr-1.6.0~/dvbdevice.h vdr-1.6.0/dvbdevice.h
+--- vdr-1.6.0~/dvbdevice.h	2009-04-19 22:35:47.000000000 +0200
++++ vdr-1.6.0/dvbdevice.h	2009-04-19 22:35:47.000000000 +0200
+@@ -10,6 +10,7 @@
+ #ifndef __DVBDEVICE_H
+ #define __DVBDEVICE_H
+ 
++#include <asm/types.h>
+ #include <linux/dvb/frontend.h>
+ #include <linux/dvb/version.h>
+ #include "device.h"

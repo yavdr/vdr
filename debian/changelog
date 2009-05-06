@@ -1,3 +1,17 @@
+vdr (1.6.0-10) UNRELEASED; urgency=low
+
+  TODO: Do we really want to close #522011, which is related to kernel
+  bug #523424 ???
+
+  * Upgraded opt-20_liemikuutio.dpatch to version 1.27
+  * Updated and renamed opt-40_iptv.dpatch to opt-40_pluginparam.dpatch
+  * Added 99_dvb-header-fixes.dpatch as a workaround for the header bugs in
+    Linux 2.6.29 (Closes: 522011)
+  * Fixed debianize-vdrplugin template (dropped patchlevel field in control)
+  * Changed section of plugin template to "video"
+
+ -- Tobias Grimm <etobi@debian.org>  Mon, 04 May 2009 01:08:27 +0200
+
 vdr (1.6.0-9) unstable; urgency=low
 
   [ Tobias Grimm ]

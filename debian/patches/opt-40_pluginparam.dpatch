@@ -1,15 +1,15 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
-## opt-40_iptv.dpatch by Tobias Grimm <tg@e-tobi.net>
-## from version 0.0.7 of the IPTV plugin
+## opt-40_pluginparam.dpatch
+## from version 0.2.6 of the IPTV plugin
 ## http://www.saunalahti.fi/~rahrenbe/vdr/iptv/
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: Patch required for the IPTV plugin
+## DP: Patch required for the IPTV plugin and other plugins
 
 @DPATCH@
-diff -urNad vdr-1.5.18~/channels.c vdr-1.5.18/channels.c
---- vdr-1.5.18~/channels.c	2008-03-16 16:08:41.000000000 +0100
-+++ vdr-1.5.18/channels.c	2008-03-16 16:08:41.000000000 +0100
+diff -urNad vdr-1.6.0~/channels.c vdr-1.6.0/channels.c
+--- vdr-1.6.0~/channels.c	2009-05-03 16:09:13.000000000 +0200
++++ vdr-1.6.0/channels.c	2009-05-03 16:09:13.000000000 +0200
 @@ -166,6 +166,7 @@
    shortName = strdup("");
    provider = strdup("");
@@ -131,9 +131,9 @@ diff -urNad vdr-1.5.18~/channels.c vdr-1.5.18/channels.c
  
          free(parambuf);
          free(sourcebuf);
-diff -urNad vdr-1.5.18~/channels.h vdr-1.5.18/channels.h
---- vdr-1.5.18~/channels.h	2008-02-08 14:48:31.000000000 +0100
-+++ vdr-1.5.18/channels.h	2008-03-16 16:08:41.000000000 +0100
+diff -urNad vdr-1.6.0~/channels.h vdr-1.6.0/channels.h
+--- vdr-1.6.0~/channels.h	2009-05-03 16:08:42.000000000 +0200
++++ vdr-1.6.0/channels.h	2009-05-03 16:09:13.000000000 +0200
 @@ -114,6 +114,7 @@
    char *shortName;
    char *provider;
@@ -173,21 +173,21 @@ diff -urNad vdr-1.5.18~/channels.h vdr-1.5.18/channels.h
    void SetPids(int Vpid, int Ppid, int *Apids, char ALangs[][MAXLANGCODE2], int *Dpids, char DLangs[][MAXLANGCODE2], int *Spids, char SLangs[][MAXLANGCODE2], int Tpid);
    void SetCaIds(const int *CaIds); // list must be zero-terminated
    void SetCaDescriptors(int Level);
-diff -urNad vdr-1.5.18~/config.h vdr-1.5.18/config.h
---- vdr-1.5.18~/config.h	2008-03-16 16:08:41.000000000 +0100
-+++ vdr-1.5.18/config.h	2008-03-16 16:08:41.000000000 +0100
+diff -urNad vdr-1.6.0~/config.h vdr-1.6.0/config.h
+--- vdr-1.6.0~/config.h	2009-05-03 16:09:13.000000000 +0200
++++ vdr-1.6.0/config.h	2009-05-03 16:09:13.000000000 +0200
 @@ -30,6 +30,8 @@
- #define APIVERSION  "1.5.15"
- #define APIVERSNUM   10515  // Version * 10000 + Major * 100 + Minor
+ #define APIVERSION  "1.6.0"
+ #define APIVERSNUM   10600  // Version * 10000 + Major * 100 + Minor
  
 +#define PLUGINPARAMPATCHVERSNUM 1
 +
  // When loading plugins, VDR searches them by their APIVERSION, which
  // may be smaller than VDRVERSION in case there have been no changes to
  // VDR header files since the last APIVERSION. This allows compiled
-diff -urNad vdr-1.5.18~/menu.c vdr-1.5.18/menu.c
---- vdr-1.5.18~/menu.c	2008-03-16 16:08:41.000000000 +0100
-+++ vdr-1.5.18/menu.c	2008-03-16 16:08:41.000000000 +0100
+diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
+--- vdr-1.6.0~/menu.c	2009-05-03 16:09:13.000000000 +0200
++++ vdr-1.6.0/menu.c	2009-05-03 16:09:13.000000000 +0200
 @@ -256,6 +256,7 @@
    cChannel *channel;
    cChannel data;
@@ -220,29 +220,29 @@ diff -urNad vdr-1.5.18~/menu.c vdr-1.5.18/menu.c
             if (channel) {
                *channel = data;
                isyslog("edited channel %d %s", channel->Number(), *data.ToText());
-diff -urNad vdr-1.5.18~/po/fi_FI.po vdr-1.5.18/po/fi_FI.po
---- vdr-1.5.18~/po/fi_FI.po	2008-03-16 16:08:41.000000000 +0100
-+++ vdr-1.5.18/po/fi_FI.po	2008-03-16 16:09:59.000000000 +0100
-@@ -1034,3 +1034,6 @@
+diff -urNad vdr-1.6.0~/po/fi_FI.po vdr-1.6.0/po/fi_FI.po
+--- vdr-1.6.0~/po/fi_FI.po	2009-05-03 16:09:12.000000000 +0200
++++ vdr-1.6.0/po/fi_FI.po	2009-05-03 16:09:42.000000000 +0200
+@@ -1049,3 +1049,6 @@
  
  msgid "Setup.Recording$Show length"
  msgstr "Näytä tallenteen kesto"
 +
 +msgid "Parameters"
 +msgstr "Parametrit"
-diff -urNad vdr-1.5.18~/po/fr_FR.po vdr-1.5.18/po/fr_FR.po
---- vdr-1.5.18~/po/fr_FR.po	2008-03-16 16:08:41.000000000 +0100
-+++ vdr-1.5.18/po/fr_FR.po	2008-03-16 16:10:20.000000000 +0100
-@@ -1037,3 +1037,6 @@
+diff -urNad vdr-1.6.0~/po/fr_FR.po vdr-1.6.0/po/fr_FR.po
+--- vdr-1.6.0~/po/fr_FR.po	2009-05-03 16:09:13.000000000 +0200
++++ vdr-1.6.0/po/fr_FR.po	2009-05-03 16:10:02.000000000 +0200
+@@ -1079,3 +1079,6 @@
  
  msgid "Setup.Recording$Show length"
- msgstr "Monter la longueur de l'enregistrement"
+ msgstr "Montrer la longueur de l'enregistrement"
 +
 +msgid "Parameters"
 +msgstr "Paramètres"
-diff -urNad vdr-1.5.18~/sources.c vdr-1.5.18/sources.c
---- vdr-1.5.18~/sources.c	2008-02-10 15:07:26.000000000 +0100
-+++ vdr-1.5.18/sources.c	2008-03-16 16:08:41.000000000 +0100
+diff -urNad vdr-1.6.0~/sources.c vdr-1.6.0/sources.c
+--- vdr-1.6.0~/sources.c	2009-05-03 16:08:42.000000000 +0200
++++ vdr-1.6.0/sources.c	2009-05-03 16:09:13.000000000 +0200
 @@ -37,6 +37,7 @@
    char buffer[16];
    char *q = buffer;
@@ -259,10 +259,10 @@ diff -urNad vdr-1.5.18~/sources.c vdr-1.5.18/sources.c
      case 'C': type = stCable; break;
      case 'S': type = stSat;   break;
      case 'T': type = stTerr;  break;
-diff -urNad vdr-1.5.18~/sources.conf vdr-1.5.18/sources.conf
---- vdr-1.5.18~/sources.conf	2007-02-17 17:15:13.000000000 +0100
-+++ vdr-1.5.18/sources.conf	2008-03-16 16:08:41.000000000 +0100
-@@ -188,3 +188,7 @@
+diff -urNad vdr-1.6.0~/sources.conf vdr-1.6.0/sources.conf
+--- vdr-1.6.0~/sources.conf	2009-05-03 16:09:12.000000000 +0200
++++ vdr-1.6.0/sources.conf	2009-05-03 16:09:13.000000000 +0200
+@@ -194,3 +194,7 @@
  # Terrestrial
  
  T       Terrestrial
@@ -270,9 +270,9 @@ diff -urNad vdr-1.5.18~/sources.conf vdr-1.5.18/sources.conf
 +# Plugin
 +
 +P       Plugin
-diff -urNad vdr-1.5.18~/sources.h vdr-1.5.18/sources.h
---- vdr-1.5.18~/sources.h	2005-05-14 11:30:41.000000000 +0200
-+++ vdr-1.5.18/sources.h	2008-03-16 16:08:41.000000000 +0100
+diff -urNad vdr-1.6.0~/sources.h vdr-1.6.0/sources.h
+--- vdr-1.6.0~/sources.h	2009-05-03 16:08:42.000000000 +0200
++++ vdr-1.6.0/sources.h	2009-05-03 16:09:13.000000000 +0200
 @@ -16,10 +16,11 @@
  public:
    enum eSourceType {
