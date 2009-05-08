@@ -6,11 +6,11 @@ vdr (1.6.0-10) UNRELEASED; urgency=low
   * Upgraded opt-20_liemikuutio.dpatch to version 1.27
   * Updated and renamed opt-40_iptv.dpatch to opt-40_pluginparam.dpatch
   * Added 99_dvb-header-fixes.dpatch as a workaround for the header bugs in
-    Linux 2.6.29 (Closes: 522011)
+    Linux 2.6.29
   * Fixed debianize-vdrplugin template (dropped patchlevel field in control)
   * Changed section of plugin template to "video"
 
- -- Tobias Grimm <etobi@debian.org>  Mon, 04 May 2009 01:08:27 +0200
+ -- Tobias Grimm <etobi@debian.org>  Fri, 08 May 2009 20:37:56 +0200
 
 vdr (1.6.0-9) unstable; urgency=low
 
@@ -19,7 +19,7 @@ vdr (1.6.0-9) unstable; urgency=low
     be part of the standard kernel (at least on i386 and amd64).
   * Fixed debconf to not ask to create /var/lib/video.00 if it already exists
   * Added 19_dvb-api-v5.dpatch for new DVB API version 5 in kernel 2.6.28
-    (Closes: #522011)
+    (Closes: #522011, #527664)
   * Updated debian/copryright
   * Added ${misc:Depends} to vdr-plugin-*
   * Changed section of all packages to "video" except vdr-dbg which became
