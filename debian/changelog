@@ -9,8 +9,9 @@ vdr (1.6.0-10) UNRELEASED; urgency=low
     Linux 2.6.29
   * Fixed debianize-vdrplugin template (dropped patchlevel field in control)
   * Changed section of plugin template to "video"
+  * Added Spanish debconf template translation (Closes: #528245)
 
- -- Tobias Grimm <etobi@debian.org>  Fri, 08 May 2009 20:37:56 +0200
+ -- Tobias Grimm <etobi@debian.org>  Mon, 11 May 2009 19:30:36 +0200
 
 vdr (1.6.0-9) unstable; urgency=low
 

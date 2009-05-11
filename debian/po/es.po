@@ -1,0 +1,101 @@
+# vdr po-debconf translation to Spanish.
+# Copyright (C) 2009 Software in the Public Interest.
+# This file is distributed under the same license as the vdrpackage.
+#
+#  Changes:
+# - Initial translation
+#       Fernando González de Requena <fgrequena@gmail.com>, 2009.
+#
+#
+#  Traductores, si no conoce el formato PO, merece la pena leer la
+#  documentación de gettext, especialmente las secciones dedicadas a este
+#  formato, por ejemplo ejecutando:
+#         info -n '(gettext)PO Files'
+#         info -n '(gettext)Header Entry'
+#
+# Equipo de traducción al español, por favor lean antes de traducir
+# los siguientes documentos:
+#
+# - El proyecto de traducción de Debian al español
+#   http://www.debian.org/intl/spanish/
+#   especialmente las notas y normas de traducción en
+#   http://www.debian.org/intl/spanish/notas
+#
+# - La guía de traducción de po's de debconf:
+#   /usr/share/doc/po-debconf/README-trans
+#   o http://www.debian.org/intl/l10n/po-debconf/README-trans
+#
+# Si tiene dudas o consultas sobre esta traducción consulte con el último
+# traductor (campo Last-Translator) y ponga en copia a la lista de
+# traducción de Debian al español (<debian-l10n-spanish@lists.debian.org>)
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: vdr 1.6.0-8\n"
+"Report-Msgid-Bugs-To: vdr@packages.debian.org\n"
+"POT-Creation-Date: 2009-04-02 14:42+0200\n"
+"PO-Revision-Date: 2009-04-26 19:29+0200\n"
+"Last-Translator: Fernando González de Requena <fgrequena@gmail.com>\n"
+"Language-Team: Spanish <debian-l10n-spanish@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+
+#. Type: select
+#. Choices
+#: ../vdr.templates:1001
+msgid "Satellite, Terrestrial, Cable"
+msgstr "Satélite, Terrestre, Cable"
+
+#. Type: select
+#. Description
+#: ../vdr.templates:1002
+msgid "DVB card type:"
+msgstr "Tipo de tarjeta DVB:"
+
+#. Type: select
+#. Description
+#: ../vdr.templates:1002
+msgid ""
+"VDR needs to know your DVB card type to work correctly. Using your "
+"selection, a channels.conf file will be installed to /var/lib/vdr.  You may "
+"have to change this file depending on your setup."
+msgstr ""
+"VDR necesita saber el tipo de la tarjeta DVB para funcionar correctamente. "
+"Utilizando su selección, se instalará un archivo «channels.conf» en «/var/lib/"
+"vdr». Puede que necesite cambiar este archivo dependiendo de su "
+"configuración."
+
+#. Type: boolean
+#. Description
+#: ../vdr.templates:2001
+msgid "Create /var/lib/video.00?"
+msgstr "¿Desea crear «/var/lib/video.00»?"
+
+#. Type: boolean
+#. Description
+#: ../vdr.templates:2001
+msgid ""
+"By default VDR is configured to use /var/lib/video.00 to store recordings. "
+"You can either create this directory now, or change this behavior later  by "
+"modifying the VIDEO_DIR variable in /etc/default/vdr."
+msgstr ""
+"VDR se configura por omisión para utilizar «/var/lib/video.00» para almacenar "
+"las grabaciones. Puede crear ahora este directorio, o cambiar más tarde este "
+"comportamiento modificando la variable VIDEO_DIR en «/etc/default/vdr»."
+
+#~ msgid "VDR needs DVB kernel modules"
+#~ msgstr "VDR necesita módulos DVB del núcleo"
+
+#~ msgid ""
+#~ "VDR needs DVB (Digital Video Broadcasting) kernel modules. You may have "
+#~ "to separately install these modules. Ensure that the correct modules for "
+#~ "your DVB hardware get loaded automatically e.g. by adding them to /etc/"
+#~ "modules otherwise VDR won't work!"
+#~ msgstr ""
+#~ "VDR necesita los módulos DVB («Digital Video Broadcasting», Transmisión "
+#~ "Digital de Vídeo) del núcleo. Puede que necesite instalar por separado "
+#~ "estos módulos. Asegúrese de que los módulos adecuados para su tarjeta DVB "
+#~ "se cargan automáticamente, por ejemplo añadiéndolos a «/etc/modules»; ¡de "
+#~ "otro modo VDR no funcionará!"
