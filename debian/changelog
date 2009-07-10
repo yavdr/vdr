@@ -11,6 +11,7 @@ vdr (1.6.0-10) unstable; urgency=low
   * Dropped Kernel 2.4 support in runvdr
   * Updated make-special-vdr.sh
   * New multipatch ABI version 2009-05-03
+  * Bumped standards version to 3.8.2
 
  -- Tobias Grimm <etobi@debian.org>  Fri, 10 Jul 2009 20:24:50 +0200
 
