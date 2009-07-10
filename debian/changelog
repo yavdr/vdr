@@ -1,7 +1,4 @@
-vdr (1.6.0-10) UNRELEASED; urgency=low
-
-  TODO: Do we really want to close #522011, which is related to kernel
-  bug #523424 ???
+vdr (1.6.0-10) unstable; urgency=low
 
   * Upgraded opt-20_liemikuutio.dpatch to version 1.27
   * Updated and renamed opt-40_iptv.dpatch to opt-40_pluginparam.dpatch
@@ -10,8 +7,12 @@ vdr (1.6.0-10) UNRELEASED; urgency=low
   * Fixed debianize-vdrplugin template (dropped patchlevel field in control)
   * Changed section of plugin template to "video"
   * Added Spanish debconf template translation (Closes: #528245)
+  * Build-Depend on linux-libc-dev
+  * Dropped Kernel 2.4 support in runvdr
+  * Updated make-special-vdr.sh
+  * New multipatch ABI version 2009-05-03
 
- -- Tobias Grimm <etobi@debian.org>  Mon, 11 May 2009 19:30:36 +0200
+ -- Tobias Grimm <etobi@debian.org>  Fri, 10 Jul 2009 20:24:50 +0200
 
 vdr (1.6.0-9) unstable; urgency=low
 

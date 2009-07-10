@@ -5,7 +5,7 @@ Maintainer: Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>
 Uploaders: Thomas Schmidt <tschmidt@debian.org>, Tobias Grimm <etobi@debian.org>, Thomas Günther <tom@toms-cafe.de>
 Build-Depends: debhelper (>= 5), dpatch, libjpeg62-dev, libcap2-dev | libcap-dev,
   libncursesw5-dev, libfreetype6-dev, libfontconfig-dev, gettext,
-  txt2man, python
+  txt2man, python, linux-libc-dev
 Standards-Version: 3.8.1
 Vcs-Svn: svn://svn.debian.org/pkg-vdr-dvb/vdr/vdr/trunk/
 Vcs-Browser: http://svn.debian.org/wsvn/pkg-vdr-dvb/vdr/vdr/trunk/

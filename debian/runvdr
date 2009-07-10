@@ -1,4 +1,4 @@
-#!/bin/bash -p
+#!/bin/sh -p
 
 . /usr/lib/vdr/config-loader.sh
 
@@ -9,21 +9,14 @@ fi
 
 VDRCMD="$VDR_ENV /usr/bin/vdr $*"
 
-KVERS_2_6=`uname -r | grep -e '2.6'`
-
-function get_modulenames()
+get_modulenames
 {
-    if [ "$KVERS_2_6" ]; then
-        MODULES=`lsmod | awk '/^dvb_core/ {gsub(/,/,"\n", $4); print $4}' | tac`
-        [ "$MODULES" ] && MODULES="$MODULES dvb_core"
-    else
-        MODULES=`lsmod | grep dvb-core | cut -d'[' -f2 | cut -d']' -f1`
-        [ "$MODULES" ] && MODULES="$MODULES dvb-core"
-    fi
+    MODULES=`lsmod | awk '/^dvb_core/ {gsub(/,/,"\n", $4); print $4}' | tac`
+    [ "$MODULES" ] && MODULES="$MODULES dvb_core"
 }
 
 # TODO: check if udev handles this on newer systems!?
-function set_permissions()
+set_permissions
 {
     if [ "$USER" -o "$GROUP" ]; then
         for FILE in av7110_ir budget_ci_ir; do
@@ -35,7 +28,7 @@ function set_permissions()
     chmod o+r /dev/input/event*
 }
 
-function load_dvb_modules()
+load_dvb_modules
 {
     if modprobe dvb >/dev/null 2>&1 ; then
         get_modulenames
@@ -45,20 +38,15 @@ function load_dvb_modules()
                 modprobe $MODULE >/dev/null 2>&1
             done
         else
-            modprobe dvb-ttpci >/dev/null 2>&1 #2.4
-            modprobe dvb_ttpci >/dev/null 2>&1 #2.6
+            modprobe dvb_ttpci >/dev/null 2>&1
             get_modulenames
         fi
-        if [ "$KVERS_2_6" ]; then
-            wait `pidof udev`
-        fi
+        wait `pidof udev`
     fi
-    if [ "$KVERS_2_6" ]; then
-        sleep 15
-    fi
+    sleep 15
 }
 
-function unload_dvb_modules()
+unload_dvb_modules
 {
     for MODULE in $MODULES; do
         rmmod $MODULE >/dev/null 2>&1

@@ -119,6 +119,13 @@ install: patchinfo build
 	echo -n "vdr:Provides=" >> debian/vdr.substvars
 	cat $(ABIVERSION) >> debian/vdr.substvars
 	install -m644 $(ABIVERSION) $(CURDIR)/debian/vdr-dev/usr/share/vdr-dev/abi-version
+ifdef PATCHVARIANT
+	mkdir -p $(CURDIR)/debian/vdr/usr/share/doc/vdr
+	mkdir -p $(CURDIR)/debian/vdr-dev/usr/share/doc/vdr-dev
+	grep ^opt- $(OOLIST) >$(CURDIR)/debian/vdr/usr/share/doc/vdr/optional-patches.txt
+	cp $(CURDIR)/debian/vdr/usr/share/doc/vdr/optional-patches.txt \
+	  $(CURDIR)/debian/vdr-dev/usr/share/doc/vdr-dev/optional-patches.txt
+endif
 
 
 # Build architecture-independent files here.
