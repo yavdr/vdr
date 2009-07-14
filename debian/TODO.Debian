@@ -3,3 +3,4 @@ TODO: When plugin could not be loaded, log stderr output somewhere
 TODO: Remove all vdr 1.2.6 upgrade code and conflict with 1.2.6
 TODO: Manpage for pic2mpg
 TODO: Remove | libcap-dev build dep, if Etch gets uninteresting
+TODO: Add option USE_LIRC=yes|no (see http://www.vdr-portal.de/board/thread.php?postid=829057#post829057)

@@ -1,4 +1,4 @@
-#!/bin/sh -p
+#!/bin/sh
 
 . /usr/lib/vdr/config-loader.sh
 
@@ -9,14 +9,14 @@ fi
 
 VDRCMD="$VDR_ENV /usr/bin/vdr $*"
 
-get_modulenames
+get_modulenames()
 {
     MODULES=`lsmod | awk '/^dvb_core/ {gsub(/,/,"\n", $4); print $4}' | tac`
     [ "$MODULES" ] && MODULES="$MODULES dvb_core"
 }
 
 # TODO: check if udev handles this on newer systems!?
-set_permissions
+set_permissions()
 {
     if [ "$USER" -o "$GROUP" ]; then
         for FILE in av7110_ir budget_ci_ir; do
@@ -28,7 +28,7 @@ set_permissions
     chmod o+r /dev/input/event*
 }
 
-load_dvb_modules
+load_dvb_modules()
 {
     if modprobe dvb >/dev/null 2>&1 ; then
         get_modulenames
@@ -46,7 +46,7 @@ load_dvb_modules
     sleep 15
 }
 
-unload_dvb_modules
+unload_dvb_modules()
 {
     for MODULE in $MODULES; do
         rmmod $MODULE >/dev/null 2>&1

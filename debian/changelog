@@ -1,3 +1,11 @@
+vdr (1.6.0-11) unstable; urgency=low
+
+  * Fixed syntax error in runvdr and don't set "-p" anymore, which is only
+    supported by Bash (Closes: #536894)
+  * Added Russian debconf template provided by Yuri Kozlov (Closes: #536561)
+
+ -- Tobias Grimm <etobi@debian.org>  Tue, 14 Jul 2009 20:55:37 +0200
+
 vdr (1.6.0-10) unstable; urgency=low
 
   * Upgraded opt-20_liemikuutio.dpatch to version 1.27
