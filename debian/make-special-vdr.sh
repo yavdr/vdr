@@ -110,7 +110,7 @@
 #       - Updated prepare_sudoku for new sudoku release 0.3.3
 #       - Added prepare_muggle for new muggle release 0.2.1
 #       - Updated prepare_graphtft for new graphtft release 0.2.2
-#       - Updated prepare_osdteletext for new graphtft release 0.8.1
+#       - Updated prepare_osdteletext for new osdteletext release 0.8.1
 #       - Exclude changelog files (HISTORY etc.) from substitions
 #       - Added prepare_surfer to remove old plugin file
 #       - Fixed compilation of xxvautotimer plugin
@@ -122,6 +122,19 @@
 #       - Call newer version of make-special-vdr.sh from special package
 #       - Removed conflicts to old special packages for the plugins vdrc, vdrcd
 #         and vdrrip
+#
+#    2009-06-07: Version 1.2
+#       - Updated prepare_text2skin
+#       - Fixed prepare_muggle
+#       - Added prepare_alcd for new alcd release 1.5.0
+#
+#    2009-08-27: Version 1.3
+#       - Prevent renaming of plugins vdrc, vdrcd, vdrrip, svdrpext and
+#         svdrpservice (fixes remote call to svdrpext plugin from remotetimers
+#         plugin)
+#       - Removed prepare_mediamvp (plugin deprecated)
+#       - Removed prepare_osdteletext and other code for old plugin versions
+#       - Added prepare_webvideo
 
 
 main()
@@ -174,6 +187,9 @@ prepare()
         if check_package "vdr${SPECIAL_VDR_SUFFIX}"; then
             prepare_vdr
         fi
+        if check_package "vdr${SPECIAL_VDR_SUFFIX}-plugin-alcd"; then
+            prepare_alcd
+        fi
         if check_package "vdr${SPECIAL_VDR_SUFFIX}-plugin-analogtv"; then
             prepare_analogtv
         fi
@@ -183,14 +199,8 @@ prepare()
         if check_package "vdr${SPECIAL_VDR_SUFFIX}-plugin-graphtft"; then
             prepare_graphtft
         fi
-        if check_package "vdr${SPECIAL_VDR_SUFFIX}-plugin-mediamvp"; then
-            prepare_mediamvp
-        fi
         if check_package "vdr${SPECIAL_VDR_SUFFIX}-plugin-muggle"; then
             prepare_muggle
-        fi
-        if check_package "vdr${SPECIAL_VDR_SUFFIX}-plugin-osdteletext"; then
-            prepare_osdteletext
         fi
         if check_package "vdr${SPECIAL_VDR_SUFFIX}-plugin-pin"; then
             prepare_pin
@@ -210,7 +220,7 @@ prepare()
         if check_package "vdr${SPECIAL_VDR_SUFFIX}-plugin-text2skin"; then
             prepare_text2skin
         fi
-        if check_package "vdr${SPECIAL_VDR_SUFFIX}-plugin-vdr${SPECIAL_VDR_SUFFIX}rip"; then
+        if check_package "vdr${SPECIAL_VDR_SUFFIX}-plugin-vdrrip"; then
             prepare_vdrrip
         fi
         if check_package "vdr${SPECIAL_VDR_SUFFIX}-plugin-vompserver"; then
@@ -218,6 +228,9 @@ prepare()
         fi
         if check_package "vdr${SPECIAL_VDR_SUFFIX}-plugin-wapd"; then
             prepare_wapd
+        fi
+        if check_package "vdr${SPECIAL_VDR_SUFFIX}-plugin-webvideo"; then
+            prepare_webvideo
         fi
         if check_package "vdr${SPECIAL_VDR_SUFFIX}-plugin-xine"; then
             prepare_xine
@@ -247,9 +260,13 @@ prepare_common()
            s.make-special-vdr${SPECIAL_VDR_SUFFIX}.make-special-vdr.g; \
            s./bin/sh /usr/share/vdr${SPECIAL_VDR_SUFFIX}-dev/make-special-vdr./bin/sh /usr/share/vdr-dev/make-special-vdr.g; \
            s.Source: vdr${SPECIAL_VDR_SUFFIX}.Source: vdr.g; \
-           s.Source: vdr-plugin-vdr${SPECIAL_VDR_SUFFIX}c.Source: vdr-plugin-vdrc.g; \
-           s.Source: vdr-plugin-vdr${SPECIAL_VDR_SUFFIX}rip.Source: vdr-plugin-vdrrip.g; \
-           s.Source: vdr-plugin-svdr${SPECIAL_VDR_SUFFIX}p.Source: vdr-plugin-svdrp.g; \
+           s.\<vdr${SPECIAL_VDR_SUFFIX}c\>.vdrc.g; \
+           s.\<vdr${SPECIAL_VDR_SUFFIX}cd\>.vdrcd.g; \
+           s.\<vdr${SPECIAL_VDR_SUFFIX}rip\>.vdrrip.g; \
+           s.\<svdr${SPECIAL_VDR_SUFFIX}pext\>.svdrpext.g; \
+           s.\<svdr${SPECIAL_VDR_SUFFIX}pservice\>.svdrpservice.g; \
+           s.\<svdrpservice-dev\>.vdr${SPECIAL_VDR_SUFFIX}-svdrpservice-dev.g; \
+           s/\<svdrpservice.h\>/vdr${SPECIAL_VDR_SUFFIX}_svdrpservice.h/g; \
            s.pkg-vdr${SPECIAL_VDR_SUFFIX}-dvb-devel.pkg-vdr-dvb-devel.g; \
            s.vdr${SPECIAL_VDR_SUFFIX}admin.vdradmin.g; \
            s. vdr${SPECIAL_VDR_SUFFIX}-xxv. vdr-xxv.g; \
@@ -571,6 +588,15 @@ EOF
 EOF
 }
 
+prepare_alcd()
+{
+    echo "prepare_alcd: rename afp-tool -> afp-tool_vdr${SPECIAL_VDR_SUFFIX}"
+    /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' >> debian/rules
+common-binary-post-install-arch::
+	cd debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-alcd/usr/bin; mv afp-tool afp-tool_vdr${SPECIAL_VDR_SUFFIX}
+EOF
+}
+
 prepare_analogtv()
 {
     echo "prepare_analogtv: rename mp1e -> mp1e_vdr${SPECIAL_VDR_SUFFIX}"
@@ -657,52 +683,13 @@ EOF
 EOF
 }
 
-prepare_mediamvp()
-{
-    echo "prepare_mediamvp: rename mvploader -> mvploader_vdr${SPECIAL_VDR_SUFFIX}"
-    SUBST="s.mvploader.mvploader_vdr${SPECIAL_VDR_SUFFIX}.g; \
-           s./usr/lib/mediamvp./usr/share/vdr${SPECIAL_VDR_SUFFIX}-plugin-mediamvp.g"
-    FILES=$(/usr/bin/find ./ -type f -not -regex "./${SAVE_DIR}/.*" \
-                          -not -regex "./debian/changelog")
-    subst_in_files "${SUBST}" ${FILES}
-    rename_files   "${SUBST}" ${FILES}
-    /bin/mv "debian/mvploader" "debian/mvploader_vdr${SPECIAL_VDR_SUFFIX}"
-}
-
 prepare_muggle()
 {
-    if /usr/bin/dpkg --compare-versions "$(/usr/bin/dpkg-parsechangelog | /bin/egrep '^Version:' | /usr/bin/cut -f 2 -d ' ')" \
-                                        ge "0.2.1-1"; then
-        echo "prepare_muggle: rename mugglei -> mugglei_vdr${SPECIAL_VDR_SUFFIX}"
-        /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' >> debian/rules
+    echo "prepare_muggle: rename mugglei -> mugglei_vdr${SPECIAL_VDR_SUFFIX}"
+    /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' >> debian/rules
 common-binary-post-install-arch::
-	cd debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-sudoku/usr/bin; mv mugglei mugglei_vdr${SPECIAL_VDR_SUFFIX}
+	cd debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-muggle/usr/bin; mv mugglei mugglei_vdr${SPECIAL_VDR_SUFFIX}
 EOF
-    fi
-}
-
-prepare_osdteletext()
-{
-    if /usr/bin/dpkg --compare-versions "$(/usr/bin/dpkg-parsechangelog | /bin/egrep '^Version:' | /usr/bin/cut -f 2 -d ' ')" \
-                                        lt "0.6.0"; then
-        echo "prepare_osdteletext: correct 02_tmp-path-fix.dpatch"
-        /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
---- debian/patches/02_tmp-path-fix.dpatch
-+++ debian/patches/02_tmp-path-fix.dpatch
-@@ -43 +43 @@
--+                                  (standard value: /var/cache/vdr${SPECIAL_VDR_SUFFIX}/vtx,
-++                                  (standard value: /var/cache/vdr/vtx,
-@@ -45 +45 @@
--                                    or /var/cache/vdr${SPECIAL_VDR_SUFFIX}/osdteletext.)
-+                                    or /var/cache/vdr/osdteletext.)
-@@ -56 +56 @@
--+                                  (Voreinstellung: /var/cache/vdr${SPECIAL_VDR_SUFFIX}/vtx,
-++                                  (Voreinstellung: /var/cache/vdr/vtx,
-@@ -58 +58 @@
--                                    oder /var/cache/vdr${SPECIAL_VDR_SUFFIX}/osdteletext.)
-+                                    oder /var/cache/vdr/osdteletext.)
-EOF
-    fi
 }
 
 prepare_pin()
@@ -730,62 +717,29 @@ EOF
 prepare_softdevice()
 {
     echo "prepare_softdevice: ShmClient -> ShmClient_vdr${SPECIAL_VDR_SUFFIX}"
-    if /usr/bin/dpkg --compare-versions "$(/usr/bin/dpkg-parsechangelog | /bin/egrep '^Version:' | /usr/bin/cut -f 2 -d ' ')" \
-                                        ge "0.4.0+cvs20070830-8"; then
-        /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' >> debian/rules
+    /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' >> debian/rules
 common-binary-post-install-arch::
 	cd debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-softdevice/usr/bin; mv ShmClient ShmClient_vdr${SPECIAL_VDR_SUFFIX}
 EOF
-    else
-        /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
---- debian/rules
-+++ debian/rules
-@@ -54,1 +54,2 @@
--	dh_install
-+	dh_install
-+	cd debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-softdevice/usr/bin; mv ShmClient ShmClient_vdr${SPECIAL_VDR_SUFFIX}
-EOF
-    fi
 }
 
 prepare_sudoku()
 {
     echo "prepare_sudoku: rename sudoku_generator -> sudoku_generator_vdr${SPECIAL_VDR_SUFFIX}"
-    if /usr/bin/dpkg --compare-versions "$(/usr/bin/dpkg-parsechangelog | /bin/egrep '^Version:' | /usr/bin/cut -f 2 -d ' ')" \
-                                        ge "0.3.3-1"; then
-        /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' >> debian/rules
+    /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' >> debian/rules
 common-binary-post-install-arch::
 	cd debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-sudoku/usr/bin; mv sudoku_generator sudoku_generator_vdr${SPECIAL_VDR_SUFFIX}
 	cd debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-sudoku/usr/share/man/man1; mv sudoku_generator.1 sudoku_generator_vdr${SPECIAL_VDR_SUFFIX}.1
 EOF
-    elif /usr/bin/dpkg --compare-versions "$(/usr/bin/dpkg-parsechangelog | /bin/egrep '^Version:' | /usr/bin/cut -f 2 -d ' ')" \
-                                          ge "0.2.0-1"; then
-        /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' >> debian/rules
-common-binary-post-install-arch::
-	cd debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-sudoku/usr/bin; mv sudoku_generator sudoku_generator_vdr${SPECIAL_VDR_SUFFIX}
-EOF
-    else
-        /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
---- debian/rules
-+++ debian/rules
-@@ -53,1 +53,2 @@
--	dh_install
-+	dh_install
-+	cd debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-sudoku/usr/bin; mv sudoku_generator sudoku_generator_vdr${SPECIAL_VDR_SUFFIX}
-EOF
-    fi
 }
 
 prepare_surfer()
 {
-    if /usr/bin/dpkg --compare-versions "$(/usr/bin/dpkg-parsechangelog | /bin/egrep '^Version:' | /usr/bin/cut -f 2 -d ' ')" \
-                                        ge "0.0.2-28"; then
-        echo "prepare_surfer: remove old plugin file"
-        /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' >> debian/rules
+    echo "prepare_surfer: remove old plugin file"
+    /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' >> debian/rules
 common-build-arch::
 	rm -f libvdr${SPECIAL_VDR_SUFFIX}-surfer.so.1.3.24
 EOF
-    fi
 }
 
 prepare_text2skin()
@@ -803,19 +757,20 @@ prepare_text2skin()
 +var/lib/vdr/plugins/text2skin  var/lib/vdr${SPECIAL_VDR_SUFFIX}/plugins/text2skin
 EOF
 
-    if /usr/bin/dpkg --compare-versions "$(/usr/bin/dpkg-parsechangelog | /bin/egrep '^Version:' | /usr/bin/cut -f 2 -d ' ')" \
-                                        ge "1.0+cvs20080122.2311-1"; then
-        echo "prepare_text2skin: use skin locales from standard packages"
-        /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
---- debian/patches/95_text2skin-1.1-cvs-locale.dpatch
-+++ debian/patches/95_text2skin-1.1-cvs-locale.dpatch
-@@ -185,2 +185,2 @@
--+	mIdentity   = std::string("vdr${SPECIAL_VDR_SUFFIX}-"PLUGIN_NAME_I18N"-") + Skin;
--+	I18nRegister(mIdentity.substr(mIdentity.find('-') + 1).c_str());
-++	mIdentity   = std::string("vdr-"PLUGIN_NAME_I18N"-") + Skin;
-++	extern char *bindtextdomain(const char *, const char *); bindtextdomain(mIdentity.c_str(), "/usr/share/locale");
+     echo "prepare_text2skin: use skin locales from standard packages"
+     /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
+--- i18n.c
++++ i18n.c
+@@ -5,1 +5,2 @@
+-#include "i18n.h"
++#include "i18n.h"
++#include <libintl.h>
+@@ -164,2 +165,2 @@
+-	mIdentity   = std::string("vdr${SPECIAL_VDR_SUFFIX}-"PLUGIN_NAME_I18N"-") + Skin;
+-	I18nRegister(mIdentity.substr(mIdentity.find('-') + 1).c_str());
++	mIdentity   = std::string("vdr-"PLUGIN_NAME_I18N"-") + Skin;
++	bindtextdomain(mIdentity.c_str(), "/usr/share/locale");
 EOF
-    fi
 }
 
 prepare_vdrrip()
@@ -826,6 +781,14 @@ prepare_vdrrip()
                           -not -regex "./debian/changelog")
     subst_in_files "${SUBST}" ${FILES}
     rename_files   "${SUBST}" ${FILES}
+
+    echo "prepare_vdrrip: remove installation of vdrripsplit.sh"
+    /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
+--- debian/install
++++ debian/install
+@@ -3 +2,0 @@
+-debian/vdrrip*.sh               usr/bin/
+EOF
 }
 
 prepare_vompserver()
@@ -846,22 +809,16 @@ EOF
 prepare_wapd()
 {
     echo "prepare_wapd: rename wappasswd -> wappasswd_vdr${SPECIAL_VDR_SUFFIX}"
-    if /usr/bin/dpkg --compare-versions "$(/usr/bin/dpkg-parsechangelog | /bin/egrep '^Version:' | /usr/bin/cut -f 2 -d ' ')" \
-                                        ge "0.9-1"; then
-        /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' >> debian/rules
+    /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' >> debian/rules
 common-binary-post-install-arch::
 	cd debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-wapd/usr/bin; mv wappasswd wappasswd_vdr${SPECIAL_VDR_SUFFIX}
 EOF
-    else
-        /bin/sed -e "s/\${SPECIAL_VDR_SUFFIX}/${SPECIAL_VDR_SUFFIX}/g" <<'EOF' | /usr/bin/patch -p0 -F0
---- debian/rules
-+++ debian/rules
-@@ -53,1 +53,2 @@
--	dh_install
-+	dh_install
-+	cd debian/vdr${SPECIAL_VDR_SUFFIX}-plugin-wapd/usr/bin; mv wappasswd wappasswd_vdr${SPECIAL_VDR_SUFFIX}
-EOF
-    fi
+}
+
+prepare_webvideo()
+{
+    echo "prepare_webvideo: rename vdr-plugin -> vdr${SPECIAL_VDR_SUFFIX}-plugin"
+    /bin/mv "vdr-plugin" "vdr${SPECIAL_VDR_SUFFIX}-plugin"
 }
 
 prepare_xine()

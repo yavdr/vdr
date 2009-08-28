@@ -1,3 +1,9 @@
+vdr (1.6.0-12) UNRELEASED; urgency=low
+
+  * Upgraded make-special-vdr.sh to version 1.3
+
+ -- Thomas Günther <tom@toms-cafe.de>  Fri, 28 Aug 2009 17:56:08 +0200
+
 vdr (1.6.0-11) unstable; urgency=low
 
   * Fixed syntax error in runvdr and don't set "-p" anymore, which is only
