@@ -1,8 +1,12 @@
 vdr (1.6.0-12) UNRELEASED; urgency=low
 
+  [ Thomas Günther ]
   * Upgraded make-special-vdr.sh to version 1.3
 
- -- Thomas Günther <tom@toms-cafe.de>  Fri, 28 Aug 2009 17:56:08 +0200
+  [ Tobias Grimm ]
+  * Added Italian debconf translation (Closes: #548798)
+
+ -- Tobias Grimm <etobi@debian.org>  Sat, 03 Oct 2009 11:03:21 +0200
 
 vdr (1.6.0-11) unstable; urgency=low
 

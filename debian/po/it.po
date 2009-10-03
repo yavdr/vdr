@@ -1,0 +1,59 @@
+# Italian translation of vdr.
+# COPYRIGHT (C) 2009 THE VDR'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the vdr package.
+# Luca Monducci <luca.mo@tiscali.it>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: vdr 1.6.0 italian debconf templates\n"
+"Report-Msgid-Bugs-To: vdr@packages.debian.org\n"
+"POT-Creation-Date: 2009-04-02 14:42+0200\n"
+"PO-Revision-Date: 2009-09-28 22:36+0200\n"
+"Last-Translator: Luca Monducci <luca.mo@tiscali.it>\n"
+"Language-Team: Italian <debian-l10n-italian@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: select
+#. Choices
+#: ../vdr.templates:1001
+msgid "Satellite, Terrestrial, Cable"
+msgstr "Satellite, Terrestre, Cavo"
+
+#. Type: select
+#. Description
+#: ../vdr.templates:1002
+msgid "DVB card type:"
+msgstr "Tipo di scheda DVB:"
+
+#. Type: select
+#. Description
+#: ../vdr.templates:1002
+msgid ""
+"VDR needs to know your DVB card type to work correctly. Using your "
+"selection, a channels.conf file will be installed to /var/lib/vdr.  You may "
+"have to change this file depending on your setup."
+msgstr ""
+"Per funzionare correttamente è necessario indicare a VDR il tipo di scheda "
+"DVB. In base a questa scelta verrà creato un file channels.conf che verrà "
+"installato in /var/lib/vdr. Potrebbe essere necessario adattare questo file "
+"al sistema in uso."
+
+#. Type: boolean
+#. Description
+#: ../vdr.templates:2001
+msgid "Create /var/lib/video.00?"
+msgstr "Creare /var/lib/video.00?"
+
+#. Type: boolean
+#. Description
+#: ../vdr.templates:2001
+msgid ""
+"By default VDR is configured to use /var/lib/video.00 to store recordings. "
+"You can either create this directory now, or change this behavior later  by "
+"modifying the VIDEO_DIR variable in /etc/default/vdr."
+msgstr ""
+"Con la configurazione predefinita, VDR usa /var/lib/video.00 per memorizzare "
+"le registrazioni. È possibile creare questa directory adesso oppure cambiare "
+"questo comportamento modificando la variabile VIDEO_DIR in /etc/default/vdr."
