@@ -1,12 +1,14 @@
-vdr (1.6.0-12) UNRELEASED; urgency=low
+vdr (1.6.0-12) unstable; urgency=low
 
   [ Thomas Günther ]
   * Upgraded make-special-vdr.sh to version 1.3
 
   [ Tobias Grimm ]
   * Added Italian debconf translation (Closes: #548798)
+  * Fixed FTBFS with gcc 4.4 (Closes: #549380)
+  * Standards-Version: 3.8.3
 
- -- Tobias Grimm <etobi@debian.org>  Sat, 03 Oct 2009 11:03:21 +0200
+ -- Tobias Grimm <etobi@debian.org>  Fri, 09 Oct 2009 21:55:31 +0200
 
 vdr (1.6.0-11) unstable; urgency=low
 

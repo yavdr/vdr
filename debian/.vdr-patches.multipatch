@@ -24,6 +24,7 @@ debian/patches/opt-28_audioindexer.dpatch:eab872310fd03a175b3b93a90d22d5db
 debian/patches/opt-31-x_reelchannelscan.dpatch:f8c06ac51888248f68badcab8533c2be
 debian/patches/81_Make_config.dpatch:dcff6a00ef9474bca19d955d19574009
 debian/patches/opt-51_cuttime.dpatch:cfbf0a7934f109148fef4e385c3eb465
+debian/patches/20_gcc44_ftbfs.dpatch:310f84b8c27541f3ecec0ce416c21a73
 debian/patches/opt-40_pluginparam.dpatch:9dc3baf2532c9df6e715f0d6c9f7df06
 debian/patches/99_dvb-header-fixes.dpatch:ef5dae99f9ce2566d72a393c84e66741
 debian/patches/14_cap-memsize.dpatch:7beb9bcecb1bdce4a03c1729acfbbdb3

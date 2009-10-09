@@ -1,6 +1,7 @@
 debian/patches/81_Make_config.dpatch:dcff6a00ef9474bca19d955d19574009
 debian/patches/99_ncursesw-include.dpatch:90810d58108ff8d9afd768fec67be904
 debian/patches/12_osdbase-maxitems.dpatch:e45d1b62f7d66c3e5d279e3561034107
+debian/patches/20_gcc44_ftbfs.dpatch:310f84b8c27541f3ecec0ce416c21a73
 debian/patches/10_dd-record-option.dpatch:58c3a3dbcd9a3ec4b0ee1814f71d1e88
 debian/patches/11_sortrecordings.dpatch:9ed4cd1e144ee59dab34d4df4aa9af51
 debian/patches/99_dvb-header-fixes.dpatch:ef5dae99f9ce2566d72a393c84e66741
