@@ -9,7 +9,7 @@ Build-Depends: debhelper (>= 5), dpatch, libjpeg62-dev, libcap2-dev | libcap-dev
 Standards-Version: 3.8.3
 Vcs-Svn: svn://svn.debian.org/pkg-vdr-dvb/vdr/vdr/trunk/
 Vcs-Browser: http://svn.debian.org/wsvn/pkg-vdr-dvb/vdr/vdr/trunk/
-Homepage: http://www.cadsoft.de/vdr/
+Homepage: http://www.tvdr.de/
 
 Package: vdr
 Architecture: any

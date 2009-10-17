@@ -1,3 +1,9 @@
+vdr (1.6.0-13) UNRELEASED; urgency=low
+
+  * New upstream homepage http://www.tvdr.de/
+
+ -- Tobias Grimm <etobi@debian.org>  Sat, 17 Oct 2009 13:05:02 +0200
+
 vdr (1.6.0-12) unstable; urgency=low
 
   [ Thomas Günther ]

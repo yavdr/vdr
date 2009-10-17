@@ -1,5 +1,5 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
-## 18_vdr-maintenance-1.6.0-2.dpatch by Klaus Schmidinger <kls@cadsoft.de>
+## 18_vdr-maintenance-1.6.0-2.dpatch by Klaus Schmidinger <Klaus.Schmidinger@tvdr.de>
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: VDR 1.6.0 maintenance patch #2
