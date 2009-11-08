@@ -1,4 +1,4 @@
-#! /bin/sh /usr/share/vdr-dev/make-special-vdr.sh
+#!/usr/bin/make -f
 
 include /usr/share/cdbs/1/rules/debhelper.mk
 # include /usr/share/cdbs/1/rules/dpatch.mk

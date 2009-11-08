@@ -1,6 +1,8 @@
 vdr (1.6.0-13) UNRELEASED; urgency=low
 
   * New upstream homepage http://www.tvdr.de/
+  * Removed make-special-vdr.sh (Closes: #552638)
+  * Added README.source
 
  -- Tobias Grimm <etobi@debian.org>  Sat, 17 Oct 2009 13:05:02 +0200
 

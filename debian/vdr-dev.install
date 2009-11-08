@@ -13,5 +13,3 @@ debian/dependencies.sh          usr/share/vdr-dev/
 
 debian/vdrdbg-buildpackage      usr/bin/
 Make.config                     usr/include/vdr/
-
-debian/make-special-vdr.sh      usr/share/vdr-dev/

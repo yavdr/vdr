@@ -10,9 +10,9 @@ debian/patches/04_newplugin.dpatch:e99f8d21734a19b3eb93d9e3f11b680a
 debian/patches/14_cap-memsize.dpatch:7beb9bcecb1bdce4a03c1729acfbbdb3
 debian/patches/16_channels.conf.terr-fix.dpatch:72595733d0b46aa4093a640708d19226
 debian/patches/06_default_svdrp_port_0.dpatch:b49237a9ee246acfa01ee7ec92ad0a52
-debian/patches/17_vdr-maintenance-1.6.0-1.dpatch:3a2ff2c6d3b13489c19eda4e32f2537c
+debian/patches/17_vdr-maintenance-1.6.0-1.dpatch:386821878ee431af1b104a2f3a4f3746
 debian/patches/03_cmdsubmenu.dpatch:abff754a3d760764796f06cdf1cf5105
 debian/patches/09_sort_options.dpatch:3b561fcd7645b216b4dab989d7786fda
-debian/patches/18_vdr-maintenance-1.6.0-2.dpatch:ffe53a24b2c592c18dd08b31d35fd655
+debian/patches/18_vdr-maintenance-1.6.0-2.dpatch:703dc617afcbf87cde443ed0df4642da
 debian/patches/82_valgrind.dpatch:46960921b989f2f4dab829a51622ed85
 debian/patches/15_dvbplayer.dpatch:d1f31f0687c917dea48bc0ba26b7f3bb
