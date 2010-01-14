@@ -16,8 +16,8 @@
 81_Make_config
 82_valgrind
 
-99_dvb-header-fixes
 99_ncursesw-include
+99_vdr-workaround-broken-sys-capability
 
 # Patch collection (replaces enAIO).
 # opt-20_liemikuutio

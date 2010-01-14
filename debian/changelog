@@ -1,3 +1,14 @@
+vdr (1.6.0-14) unstable; urgency=low
+
+  [ Thomas Günther ]
+  * Removed 99_dvb-header-fixes.dpatch
+  * Added 99_vdr-workaround-broken-sys-capability.dpatch
+
+  [ Tobias Grimm ]
+  * Added Japanese debconf translation (Closes: #555546)
+
+ -- Tobias Grimm <etobi@debian.org>  Fri, 15 Jan 2010 00:13:07 +0100
+
 vdr (1.6.0-13) unstable; urgency=low
 
   * New upstream homepage http://www.tvdr.de/
