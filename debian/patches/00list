@@ -26,6 +26,10 @@
 # like streamdev
 # opt-21_internal-cam-devices
 
+# Easy editing of cutting marks
+# (Requires opt-20_liemikuutio!)
+# opt-22-x_edit_marks
+
 # The Jump patch allows automatic jumping over cutting marks.
 # opt-24_jumpplay
 

@@ -1,3 +1,17 @@
+vdr (1.6.0-16) UNRELEASED; urgency=low
+
+  * Added opt-22-x_edit_marks.dpatch
+  * Adapted opt-48-x_pin.dpatch to vdr-workaround-broken-sys-capability patch
+  * Updated opt-52_hard_link_cutter.dpatch to version 0.2.2 (fixes gcc 4.4 issue)
+  * Added include links via debian/vdr-dev.links to make the include structure
+    compatible to vdr standards
+  * Added -p to bash shebang line of init script, because this is needed,
+    if VDR calls the init script itself via a suid wrapper
+  * Added linux-libc-dev to Depends of package vdr-dev (linux/dvb/*.h included
+    in header files, e.g. device.h)
+
+ -- Thomas Günther <tom@toms-cafe.de>  Fri, 05 Mar 2010 00:02:54 +0100
+
 vdr (1.6.0-15) unstable; urgency=low
 
   * Standards-Version: 3.8.4

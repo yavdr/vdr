@@ -2,7 +2,7 @@
 ## opt-52_hard_link_cutter.dpatch by Udo Richter <udo_richter@gmx.de>
 ## http://www.udo-richter.de/vdr/patches.en.html#hlcutter
 ##
-## This is version 0.2.0 of the patch
+## This is version 0.2.2 of the patch
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: The hard link cutter patch changes the recording editing algorithms
@@ -12,7 +12,7 @@
 @DPATCH@
 diff -urNad vdr-1.6.0~/README-HLCUTTER vdr-1.6.0/README-HLCUTTER
 --- vdr-1.6.0~/README-HLCUTTER	1970-01-01 01:00:00.000000000 +0100
-+++ vdr-1.6.0/README-HLCUTTER	2008-05-11 12:13:51.000000000 +0200
++++ vdr-1.6.0/README-HLCUTTER	2009-11-28 12:09:29.000000000 +0100
 @@ -0,0 +1,117 @@
 +
 +                    VDR-HLCUTTER README
@@ -132,8 +132,8 @@ diff -urNad vdr-1.6.0~/README-HLCUTTER vdr-1.6.0/README-HLCUTTER
 +
 +SetBrokenLink may get lost on rare cases, this needs some more thoughts.
 diff -urNad vdr-1.6.0~/config.c vdr-1.6.0/config.c
---- vdr-1.6.0~/config.c	2008-05-11 12:13:51.000000000 +0200
-+++ vdr-1.6.0/config.c	2008-05-11 12:13:51.000000000 +0200
+--- vdr-1.6.0~/config.c	2009-11-28 12:09:25.000000000 +0100
++++ vdr-1.6.0/config.c	2009-11-28 12:09:29.000000000 +0100
 @@ -321,7 +321,9 @@
    FontSmlSize = 18;
    FontFixSize = 20;
@@ -165,8 +165,8 @@ diff -urNad vdr-1.6.0~/config.c vdr-1.6.0/config.c
    Store("MinUserInactivity",  MinUserInactivity);
    Store("NextWakeupTime",     NextWakeupTime);
 diff -urNad vdr-1.6.0~/config.h vdr-1.6.0/config.h
---- vdr-1.6.0~/config.h	2008-05-11 12:13:51.000000000 +0200
-+++ vdr-1.6.0/config.h	2008-05-11 12:13:51.000000000 +0200
+--- vdr-1.6.0~/config.h	2009-11-28 12:09:25.000000000 +0100
++++ vdr-1.6.0/config.h	2009-11-28 12:09:29.000000000 +0100
 @@ -293,7 +293,9 @@
    int FontFixSize;
    int noEPGMode;
@@ -178,8 +178,8 @@ diff -urNad vdr-1.6.0~/config.h vdr-1.6.0/config.h
    time_t NextWakeupTime;
    int MultiSpeedMode;
 diff -urNad vdr-1.6.0~/cutter.c vdr-1.6.0/cutter.c
---- vdr-1.6.0~/cutter.c	2008-05-11 12:13:51.000000000 +0200
-+++ vdr-1.6.0/cutter.c	2008-05-11 12:13:51.000000000 +0200
+--- vdr-1.6.0~/cutter.c	2009-11-28 12:09:25.000000000 +0100
++++ vdr-1.6.0/cutter.c	2009-11-28 12:09:28.000000000 +0100
 @@ -71,6 +71,7 @@
       Mark = fromMarks.Next(Mark);
       int FileSize = 0;
@@ -333,9 +333,9 @@ diff -urNad vdr-1.6.0~/cutter.c vdr-1.6.0/cutter.c
             }
       Recordings.TouchUpdate();
 diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
---- vdr-1.6.0~/menu.c	2008-05-11 12:13:51.000000000 +0200
-+++ vdr-1.6.0/menu.c	2008-05-11 12:16:21.000000000 +0200
-@@ -3187,7 +3187,9 @@
+--- vdr-1.6.0~/menu.c	2009-11-28 12:09:25.000000000 +0100
++++ vdr-1.6.0/menu.c	2009-11-28 12:10:21.000000000 +0100
+@@ -3185,7 +3185,9 @@
    Add(new cMenuEditStrItem( tr("Setup.Recording$Name instant recording"),     data.NameInstantRecord, sizeof(data.NameInstantRecord)));
    Add(new cMenuEditIntItem( tr("Setup.Recording$Instant rec. time (min)"),   &data.InstantRecordTime, 1, MAXINSTANTRECTIME));
    Add(new cMenuEditIntItem( tr("Setup.Recording$Max. video file size (MB)"), &data.MaxVideoFileSize, MINVIDEOFILESIZE, MAXVIDEOFILESIZE));
@@ -346,8 +346,8 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
    Add(new cMenuEditBoolItem(tr("Setup.Recording$Show time"),                 &data.ShowRecTime));
    Add(new cMenuEditBoolItem(tr("Setup.Recording$Show length"),               &data.ShowRecLength));
 diff -urNad vdr-1.6.0~/recorder.c vdr-1.6.0/recorder.c
---- vdr-1.6.0~/recorder.c	2008-05-11 12:13:50.000000000 +0200
-+++ vdr-1.6.0/recorder.c	2008-05-11 12:13:51.000000000 +0200
+--- vdr-1.6.0~/recorder.c	2009-11-28 12:09:25.000000000 +0100
++++ vdr-1.6.0/recorder.c	2009-11-28 12:09:29.000000000 +0100
 @@ -90,7 +90,7 @@
  bool cFileWriter::NextFile(void)
  {
@@ -358,9 +358,9 @@ diff -urNad vdr-1.6.0~/recorder.c vdr-1.6.0/recorder.c
          fileSize = 0;
          }
 diff -urNad vdr-1.6.0~/recording.c vdr-1.6.0/recording.c
---- vdr-1.6.0~/recording.c	2008-05-11 12:13:51.000000000 +0200
-+++ vdr-1.6.0/recording.c	2008-05-11 12:13:51.000000000 +0200
-@@ -1631,6 +1631,16 @@
+--- vdr-1.6.0~/recording.c	2009-11-28 12:09:25.000000000 +0100
++++ vdr-1.6.0/recording.c	2009-11-28 12:09:29.000000000 +0100
+@@ -1630,6 +1630,16 @@
    return NULL;
  }
  
@@ -378,8 +378,8 @@ diff -urNad vdr-1.6.0~/recording.c vdr-1.6.0/recording.c
  {
    return SetOffset(fileNumber + 1);
 diff -urNad vdr-1.6.0~/recording.h vdr-1.6.0/recording.h
---- vdr-1.6.0~/recording.h	2008-05-11 12:13:51.000000000 +0200
-+++ vdr-1.6.0/recording.h	2008-05-11 12:13:51.000000000 +0200
+--- vdr-1.6.0~/recording.h	2009-11-28 12:09:25.000000000 +0100
++++ vdr-1.6.0/recording.h	2009-11-28 12:09:29.000000000 +0100
 @@ -213,7 +213,15 @@
  // may be slightly higher because we stop recording only before the next
  // 'I' frame, to have a complete Group Of Pictures):
@@ -397,7 +397,7 @@ diff -urNad vdr-1.6.0~/recording.h vdr-1.6.0/recording.h
  
  class cIndexFile {
  private:
-@@ -254,6 +262,8 @@
+@@ -256,6 +264,8 @@
    cUnbufferedFile *Open(void);
    void Close(void);
    cUnbufferedFile *SetOffset(int Number, int Offset = 0);
@@ -407,8 +407,8 @@ diff -urNad vdr-1.6.0~/recording.h vdr-1.6.0/recording.h
    };
  
 diff -urNad vdr-1.6.0~/videodir.c vdr-1.6.0/videodir.c
---- vdr-1.6.0~/videodir.c	2008-02-16 14:00:03.000000000 +0100
-+++ vdr-1.6.0/videodir.c	2008-05-11 12:13:51.000000000 +0200
+--- vdr-1.6.0~/videodir.c	2009-11-28 11:57:20.000000000 +0100
++++ vdr-1.6.0/videodir.c	2009-11-28 12:09:29.000000000 +0100
 @@ -19,6 +19,9 @@
  #include "recording.h"
  #include "tools.h"
@@ -427,7 +427,7 @@ diff -urNad vdr-1.6.0~/videodir.c vdr-1.6.0/videodir.c
 +{
 +  cString Name(FileName);
 +  char *p;
-+  while ((p = strrchr((const char*)Name + 1, '/')) != NULL) {
++  while ((p = strrchr((char*)(const char*)Name + 1, '/')) != NULL) {
 +        *p = 0; // truncate at last '/'
 +        if (stat(Name, Stat) == 0) {
 +           isyslog("StatNearestDir: Stating %s", (const char*)Name);
@@ -541,8 +541,8 @@ diff -urNad vdr-1.6.0~/videodir.c vdr-1.6.0/videodir.c
  {
    cVideoDirectory Dir;
 diff -urNad vdr-1.6.0~/videodir.h vdr-1.6.0/videodir.h
---- vdr-1.6.0~/videodir.h	2008-02-16 13:53:11.000000000 +0100
-+++ vdr-1.6.0/videodir.h	2008-05-11 12:13:51.000000000 +0200
+--- vdr-1.6.0~/videodir.h	2009-11-28 11:57:20.000000000 +0100
++++ vdr-1.6.0/videodir.h	2009-11-28 12:09:29.000000000 +0100
 @@ -19,6 +19,7 @@
  int CloseVideoFile(cUnbufferedFile *File);
  bool RenameVideoFile(const char *OldName, const char *NewName);
