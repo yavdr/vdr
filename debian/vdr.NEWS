@@ -1,4 +1,4 @@
-vdr (1.4.6-2) experimental; urgency=low
+vdr (1.4.7-1) experimental; urgency=low
 
   The script /usr/lib/vdr/vdr-groups.sh may now be used by plugins to
   manage the group memberships of the user 'vdr'. See README.Debian

@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vdr 1.3.31-2\n"
 "Report-Msgid-Bugs-To: vdr@packages.debian.org\n"
-"POT-Creation-Date: 2009-04-02 14:42+0200\n"
+"POT-Creation-Date: 2010-03-04 22:58+0100\n"
 "PO-Revision-Date: 2005-09-30 23:31-0700\n"
 "Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -25,8 +25,20 @@ msgstr ""
 #. Type: select
 #. Choices
 #: ../vdr.templates:1001
-msgid "Satellite, Terrestrial, Cable"
-msgstr "Satellit, Marksänd, Kabel"
+msgid "Satellite"
+msgstr "Satellit"
+
+#. Type: select
+#. Choices
+#: ../vdr.templates:1001
+msgid "Terrestrial"
+msgstr "Marksänd"
+
+#. Type: select
+#. Choices
+#: ../vdr.templates:1001
+msgid "Cable"
+msgstr "Kabel"
 
 #. Type: select
 #. Description
@@ -63,17 +75,3 @@ msgstr ""
 "Som standard är VDR konfigurerad att använda /var/lib/video.00 för att lagra "
 "inspelningar. Du kan antingen skapa denna mapp nu eller ändra detta senare  "
 "genom att modifiera variabeln VIDEO_DIR i /etc/default/vdr."
-
-#~ msgid "VDR needs DVB kernel modules"
-#~ msgstr "VDR behöver DVB-kernelmoduler"
-
-#~ msgid ""
-#~ "VDR needs DVB (Digital Video Broadcasting) kernel modules. You may have "
-#~ "to separately install these modules. Ensure that the correct modules for "
-#~ "your DVB hardware get loaded automatically e.g. by adding them to /etc/"
-#~ "modules otherwise VDR won't work!"
-#~ msgstr ""
-#~ "VDR behöver DVB (Digital Video Broadcasting) kernelmoduler. Du måste "
-#~ "kanske installera dessa moduler separat. Se till att de korrekta "
-#~ "modulerna för din DVB-hårdvara laddas in automatiskt, till exempel att "
-#~ "lägga till dom i /etc/modules annars kommer VDR inte att fungera!"

@@ -1,12 +1,12 @@
 # Japanese translation of vdr debconf templates.
 # Copyright (C) 2009 Hideki Yamane <henrich@debian.or.jp>
 # This file is distributed under the same license as vdr package.
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: vdr 1.6.0-12\n"
 "Report-Msgid-Bugs-To: vdr@packages.debian.org\n"
-"POT-Creation-Date: 2009-04-02 14:42+0200\n"
+"POT-Creation-Date: 2010-03-04 22:58+0100\n"
 "PO-Revision-Date: 2009-10-29 06:26+0900\n"
 "Last-Translator: Hideki Yamane (Debian-JP) <henrich@debian.or.jp>\n"
 "Language-Team: Japanese <debian-japanese@lists.debian.org>\n"
@@ -17,8 +17,20 @@ msgstr ""
 #. Type: select
 #. Choices
 #: ../vdr.templates:1001
-msgid "Satellite, Terrestrial, Cable"
-msgstr "衛星放送, 地上デジタル放送, ケーブル放送"
+msgid "Satellite"
+msgstr "衛星放送"
+
+#. Type: select
+#. Choices
+#: ../vdr.templates:1001
+msgid "Terrestrial"
+msgstr "地上デジタル放送"
+
+#. Type: select
+#. Choices
+#: ../vdr.templates:1001
+msgid "Cable"
+msgstr "ケーブル放送"
 
 #. Type: select
 #. Description
@@ -34,9 +46,9 @@ msgid ""
 "selection, a channels.conf file will be installed to /var/lib/vdr.  You may "
 "have to change this file depending on your setup."
 msgstr ""
-"VDR は正常に動作するために DVB カードの種類を知っている必要があります。"
-"ここでの選択を元にして、/var/lib/vdr に channels.conf ファイルがインストール"
-"されます。設定によってはこのファイルを変更する必要があるかもしれません。"
+"VDR は正常に動作するために DVB カードの種類を知っている必要があります。ここで"
+"の選択を元にして、/var/lib/vdr に channels.conf ファイルがインストールされま"
+"す。設定によってはこのファイルを変更する必要があるかもしれません。"
 
 #. Type: boolean
 #. Description
@@ -53,6 +65,5 @@ msgid ""
 "modifying the VIDEO_DIR variable in /etc/default/vdr."
 msgstr ""
 "デフォルトでは VDR は録画を保存するのに /var/lib/video.00 を使うように設定さ"
-"れています。このディレクトリをすぐに作成する、あるいは後ほど /etc/default/vdr "
-"内の VIDEO_DIR 変数の設定にて、保存するディレクトリの指定を変更できます。"
-
+"れています。このディレクトリをすぐに作成する、あるいは後ほど /etc/default/"
+"vdr 内の VIDEO_DIR 変数の設定にて、保存するディレクトリの指定を変更できます。"

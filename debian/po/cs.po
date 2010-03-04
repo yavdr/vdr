@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vdr\n"
 "Report-Msgid-Bugs-To: vdr@packages.debian.org\n"
-"POT-Creation-Date: 2009-04-02 14:42+0200\n"
+"POT-Creation-Date: 2010-03-04 22:58+0100\n"
 "PO-Revision-Date: 2004-05-15 11:10+0200\n"
 "Last-Translator: Miroslav Kure <kurem@debian.cz>\n"
 "Language-Team: Czech <provoz@debian.cz>\n"
@@ -26,8 +26,20 @@ msgstr ""
 #. Type: select
 #. Choices
 #: ../vdr.templates:1001
-msgid "Satellite, Terrestrial, Cable"
-msgstr "Satelitní, Pozemní, Kabelová"
+msgid "Satellite"
+msgstr "Satelitní"
+
+#. Type: select
+#. Choices
+#: ../vdr.templates:1001
+msgid "Terrestrial"
+msgstr "Pozemní"
+
+#. Type: select
+#. Choices
+#: ../vdr.templates:1001
+msgid "Cable"
+msgstr "Kabelová"
 
 #. Type: select
 #. Description
@@ -64,16 +76,3 @@ msgstr ""
 "Implicitnì je VDR nastaveno pro ukládání nahrávek do /var/lib/video.00. "
 "Tento adresáø se nyní mù¾e vytvoøit automaticky. Jeho umístìní mù¾ete "
 "pozdìji upravit zmìnou promìnné VIDEO_DIR v souboru /etc/default/vdr."
-
-#~ msgid "VDR needs DVB kernel modules"
-#~ msgstr "VDR vy¾aduje jaderné moduly k DVB"
-
-#~ msgid ""
-#~ "VDR needs DVB (Digital Video Broadcasting) kernel modules. You may have "
-#~ "to separately install these modules. Ensure that the correct modules for "
-#~ "your DVB hardware get loaded automatically e.g. by adding them to /etc/"
-#~ "modules otherwise VDR won't work!"
-#~ msgstr ""
-#~ "VDR vy¾aduje jaderné moduly pro DVB (Digital Video Broadcasting). Nahrání "
-#~ "a pou¾ití tìchto modulù si budete muset zajistit sami (napøíklad pøidáním "
-#~ "tìchto modulù do /etc/modules). V opaèném pøípadì VDR nebude fungovat!"

@@ -1,6 +1,6 @@
 Template: vdr/select_dvb_card
 Type: select
-_Choices: Satellite, Terrestrial, Cable
+__Choices: Satellite, Terrestrial, Cable
 Default: Satellite
 _Description: DVB card type:
  VDR needs to know your DVB card type to work correctly.

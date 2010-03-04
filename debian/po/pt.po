@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vdr 1.4.4-1\n"
 "Report-Msgid-Bugs-To: vdr@packages.debian.org\n"
-"POT-Creation-Date: 2009-04-02 14:42+0200\n"
+"POT-Creation-Date: 2010-03-04 22:58+0100\n"
 "PO-Revision-Date: 2007-03-19 12:24+0000\n"
 "Last-Translator: Luísa Lourenço <kikentai@gmail.com>\n"
 "Language-Team: Portuguese <traduz@debianpt.org>\n"
@@ -18,8 +18,20 @@ msgstr ""
 #. Type: select
 #. Choices
 #: ../vdr.templates:1001
-msgid "Satellite, Terrestrial, Cable"
-msgstr "Satélite, Terrestre, Cabo"
+msgid "Satellite"
+msgstr "Satélite"
+
+#. Type: select
+#. Choices
+#: ../vdr.templates:1001
+msgid "Terrestrial"
+msgstr "Terrestre"
+
+#. Type: select
+#. Choices
+#: ../vdr.templates:1001
+msgid "Cable"
+msgstr "Cabo"
 
 #. Type: select
 #. Description
@@ -58,18 +70,3 @@ msgstr ""
 "as gravações. Poderá tanto criar agora este directório, ou modificar este "
 "comportamento mais tarde modificando a variável VIDEO_DIR em /etc/default/"
 "vdr."
-
-#~ msgid "VDR needs DVB kernel modules"
-#~ msgstr "O VDR precisa de módulos DVB do kernel"
-
-#~ msgid ""
-#~ "VDR needs DVB (Digital Video Broadcasting) kernel modules. You may have "
-#~ "to separately install these modules. Ensure that the correct modules for "
-#~ "your DVB hardware get loaded automatically e.g. by adding them to /etc/"
-#~ "modules otherwise VDR won't work!"
-#~ msgstr ""
-#~ "O VDR precisa dos módulos DVB do kernel (Digital Video Broadcasting). "
-#~ "Pode ter que instalar separadamente estes módulos. Assegure-se que os "
-#~ "módulos correctos para o seu hardware DVB são carregados automaticamente "
-#~ "p.e. ao adicioná-los ao /etc/modules caso contrário o VDR não irá "
-#~ "funcionar!"

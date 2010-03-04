@@ -2,12 +2,12 @@
 # COPYRIGHT (C) 2009 THE VDR'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the vdr package.
 # Luca Monducci <luca.mo@tiscali.it>, 2009.
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: vdr 1.6.0 italian debconf templates\n"
 "Report-Msgid-Bugs-To: vdr@packages.debian.org\n"
-"POT-Creation-Date: 2009-04-02 14:42+0200\n"
+"POT-Creation-Date: 2010-03-04 22:58+0100\n"
 "PO-Revision-Date: 2009-09-28 22:36+0200\n"
 "Last-Translator: Luca Monducci <luca.mo@tiscali.it>\n"
 "Language-Team: Italian <debian-l10n-italian@lists.debian.org>\n"
@@ -18,8 +18,20 @@ msgstr ""
 #. Type: select
 #. Choices
 #: ../vdr.templates:1001
-msgid "Satellite, Terrestrial, Cable"
-msgstr "Satellite, Terrestre, Cavo"
+msgid "Satellite"
+msgstr "Satellite"
+
+#. Type: select
+#. Choices
+#: ../vdr.templates:1001
+msgid "Terrestrial"
+msgstr "Terrestre"
+
+#. Type: select
+#. Choices
+#: ../vdr.templates:1001
+msgid "Cable"
+msgstr "Cavo"
 
 #. Type: select
 #. Description

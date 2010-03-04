@@ -1,3 +1,11 @@
+vdr (1.6.0-15) unstable; urgency=low
+
+  * Standards-Version: 3.8.4
+  * Made init script require $remote_fs (/usr/...)
+  * Migrated debconf _Choices to __Choices
+
+ -- Tobias Grimm <etobi@debian.org>  Thu, 04 Mar 2010 23:28:37 +0100
+
 vdr (1.6.0-14) unstable; urgency=low
 
   [ Thomas Günther ]
