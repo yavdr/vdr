@@ -1,6 +1,6 @@
 *.h                             usr/include/vdr/
 
-libsi/*.h                       usr/include/vdr/libsi/
+libsi/*.h                       usr/include/libsi/
 
 debian/debianize-vdrplugin      usr/bin/
 debian/plugin-template/         usr/share/vdr-dev/
