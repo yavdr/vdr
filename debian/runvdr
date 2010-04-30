@@ -11,7 +11,7 @@ VDRCMD="$VDR_ENV /usr/bin/vdr $*"
 
 get_modulenames()
 {
-    MODULES=`lsmod | awk '/^dvb_core/ {gsub(/,/,"\n", $4); print $4}' | tac`
+    MODULES=`lsmod | awk '/^dvb/ {gsub(/,/,"\n", $4); print $4}' | uniq | tac | grep -v "^$"`
     [ "$MODULES" ] && MODULES="$MODULES dvb_core"
 }
 

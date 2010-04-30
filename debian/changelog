@@ -1,3 +1,10 @@
+vdr (1.6.0-17) unstable; urgency=low
+
+  * Modified runvdr to also (re)load dvb modules not depending on dvb_core*
+    (Closes: #576337)
+
+ -- Tobias Grimm <etobi@debian.org>  Fri, 30 Apr 2010 22:43:50 +0200
+
 vdr (1.6.0-16) unstable; urgency=low
 
   [ Thomas Günther ]
