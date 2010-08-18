@@ -1,3 +1,11 @@
+vdr (1.6.0-18) unstable; urgency=low
+
+  * Added Danish translation of the debconf templates (Thx to Joe Hansen)
+    (Closes: #592260)
+  * Minor fix to options parsing in debug version start script
+
+ -- Tobias Grimm <etobi@debian.org>  Thu, 19 Aug 2010 00:07:33 +0200
+
 vdr (1.6.0-17) unstable; urgency=low
 
   * Modified runvdr to also (re)load dvb modules not depending on dvb_core*
