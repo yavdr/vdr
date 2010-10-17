@@ -1,3 +1,11 @@
+vdr (1.6.0-18.1) unstable; urgency=low
+
+  * debian/vdrleaktest
+    - Asjust LD_LIBRARY_PATH use according to CVE-2010-3387.
+      (normal, security; Closes: #598308).
+
+ -- Jari Aalto <jari.aalto@cante.net>  Sat, 16 Oct 2010 20:59:56 +0300
+
 vdr (1.6.0-18) unstable; urgency=low
 
   * Added Danish translation of the debconf templates (Thx to Joe Hansen)

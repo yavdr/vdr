@@ -65,7 +65,7 @@ mergecommands "reccmds"
 
 /etc/init.d/vdr stop
 
-LANG=C LD_LIBRARY_PATH="/usr/lib/debug;$LD_LIBRARY_PATH" \
+LANG=C LD_LIBRARY_PATH="/usr/lib/debug:${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
    valgrind --tool=memcheck --leak-check=yes --num-callers=20 \
    --suppressions=/usr/share/vdr/valgrind.supp \
    /usr/bin/vdr-dbg -v $VIDEO_DIR -c $CFG_DIR -L $PLUGIN_DIR  -r $REC_CMD \
