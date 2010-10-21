@@ -1,3 +1,11 @@
+vdr (1.6.0-19.1) unstable; urgency=low
+
+  * debian/vdrleaktest
+    - Remove extra colon from LD_LIBRARY_PATH to fix CVE-2010-3387.
+      (normal, security; Closes: #598308).
+
+ -- Jari Aalto <jari.aalto@cante.net>  Thu, 21 Oct 2010 09:18:54 +0300
+
 vdr (1.6.0-19) unstable; urgency=low
 
   * Fixed DEB_BUILD_OPTIONS export in in vdrdbg-buildpackage
