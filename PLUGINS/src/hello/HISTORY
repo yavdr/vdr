@@ -1,0 +1,64 @@
+VDR Plugin 'hello' Revision History
+-----------------------------------
+
+2002-05-09: Version 0.0.1
+
+- Initial revision.
+
+2002-05-11: Version 0.0.2
+
+- Added setup parameters and a Setup menu to adjust them.
+
+2002-05-12: Version 0.0.3
+
+- Changed return type of cPluginHello::Start().
+- Added cPluginHello::Housekeeping().
+- Modified package generation.
+
+2002-05-17: Version 0.0.4
+
+- Makefile improvements.
+
+2002-08-04: Version 0.0.5
+
+- Added a missing #include.
+
+2002-09-21: Version 0.0.6
+
+- Fixed Makefile for NEWSTRUCT driver.
+
+2002-10-26: Version 0.0.7
+
+- Fixed a typo.
+
+2002-11-01: Version 0.0.8
+
+- Completely switched to the new CVS HEAD version of the linux-dvb driver.
+  The NEWSTRUCT compile time switch is now obsolete. The required driver is now
+  the CVS HEAD version dated 2002-11-01 or later.
+- Introduced Make.config.
+
+2002-11-23: Version 0.0.9
+
+- Changed return type of MainMenuAction().
+
+2002-12-13: Version 0.1.0
+
+- Changed setting of CXX and CXXFLAGS variables in Makefile.
+
+2006-04-22: Version 0.1.1
+
+- Updated the Finnish OSD texts (thanks to Rolf Ahrenberg).
+
+2007-08-11: Version 0.2.0
+
+- Switched to 'gettext' internationalization.
+
+2007-08-15: Version 0.2.1
+
+- Moved the "all" target in the Makefile before the "Implicit rules",
+  so that a plain "make" will compile everything.
+
+2008-03-18: Version 0.2.2
+
+- Updated the Croatian language texts (thanks to Adrian Caval).

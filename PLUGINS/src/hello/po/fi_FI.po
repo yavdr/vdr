@@ -1,0 +1,37 @@
+# VDR plugin language source file.
+# Copyright (C) 2008 Klaus Schmidinger <kls@cadsoft.de>
+# This file is distributed under the same license as the VDR package.
+# Hannu Savolainen <hannu@opensound.com>, 2002
+# Jaakko Hyvätti <jaakko@hyvatti.iki.fi>, 2002
+# Niko Tarnanen <niko.tarnanen@hut.fi>, 2003
+# Rolf Ahrenberg <rahrenbe@cc.hut.fi>, 2003
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: VDR 1.6.0\n"
+"Report-Msgid-Bugs-To: <vdr-bugs@cadsoft.de>\n"
+"POT-Creation-Date: 2007-10-13 11:52+0200\n"
+"PO-Revision-Date: 2007-08-11 12:34+0200\n"
+"Last-Translator: Rolf Ahrenberg <rahrenbe@cc.hut.fi>\n"
+"Language-Team: Finnish\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-15\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "A friendly greeting"
+msgstr "Ystävällisin terveisin"
+
+msgid "Hello"
+msgstr "Hei"
+
+msgid "Greeting time (s)"
+msgstr "Tervehdysaika (s)"
+
+msgid "Use alternate greeting"
+msgstr "Käytä vaihtoehtoista tervehdystä"
+
+msgid "Howdy folks!"
+msgstr "Mitä kuuluu?"
+
+msgid "Hello world!"
+msgstr "Hei maailma!"

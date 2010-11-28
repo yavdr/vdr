@@ -1,0 +1,81 @@
+VDR Plugin 'skincurses' Revision History
+----------------------------------------
+
+2004-05-31: Version 0.0.1
+
+- Initial revision.
+
+2004-05-31: Version 0.0.2
+
+- Fixed some default parameters.
+
+2005-01-02: Version 0.0.3
+
+- Made several functions threadsafe.
+- New audio track display.
+
+2005-05-16: Version 0.0.4
+
+- New "recording info" display.
+
+2005-10-01:
+
+- Added a note about using this skin to the README file.
+
+2005-11-26: Version 0.0.5
+
+- Fixed SetProgress() in case Total is 0.
+
+2006-04-14: Version 0.0.6
+
+- Added a missing "Key$" in skincurses.c.
+
+2006-06-03: Version 0.0.7
+
+- Fixed handling tabbed item display.
+- When the 'skincurses' plugin is loaded, it automatically sets the 'curses'
+  skin as the current one.
+
+2006-09-10: Version 0.0.8
+
+- The size of the OSD is now adjusted to the size of the console window.
+
+2007-06-15: Version 0.1.0
+
+- Implemented UTF-8 handling.
+
+2007-06-23: Version 0.1.1
+
+- Fixed a name clash with the new cOsd position functions.
+
+2007-07-20: Version 0.1.2
+
+- Fixed clearing color buttons.
+
+2007-08-15: Version 0.1.3
+
+- Moved the "all" target in the Makefile before the "Implicit rules",
+  so that a plain "make" will compile everything.
+- Added internationalization.
+
+2007-08-26: Version 0.1.4
+
+- Adapted to the new Level parameter of cOsd.
+
+2008-01-19:
+
+- Updated the Makefile of the skincurses plugin (thanks to Rolf Ahrenberg).
+
+2008-02-15: Version 0.1.5
+
+- Using cString::sprintf() instead of asprintf().
+- Implemented cSkinCursesDisplayMenu::SetScrollbar().
+
+2008-02-23: Version 0.1.6
+
+- Revised the fix of calculating the scrollbar height in the skins. The scrollbar
+  handle now always has a height that is at least the width of the scrollbar.
+
+2008-03-14: Version 0.1.7
+
+- Added Russian translations (thanks to Alexander Gross).

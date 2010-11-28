@@ -1,0 +1,61 @@
+#!/bin/sh
+
+# runvdr: Loads the DVB driver and runs VDR
+#
+# If VDR exits abnormally, the driver will be reloaded
+# and VDR restarted.
+#
+# In order to actually use this script you need to implement
+# the functions DriverLoaded(), LoadDriver() and UnloadDriver()
+# and maybe adjust the VDRPRG and VDRCMD to your particular
+# requirements.
+#
+# Since this script loads the DVB driver, it must be started
+# as user 'root'. Add the option "-u username" to run VDR
+# under the given user name.
+#
+# Any command line parameters will be passed on to the
+# actual 'vdr' program.
+#
+# See the main source file 'vdr.c' for copyright information and
+# how to reach the author.
+#
+# $Id: runvdr 1.19 2006/05/14 16:02:05 kls Exp $
+
+VDRPRG="./vdr"
+VDRCMD="$VDRPRG -w 60 $*"
+
+KILL="/usr/bin/killall -q -TERM"
+
+# Detect whether the DVB driver is already loaded
+# and return 0 if it *is* loaded, 1 if not:
+function DriverLoaded()
+{
+  return 1
+}
+
+# Load all DVB driver modules needed for your hardware:
+function LoadDriver()
+{
+}
+
+# Unload all DVB driver modules loaded in LoadDriver():
+function UnloadDriver()
+{
+}
+
+# Load driver if it hasn't been loaded already:
+if ! DriverLoaded; then
+   LoadDriver
+   fi
+
+while (true) do
+      eval "$VDRCMD"
+      if test $? -eq 0 -o $? -eq 2; then exit; fi
+      echo "`date` reloading DVB driver"
+      $KILL $VDRPRG
+      sleep 10
+      UnloadDriver
+      LoadDriver
+      echo "`date` restarting VDR"
+      done

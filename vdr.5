@@ -1,0 +1,675 @@
+'\" t
+.\" ** The above line should force tbl to be a preprocessor **
+.\" Man page for vdr file formats
+.\"
+.\" Copyright (C) 2008 Klaus Schmidinger
+.\"
+.\" You may distribute under the terms of the GNU General Public
+.\" License as specified in the file COPYING that comes with the
+.\" vdr distribution.
+.\"
+.\" $Id: vdr.5 1.68 2008/03/09 15:46:57 kls Exp $
+.\"
+.TH vdr 5 "10 Feb 2008" "1.6" "Video Disk Recorder Files"
+.SH NAME
+vdr_files \- the Video Disk Recorder Files
+.SH DESCRIPTION
+This page describes the formats of the various files \fBvdr\fR uses to
+store configuration data and recordings.
+.SH SYNTAX
+.SS CHANNELS
+The file \fIchannels.conf\fR contains the channel configuration.
+Each line defines either a \fBgroup delimiter\fR or a \fBchannel\fR.
+
+A \fBgroup delimiter\fR is a line starting with a ':' as the very first
+character, followed by arbitrary text. Example:
+
+\fB:First group\fR
+
+Group delimiters may also be used to specify the number of the next channel.
+To do this, the character '@' and a number must immediately follow the ':',
+as in
+
+\fB:@201 First group\fR
+
+The given number must be larger than the number of any previous channel
+(otherwise it is silently ignored).
+
+A group delimiter can also be used to just set the next channel's number,
+without an explicit delimiter text, as in
+
+\fB:@201\fR
+
+Such a delimiter will not appear in the Channels menu.
+
+A \fBchannel definition\fR is a line with channel data, where the fields
+are separated by ':' characters. Example:
+
+\fBRTL Television,RTL:12188:h:S19.2E:27500:163:104:105:0:12003:1:1089:0\fR
+
+The line number of a channel definition (not counting group separators,
+and based on a possible previous '@...' parameter)
+defines the channel's number in OSD menus and the \fItimers.conf\fR file.
+
+The fields in a channel definition have the following meaning (from left
+to right):
+.TP
+.B Name
+The channel's name (if the name originally contains a ':' character
+it has to be replaced by '|').
+Some TV stations provide a way of deriving a "short name" from the
+channel name, which can be used in situations where there is not
+much space for displaying a long name. If a short name is available
+for this channel, it follows the full name and is delimited by a comma,
+as in
+
+\fBRTL Television,RTL:...\fR
+
+If present, the name of the service provider or "bouquet" is appended
+to the channel name, separated by a semicolon, as in
+
+\fBRTL Television,RTL;RTL World:...\fR
+.TP
+.B Frequency
+The transponder frequency (as an integer). For DVB-S this value is in MHz. For DVB-C
+and DVB-T it can be given either in MHz, kHz or Hz (the actual value given will be
+multiplied by 1000 until it is larger than 1000000).
+.TP
+.B Parameters
+Various parameters, depending on whether this is a DVB-S, DVB-C or DVB-T channel.
+Each parameter consist of a key character, followed by an integer number that
+represents the actual setting of that parameter. The valid key characters, their
+meaning (and allowed values) are
+.TS
+tab (@);
+l l.
+\fBB\fR@Bandwidth (6, 7, 8)
+\fBC\fR@Code rate high priority (0, 12, 23, 34, 45, 56, 67, 78, 89)
+\fBD\fR@Code rate low priority (0, 12, 23, 34, 45, 56, 67, 78, 89)
+\fBG\fR@Guard interval (4, 8, 16, 32)
+\fBH\fR@Horizontal polarization
+\fBI\fR@Inversion (0, 1)
+\fBL\fR@Left circular polarization
+\fBM\fR@Modulation (0, 16, 32, 64, 128, 256)
+\fBR\fR@Right circular polarization
+\fBT\fR@Transmission mode (2, 8)
+\fBV\fR@Vertical polarization
+\fBY\fR@Hierarchy (0, 1, 2, 4)
+.TE
+The polarization parameters have no integer numbers following them. This is for
+compatibility with files from older versions and also to keep the DVB-S entries
+as simple as possible.
+
+The special value \fB999\fR is used for "automatic", which means the driver
+will automatically determine the proper value (if possible).
+
+An example of a parameter field for a DVB-T channel might look like this:
+
+\fBB8C23D12M64T2G32Y0\fR
+.TP
+.B Source
+The signal source of this channel, as defined in the file \fIsources.conf\fR.
+For compatibility with files from older versions numeric values will be accepted
+and also written back correctly, but they will have no meaning for the \fBDiSEqC\fR
+settings. You should replace the numerical values with the proper source identifiers
+defined in \fIsources.conf\fR.
+.TP
+.B Srate
+The symbol rate of this channel (DVB-S and DVB-C only).
+.TP
+.B VPID
+The video PID (set to '0' for radio channels).
+If this channel uses a separate PCR PID, it follows the VPID, separated by a
+plus sign, as in
+.B ...:164+17:...
+.TP
+.B APID
+The audio PID (either one number, or several, separated by commas).
+If this channel also carries Dolby Digital sound, the Dolby PIDs follow
+the audio PIDs, separated by a semicolon, as in
+
+.B ...:101,102;103,104:...
+
+If certain audio PIDs broadcast in specific languages, the language
+codes for these can be appended to the individual audio or Dolby PID, separated
+by an '=' sign, as in
+
+.B ...:101=deu,102=eng;103=deu,104=eng:...
+
+Some channels broadcast two different languages in the two stereo channels, which
+can be indicated by adding a second language code, delimited by a '+' sign, as in
+
+.B ...:101=deu,102=eng+spa;103=deu,104=eng:...
+
+.TP
+.B TPID
+The teletext PID.
+.TP
+.B Conditional access
+A hexadecimal integer defining how this channel can be accessed:
+.TS
+tab (@);
+l l.
+\fB0000\fR@Free To Air
+\fB0001...000F\fR@explicitly requires the device with the given number
+\fB0010...00FF\fR@reserved for user defined assignments
+\fB0100...FFFF\fR@specific decryption methods as broadcast in the data stream\fR
+.TE
+Values in the range 0001...00FF will not be overwritten, all other values
+will be automatically replaced by the actual CA system identifiers received
+from the data stream. If there is more than one CA system id broadcast, they
+will be separated by commas, as in
+
+.B ...:1702,1722,1801:...
+
+The values are in hex because that's the way they are defined in the "ETR 162"
+document. Leading zeros may be omitted.
+.TP
+.B SID
+The Service ID of this channel.
+.TP
+.B NID
+The Network ID of this channel.
+.TP
+.B TID
+The Transport stream ID of this channel.
+.TP
+.B RID
+The Radio ID of this channel (typically 0, may be used to distinguish channels where
+NID, TID and SID are all equal).
+.PP
+A particular channel can be uniquely identified by its \fBchannel\ ID\fR,
+which is a string that looks like this:
+
+\fBS19.2E\-1\-1089\-12003\-0\fR
+
+The components of this string are the \fBSource\fR (S19.2E), \fBNID\fR
+(1), \fBTID\fR (1089), \fBSID\fR (12003) and \fBRID\fR (0) as defined above.
+The last part can be omitted if it is \fB0\fR,
+so the above example could also be written as S19.2E\-1\-1089\-12003).
+.br
+The \fBchannel\ ID\fR is used in the \fItimers.conf\fR and \fIepg.data\fR
+files to properly identify the channels.
+
+If a channel has both \fBNID\fR and \fBTID\fR set to 0, the \fBchannel\ ID\fR
+will use the \fBFrequency\fR instead of the \fBTID\fR. For satellite channels
+an additional offset of 100000, 200000, 300000 or 400000 is added to that
+number, depending on the \fBPolarization\fR (\fBH\fR, \fBV\fR, \fBL\fR or \fBR\fR,
+respectively). This is necessary because on some satellites the same frequency is
+used for two different transponders, with opposite polarization.
+.SS TIMERS
+The file \fItimers.conf\fR contains the timer setup.
+Each line contains one timer definition, with individual fields
+separated by ':' characters. Example:
+
+\fB1:10:\-T\-\-\-\-\-:2058:2150:50:5:Quarks & Co:\fR
+
+The fields in a timer definition have the following meaning (from left
+to right):
+.TP
+.B Flags
+The individual bits in this field have the following meaning:
+.TS
+tab (@);
+l l.
+\fB1\fR@the timer is active (and will record if it hits)
+\fB2\fR@this is an instant recording timer
+\fB4\fR@this timer uses VPS
+\fB8\fR@this timer is currently recording (may only be up-to-date with SVDRP)
+.TE
+
+All other bits are reserved for future use.
+.TP
+.B Channel
+The channel to record from. This is either the channel number as shown in the
+on-screen menus, or a complete channel ID. When reading \fItimers.conf\fR
+any channel numbers will be mapped to the respective channel ids and when
+the file is written again, there will only be channel ids. Channel numbers
+are accepted as input in order to allow easier creation of timers when
+manually editing \fItimers.conf\fR. Also, when timers are listed via SVDRP
+commands, the channels are given as numbers.
+.TP
+.B Day
+The day when this timer shall record.
+
+If this is a `single-shot' timer, this is the date on which this
+timer shall record, given in ISO notation (\fBYYYY-MM-DD\fR), as in:
+
+.B 2005-03-19
+
+For compatibility with earlier versions of VDR this may also be just the day of month
+on which this timer shall record (must be in the range \fB1...31\fR).
+
+In case of a `repeating' timer this is a string consisting of exactly seven
+characters, where each character position corresponds to one day of the week
+(with Monday being the first day). The character '\-' at a certain position
+means that the timer shall not record on that day. Any other character will
+cause the timer to record on that day. Example:
+
+.B MTWTF\-\-
+
+will define a timer that records on Monday through Friday and does not record
+on weekends.
+Note that only letters may be used here, no digits.
+For compatibility with timers created with earlier versions of VDR,
+the same result could be achieved with \fBABCDE\-\-\fR (which was
+used to allow setting the days with language specific characters).
+Since version 1.5.3 VDR can use UTF-8 characters to present data to
+the user, but the weekday encoding in the \fItimers.conf\fR file
+always uses single byte characters.
+
+The day definition of a `repeating' timer may be followed by the date when that
+timer shall hit for the first time. The format for this is \fB@YYYY\-MM\-DD\fR,
+so a complete definition could look like this:
+
+\fBMTWTF\-\-@2002\-02\-18\fR
+
+which would implement a timer that records Monday through Friday, and will hit
+for the first time on or after February 18, 2002.
+This \fBfirst day\fR feature can be used to disable a repeating timer for a couple
+of days, or for instance to define a new Mon...Fri timer on Wednesday, which
+actually starts "Monday next week". The \fBfirst day\fR date given need not be
+that of a day when the timer would actually hit.
+.TP
+.B Start
+A four digit integer defining when this timer shall \fBstart\fR recording.
+The format is \fBhhmm\fR, so \fB1430\fR would mean "half past two" in the
+afternoon.
+.TP
+.B Stop
+A four digit integer defining when this timer shall \fBstop\fR recording.
+The format is the same as for the \fBstart\fR time.
+.TP
+.B Priority
+An integer in the range \fB0...99\fR, defining the \fBpriority\fR
+of this timer and of recordings created by this timer.
+\fB0\fR represents the lowest value, \fB99\fR the highest.
+The priority is used to decide which timer shall be
+started in case there are two or more timers with the exact same
+\fBstart\fR time. The first timer in the list with the highest priority
+will be used.
+
+This value is also stored with the recording and is
+later used to decide which recording to remove from disk in order
+to free space for a new recording. If the disk runs full and a new
+recording needs more space, an existing recording with the lowest
+priority (and which has exceeded its guaranteed \fBlifetime\fR) will be
+removed.
+
+If all available DVB cards are currently occupied, a
+timer with a higher priority will interrupt the timer with the
+lowest priority in order to start recording.
+.TP
+.B Lifetime
+The \fBguaranteed lifetime\fR (in days) of a recording created by this timer.
+\fB0\fR means that this recording may be automatically deleted at any time
+by a new recording with higher priority. \fB99\fR means that this recording
+will never be automatically deleted. Any number in the range \fB1...98\fR
+means that this recording may not be automatically deleted in favour of a
+new recording, until the given number of days since the \fBstart\fR time of
+the recording has passed by.
+.TP
+.B File
+The \fBfile name\fR this timer will give to a recording.
+If the name contains any ':' characters, these have to be replaced by '|'.
+If the name shall contain subdirectories, these have to be delimited by '~'
+(since the '/' character may be part of a regular programme name).
+
+The special keywords \fBTITLE\fR and \fBEPISODE\fR, if present, will be replaced
+by the title and episode information from the EPG data at the time of
+recording (if that data is available). If at the time of recording either
+of these cannot be determined, \fBTITLE\fR will default to the channel name, and
+\fBEPISODE\fR will default to a blank.
+.TP
+.B Auxiliary data
+An arbitrary string that can be used by external applications to store any
+kind of data related to this timer. The string must not contain any newline
+characters. If this field is not empty, its contents will be written into the
+\fIinfo.vdr\fR file of the recording with the '@' tag.
+.SS SOURCES
+The file \fIsources.conf\fR defines the codes to be used in the \fBSource\fR field
+of channels in \fIchannels.conf\fR and assigns descriptive texts to them.
+Example:
+
+\fBS19.2E  Astra 1\fR
+
+Anything after (and including) a '#' character is comment.
+
+The first character of the \fBcode\fR must be one of
+.TS
+tab (@);
+l l.
+\fBS\fR@Satellite
+\fBC\fR@Cable
+\fBT\fR@Terrestrial
+.TE
+and is followed by further data pertaining to that particular source. In case of
+\fBS\fRatellite this is the orbital position in degrees, followed by \fBE\fR for
+east or \fBW\fR for west.
+.SS DISEQC
+The file \fIdiseqc.conf\fR defines the \fBDiSEqC\fR control sequences to be sent
+to the DVB-S card in order to access a given satellite position and/or band.
+Example:
+
+\fBS19.2E  11700 V  9750  t v W15 [E0 10 38 F0] W15 A W15 t\fR
+
+Anything after (and including) a '#' character is comment.
+
+The first word in a parameter line must be one of the codes defined in the
+file \fIsources.conf\fR and tells which satellite this line applies to.
+
+Following is the "switch frequency" of the LNB (slof), which is the transponder
+frequency up to which this entry shall be used; the first entry with an slof greater
+than the actual transponder frequency will be used. Typically there is only one slof
+per LNB, but the syntax allows any number of frequency ranges to be defined.
+Note that there should be a last entry with the value \fB99999\fR for each satellite,
+which covers the upper frequency range.
+
+The third parameter defines the polarization to which this entry applies. It can
+be either \fBH\fR for horizontal or \fBV\fR for vertical.
+
+The fourth parameter specifies the "local oscillator frequency" (lof) of the LNB
+to use for the given frequency range. This number will be subtracted from the
+actual transponder frequency when tuning to the channel.
+
+The rest of the line holds the actual sequence of DiSEqC actions to be taken.
+The code letters used here are
+.TS
+tab (@);
+l l.
+\fBt\fR@22kHz tone off
+\fBT\fR@22kHz tone on
+\fBv\fR@voltage low (13V)
+\fBV\fR@voltage high (18V)
+\fBA\fR@mini A
+\fBB\fR@mini B
+\fBWnn\fR@wait nn milliseconds (nn may be any positive integer number)
+\fB[xx ...]\fR@hex code sequence (max. 6)
+.TE
+There can be any number of actions in a line, including none at all - in which case
+the entry would be used only to set the LOF to use for the given frequency range
+and polarization.
+.SS REMOTE CONTROL KEYS
+The file \fIremote.conf\fR contains the key assignments for all remote control
+units. Each line consists of one key assignment in the following format:
+
+\fBname.key  code\fR
+
+where \fBname\fR is the name of the remote control (for instance KBD for the
+PC keyboard, RCU for the home-built "Remote Control Unit", or LIRC for the
+"Linux Infrared Remote Control"), \fBkey\fR is the name of the key that is
+defined (like Up, Down, Menu etc.), and \fBcode\fR is a character string that
+this remote control delivers when the given key is pressed.
+.SS KEY MACROS
+The file \fIkeymacros.conf\fR contains user defined macros that will be executed
+whenever the given key is pressed. The format is
+
+\fBmacrokey  [@plugin] key1 key2 key3...\fR
+
+where \fBmacrokey\fR is the key that shall initiate execution of this macro
+and can be one of \fIUp\fR, \fIDown\fR, \fIOk\fR, \fIBack\fR, \fILeft\fR,
+\fIRight\fR, \fIRed\fR, \fIGreen\fR, \fIYellow\fR, \fIBlue\fR, \fI0\fR...\fI9\fR
+or \fIUser1\fR...\fIUser9\fR. The rest of the line consists of a set of
+keys, which will be executed just as if they had been pressed in the given
+sequence. The optional \fB@plugin\fR can be used to automatically select
+the given plugin.
+\fBplugin\fR is the name of the plugin, exactly as given in the \-P
+option when starting VDR. There can be only one \fB@plugin\fR per key macro.
+For instance
+
+\fBUser1 @abc Down Down Ok\fR
+
+would call the main menu function of the "abc" plugin and execute two "Down"
+key presses, followed by "Ok".
+.br
+Note that the color keys will only execute their macro function
+in "normal viewing" mode (i.e. when no other menu or player is active). The
+\fIUser1\fR...\fIUser9\fR keys will always execute their macro function.
+There may be up to 15 keys in such a key sequence.
+.SS COMMANDS
+The file \fIcommands.conf\fR contains the definitions of commands that can
+be executed from the \fBvdr\fR main menu's "Commands" option.
+Each line contains one command definition in the following format:
+
+\fBtitle : command\fR
+
+where \fBtitle\fR is the string that will be displayed in the "Commands" menu,
+and \fBcommand\fR is the actual command string that will be executed when this
+option is selected. The delimiting ':' may be surrounded by any number of
+white space characters. If \fBtitle\fR ends with the character '?', there will
+be a confirmation prompt before actually executing the command. This can be
+used for commands that might have serious results (like deleting files etc)
+to make sure they are not executed inadvertently.
+
+Everything following (and including) a '#' character is considered to be comment.
+
+By default the menu entries in the "Commands" menu will be numbered '1'...'9'
+to make them selectable by pressing the corresponding number key. If you want
+to use your own numbering scheme (maybe to skip certain numbers), just precede
+the \fBtitle\fRs with the numbers of your choice. \fBvdr\fR will suppress its
+automatic numbering if the first entry in \fIcommands.conf\fR starts with a
+digit in the range '1'...'9', followed by a blank.
+
+In order to avoid error messages to the console, every command should have
+\fIstderr\fR redirected to \fIstdout\fR. Everything the command prints to
+\fIstdout\fR will be displayed in a result window, with \fBtitle\fR as its title.
+
+Examples:
+
+Check for new mail?: /usr/local/bin/checkmail 2>&1
+.br
+CPU status: /usr/local/bin/cpustatus 2>&1
+.br
+Disk space: df \-h | grep '/video' | awk '{ print 100 \- $5 "% free"; }'
+.br
+Calendar: date;echo;cal
+
+Note that the commands 'checkmail' and 'cpustatus' are only \fBexamples\fR!
+Don't send emails to the author asking where to find these ;\-)
+.br
+The '?' at the end of the "Check for new mail?" entry will prompt the user
+whether this command shall really be executed.
+.SS RECORDING COMMANDS
+The file \fIreccmds.conf\fR can be used to define commands that can be applied
+to the currently highlighted recording in the "Recordings" menu. The syntax is
+exactly the same as described for the file \fIcommands.conf\fR. When executing
+a command, the directory name of the recording will be appended to the command
+string, separated by a blank and enclosed in single quotes.
+.SS SVDRP HOSTS
+The file \fIsvdrphosts.conf\fR contains the IP numbers of all hosts that are
+allowed to access the SVDRP port.
+Each line contains one IP number in the format
+
+\fBIP-Address[/Netmask]\fR
+
+where \fBIP-Address\fR is the address of a host or a network in the usual dot
+separated notation (as in 192.168.100.1). If the optional \fBNetmask\fR is given
+only the given number of bits of \fBIP-Address\fR are taken into account. This
+allows you to grant SVDRP access to all hosts of an entire network. \fBNetmask\fR
+can be any integer from 1 to 32. The special value of 0 is only accepted if
+the \fBIP-Address\fR is 0.0.0.0, because this will give access to any host
+(\fBUSE THIS WITH CARE!\fR).
+
+Everything following (and including) a '#' character is considered to be comment.
+
+Examples:
+
+127.0.0.1        # always accept localhost
+.br
+192.168.100.0/24 # any host on the local net
+.br
+204.152.189.113  # a specific host
+.br
+0.0.0.0/0        # any host on any net (\fBUSE WITH CARE!\fR)
+.SS SETUP
+The file \fIsetup.conf\fR contains the basic configuration options for \fBvdr\fR.
+Each line contains one option in the format "Name = Value".
+See the MANUAL file for a description of the available options.
+.SS THEMES
+The files \fIthemes/<skin>\-<theme>.theme\fR in the config directory contain the
+color theme definitions for the various skins. In the actual file names \fI<skin>\fR
+will be replaced by the name if the skin this theme belongs to, and \fI<theme>\fR
+will be the name of this theme.
+Each line in a theme file contains one option in the format "Name = Value".
+Anything after (and including) a '#' character is comment.
+
+The definitions in a theme file are either \fBcolors\fR or a \fBdescription\fR.
+.br
+\fBColors\fR are in the form
+
+\fBclrTitle = FF123456\fR
+
+where the name (clrTitle) is one of the names defined in the source code of
+the \fBskin\fR that uses this theme, through the \fBTHEME_CLR()\fR macro.
+The value (FF123456) is an eight digit hex number that consist of four bytes,
+representing alpha (transparency), red, green and blue component of the color.
+An alpha value of 00 means the color will be completely transparent, while FF
+means it will be opaque. An RGB value of 000000 results in black, while FFFFFF
+is white.
+
+A \fBdescription\fR can be given as
+
+\fBDescription = Shades of blue\fR
+
+and will be used in the Setup/OSD menu to select a theme for a given skin.
+The description should give the user an idea what this theme will be like
+(for instance, in the given example it would use various shades of blue),
+and shouldn't be too long to make sure it fits on the Setup screen.
+The default description always should be given in English. If you want,
+you can provide language specific descriptions as
+
+\fBDescription.eng = Shades of blue\fR
+.br
+\fBDescription.ger = Blaut\(:one\fR
+
+where the language code is added to the keyword
+"Description", separated by a dot. You can enter as many language specific
+descriptions as you like, but only those that have a corresponding locale
+messages file will be actually used.
+If a theme file doesn't contain a Description, the name of the theme (as
+given in the theme's file name) will be used.
+.SS AUDIO/VIDEO DATA
+The files \fI001.vdr\fR...\fI255.vdr\fR are the actual recorded MPEG data
+files. In order to keep the size of an individual file below a given limit,
+a recording is split into several files. The contents of these files is
+\fBPacketized Elementary Stream\fR (PES) and contains ES packets with ids
+0xE0...0xEF for video (only one of these may actually occur in a file),
+0xC0...0xDF for audio 1...32 (up to 32 audio tracks may occur).
+Dolby Digital data is stored in packets with ids 0xBD ("Private Stream 1")
+and substream ids 0x80...0x87.
+DVB subtitle data is stored in packets with ids 0xBD ("Private Stream 1")
+and substream ids 0x20...0x27.
+.SS INDEX
+The file \fIindex.vdr\fR (if present in a recording directory) contains
+the (binary) index data into each of the the recording files
+\fI001.vdr\fR...\fI255.vdr\fR. It is used during replay to determine
+the current position within the recording, and to implement skipping
+and fast forward/back functions.
+See the definition of the \fBcIndexFile\fR class for details about the
+actual contents of this file.
+.SS INFO
+The file \fIinfo.vdr\fR (if present in a recording directory) contains
+a description of the recording, derived from the EPG data at recording time
+(if such data was available). The \fBAux\fR field of the corresponding
+timer (if given) is copied into this file, using the '@' tag.
+This is a plain ASCII file and contains tagged lines like the \fBEPG DATA\fR
+file (see the description of the \fIepg.data\fR file). Note that the lowercase
+tags ('c' and 'e') will not appear in an \fIinfo.vdr\fR file.
+Lines tagged with '#' are ignored and can be used by external tools to
+store arbitrary information.
+.SS RESUME
+The file \fIresume.vdr\fR (if present in a recording directory) contains
+the position within the recording where the last replay session left off.
+The data is a four byte (binary) integer value and defines an offset into
+the file \fIindex.vdr\fR.
+.SS MARKS
+The file \fImarks.vdr\fR (if present in a recording directory) contains
+the editing marks defined for this recording.
+Each line contains the definition of one mark in the following format:
+
+\fBhh:mm:ss.ff comment\fR
+
+where \fBhh:mm:ss.ff\fR is a frame position within the recording, given as
+"hours, minutes, seconds and (optional) frame number".
+\fBcomment\fR can be any string and may be used to describe this mark.
+If present, \fBcomment\fR must be separated from the frame position by at
+least one blank.
+
+The lines in this file need not necessarily appear in the correct temporal
+sequence, they will be automatically sorted by time index.
+
+\fBCURRENT RESTRICTIONS:\fR
+
+-\ the comment is currently not used by VDR
+.br
+-\ marks must have a frame number, and that frame MUST be an I-frame (this
+means that only marks generated by VDR itself can be used, since they
+will always be guaranteed to mark I-frames).
+.SS EPG DATA
+The file \fIepg.data\fR contains the EPG data in an easily parsable format.
+The first character of each line defines what kind of data this line contains.
+
+The following tag characters are defined:
+.TS
+tab (@);
+l l.
+\fBC\fR@<channel id> <channel name>
+\fBE\fR@<event id> <start time> <duration> <table id> <version>
+\fBT\fR@<title>
+\fBS\fR@<short text>
+\fBD\fR@<description>
+\fBX\fR@<stream> <type> <language> <descr>
+\fBV\fR@<vps time>
+\fBe\fR@
+\fBc\fR@
+.TE
+
+Lowercase characters mark the end of a sequence that was started by the
+corresponding uppercase character. The outer frame consists of a sequence
+of one or more \fBC\fR...\fBc\fR (Channel) entries. Inside these any number of
+\fBE\fR...\fBe\fR (Event) entries are allowed.
+All other tags are optional (although every event
+should at least have a \fBT\fR entry).
+There may be several \fBX\fR tags, depending on the number of tracks (video, audio etc.)
+the event provides.
+The special tag character \fB@\fR is used to mark the \fBauxiliary data\fR from
+a timer definition in the \fIinfo.vdr\fR file.
+
+.TS
+tab (@);
+l l.
+<channel id>   @is the "channel ID", made up from the parameters defined in 'channels.conf'
+<channel name> @is the "name" as in 'channels.conf' (for information only, may be left out)
+<event id>     @is a 32 bit unsigned int, uniquely identifying this event
+<start time>   @is the time (as a time_t integer) in UTC when this event starts
+<duration>     @is the time (in seconds) that this event will take
+<table id>     @is a hex number that indicates the table this event is contained in (if this is left empty or 0 this event will not be overwritten or modified by data that comes from the DVB stream)
+<version>      @is a hex number that indicates the event's version number inside its table (optional, ignored when reading EPG data)
+<title>        @is the title of the event
+<short text>   @is the short text of the event (typically the name of the episode etc.)
+<description>  @is the description of the event (any '|' characters will be interpreted as newlines)
+<stream>       @is the stream content (1 = video, 2 = audio, 3 = subtitles)
+<type>         @is the stream type according to ETSI EN 300 468
+<language>     @is the three letter language code (optionally two codes, separated by '+')
+<descr>        @is the description of this stream component
+<vps time>     @is the Video Programming Service time of this event
+.TE
+
+This file will be read at program startup in order to restore the results of
+previous EPG scans.
+
+Note that the \fBevent id\fR that comes from the DVB data stream is actually
+just 16 bit wide. The internal representation in VDR allows for 32 bit to
+be used, so that external tools can generate EPG data that is guaranteed
+not to collide with the ids of existing data.
+.SH SEE ALSO
+.BR vdr (1)
+.SH AUTHOR
+Written by Klaus Schmidinger.
+.SH REPORTING BUGS
+Report bugs to <vdr\-bugs@cadsoft.de>.
+.SH COPYRIGHT
+Copyright \(co 2008 Klaus Schmidinger.
+
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
