@@ -4,10 +4,11 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: dvbplayer.c 1.48 2008/02/09 15:10:54 kls Exp $
+ * $Id: dvbplayer.c 2.21 2010/03/07 14:24:26 kls Exp $
  */
 
 #include "dvbplayer.h"
+#include <math.h>
 #include <stdlib.h>
 #include "recording.h"
 #include "remux.h"
@@ -15,59 +16,69 @@
 #include "thread.h"
 #include "tools.h"
 
-// --- cBackTrace ------------------------------------------------------------
+// --- cPtsIndex -------------------------------------------------------------
 
-#define AVG_FRAME_SIZE 15000         // an assumption about the average frame size
-#define DVB_BUF_SIZE   (256 * 1024)  // an assumption about the dvb firmware buffer size
-#define BACKTRACE_ENTRIES (DVB_BUF_SIZE / AVG_FRAME_SIZE + 20) // how many entries are needed to backtrace buffer contents
+#define PTSINDEX_ENTRIES 500
 
-class cBackTrace {
+class cPtsIndex {
 private:
-  int index[BACKTRACE_ENTRIES];
-  int length[BACKTRACE_ENTRIES];
-  int pos, num;
+  struct tPtsIndex {
+    uint32_t pts; // no need for 33 bit - some devices don't even supply the msb
+    int index;
+    };
+  tPtsIndex pi[PTSINDEX_ENTRIES];
+  int w, r;
+  int lastFound;
+  cMutex mutex;
 public:
-  cBackTrace(void);
+  cPtsIndex(void);
   void Clear(void);
-  void Add(int Index, int Length);
-  int Get(bool Forward);
+  void Put(uint32_t Pts, int Index);
+  int FindIndex(uint32_t Pts);
   };
 
-cBackTrace::cBackTrace(void)
+cPtsIndex::cPtsIndex(void)
 {
+  lastFound = 0;
   Clear();
 }
 
-void cBackTrace::Clear(void)
+void cPtsIndex::Clear(void)
 {
-  pos = num = 0;
+  cMutexLock MutexLock(&mutex);
+  w = r = 0;
 }
 
-void cBackTrace::Add(int Index, int Length)
+void cPtsIndex::Put(uint32_t Pts, int Index)
 {
-  index[pos] = Index;
-  length[pos] = Length;
-  if (++pos >= BACKTRACE_ENTRIES)
-     pos = 0;
-  if (num < BACKTRACE_ENTRIES)
-     num++;
+  cMutexLock MutexLock(&mutex);
+  pi[w].pts = Pts;
+  pi[w].index = Index;
+  w = (w + 1) % PTSINDEX_ENTRIES;
+  if (w == r)
+     r = (r + 1) % PTSINDEX_ENTRIES;
 }
 
-int cBackTrace::Get(bool Forward)
+int cPtsIndex::FindIndex(uint32_t Pts)
 {
-  int p = pos;
-  int n = num;
-  int l = DVB_BUF_SIZE + (Forward ? 0 : 256 * 1024); //XXX (256 * 1024) == DVB_BUF_SIZE ???
-  int i = -1;
-
-  while (n && l > 0) {
-        if (--p < 0)
-           p = BACKTRACE_ENTRIES - 1;
-        i = index[p] - 1;
-        l -= length[p];
-        n--;
-        }
-  return i;
+  cMutexLock MutexLock(&mutex);
+  if (w == r)
+     return lastFound; // list is empty, let's not jump way off the last known position
+  uint32_t Delta = 0xFFFFFFFF;
+  int Index = -1;
+  for (int i = w; i != r; ) {
+      if (--i < 0)
+         i = PTSINDEX_ENTRIES - 1;
+      uint32_t d = pi[i].pts < Pts ? Pts - pi[i].pts : pi[i].pts - Pts;
+      if (d > 0x7FFFFFFF)
+         d = 0xFFFFFFFF - d; // handle rollover
+      if (d < Delta) {
+         Delta = d;
+         Index = pi[i].index;
+         }
+      }
+  lastFound = Index;
+  return Index;
 }
 
 // --- cNonBlockingFileReader ------------------------------------------------
@@ -78,7 +89,6 @@ private:
   uchar *buffer;
   int wanted;
   int length;
-  bool hasData;
   cCondWait newSet;
   cCondVar newDataCond;
   cMutex newDataMutex;
@@ -88,7 +98,8 @@ public:
   cNonBlockingFileReader(void);
   ~cNonBlockingFileReader();
   void Clear(void);
-  int Read(cUnbufferedFile *File, uchar *Buffer, int Length);
+  void Request(cUnbufferedFile *File, int Length);
+  int Result(uchar **Buffer);
   bool Reading(void) { return buffer; }
   bool WaitForDataMs(int msToWait);
   };
@@ -99,7 +110,6 @@ cNonBlockingFileReader::cNonBlockingFileReader(void)
   f = NULL;
   buffer = NULL;
   wanted = length = 0;
-  hasData = false;
   Start();
 }
 
@@ -117,29 +127,27 @@ void cNonBlockingFileReader::Clear(void)
   free(buffer);
   buffer = NULL;
   wanted = length = 0;
-  hasData = false;
+  Unlock();
+}
+
+void cNonBlockingFileReader::Request(cUnbufferedFile *File, int Length)
+{
+  Lock();
+  Clear();
+  wanted = Length;
+  buffer = MALLOC(uchar, wanted);
+  f = File;
   Unlock();
   newSet.Signal();
 }
 
-int cNonBlockingFileReader::Read(cUnbufferedFile *File, uchar *Buffer, int Length)
+int cNonBlockingFileReader::Result(uchar **Buffer)
 {
-  if (hasData && buffer) {
-     if (buffer != Buffer) {
-        esyslog("ERROR: cNonBlockingFileReader::Read() called with different buffer!");
-        errno = EINVAL;
-        return -1;
-        }
+  LOCK_THREAD;
+  if (buffer && length == wanted) {
+     *Buffer = buffer;
      buffer = NULL;
-     return length;
-     }
-  if (!buffer) {
-     f = File;
-     buffer = Buffer;
-     wanted = Length;
-     length = 0;
-     hasData = false;
-     newSet.Signal();
+     return wanted;
      }
   errno = EAGAIN;
   return -1;
@@ -149,20 +157,23 @@ void cNonBlockingFileReader::Action(void)
 {
   while (Running()) {
         Lock();
-        if (!hasData && f && buffer) {
+        if (f && buffer && length < wanted) {
            int r = f->Read(buffer + length, wanted - length);
-           if (r >= 0) {
+           if (r > 0)
               length += r;
-              if (!r || length == wanted) { // r == 0 means EOF
-                 cMutexLock NewDataLock(&newDataMutex);
-                 hasData = true;
-                 newDataCond.Broadcast();
-                 }
+           else if (r == 0) { // r == 0 means EOF
+              if (length > 0)
+                 wanted = length; // already read something, so return the rest
+              else
+                 length = wanted = 0; // report EOF
               }
-           else if (r < 0 && FATALERRNO) {
+           else if (FATALERRNO) {
               LOG_ERROR;
-              length = r; // this will forward the error status to the caller
-              hasData = true;
+              length = wanted = r; // this will forward the error status to the caller
+              }
+           if (length == wanted) {
+              cMutexLock NewDataLock(&newDataMutex);
+              newDataCond.Broadcast();
               }
            }
         Unlock();
@@ -173,7 +184,7 @@ void cNonBlockingFileReader::Action(void)
 bool cNonBlockingFileReader::WaitForDataMs(int msToWait)
 {
   cMutexLock NewDataLock(&newDataMutex);
-  if (hasData)
+  if (buffer && length == wanted)
      return true;
   return newDataCond.TimedWait(newDataMutex, msToWait);
 }
@@ -182,8 +193,8 @@ bool cNonBlockingFileReader::WaitForDataMs(int msToWait)
 
 #define PLAYERBUFSIZE  MEGABYTE(1)
 
-// The number of frames to back up when resuming an interrupted replay session:
-#define RESUMEBACKUP (10 * FRAMESPERSEC)
+#define RESUMEBACKUP 10 // number of seconds to back up when resuming an interrupted replay session
+#define MAXSTUCKATEOF 3 // max. number of seconds to wait in case the device doesn't play the last frame
 
 class cDvbPlayer : public cPlayer, cThread {
 private:
@@ -192,21 +203,25 @@ private:
   static int Speeds[];
   cNonBlockingFileReader *nonBlockingFileReader;
   cRingBufferFrame *ringBuffer;
-  cBackTrace *backTrace;
+  cPtsIndex ptsIndex;
   cFileName *fileName;
   cIndexFile *index;
   cUnbufferedFile *replayFile;
+  double framesPerSecond;
+  bool isPesRecording;
   bool eof;
   bool firstPacket;
   ePlayModes playMode;
   ePlayDirs playDir;
   int trickSpeed;
-  int readIndex, writeIndex;
+  int readIndex;
+  bool readIndependent;
   cFrame *readFrame;
   cFrame *playFrame;
+  cFrame *dropFrame;
   void TrickSpeed(int Increment);
   void Empty(void);
-  bool NextFile(uchar FileNumber = 0, int FileOffset = -1);
+  bool NextFile(uint16_t FileNumber = 0, off_t FileOffset = -1);
   int Resume(void);
   bool Save(void);
 protected:
@@ -223,6 +238,7 @@ public:
   int SkipFrames(int Frames);
   void SkipSeconds(int Seconds);
   void Goto(int Position, bool Still = false);
+  virtual double FramesPerSecond(void) { return framesPerSecond; }
   virtual bool GetIndex(int &Current, int &Total, bool SnapToIFrame = false);
   virtual bool GetReplayMode(bool &Play, bool &Forward, int &Speed);
   };
@@ -238,41 +254,43 @@ cDvbPlayer::cDvbPlayer(const char *FileName)
 {
   nonBlockingFileReader = NULL;
   ringBuffer = NULL;
-  backTrace = NULL;
   index = NULL;
+  cRecording Recording(FileName);
+  framesPerSecond = Recording.FramesPerSecond();
+  isPesRecording = Recording.IsPesRecording();
   eof = false;
   firstPacket = true;
   playMode = pmPlay;
   playDir = pdForward;
   trickSpeed = NORMAL_SPEED;
-  readIndex = writeIndex = -1;
+  readIndex = -1;
+  readIndependent = false;
   readFrame = NULL;
   playFrame = NULL;
+  dropFrame = NULL;
   isyslog("replay %s", FileName);
-  fileName = new cFileName(FileName, false);
+  fileName = new cFileName(FileName, false, false, isPesRecording);
   replayFile = fileName->Open();
   if (!replayFile)
      return;
   ringBuffer = new cRingBufferFrame(PLAYERBUFSIZE);
   // Create the index file:
-  index = new cIndexFile(FileName, false);
+  index = new cIndexFile(FileName, false, isPesRecording);
   if (!index)
      esyslog("ERROR: can't allocate index");
   else if (!index->Ok()) {
      delete index;
      index = NULL;
      }
-  backTrace = new cBackTrace;
 }
 
 cDvbPlayer::~cDvbPlayer()
 {
-  Detach();
   Save();
+  Detach();
   delete readFrame; // might not have been stored in the buffer in Action()
   delete index;
   delete fileName;
-  delete backTrace;
   delete ringBuffer;
 }
 
@@ -301,18 +319,19 @@ void cDvbPlayer::Empty(void)
   LOCK_THREAD;
   if (nonBlockingFileReader)
      nonBlockingFileReader->Clear();
-  if ((readIndex = backTrace->Get(playDir == pdForward)) < 0)
-     readIndex = writeIndex;
+  if (!firstPacket) // don't set the readIndex twice if Empty() is called more than once
+     readIndex = ptsIndex.FindIndex(DeviceGetSTC()) - 1;  // Action() will first increment it!
   delete readFrame; // might not have been stored in the buffer in Action()
   readFrame = NULL;
   playFrame = NULL;
+  dropFrame = NULL;
   ringBuffer->Clear();
-  backTrace->Clear();
+  ptsIndex.Clear();
   DeviceClear();
   firstPacket = true;
 }
 
-bool cDvbPlayer::NextFile(uchar FileNumber, int FileOffset)
+bool cDvbPlayer::NextFile(uint16_t FileNumber, off_t FileOffset)
 {
   if (FileNumber > 0)
      replayFile = fileName->SetOffset(FileNumber, FileOffset);
@@ -327,8 +346,8 @@ int cDvbPlayer::Resume(void)
   if (index) {
      int Index = index->GetResume();
      if (Index >= 0) {
-        uchar FileNumber;
-        int FileOffset;
+        uint16_t FileNumber;
+        off_t FileOffset;
         if (index->Get(Index, &FileNumber, &FileOffset) && NextFile(FileNumber, FileOffset))
            return Index;
         }
@@ -339,9 +358,9 @@ int cDvbPlayer::Resume(void)
 bool cDvbPlayer::Save(void)
 {
   if (index) {
-     int Index = writeIndex;
+     int Index = ptsIndex.FindIndex(DeviceGetSTC());
      if (Index >= 0) {
-        Index -= RESUMEBACKUP;
+        Index -= int(round(RESUMEBACKUP * framesPerSecond));
         if (Index > 0)
            Index = index->GetNextIFrame(Index, false);
         else
@@ -365,165 +384,218 @@ void cDvbPlayer::Activate(bool On)
 
 void cDvbPlayer::Action(void)
 {
-  uchar *b = NULL;
   uchar *p = NULL;
   int pc = 0;
 
   readIndex = Resume();
   if (readIndex >= 0)
-     isyslog("resuming replay at index %d (%s)", readIndex, *IndexToHMSF(readIndex, true));
+     isyslog("resuming replay at index %d (%s)", readIndex, *IndexToHMSF(readIndex, true, framesPerSecond));
 
   nonBlockingFileReader = new cNonBlockingFileReader;
   int Length = 0;
   bool Sleep = false;
   bool WaitingForData = false;
+  time_t StuckAtEof = 0;
+  uint32_t LastStc = 0;
+  int LastReadIFrame = -1;
+  int SwitchToPlayFrame = 0;
 
-  while (Running() && (NextFile() || readIndex >= 0 || ringBuffer->Available() || !DeviceFlush(100))) {
-        if (Sleep) {
-           if (WaitingForData)
-              nonBlockingFileReader->WaitForDataMs(3); // this keeps the CPU load low, but reacts immediately on new data
-           else
-              cCondWait::SleepMs(3); // this keeps the CPU load low
+  while (Running()) {
+        if (WaitingForData)
+           nonBlockingFileReader->WaitForDataMs(3); // this keeps the CPU load low, but reacts immediately on new data
+        else if (Sleep) {
+           cPoller Poller;
+           DevicePoll(Poller, 10);
            Sleep = false;
+           if (playMode == pmStill || playMode==pmPause)
+              cCondWait::SleepMs(3);
            }
-        cPoller Poller;
-        if (DevicePoll(Poller, 100)) {
+        {
+          LOCK_THREAD;
 
-           LOCK_THREAD;
+          // Read the next frame from the file:
 
-           // Read the next frame from the file:
+          if (playMode != pmStill && playMode != pmPause) {
+             if (!readFrame && (replayFile || readIndex >= 0)) {
+                if (!nonBlockingFileReader->Reading()) {
+                   if (!SwitchToPlayFrame && (playMode == pmFast || (playMode == pmSlow && playDir == pdBackward))) {
+                      uint16_t FileNumber;
+                      off_t FileOffset;
+                      bool TimeShiftMode = index->IsStillRecording();
+                      int Index = -1;
+                      readIndependent = false;
+                      if (DeviceHasIBPTrickSpeed() && playDir == pdForward) {
+                         if (index->Get(readIndex + 1, &FileNumber, &FileOffset, &readIndependent, &Length))
+                            Index = readIndex + 1;
+                         }
+                      else {
+                         int d = int(round(0.4 * framesPerSecond));
+                         if (playDir != pdForward)
+                            d = -d;
+                         int NewIndex = readIndex + d;
+                         if (NewIndex <= 0 && readIndex > 0)
+                            NewIndex = 1; // make sure the very first frame is delivered
+                         NewIndex = index->GetNextIFrame(NewIndex, playDir == pdForward, &FileNumber, &FileOffset, &Length, TimeShiftMode);
+                         if (NewIndex < 0 && TimeShiftMode && playDir == pdForward)
+                            SwitchToPlayFrame = Index;
+                         Index = NewIndex;
+                         readIndependent = true;
+                         }
+                      if (Index >= 0) {
+                         readIndex = Index;
+                         if (!NextFile(FileNumber, FileOffset))
+                            continue;
+                         }
+                      else
+                         eof = true;
+                      }
+                   else if (index) {
+                      uint16_t FileNumber;
+                      off_t FileOffset;
+                      if (index->Get(readIndex + 1, &FileNumber, &FileOffset, &readIndependent, &Length) && NextFile(FileNumber, FileOffset))
+                         readIndex++;
+                      else
+                         eof = true;
+                      }
+                   else // allows replay even if the index file is missing
+                      Length = MAXFRAMESIZE;
+                   if (Length == -1)
+                      Length = MAXFRAMESIZE; // this means we read up to EOF (see cIndex)
+                   else if (Length > MAXFRAMESIZE) {
+                      esyslog("ERROR: frame larger than buffer (%d > %d)", Length, MAXFRAMESIZE);
+                      Length = MAXFRAMESIZE;
+                      }
+                   if (!eof)
+                      nonBlockingFileReader->Request(replayFile, Length);
+                   }
+                if (!eof) {
+                   uchar *b = NULL;
+                   int r = nonBlockingFileReader->Result(&b);
+                   if (r > 0) {
+                      WaitingForData = false;
+                      uint32_t Pts = 0;
+                      if (readIndependent) {
+                         Pts = isPesRecording ? PesGetPts(b) : TsGetPts(b, r);
+                         LastReadIFrame = readIndex;
+                         }
+                      readFrame = new cFrame(b, -r, ftUnknown, readIndex, Pts); // hands over b to the ringBuffer
+                      }
+                   else if (r < 0 && errno == EAGAIN)
+                      WaitingForData = true;
+                   else {
+                      if (r == 0)
+                         eof = true;
+                      else if (r < 0 && FATALERRNO) {
+                         LOG_ERROR;
+                         break;
+                         }
+                      }
+                   }
+                }
 
-           if (playMode != pmStill && playMode != pmPause) {
-              if (!readFrame && (replayFile || readIndex >= 0)) {
-                 if (!nonBlockingFileReader->Reading()) {
-                    if (playMode == pmFast || (playMode == pmSlow && playDir == pdBackward)) {
-                       uchar FileNumber;
-                       int FileOffset;
-                       bool TimeShiftMode = index->IsStillRecording();
-                       int Index = -1;
-                       if (DeviceHasIBPTrickSpeed() && playDir == pdForward) {
-                          if (index->Get(readIndex + 1, &FileNumber, &FileOffset, NULL, &Length))
-                             Index = readIndex + 1;
-                          }
-                       else
-                          Index = index->GetNextIFrame(readIndex, playDir == pdForward, &FileNumber, &FileOffset, &Length, TimeShiftMode);
-                       if (Index >= 0) {
-                          if (!NextFile(FileNumber, FileOffset)) {
-                             readIndex = Index;
-                             continue;
-                             }
-                          }
-                       else {
-                          if (!TimeShiftMode && playDir == pdForward) {
-                             // hit end of recording: signal end of file but don't change playMode
-                             readIndex = -1;
-                             eof = true;
-                             continue;
-                             }
-                          // hit begin of recording: wait for device buffers to drain
-                          // before changing play mode:
-                          if (!DeviceFlush(100))
-                             continue;
-                          // can't call Play() here, because those functions may only be
-                          // called from the foreground thread - and we also don't need
-                          // to empty the buffer here
-                          DevicePlay();
-                          playMode = pmPlay;
-                          playDir = pdForward;
-                          continue;
-                          }
-                       readIndex = Index;
-                       }
-                    else if (index) {
-                       uchar FileNumber;
-                       int FileOffset;
-                       readIndex++;
-                       if (!(index->Get(readIndex, &FileNumber, &FileOffset, NULL, &Length) && NextFile(FileNumber, FileOffset))) {
-                          readIndex = -1;
-                          eof = true;
-                          continue;
-                          }
-                       }
-                    else // allows replay even if the index file is missing
-                       Length = MAXFRAMESIZE;
-                    if (Length == -1)
-                       Length = MAXFRAMESIZE; // this means we read up to EOF (see cIndex)
-                    else if (Length > MAXFRAMESIZE) {
-                       esyslog("ERROR: frame larger than buffer (%d > %d)", Length, MAXFRAMESIZE);
-                       Length = MAXFRAMESIZE;
-                       }
-                    b = MALLOC(uchar, Length);
-                    }
-                 int r = nonBlockingFileReader->Read(replayFile, b, Length);
-                 if (r > 0) {
-                    WaitingForData = false;
-                    readFrame = new cFrame(b, -r, ftUnknown, readIndex); // hands over b to the ringBuffer
-                    b = NULL;
-                    }
-                 else if (r == 0)
-                    eof = true;
-                 else if (r < 0 && errno == EAGAIN)
-                    WaitingForData = true;
-                 else if (r < 0 && FATALERRNO) {
-                    LOG_ERROR;
-                    break;
-                    }
-                 }
+             // Store the frame in the buffer:
 
-              // Store the frame in the buffer:
+             if (readFrame) {
+                if (ringBuffer->Put(readFrame))
+                   readFrame = NULL;
+                else
+                   Sleep = true;
+                }
+             }
+          else
+             Sleep = true;
 
-              if (readFrame) {
-                 if (ringBuffer->Put(readFrame))
-                    readFrame = NULL;
-                 }
-              }
-           else
-              Sleep = true;
+          if (dropFrame) {
+             if (!eof || (playDir != pdForward && dropFrame->Index() > 0) || (playDir == pdForward && dropFrame->Index() < readIndex)) {
+                ringBuffer->Drop(dropFrame); // the very first and last frame are continously repeated to flush data through the device
+                dropFrame = NULL;
+                }
+             }
 
-           // Get the next frame from the buffer:
+          // Get the next frame from the buffer:
 
-           if (!playFrame) {
-              playFrame = ringBuffer->Get();
-              p = NULL;
-              pc = 0;
-              }
+          if (!playFrame) {
+             playFrame = ringBuffer->Get();
+             p = NULL;
+             pc = 0;
+             }
 
-           // Play the frame:
+          // Play the frame:
 
-           if (playFrame) {
-              if (!p) {
-                 p = playFrame->Data();
-                 pc = playFrame->Count();
-                 if (p) {
-                    if (firstPacket) {
-                       PlayPes(NULL, 0);
-                       cRemux::SetBrokenLink(p, pc);
-                       firstPacket = false;
-                       }
-                    }
-                 }
-              if (p) {
-                 int w = PlayPes(p, pc, playMode != pmPlay);
-                 if (w > 0) {
-                    p += w;
-                    pc -= w;
-                    }
-                 else if (w < 0 && FATALERRNO) {
-                    LOG_ERROR;
-                    break;
-                    }
-                 }
-              if (pc == 0) {
-                 writeIndex = playFrame->Index();
-                 backTrace->Add(playFrame->Index(), playFrame->Count());
-                 ringBuffer->Drop(playFrame);
-                 playFrame = NULL;
-                 p = NULL;
-                 }
-              }
-           else
-              Sleep = true;
-           }
+          if (playFrame) {
+             if (!p) {
+                p = playFrame->Data();
+                pc = playFrame->Count();
+                if (p) {
+                   if (playFrame->Index() >= 0 && playFrame->Pts() != 0)
+                      ptsIndex.Put(playFrame->Pts(), playFrame->Index());
+                   if (firstPacket) {
+                      if (isPesRecording) {
+                         PlayPes(NULL, 0);
+                         cRemux::SetBrokenLink(p, pc);
+                         }
+                      else
+                         PlayTs(NULL, 0);
+                      firstPacket = false;
+                      }
+                   }
+                }
+             if (p) {
+                int w;
+                if (isPesRecording)
+                   w = PlayPes(p, pc, playMode != pmPlay && !(playMode == pmSlow && playDir == pdForward) && DeviceIsPlayingVideo());
+                else
+                   w = PlayTs(p, pc, playMode != pmPlay && !(playMode == pmSlow && playDir == pdForward) && DeviceIsPlayingVideo());
+                if (w > 0) {
+                   p += w;
+                   pc -= w;
+                   }
+                else if (w < 0 && FATALERRNO)
+                   LOG_ERROR;
+                else
+                   Sleep = true;
+                }
+             if (pc <= 0) {
+                dropFrame = playFrame;
+                playFrame = NULL;
+                p = NULL;
+                }
+             }
+          else
+             Sleep = true;
+
+          // Handle hitting begin/end of recording:
+
+          if (eof || SwitchToPlayFrame) {
+             bool SwitchToPlay = false;
+             uint32_t Stc = DeviceGetSTC();
+             if (Stc != LastStc)
+                StuckAtEof = 0;
+             else if (!StuckAtEof)
+                StuckAtEof = time(NULL);
+             else if (time(NULL) - StuckAtEof > MAXSTUCKATEOF) {
+                if (playDir == pdForward)
+                   break; // automatically stop at end of recording
+                SwitchToPlay = true;
+                }
+             LastStc = Stc;
+             int Index = ptsIndex.FindIndex(Stc);
+             if (playDir == pdForward && !SwitchToPlayFrame) {
+                if (Index >= LastReadIFrame)
+                   break; // automatically stop at end of recording
+                }
+             else if (Index <= 0 || SwitchToPlayFrame && Index >= SwitchToPlayFrame)
+                SwitchToPlay = true;
+             if (SwitchToPlay) {
+                if (!SwitchToPlayFrame)
+                   Empty();
+                DevicePlay();
+                playMode = pmPlay;
+                playDir = pdForward;
+                SwitchToPlayFrame = 0;
+                }
+             }
+        }
         }
 
   cNonBlockingFileReader *nbfr = nonBlockingFileReader;
@@ -578,7 +650,8 @@ void cDvbPlayer::Forward(void)
             LOCK_THREAD;
             if (!(DeviceHasIBPTrickSpeed() && playDir == pdForward))
                Empty();
-            DeviceMute();
+            if (DeviceIsPlayingVideo())
+               DeviceMute();
             playMode = pmFast;
             playDir = pdForward;
             trickSpeed = NORMAL_SPEED;
@@ -594,6 +667,7 @@ void cDvbPlayer::Forward(void)
                Pause();
                break;
                }
+            Empty();
             // run into pmPause
        case pmStill:
        case pmPause:
@@ -603,6 +677,7 @@ void cDvbPlayer::Forward(void)
             trickSpeed = NORMAL_SPEED;
             TrickSpeed(Setup.MultiSpeedMode ? -1 : -MAX_SPEEDS);
             break;
+       default: esyslog("ERROR: unknown playMode %d (%s)", playMode, __FUNCTION__);
        }
      }
 }
@@ -624,7 +699,8 @@ void cDvbPlayer::Backward(void)
        case pmPlay: {
             LOCK_THREAD;
             Empty();
-            DeviceMute();
+            if (DeviceIsPlayingVideo())
+               DeviceMute();
             playMode = pmFast;
             playDir = pdBackward;
             trickSpeed = NORMAL_SPEED;
@@ -640,6 +716,7 @@ void cDvbPlayer::Backward(void)
                Pause();
                break;
                }
+            Empty();
             // run into pmPause
        case pmStill:
        case pmPause: {
@@ -652,6 +729,7 @@ void cDvbPlayer::Backward(void)
             TrickSpeed(Setup.MultiSpeedMode ? -1 : -MAX_SPEEDS);
             }
             break;
+       default: esyslog("ERROR: unknown playMode %d (%s)", playMode, __FUNCTION__);
        }
      }
 }
@@ -675,14 +753,14 @@ void cDvbPlayer::SkipSeconds(int Seconds)
 {
   if (index && Seconds) {
      LOCK_THREAD;
+     int Index = ptsIndex.FindIndex(DeviceGetSTC());
      Empty();
-     int Index = writeIndex;
      if (Index >= 0) {
-        Index = max(Index + Seconds * FRAMESPERSEC, 0);
+        Index = max(Index + SecondsToFrames(Seconds, framesPerSecond), 0);
         if (Index > 0)
            Index = index->GetNextIFrame(Index, false, NULL, NULL, NULL, true);
         if (Index >= 0)
-           readIndex = writeIndex = Index - 1; // Action() will first increment it!
+           readIndex = Index - 1; // Action() will first increment it!
         }
      Play();
      }
@@ -695,58 +773,33 @@ void cDvbPlayer::Goto(int Index, bool Still)
      Empty();
      if (++Index <= 0)
         Index = 1; // not '0', to allow GetNextIFrame() below to work!
-     uchar FileNumber;
-     int FileOffset, Length;
+     uint16_t FileNumber;
+     off_t FileOffset;
+     int Length;
      Index = index->GetNextIFrame(Index, false, &FileNumber, &FileOffset, &Length);
      if (Index >= 0 && NextFile(FileNumber, FileOffset) && Still) {
-        uchar b[MAXFRAMESIZE + 4 + 5 + 4];
+        uchar b[MAXFRAMESIZE];
         int r = ReadFrame(replayFile, b, Length, sizeof(b));
         if (r > 0) {
            if (playMode == pmPause)
               DevicePlay();
-           // append sequence end code to get the image shown immediately with softdevices
-           if (r > 6 && (b[3] & 0xF0) == 0xE0) { // make sure to append it only to a video packet
-              b[r++] = 0x00;
-              b[r++] = 0x00;
-              b[r++] = 0x01;
-              b[r++] = b[3];
-              if (b[6] & 0x80) { // MPEG 2
-                 b[r++] = 0x00;
-                 b[r++] = 0x07;
-                 b[r++] = 0x80;
-                 b[r++] = 0x00;
-                 b[r++] = 0x00;
-                 }
-              else { // MPEG 1
-                 b[r++] = 0x00;
-                 b[r++] = 0x05;
-                 b[r++] = 0x0F;
-                 }
-              b[r++] = 0x00;
-              b[r++] = 0x00;
-              b[r++] = 0x01;
-              b[r++] = 0xB7;
-              }
            DeviceStillPicture(b, r);
+           ptsIndex.Put(isPesRecording ? PesGetPts(b) : TsGetPts(b, r), Index);
            }
         playMode = pmStill;
         }
-     readIndex = writeIndex = Index;
+     readIndex = Index;
      }
 }
 
 bool cDvbPlayer::GetIndex(int &Current, int &Total, bool SnapToIFrame)
 {
   if (index) {
-     if (playMode == pmStill)
-        Current = max(readIndex, 0);
-     else {
-        Current = max(writeIndex, 0);
-        if (SnapToIFrame) {
-           int i1 = index->GetNextIFrame(Current + 1, false);
-           int i2 = index->GetNextIFrame(Current, true);
-           Current = (abs(Current - i1) <= abs(Current - i2)) ? i1 : i2;
-           }
+     Current = ptsIndex.FindIndex(DeviceGetSTC());
+     if (SnapToIFrame) {
+        int i1 = index->GetNextIFrame(Current + 1, false);
+        int i2 = index->GetNextIFrame(Current, true);
+        Current = (abs(Current - i1) <= abs(Current - i2)) ? i1 : i2;
         }
      Total = index->Last();
      return true;

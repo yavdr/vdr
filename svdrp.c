@@ -10,7 +10,7 @@
  * and interact with the Video Disk Recorder - or write a full featured
  * graphical interface that sits on top of an SVDRP connection.
  *
- * $Id: svdrp.c 1.109 2008/02/17 13:36:01 kls Exp $
+ * $Id: svdrp.c 2.8 2010/01/17 12:23:31 kls Exp $
  */
 
 #include "svdrp.h"
@@ -79,7 +79,7 @@ bool cSocket::Open(void)
      struct sockaddr_in name;
      name.sin_family = AF_INET;
      name.sin_port = htons(port);
-     name.sin_addr.s_addr = htonl(INADDR_ANY);
+     name.sin_addr.s_addr = SVDRPhosts.LocalhostOnly() ? htonl(INADDR_LOOPBACK) : htonl(INADDR_ANY);
      if (bind(sock, (struct sockaddr *)&name, sizeof(name)) < 0) {
         LOG_ERROR;
         Close();
@@ -179,6 +179,8 @@ bool cPUTEhandler::Process(const char *s)
 // --- cSVDRP ----------------------------------------------------------------
 
 #define MAXHELPTOPIC 10
+#define EITDISABLETIME 10 // seconds until EIT processing is enabled again after a CLRE command
+                          // adjust the help for CLRE accordingly if changing this!
 
 const char *HelpPages[] = {
   "CHAN [ + | - | <number> | <name> | <id> ]\n"
@@ -187,7 +189,10 @@ const char *HelpPages[] = {
   "    it returns the current channel number and name.",
   "CLRE [ <number> | <name> | <id> ]\n"
   "    Clear the EPG list of the given channel number, name or id.\n"
-  "    Without option it clears the entire EPG list.",
+  "    Without option it clears the entire EPG list.\n"
+  "    After a CLRE command, no further EPG processing is done for 10\n"
+  "    seconds, so that data sent with subsequent PUTE commands doesn't\n"
+  "    interfere with data from the broadcasters.",
   "DELC <number>\n"
   "    Delete channel.",
   "DELR <number>\n"
@@ -288,11 +293,14 @@ const char *HelpPages[] = {
   "    If 'help' is followed by a command, the detailed help for that command is\n"
   "    given. The keyword 'main' initiates a call to the main menu function of the\n"
   "    given plugin.\n",
-  "PUTE\n"
+  "PUTE [ file ]\n"
   "    Put data into the EPG list. The data entered has to strictly follow the\n"
   "    format defined in vdr(5) for the 'epg.data' file.  A '.' on a line\n"
   "    by itself terminates the input and starts processing of the data (all\n"
-  "    entered data is buffered until the terminating '.' is seen).",
+  "    entered data is buffered until the terminating '.' is seen).\n"
+  "    If a file name is given, epg data will be read from this file (which\n"
+  "    must be accessible under the given name from the machine VDR is running\n"
+  "    on). In case of file input, no terminating '.' shall be given.\n",
   "REMO [ on | off ]\n"
   "    Turns the remote control on or off. Without a parameter, the current\n"
   "    status of the remote control is reported.",
@@ -571,6 +579,7 @@ void cSVDRP::CmdCLRE(const char *Option)
                }
            if (Schedule) {
               Schedule->Cleanup(INT_MAX);
+              cEitFilter::SetDisableUntil(time(NULL) + EITDISABLETIME);
               Reply(250, "EPG data of channel \"%s\" cleared", Option);
               }
            else {
@@ -586,6 +595,7 @@ void cSVDRP::CmdCLRE(const char *Option)
      }
   else {
      cSchedules::ClearAll();
+     cEitFilter::SetDisableUntil(time(NULL) + EITDISABLETIME);
      Reply(250, "EPG data cleared");
      }
 }
@@ -701,7 +711,7 @@ void cSVDRP::CmdEDIT(const char *Option)
         cRecording *recording = Recordings.Get(strtol(Option, NULL, 10) - 1);
         if (recording) {
            cMarks Marks;
-           if (Marks.Load(recording->FileName()) && Marks.Count()) {
+           if (Marks.Load(recording->FileName(), recording->FramesPerSecond(), recording->IsPesRecording()) && Marks.Count()) {
               if (!cCutter::Active()) {
                  if (cCutter::Start(recording->FileName()))
                     Reply(250, "Editing recording \"%s\" [%s]", Option, recording->Title());
@@ -736,7 +746,7 @@ void cSVDRP::CmdGRAB(const char *Option)
      char *strtok_next;
      FileName = strtok_r(p, delim, &strtok_next);
      // image type:
-     char *Extension = strrchr(FileName, '.');
+     const char *Extension = strrchr(FileName, '.');
      if (Extension) {
         if (strcasecmp(Extension, ".jpg") == 0 || strcasecmp(Extension, ".jpeg") == 0)
            Jpeg = true;
@@ -795,16 +805,17 @@ void cSVDRP::CmdGRAB(const char *Option)
      char RealFileName[PATH_MAX];
      if (FileName) {
         if (grabImageDir) {
-           cString s;
-           char *slash = strrchr(FileName, '/');
+           cString s(FileName);
+           FileName = s;
+           const char *slash = strrchr(FileName, '/');
            if (!slash) {
               s = AddDirectory(grabImageDir, FileName);
               FileName = s;
               }
            slash = strrchr(FileName, '/'); // there definitely is one
-           *slash = 0;
-           char *r = realpath(FileName, RealFileName);
-           *slash = '/';
+           cString t(s);
+           t.Truncate(slash - FileName);
+           char *r = realpath(t, RealFileName);
            if (!r) {
               LOG_ERROR_STR(FileName);
               Reply(501, "Invalid file name \"%s\"", FileName);
@@ -883,7 +894,7 @@ void cSVDRP::CmdHELP(const char *Option)
          PrintHelpTopics(hp);
          }
      Reply(-214, "To report bugs in the implementation send email to");
-     Reply(-214, "    vdr-bugs@cadsoft.de");
+     Reply(-214, "    vdr-bugs@tvdr.de");
      }
   Reply(214, "End of HELP info");
 }
@@ -1338,15 +1349,9 @@ void cSVDRP::CmdPLAY(const char *Option)
            cControl::Shutdown();
            if (*option) {
               int pos = 0;
-              if (strcasecmp(option, "BEGIN") != 0) {
-                 int h, m = 0, s = 0, f = 1;
-                 int x = sscanf(option, "%d:%d:%d.%d", &h, &m, &s, &f);
-                 if (x == 1)
-                    pos = h;
-                 else if (x >= 3)
-                    pos = (h * 3600 + m * 60 + s) * FRAMESPERSEC + f - 1;
-                 }
-              cResumeFile resume(recording->FileName());
+              if (strcasecmp(option, "BEGIN") != 0)
+                 pos = HMSFToIndex(option, recording->FramesPerSecond());
+              cResumeFile resume(recording->FileName(), recording->IsPesRecording());
               if (pos <= 0)
                  resume.Delete();
               else
@@ -1441,11 +1446,27 @@ void cSVDRP::CmdPLUG(const char *Option)
 
 void cSVDRP::CmdPUTE(const char *Option)
 {
-  delete PUTEhandler;
-  PUTEhandler = new cPUTEhandler;
-  Reply(PUTEhandler->Status(), "%s", PUTEhandler->Message());
-  if (PUTEhandler->Status() != 354)
-     DELETENULL(PUTEhandler);
+  if (*Option) {
+     FILE *f = fopen(Option, "r");
+     if (f) {
+        if (cSchedules::Read(f)) {
+           cSchedules::Cleanup(true);
+           Reply(250, "EPG data processed from \"%s\"", Option);
+           }
+        else
+           Reply(451, "Error while processing EPG from \"%s\"", Option);
+        fclose(f);
+        }
+     else
+        Reply(501, "Cannot open file \"%s\"", Option);
+     }
+  else {     
+     delete PUTEhandler;
+     PUTEhandler = new cPUTEhandler;
+     Reply(PUTEhandler->Status(), "%s", PUTEhandler->Message());
+     if (PUTEhandler->Status() != 354)
+        DELETENULL(PUTEhandler);
+     }
 }
 
 void cSVDRP::CmdREMO(const char *Option)
@@ -1606,7 +1627,7 @@ bool cSVDRP::Process(void)
         char buffer[BUFSIZ];
         gethostname(buffer, sizeof(buffer));
         time_t now = time(NULL);
-        Reply(220, "%s SVDRP VideoDiskRecorder %s; %s", buffer, VDRVERSION, *TimeToString(now));
+        Reply(220, "%s SVDRP VideoDiskRecorder %s; %s; %s", buffer, VDRVERSION, *TimeToString(now), cCharSetConv::SystemCharacterTable() ? cCharSetConv::SystemCharacterTable() : "UTF-8");
         }
      if (NewConnection)
         lastActivity = time(NULL);

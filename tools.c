@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: tools.c 1.145 2008/03/05 17:23:47 kls Exp $
+ * $Id: tools.c 2.8 2010/08/29 15:03:08 kls Exp $
  */
 
 #include "tools.h"
@@ -279,11 +279,11 @@ cString itoa(int n)
 
 bool EntriesOnSameFileSystem(const char *File1, const char *File2)
 {
-  struct statfs statFs;
-  if (statfs(File1, &statFs) == 0) {
-     fsid_t fsid1 = statFs.f_fsid;
-     if (statfs(File2, &statFs) == 0)
-        return memcmp(&statFs.f_fsid, &fsid1, sizeof(fsid1)) == 0;
+  struct stat st;
+  if (stat(File1, &st) == 0) {
+     dev_t dev1 = st.st_dev;
+     if (stat(File2, &st) == 0)
+        return st.st_dev == dev1;
      else
         LOG_ERROR_STR(File2);
      }
@@ -367,22 +367,31 @@ bool RemoveFileOrDir(const char *FileName, bool FollowSymlinks)
                  if (strcmp(e->d_name, ".") && strcmp(e->d_name, "..")) {
                     cString buffer = AddDirectory(FileName, e->d_name);
                     if (FollowSymlinks) {
-                       int size = strlen(buffer) * 2; // should be large enough
-                       char *l = MALLOC(char, size);
-                       int n = readlink(buffer, l, size);
-                       if (n < 0) {
-                          if (errno != EINVAL)
-                             LOG_ERROR_STR(*buffer);
+                       struct stat st2;
+                       if (stat(buffer, &st2) == 0) {
+                          if (S_ISLNK(st2.st_mode)) {
+                             int size = st2.st_size + 1;
+                             char *l = MALLOC(char, size);
+                             int n = readlink(buffer, l, size - 1);
+                             if (n < 0) {
+                                if (errno != EINVAL)
+                                   LOG_ERROR_STR(*buffer);
+                                }
+                             else if (n < size) {
+                                l[n] = 0;
+                                dsyslog("removing %s", l);
+                                if (remove(l) < 0)
+                                   LOG_ERROR_STR(l);
+                                }
+                             else
+                                esyslog("ERROR: symlink name length (%d) exceeded anticipated buffer size (%d)", n, size);
+                             free(l);
+                             }
                           }
-                       else if (n < size) {
-                          l[n] = 0;
-                          dsyslog("removing %s", l);
-                          if (remove(l) < 0)
-                             LOG_ERROR_STR(l);
+                       else if (errno != ENOENT) {
+                          LOG_ERROR_STR(FileName);
+                          return false;
                           }
-                       else
-                          esyslog("ERROR: symlink name length (%d) exceeded anticipated buffer size (%d)", n, size);
-                       free(l);
                        }
                     dsyslog("removing %s", *buffer);
                     if (remove(buffer) < 0)
@@ -633,6 +642,7 @@ uint Utf8CharGet(const char *s, int Length)
     case 2: return ((*s & 0x1F) <<  6) |  (*(s + 1) & 0x3F);
     case 3: return ((*s & 0x0F) << 12) | ((*(s + 1) & 0x3F) <<  6) |  (*(s + 2) & 0x3F);
     case 4: return ((*s & 0x07) << 18) | ((*(s + 1) & 0x3F) << 12) | ((*(s + 2) & 0x3F) << 6) | (*(s + 3) & 0x3F);
+    default: ;
     }
   return *s;
 }
@@ -768,10 +778,10 @@ char *cCharSetConv::systemCharacterTable = NULL;
 cCharSetConv::cCharSetConv(const char *FromCode, const char *ToCode)
 {
   if (!FromCode)
-     FromCode = systemCharacterTable;
+     FromCode = systemCharacterTable ? systemCharacterTable : "UTF-8";
   if (!ToCode)
      ToCode = "UTF-8";
-  cd = (FromCode && ToCode) ? iconv_open(ToCode, FromCode) : (iconv_t)-1;
+  cd = iconv_open(ToCode, FromCode);
   result = NULL;
   length = 0;
 }
@@ -942,8 +952,8 @@ cString WeekDayNameFull(int WeekDay)
     case 4: return tr("Friday");
     case 5: return tr("Saturday");
     case 6: return tr("Sunday");
+    default: return "???";
     }
-  return "???";
 }
 
 cString WeekDayNameFull(time_t t)
@@ -1422,6 +1432,8 @@ bool cSafeFile::Close(void)
         LOG_ERROR_STR(tempName);
         result = false;
         }
+     fflush(f);
+     fsync(fileno(f));
      if (fclose(f) < 0) {
         LOG_ERROR_STR(tempName);
         result = false;
@@ -1473,16 +1485,18 @@ int cUnbufferedFile::Open(const char *FileName, int Flags, mode_t Mode)
 
 int cUnbufferedFile::Close(void)
 {
-#ifdef USE_FADVISE
   if (fd >= 0) {
+#ifdef USE_FADVISE
      if (totwritten)    // if we wrote anything make sure the data has hit the disk before
         fdatasync(fd);  // calling fadvise, as this is our last chance to un-cache it.
      posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
-     }
 #endif
-  int OldFd = fd;
-  fd = -1;
-  return close(OldFd);
+     int OldFd = fd;
+     fd = -1;
+     return close(OldFd);
+     }
+  errno = EBADF;
+  return -1;
 }
 
 // When replaying and going e.g. FF->PLAY the position jumps back 2..8M
@@ -1589,7 +1603,7 @@ ssize_t cUnbufferedFile::Write(const void *Data, size_t Size)
               //    last (partial) page might be skipped, writeback will start only after
               //    second call; the third call will still include this page and finally
               //    drop it from cache.
-              off_t headdrop = min(begin, WRITE_BUFFER * 2L);
+              off_t headdrop = min(begin, off_t(WRITE_BUFFER * 2));
               posix_fadvise(fd, begin - headdrop, lastpos - begin + headdrop, POSIX_FADV_DONTNEED);
               }
            begin = lastpos = curpos;
@@ -1608,7 +1622,7 @@ ssize_t cUnbufferedFile::Write(const void *Data, size_t Size)
               // kind of write gathering enabled), but the syncs cause (io) load..
               // Uncomment the next line if you think you need them.
               //fdatasync(fd);
-              off_t headdrop = min(curpos - totwritten, totwritten * 2L);
+              off_t headdrop = min(off_t(curpos - totwritten), off_t(totwritten * 2));
               posix_fadvise(fd, curpos - totwritten - headdrop, totwritten + headdrop, POSIX_FADV_DONTNEED);
               totwritten = 0;
               }

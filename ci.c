@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: ci.c 1.48 2007/04/30 13:02:49 kls Exp $
+ * $Id: ci.c 2.6 2010/01/02 10:39:50 kls Exp $
  */
 
 #include "ci.h"
@@ -551,6 +551,8 @@ bool cCiApplicationInformation::EnterMenu(void)
 
 // --- cCiCaPmt --------------------------------------------------------------
 
+#define MAXCASYSTEMIDS 64
+
 // Ca Pmt List Management:
 
 #define CPLM_MORE    0x00
@@ -574,9 +576,10 @@ private:
   int length;
   int esInfoLengthPos;
   uint8_t capmt[2048]; ///< XXX is there a specified maximum?
-  int caDescriptorsLength;
-  uint8_t caDescriptors[2048];
-  bool streamFlag;
+  int source;
+  int transponder;
+  int programNumber;
+  int caSystemIds[MAXCASYSTEMIDS + 1]; // list is zero terminated!
   void AddCaDescriptors(int Length, const uint8_t *Data);
 public:
   cCiCaPmt(uint8_t CmdId, int Source, int Transponder, int ProgramNumber, const int *CaSystemIds);
@@ -589,7 +592,17 @@ public:
 cCiCaPmt::cCiCaPmt(uint8_t CmdId, int Source, int Transponder, int ProgramNumber, const int *CaSystemIds)
 {
   cmdId = CmdId;
-  caDescriptorsLength = GetCaDescriptors(Source, Transponder, ProgramNumber, CaSystemIds, sizeof(caDescriptors), caDescriptors, streamFlag);
+  source = Source;
+  transponder = Transponder;
+  programNumber = ProgramNumber;
+  int i = 0;
+  if (CaSystemIds) {
+     for (; CaSystemIds[i]; i++)
+         caSystemIds[i] = CaSystemIds[i];
+     }
+  caSystemIds[i] = 0;
+  uint8_t caDescriptors[512];
+  int caDescriptorsLength = GetCaDescriptors(source, transponder, programNumber, caSystemIds, sizeof(caDescriptors), caDescriptors, 0);
   length = 0;
   capmt[length++] = CPLM_ONLY;
   capmt[length++] = (ProgramNumber >> 8) & 0xFF;
@@ -598,8 +611,7 @@ cCiCaPmt::cCiCaPmt(uint8_t CmdId, int Source, int Transponder, int ProgramNumber
   esInfoLengthPos = length;
   capmt[length++] = 0x00; // program_info_length H (at program level)
   capmt[length++] = 0x00; // program_info_length L
-  if (!streamFlag)
-     AddCaDescriptors(caDescriptorsLength, caDescriptors);
+  AddCaDescriptors(caDescriptorsLength, caDescriptors);
 }
 
 void cCiCaPmt::SetListManagement(uint8_t ListManagement)
@@ -610,6 +622,8 @@ void cCiCaPmt::SetListManagement(uint8_t ListManagement)
 void cCiCaPmt::AddPid(int Pid, uint8_t StreamType)
 {
   if (Pid) {
+     uint8_t caDescriptors[512];
+     int caDescriptorsLength = GetCaDescriptors(source, transponder, programNumber, caSystemIds, sizeof(caDescriptors), caDescriptors, Pid);
      //XXX buffer overflow check???
      capmt[length++] = StreamType;
      capmt[length++] = (Pid >> 8) & 0xFF;
@@ -617,8 +631,7 @@ void cCiCaPmt::AddPid(int Pid, uint8_t StreamType)
      esInfoLengthPos = length;
      capmt[length++] = 0x00; // ES_info_length H (at ES level)
      capmt[length++] = 0x00; // ES_info_length L
-     if (streamFlag)
-        AddCaDescriptors(caDescriptorsLength, caDescriptors);
+     AddCaDescriptors(caDescriptorsLength, caDescriptors);
      }
 }
 
@@ -626,12 +639,14 @@ void cCiCaPmt::AddCaDescriptors(int Length, const uint8_t *Data)
 {
   if (esInfoLengthPos) {
      if (length + Length < int(sizeof(capmt))) {
-        capmt[length++] = cmdId;
-        memcpy(capmt + length, Data, Length);
-        length += Length;
-        int l = length - esInfoLengthPos - 2;
-        capmt[esInfoLengthPos]     = (l >> 8) & 0xFF;
-        capmt[esInfoLengthPos + 1] =  l       & 0xFF;
+        if (Length || cmdId == CPCI_QUERY) {
+           capmt[length++] = cmdId;
+           memcpy(capmt + length, Data, Length);
+           length += Length;
+           int l = length - esInfoLengthPos - 2;
+           capmt[esInfoLengthPos]     = (l >> 8) & 0xFF;
+           capmt[esInfoLengthPos + 1] =  l       & 0xFF;
+           }
         }
      else
         esyslog("ERROR: buffer overflow in CA descriptor");
@@ -642,8 +657,6 @@ void cCiCaPmt::AddCaDescriptors(int Length, const uint8_t *Data)
 }
 
 // --- cCiConditionalAccessSupport -------------------------------------------
-
-#define MAXCASYSTEMIDS 64
 
 // CA Enable Ids:
 
@@ -1410,6 +1423,15 @@ bool cCiTransportConnection::Process(cTPDU *TPDU)
                    SendTPDU(T_DTC_REPLY);
                    state = stIDLE;
                    return true;
+              case T_RCV:
+              case T_CREATE_TC:
+              case T_CTC_REPLY:
+              case T_DTC_REPLY:
+              case T_NEW_TC:
+              case T_TC_ERROR:
+                   break;
+              default:
+                   esyslog("ERROR: unknown TPDU tag: 0x%02X (%s)", TPDU->Tag(), __FUNCTION__);
               }
             }
          else if (timer.TimedOut())
@@ -1429,6 +1451,8 @@ bool cCiTransportConnection::Process(cTPDU *TPDU)
             state = stIDLE;
             }
          return true;
+    default:
+         esyslog("ERROR: unknown state: %d (%s)", state, __FUNCTION__);
     }
   return true;
 }
@@ -1525,7 +1549,7 @@ void cCiAdapter::Action(void)
 
 cCamSlots CamSlots;
 
-#define MODULE_CHECK_INTERVAL 100 // ms
+#define MODULE_CHECK_INTERVAL 500 // ms
 #define MODULE_RESET_TIMEOUT    2 // s
 
 cCamSlot::cCamSlot(cCiAdapter *CiAdapter)
@@ -1654,6 +1678,8 @@ void cCamSlot::Process(cTPDU *TPDU)
                NewConnection();
                resendPmt = caProgramList.Count() > 0;
                break;
+          default:
+               esyslog("ERROR: unknown module status %d (%s)", ms, __FUNCTION__);
           }
         lastModuleStatus = ms;
         }

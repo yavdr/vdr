@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: device.c 1.157 2008/03/09 10:03:34 kls Exp $
+ * $Id: device.c 2.37 2010/06/03 13:35:02 kls Exp $
  */
 
 #include "device.h"
@@ -21,187 +21,39 @@
 
 // --- cLiveSubtitle ---------------------------------------------------------
 
-#define LIVESUBTITLEBUFSIZE  KILOBYTE(100)
-
-class cLiveSubtitle : public cReceiver, public cThread {
-private:
-  cRingBufferLinear *ringBuffer;
-  cRemux *remux;
+class cLiveSubtitle : public cReceiver {
 protected:
-  virtual void Activate(bool On);
   virtual void Receive(uchar *Data, int Length);
-  virtual void Action(void);
 public:
   cLiveSubtitle(int SPid);
   virtual ~cLiveSubtitle();
   };
 
 cLiveSubtitle::cLiveSubtitle(int SPid)
-:cReceiver(tChannelID(), -1, SPid)
-,cThread("live subtitle")
 {
-  ringBuffer = new cRingBufferLinear(LIVESUBTITLEBUFSIZE, TS_SIZE * 2, true, "Live Subtitle");
-  int NoPids = 0;
-  int SPids[] = { SPid, 0 };
-  remux = new cRemux(0, &NoPids, &NoPids, SPids);
+  AddPid(SPid);
 }
 
 cLiveSubtitle::~cLiveSubtitle()
 {
   cReceiver::Detach();
-  delete remux;
-  delete ringBuffer;
-}
-
-void cLiveSubtitle::Activate(bool On)
-{
-  if (On)
-     Start();
-  else
-     Cancel(3);
 }
 
 void cLiveSubtitle::Receive(uchar *Data, int Length)
 {
-  if (Running()) {
-     int p = ringBuffer->Put(Data, Length);
-     if (p != Length && Running())
-        ringBuffer->ReportOverflow(Length - p);
-     }
+  cDevice::PrimaryDevice()->PlayTs(Data, Length);
 }
 
-void cLiveSubtitle::Action(void)
+// --- cDeviceHook -----------------------------------------------------------
+
+cDeviceHook::cDeviceHook(void)
 {
-  while (Running()) {
-        int Count;
-        uchar *b = ringBuffer->Get(Count);
-        if (b) {
-           Count = remux->Put(b, Count);
-           if (Count)
-              ringBuffer->Del(Count);
-           }
-        b = remux->Get(Count);
-        if (b) {
-           Count = cDevice::PrimaryDevice()->PlaySubtitle(b, Count);
-           remux->Del(Count);
-           }
-        }
+  cDevice::deviceHooks.Add(this);
 }
 
-// --- cPesAssembler ---------------------------------------------------------
-
-class cPesAssembler {
-private:
-  uchar *data;
-  uint32_t tag;
-  int length;
-  int size;
-  bool Realloc(int Size);
-public:
-  cPesAssembler(void);
-  ~cPesAssembler();
-  int ExpectedLength(void) { return PacketSize(data); }
-  static int PacketSize(const uchar *data);
-  int Length(void) { return length; }
-  const uchar *Data(void) { return data; } // only valid if Length() >= 4
-  void Reset(void);
-  void Put(uchar c);
-  void Put(const uchar *Data, int Length);
-  bool IsPes(void);
-  };
-
-cPesAssembler::cPesAssembler(void)
+bool cDeviceHook::DeviceProvidesTransponder(const cDevice *Device, const cChannel *Channel) const
 {
-  data = NULL;
-  size = 0;
-  Reset();
-}
-
-cPesAssembler::~cPesAssembler()
-{
-  free(data);
-}
-
-void cPesAssembler::Reset(void)
-{
-  tag = 0xFFFFFFFF;
-  length = 0;
-}
-
-bool cPesAssembler::Realloc(int Size)
-{
-  if (Size > size) {
-     size = max(Size, 2048);
-     data = (uchar *)realloc(data, size);
-     if (!data) {
-        esyslog("ERROR: can't allocate memory for PES assembler");
-        length = 0;
-        size = 0;
-        return false;
-        }
-     }
   return true;
-}
-
-void cPesAssembler::Put(uchar c)
-{
-  if (length < 4) {
-     tag = (tag << 8) | c;
-     if ((tag & 0xFFFFFF00) == 0x00000100) {
-        if (Realloc(4)) {
-           *(uint32_t *)data = htonl(tag);
-           length = 4;
-           }
-        }
-     else if (length < 3)
-        length++;
-     }
-  else if (Realloc(length + 1))
-     data[length++] = c;
-}
-
-void cPesAssembler::Put(const uchar *Data, int Length)
-{
-  while (length < 4 && Length > 0) {
-        Put(*Data++);
-        Length--;
-        }
-  if (Length && Realloc(length + Length)) {
-     memcpy(data + length, Data, Length);
-     length += Length;
-     }
-}
-
-int cPesAssembler::PacketSize(const uchar *data)
-{
-  // we need atleast 6 bytes of data here !!!
-  switch (data[3]) {
-    default:
-    case 0x00 ... 0xB8: // video stream start codes
-    case 0xB9: // Program end
-    case 0xBC: // Programm stream map
-    case 0xF0 ... 0xFF: // reserved
-         return 6;
-
-    case 0xBA: // Pack header
-         if ((data[4] & 0xC0) == 0x40) // MPEG2
-            return 14;
-         // to be absolutely correct we would have to add the stuffing bytes
-         // as well, but at this point we only may have 6 bytes of data avail-
-         // able. So it's up to the higher level to resync...
-         //return 14 + (data[13] & 0x07); // add stuffing bytes
-         else // MPEG1
-            return 12;
-
-    case 0xBB: // System header
-    case 0xBD: // Private stream1
-    case 0xBE: // Padding stream
-    case 0xBF: // Private stream2 (navigation data)
-    case 0xC0 ... 0xCF: // all the rest (the real packets)
-    case 0xD0 ... 0xDF:
-    case 0xE0 ... 0xEF:
-         return 6 + data[4] * 256 + data[5];
-    }
 }
 
 // --- cDevice ---------------------------------------------------------------
@@ -219,10 +71,13 @@ int cDevice::currentChannel = 1;
 cDevice *cDevice::device[MAXDEVICES] = { NULL };
 cDevice *cDevice::primaryDevice = NULL;
 cDevice *cDevice::avoidDevice = NULL;
+cList<cDeviceHook> cDevice::deviceHooks;
 
 cDevice::cDevice(void)
+:patPmtParser(true)
 {
   cardIndex = nextCardIndex++;
+  dsyslog("new device number %d", CardIndex() + 1);
 
   SetDescription("receiver on device %d", CardIndex() + 1);
 
@@ -241,7 +96,7 @@ cDevice::cDevice(void)
   startScrambleDetection = 0;
 
   player = NULL;
-  pesAssembler = new cPesAssembler;
+  isPlayingVideo = false;
   ClrAvailableTracks();
   currentAudioTrack = ttNone;
   currentAudioTrackMissingCount = 0;
@@ -265,7 +120,6 @@ cDevice::~cDevice()
   DetachAllReceivers();
   delete liveSubtitle;
   delete dvbSubtitleConverter;
-  delete pesAssembler;
 }
 
 bool cDevice::WaitForAllDevicesReady(int Timeout)
@@ -298,7 +152,7 @@ int cDevice::NextCardIndex(int n)
         esyslog("ERROR: nextCardIndex too big (%d)", nextCardIndex);
      }
   else if (n < 0)
-     esyslog("ERROR: invalid value in IncCardIndex(%d)", n);
+     esyslog("ERROR: invalid value in nextCardIndex(%d)", n);
   return nextCardIndex;
 }
 
@@ -313,6 +167,10 @@ int cDevice::DeviceNumber(void) const
 
 void cDevice::MakePrimaryDevice(bool On)
 {
+  if (!On) {
+     DELETENULL(liveSubtitle);
+     DELETENULL(dvbSubtitleConverter);
+     }
 }
 
 bool cDevice::SetPrimaryDevice(int n)
@@ -353,6 +211,21 @@ cDevice *cDevice::ActualDevice(void)
 cDevice *cDevice::GetDevice(int Index)
 {
   return (0 <= Index && Index < numDevices) ? device[Index] : NULL;
+}
+
+static int GetClippedNumProvidedSystems(int AvailableBits, cDevice *Device)
+{
+  int MaxNumProvidedSystems = (1 << AvailableBits) - 1;
+  int NumProvidedSystems = Device->NumProvidedSystems();
+  if (NumProvidedSystems > MaxNumProvidedSystems) {
+     esyslog("ERROR: device %d supports %d modulation systems but cDevice::GetDevice() currently only supports %d delivery systems which should be fixed", Device->CardIndex() + 1, NumProvidedSystems, MaxNumProvidedSystems);
+     NumProvidedSystems = MaxNumProvidedSystems;
+     }
+  else if (NumProvidedSystems <= 0) {
+     esyslog("ERROR: device %d reported an invalid number (%d) of supported delivery systems - assuming 1", Device->CardIndex() + 1, NumProvidedSystems);
+     NumProvidedSystems = 1;
+     }
+  return NumProvidedSystems;
 }
 
 cDevice *cDevice::GetDevice(const cChannel *Channel, int Priority, bool LiveView)
@@ -408,6 +281,7 @@ cDevice *cDevice::GetDevice(const cChannel *Channel, int Priority, bool LiveView
              imp <<= 1; imp |= LiveView ? !device[i]->IsPrimaryDevice() || ndr : 0;                                  // prefer the primary device for live viewing if we don't need to detach existing receivers
              imp <<= 1; imp |= !device[i]->Receiving() && (device[i] != cTransferControl::ReceiverDevice() || device[i]->IsPrimaryDevice()) || ndr; // use receiving devices if we don't need to detach existing receivers, but avoid primary device in local transfer mode
              imp <<= 1; imp |= device[i]->Receiving();                                                               // avoid devices that are receiving
+             imp <<= 4; imp |= GetClippedNumProvidedSystems(4, device[i]) - 1;                                       // avoid cards which support multiple delivery systems
              imp <<= 1; imp |= device[i] == cTransferControl::ReceiverDevice();                                      // avoid the Transfer Mode receiver device
              imp <<= 8; imp |= min(max(device[i]->Priority() + MAXPRIORITY, 0), 0xFF);                               // use the device with the lowest priority (+MAXPRIORITY to assure that values -99..99 can be used)
              imp <<= 8; imp |= min(max((NumUsableSlots ? SlotPriority[j] : 0) + MAXPRIORITY, 0), 0xFF);              // use the CAM slot with the lowest priority (+MAXPRIORITY to assure that values -99..99 can be used)
@@ -515,6 +389,7 @@ void cDevice::SetVideoDisplayFormat(eVideoDisplayFormat VideoDisplayFormat)
                case vdfCenterCutOut:
                     spuDecoder->setScaleMode(cSpuDecoder::eSpuNormal);
                     break;
+               default: esyslog("ERROR: invalid value for VideoDisplayFormat '%d'", VideoDisplayFormat);
                }
         }
      }
@@ -529,7 +404,21 @@ eVideoSystem cDevice::GetVideoSystem(void)
   return vsPAL;
 }
 
-//#define PRINTPIDS(s) { char b[500]; char *q = b; q += sprintf(q, "%d %s ", CardIndex(), s); for (int i = 0; i < MAXPIDHANDLES; i++) q += sprintf(q, " %s%4d %d", i == ptOther ? "* " : "", pidHandles[i].pid, pidHandles[i].used); dsyslog(b); }
+void cDevice::GetVideoSize(int &Width, int &Height, double &VideoAspect)
+{
+  Width = 0;
+  Height = 0;
+  VideoAspect = 1.0;
+}
+
+void cDevice::GetOsdSize(int &Width, int &Height, double &PixelAspect)
+{
+  Width = 720;
+  Height = 480;
+  PixelAspect = 1.0;
+}
+
+//#define PRINTPIDS(s) { char b[500]; char *q = b; q += sprintf(q, "%d %s ", CardIndex(), s); for (int i = 0; i < MAXPIDHANDLES; i++) q += sprintf(q, " %s%4d %d", i == ptOther ? "* " : "", pidHandles[i].pid, pidHandles[i].used); dsyslog("%s", b); }
 #define PRINTPIDS(s)
 
 bool cDevice::HasPid(int Pid) const
@@ -541,7 +430,7 @@ bool cDevice::HasPid(int Pid) const
   return false;
 }
 
-bool cDevice::AddPid(int Pid, ePidType PidType)
+bool cDevice::AddPid(int Pid, ePidType PidType, int StreamType)
 {
   if (Pid || PidType == ptPcr) {
      int n = -1;
@@ -588,6 +477,7 @@ bool cDevice::AddPid(int Pid, ePidType PidType)
         }
      if (n >= 0) {
         pidHandles[n].pid = Pid;
+        pidHandles[n].streamType = StreamType;
         pidHandles[n].used = 1;
         PRINTPIDS("C");
         if (!SetPid(&pidHandles[n], n, true)) {
@@ -693,6 +583,17 @@ bool cDevice::ProvidesSource(int Source) const
   return false;
 }
 
+bool cDevice::DeviceHooksProvidesTransponder(const cChannel *Channel) const
+{
+  cDeviceHook *Hook = deviceHooks.First();
+  while (Hook) {
+        if (!Hook->DeviceProvidesTransponder(this, Channel))
+           return false;
+        Hook = deviceHooks.Next(Hook);
+        }
+  return true;
+}
+
 bool cDevice::ProvidesTransponder(const cChannel *Channel) const
 {
   return false;
@@ -710,6 +611,16 @@ bool cDevice::ProvidesTransponderExclusively(const cChannel *Channel) const
 bool cDevice::ProvidesChannel(const cChannel *Channel, int Priority, bool *NeedsDetachReceivers) const
 {
   return false;
+}
+
+int cDevice::NumProvidedSystems(void) const
+{
+  return 0;
+}
+
+const cChannel *cDevice::GetCurrentlyTunedTransponder(void) const
+{
+  return NULL;
 }
 
 bool cDevice::IsTunedToTransponder(const cChannel *Channel)
@@ -736,6 +647,7 @@ bool cDevice::SwitchChannel(const cChannel *Channel, bool LiveView)
         case scrNoTransfer:   Skins.Message(mtError, tr("Can't start Transfer Mode!"));
                               return false;
         case scrFailed:       break; // loop will retry
+        default:              esyslog("ERROR: invalid return value from SetChannel");
         }
       esyslog("retrying");
       }
@@ -793,7 +705,7 @@ eSetChannelResult cDevice::SetChannel(const cChannel *Channel, bool LiveView)
      if (Device && CanReplay()) {
         cStatus::MsgChannelSwitch(this, 0); // only report status if we are actually going to switch the channel
         if (Device->SetChannel(Channel, false) == scrOk) // calling SetChannel() directly, not SwitchChannel()!
-           cControl::Launch(new cTransferControl(Device, Channel->GetChannelID(), Channel->Vpid(), Channel->Apids(), Channel->Dpids(), Channel->Spids()));
+           cControl::Launch(new cTransferControl(Device, Channel));
         else
            Result = scrNoTransfer;
         }
@@ -1141,11 +1053,15 @@ void cDevice::Clear(void)
 void cDevice::Play(void)
 {
   Audios.MuteAudio(mute);
+  if (dvbSubtitleConverter)
+     dvbSubtitleConverter->Freeze(false);
 }
 
 void cDevice::Freeze(void)
 {
   Audios.MuteAudio(true);
+  if (dvbSubtitleConverter)
+     dvbSubtitleConverter->Freeze(true);
 }
 
 void cDevice::Mute(void)
@@ -1155,6 +1071,47 @@ void cDevice::Mute(void)
 
 void cDevice::StillPicture(const uchar *Data, int Length)
 {
+  if (Data[0] == 0x47) {
+     // TS data
+     cTsToPes TsToPes;
+     uchar *buf = NULL;
+     int Size = 0;
+     while (Length >= TS_SIZE) {
+           int Pid = TsPid(Data);
+           if (Pid == 0)
+              patPmtParser.ParsePat(Data, TS_SIZE);
+           else if (Pid == patPmtParser.PmtPid())
+              patPmtParser.ParsePmt(Data, TS_SIZE);
+           else if (Pid == patPmtParser.Vpid()) {
+              if (TsPayloadStart(Data)) {
+                 int l;
+                 while (const uchar *p = TsToPes.GetPes(l)) {
+                       int Offset = Size;
+                       Size += l;
+                       buf = (uchar *)realloc(buf, Size);
+                       if (!buf)
+                          return;
+                       memcpy(buf + Offset, p, l);
+                       }
+                 TsToPes.Reset();
+                 }
+              TsToPes.PutTs(Data, TS_SIZE);
+              }
+           Length -= TS_SIZE;
+           Data += TS_SIZE;
+           }
+     int l;
+     while (const uchar *p = TsToPes.GetPes(l)) {
+           int Offset = Size;
+           Size += l;
+           buf = (uchar *)realloc(buf, Size);
+           if (!buf)
+              return;
+           memcpy(buf + Offset, p, l);
+           }
+     StillPicture(buf, Size);
+     free(buf);
+     }
 }
 
 bool cDevice::Replaying(void) const
@@ -1174,7 +1131,7 @@ bool cDevice::AttachPlayer(cPlayer *Player)
         Detach(player);
      DELETENULL(liveSubtitle);
      DELETENULL(dvbSubtitleConverter);
-     pesAssembler->Reset();
+     patPmtParser.Reset();
      player = Player;
      if (!Transferring())
         ClrAvailableTracks(false, true);
@@ -1198,7 +1155,10 @@ void cDevice::Detach(cPlayer *Player)
      dvbSubtitleConverter = NULL;
      SetPlayMode(pmNone);
      SetVideoDisplayFormat(eVideoDisplayFormat(Setup.VideoDisplayFormat));
+     PlayTs(NULL, 0);
+     patPmtParser.Reset();
      Audios.ClearAudio();
+     isPlayingVideo = false;
      }
 }
 
@@ -1235,7 +1195,7 @@ int cDevice::PlaySubtitle(const uchar *Data, int Length)
 {
   if (!dvbSubtitleConverter)
      dvbSubtitleConverter = new cDvbSubtitleConverter;
-  return dvbSubtitleConverter->Convert(Data, Length);
+  return dvbSubtitleConverter->ConvertFragments(Data, Length);
 }
 
 int cDevice::PlayPesPacket(const uchar *Data, int Length, bool VideoOnly)
@@ -1251,6 +1211,7 @@ int cDevice::PlayPesPacket(const uchar *Data, int Length, bool VideoOnly)
         switch (c) {
           case 0xBE:          // padding stream, needed for MPEG1
           case 0xE0 ... 0xEF: // video
+               isPlayingVideo = true;
                w = PlayVideo(Start, d);
                break;
           case 0xC0 ... 0xDF: // audio
@@ -1273,7 +1234,7 @@ int cDevice::PlayPesPacket(const uchar *Data, int Length, bool VideoOnly)
                uchar SubStreamIndex = SubStreamId & 0x1F;
 
                // Compatibility mode for old VDR recordings, where 0xBD was only AC3:
-pre_1_3_19_PrivateStreamDeteced:
+pre_1_3_19_PrivateStreamDetected:
                if (pre_1_3_19_PrivateStream > MIN_PRE_1_3_19_PRIVATESTREAM) {
                   SubStreamId = c;
                   SubStreamType = 0x80;
@@ -1314,7 +1275,8 @@ pre_1_3_19_PrivateStreamDeteced:
                          if (pre_1_3_19_PrivateStream > MIN_PRE_1_3_19_PRIVATESTREAM) {
                             dsyslog("switching to pre 1.3.19 Dolby Digital compatibility mode - substream id = %02X", SubStreamId);
                             ClrAvailableTracks();
-                            goto pre_1_3_19_PrivateStreamDeteced;
+                            pre_1_3_19_PrivateStream = MIN_PRE_1_3_19_PRIVATESTREAM + 1;
+                            goto pre_1_3_19_PrivateStreamDetected;
                             }
                          }
                  }
@@ -1338,42 +1300,16 @@ pre_1_3_19_PrivateStreamDeteced:
 int cDevice::PlayPes(const uchar *Data, int Length, bool VideoOnly)
 {
   if (!Data) {
-     pesAssembler->Reset();
      if (dvbSubtitleConverter)
         dvbSubtitleConverter->Reset();
      return 0;
      }
-  int Result = 0;
-  if (pesAssembler->Length()) {
-     // Make sure we have a complete PES header:
-     while (pesAssembler->Length() < 6 && Length > 0) {
-           pesAssembler->Put(*Data++);
-           Length--;
-           Result++;
-           }
-     if (pesAssembler->Length() < 6)
-        return Result; // Still no complete PES header - wait for more
-     int l = pesAssembler->ExpectedLength();
-     int Rest = min(l - pesAssembler->Length(), Length);
-     pesAssembler->Put(Data, Rest);
-     Data += Rest;
-     Length -= Rest;
-     Result += Rest;
-     if (pesAssembler->Length() < l)
-        return Result; // Still no complete PES packet - wait for more
-     // Now pesAssembler contains one complete PES packet.
-     int w = PlayPesPacket(pesAssembler->Data(), pesAssembler->Length(), VideoOnly);
-     if (w > 0)
-        pesAssembler->Reset();
-     return Result > 0 ? Result : w < 0 ? w : 0;
-     }
   int i = 0;
   while (i <= Length - 6) {
         if (Data[i] == 0x00 && Data[i + 1] == 0x00 && Data[i + 2] == 0x01) {
-           int l = cPesAssembler::PacketSize(&Data[i]);
+           int l = PesLength(Data + i);
            if (i + l > Length) {
-              // Store incomplete PES packet for later completion:
-              pesAssembler->Put(Data + i, Length - i);
+              esyslog("ERROR: incomplete PES packet!");
               return Length;
               }
            int w = PlayPesPacket(Data + i, l, VideoOnly);
@@ -1386,8 +1322,126 @@ int cDevice::PlayPes(const uchar *Data, int Length, bool VideoOnly)
            i++;
         }
   if (i < Length)
-     pesAssembler->Put(Data + i, Length - i);
+     esyslog("ERROR: leftover PES data!");
   return Length;
+}
+
+int cDevice::PlayTsVideo(const uchar *Data, int Length)
+{
+  // Video PES has no explicit length, so we can only determine the end of
+  // a PES packet when the next TS packet that starts a payload comes in:
+  if (TsPayloadStart(Data)) {
+     int l;
+     while (const uchar *p = tsToPesVideo.GetPes(l)) {
+           int w = PlayVideo(p, l);
+           if (w <= 0) {
+              tsToPesVideo.SetRepeatLast();
+              return w;
+              }
+           }
+     tsToPesVideo.Reset();
+     }
+  tsToPesVideo.PutTs(Data, Length);
+  return Length;
+}
+
+int cDevice::PlayTsAudio(const uchar *Data, int Length)
+{
+  // Audio PES always has an explicit length and consists of single packets:
+  int l;
+  if (const uchar *p = tsToPesAudio.GetPes(l)) {
+     int w = PlayAudio(p, l, p[3]);
+     if (w <= 0) {
+        tsToPesAudio.SetRepeatLast();
+        return w;
+        }
+     tsToPesAudio.Reset();
+     }
+  tsToPesAudio.PutTs(Data, Length);
+  return Length;
+}
+
+int cDevice::PlayTsSubtitle(const uchar *Data, int Length)
+{
+  if (!dvbSubtitleConverter)
+     dvbSubtitleConverter = new cDvbSubtitleConverter;
+  tsToPesSubtitle.PutTs(Data, Length);
+  int l;
+  if (const uchar *p = tsToPesSubtitle.GetPes(l)) {
+     dvbSubtitleConverter->Convert(p, l);
+     tsToPesSubtitle.Reset();
+     }
+  return Length;
+}
+
+//TODO detect and report continuity errors?
+int cDevice::PlayTs(const uchar *Data, int Length, bool VideoOnly)
+{
+  int Played = 0;
+  if (Data == NULL) {
+     tsToPesVideo.Reset();
+     tsToPesAudio.Reset();
+     tsToPesSubtitle.Reset();
+     }
+  else if (Length < TS_SIZE) {
+     esyslog("ERROR: skipped %d bytes of TS fragment", Length);
+     return Length;
+     }
+  else {
+     cMutexLock MutexLock(&mutexCurrentAudioTrack);
+     while (Length >= TS_SIZE) {
+           if (Data[0] != TS_SYNC_BYTE) {
+              int Skipped = 1;
+              while (Skipped < Length && (Data[Skipped] != TS_SYNC_BYTE || Length - Skipped > TS_SIZE && Data[Skipped + TS_SIZE] != TS_SYNC_BYTE))
+                    Skipped++;
+              esyslog("ERROR: skipped %d bytes to sync on start of TS packet", Skipped);
+              return Played + Skipped;
+              }
+           int Pid = TsPid(Data);
+           if (TsHasPayload(Data)) { // silently ignore TS packets w/o payload
+              int PayloadOffset = TsPayloadOffset(Data);
+              if (PayloadOffset < TS_SIZE) {
+                 if (Pid == 0)
+                    patPmtParser.ParsePat(Data, TS_SIZE);
+                 else if (Pid == patPmtParser.PmtPid())
+                    patPmtParser.ParsePmt(Data, TS_SIZE);
+                 else if (Pid == patPmtParser.Vpid()) {
+                    isPlayingVideo = true;
+                    int w = PlayTsVideo(Data, TS_SIZE);
+                    if (w < 0)
+                       return Played ? Played : w;
+                    if (w == 0)
+                       break;
+                    }
+                 else if (Pid == availableTracks[currentAudioTrack].id) {
+                    if (!VideoOnly || HasIBPTrickSpeed()) {
+                       int w = PlayTsAudio(Data, TS_SIZE);
+                       if (w < 0)
+                          return Played ? Played : w;
+                       if (w == 0)
+                          break;
+                       Audios.PlayTsAudio(Data, TS_SIZE);
+                       }
+                    }
+                 else if (Pid == availableTracks[currentSubtitleTrack].id) {
+                    if (!VideoOnly || HasIBPTrickSpeed())
+                       PlayTsSubtitle(Data, TS_SIZE);
+                    }
+                 }
+              }
+           else if (Pid == patPmtParser.Ppid()) {
+              int w = PlayTsVideo(Data, TS_SIZE);
+              if (w < 0)
+                 return Played ? Played : w;
+              if (w == 0)
+                 break;
+              }
+           Played += TS_SIZE;
+           Length -= TS_SIZE;
+           Data += TS_SIZE;
+           }
+     }
+  return Played;
 }
 
 int cDevice::Priority(void) const
@@ -1414,7 +1468,6 @@ bool cDevice::Receiving(bool CheckAny) const
   return false;
 }
 
-#define TS_SCRAMBLING_CONTROL  0xC0
 #define TS_SCRAMBLING_TIMEOUT     3 // seconds to wait until a TS becomes unscrambled
 #define TS_SCRAMBLING_TIME_OK    10 // seconds before a Channel/CAM combination is marked as known to decrypt
 
@@ -1426,7 +1479,7 @@ void cDevice::Action(void)
            uchar *b = NULL;
            if (GetTSPacket(b)) {
               if (b) {
-                 int Pid = (((uint16_t)b[1] & PID_MASK_HI) << 8) | b[2];
+                 int Pid = TsPid(b);
                  // Check whether the TS packets are scrambled:
                  bool DetachReceivers = false;
                  bool DescramblingOk = false;

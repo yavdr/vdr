@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: plugin.c 1.28 2008/02/17 13:32:12 kls Exp $
+ * $Id: plugin.c 2.2 2010/01/06 11:36:46 kls Exp $
  */
 
 #include "plugin.h"
@@ -137,6 +137,7 @@ void cPlugin::RegisterI18n(const void *)
 
 void cPlugin::SetConfigDirectory(const char *Dir)
 {
+  free(configDirectory);
   configDirectory = strdup(Dir);
 }
 
@@ -171,15 +172,15 @@ cDll::~cDll()
 static char *SkipQuote(char *s)
 {
   char c = *s;
-  strcpy(s, s + 1);
+  memmove(s, s + 1, strlen(s));
   while (*s && *s != c) {
         if (*s == '\\')
-           strcpy(s, s + 1);
+           memmove(s, s + 1, strlen(s));
         if (*s)
            s++;
         }
   if (*s) {
-     strcpy(s, s + 1);
+     memmove(s, s + 1, strlen(s));
      return s;
      }
   esyslog("ERROR: missing closing %c", c);
@@ -214,7 +215,7 @@ bool cDll::Load(bool Log)
               if (!q)
                  q = p;
               switch (*p) {
-                case '\\': strcpy(p, p + 1);
+                case '\\': memmove(p, p + 1, strlen(p));
                            if (*p)
                               p++;
                            else {

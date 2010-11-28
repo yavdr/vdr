@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: audio.c 1.5 2006/05/28 15:03:24 kls Exp $
+ * $Id: audio.c 2.2 2010/05/16 13:30:11 kls Exp $
  */
 
 #include "audio.h"
@@ -32,6 +32,12 @@ void cAudios::PlayAudio(const uchar *Data, int Length, uchar Id)
       audio->Play(Data, Length, Id);
 }
 
+void cAudios::PlayTsAudio(const uchar *Data, int Length)
+{
+  for (cAudio *audio = First(); audio; audio = Next(audio))
+      audio->PlayTs(Data, Length);
+}
+
 void cAudios::MuteAudio(bool On)
 {
   for (cAudio *audio = First(); audio; audio = Next(audio))
@@ -50,6 +56,7 @@ cExternalAudio::cExternalAudio(const char *Command)
 {
   command = strdup(Command);
   mute = false;
+  cDvbDevice::SetTransferModeForDolbyDigital(2);
 }
 
 cExternalAudio::~cExternalAudio()
@@ -62,7 +69,6 @@ void cExternalAudio::Play(const uchar *Data, int Length, uchar Id)
   if (command && !mute) {
      if (pipe || pipe.Open(command, "w")) {
         if (0x80 <= Id && Id <= 0x87 || Id == 0xBD) { // AC3
-           cDvbDevice::SetTransferModeForDolbyDigital(2);
            int written = Data[8] + 9; // skips the PES header
            if (Id != 0xBD)
               written += 4; // skips AC3 bytes
@@ -77,6 +83,29 @@ void cExternalAudio::Play(const uchar *Data, int Length, uchar Id)
                  written += w;
                  }
            }
+        }
+     else {
+        esyslog("ERROR: can't open pipe to audio command '%s'", command);
+        free(command);
+        command = NULL;
+        }
+     }
+}
+
+void cExternalAudio::PlayTs(const uchar *Data, int Length)
+{
+  if (command && !mute) {
+     if (pipe || pipe.Open(command, "w")) {
+        int written = 0;
+        while (Length > 0) {
+              int w = fwrite(Data + written, 1, Length, pipe);
+              if (w < 0) {
+                 LOG_ERROR;
+                 break;
+                 }
+              Length -= w;
+              written += w;
+              }
         }
      else {
         esyslog("ERROR: can't open pipe to audio command '%s'", command);

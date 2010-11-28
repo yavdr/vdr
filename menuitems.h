@@ -4,13 +4,14 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: menuitems.h 1.25 2008/02/16 16:09:58 kls Exp $
+ * $Id: menuitems.h 2.4 2010/06/06 10:32:38 kls Exp $
  */
 
 #ifndef __MENUITEMS_H
 #define __MENUITEMS_H
 
 #include <limits.h>
+#include "dvbdevice.h"
 #include "osdbase.h"
 
 extern const char *FileNameChars;
@@ -64,6 +65,18 @@ public:
   virtual eOSState ProcessKey(eKeys Key);
   };
 
+class cMenuEditPrcItem : public cMenuEditItem {
+protected:
+  double *value;
+  double min, max;
+  int decimals;
+  int factor;
+  virtual void Set(void);
+public:
+  cMenuEditPrcItem(const char *Name, double *Value, double Min = 0.0, double Max = 1.0, int Decimals = 0);
+  virtual eOSState ProcessKey(eKeys Key);
+  };
+
 class cMenuEditChrItem : public cMenuEditItem {
 private:
   char *value;
@@ -95,6 +108,7 @@ private:
   void AdvancePos(void);
   virtual void Set(void);
   uint Inc(uint c, bool Up);
+  void Type(uint c);
   void Insert(void);
   void Delete(void);
 protected:
@@ -157,6 +171,17 @@ protected:
   virtual void Set(void);
 public:
   cMenuEditTimeItem(const char *Name, int *Value);
+  virtual eOSState ProcessKey(eKeys Key);
+  };
+
+class cMenuEditMapItem : public cMenuEditItem {
+protected:
+  int *value;
+  const tDvbParameterMap *map;
+  const char *zeroString;
+  virtual void Set(void);
+public:
+  cMenuEditMapItem(const char *Name, int *Value, const tDvbParameterMap *Map, const char *ZeroString = NULL);
   virtual eOSState ProcessKey(eKeys Key);
   };
 

@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: recording.h 1.59 2007/10/14 10:11:34 kls Exp $
+ * $Id: recording.h 2.14 2010/03/07 14:06:15 kls Exp $
  */
 
 #ifndef __RECORDING_H
@@ -18,7 +18,12 @@
 #include "timers.h"
 #include "tools.h"
 
+#define FOLDERDELIMCHAR '~'
+#define TIMERMACRO_TITLE    "TITLE"
+#define TIMERMACRO_EPISODE  "EPISODE"
+
 extern bool VfatFileSystem;
+extern int InstanceId;
 
 void RemoveDeletedRecordings(void);
 void AssertFreeDiskSpace(int Priority = 0, bool Force = false);
@@ -30,8 +35,9 @@ void AssertFreeDiskSpace(int Priority = 0, bool Force = false);
 class cResumeFile {
 private:
   char *fileName;
+  bool isPesRecording;
 public:
-  cResumeFile(const char *FileName);
+  cResumeFile(const char *FileName, bool IsPesRecording);
   ~cResumeFile();
   int Read(void);
   bool Save(int Index);
@@ -46,20 +52,30 @@ private:
   const cEvent *event;
   cEvent *ownEvent;
   char *aux;
+  double framesPerSecond;
+  int priority;
+  int lifetime;
+  char *fileName;
   cRecordingInfo(const cChannel *Channel = NULL, const cEvent *Event = NULL);
   void SetData(const char *Title, const char *ShortText, const char *Description);
   void SetAux(const char *Aux);
 public:
+  cRecordingInfo(const char *FileName);
   ~cRecordingInfo();
   tChannelID ChannelID(void) const { return channelID; }
   const char *ChannelName(void) const { return channelName; }
+  const cEvent *GetEvent(void) const { return event; }
   const char *Title(void) const { return event->Title(); }
   const char *ShortText(void) const { return event->ShortText(); }
   const char *Description(void) const { return event->Description(); }
   const cComponents *Components(void) const { return event->Components(); }
   const char *Aux(void) const { return aux; }
+  double FramesPerSecond(void) const { return framesPerSecond; }
+  void SetFramesPerSecond(double FramesPerSecond);
   bool Read(FILE *f);
   bool Write(FILE *f, const char *Prefix = "") const;
+  bool Read(void);
+  bool Write(void) const;
   };
 
 class cRecording : public cListObject {
@@ -71,6 +87,10 @@ private:
   mutable char *fileName;
   mutable char *name;
   mutable int fileSizeMB;
+  int channel;
+  int instanceId;
+  bool isPesRecording;
+  double framesPerSecond;
   cRecordingInfo *info;
   cRecording(const cRecording&); // can't copy cRecording
   cRecording &operator=(const cRecording &); // can't assign cRecording
@@ -93,8 +113,10 @@ public:
   const char *PrefixFileName(char Prefix);
   int HierarchyLevels(void) const;
   void ResetResume(void) const;
+  double FramesPerSecond(void) const { return framesPerSecond; }
   bool IsNew(void) const { return GetResume() <= 0; }
   bool IsEdited(void) const;
+  bool IsPesRecording(void) const { return isPesRecording; }
   bool WriteInfo(void);
   bool Delete(void);
        // Changes the file name so that it will no longer be visible in the "Recordings" menu
@@ -149,11 +171,15 @@ public:
 extern cRecordings Recordings;
 extern cRecordings DeletedRecordings;
 
+#define DEFAULTFRAMESPERSECOND 25.0
+
 class cMark : public cListObject {
+private:
+  double framesPerSecond;
 public:
   int position;
   char *comment;
-  cMark(int Position = 0, const char *Comment = NULL);
+  cMark(int Position = 0, const char *Comment = NULL, double FramesPerSecond = DEFAULTFRAMESPERSECOND);
   virtual ~cMark();
   cString ToText(void);
   bool Parse(const char *s);
@@ -161,8 +187,10 @@ public:
   };
 
 class cMarks : public cConfig<cMark> {
+private:
+  double framesPerSecond;
 public:
-  bool Load(const char *RecordingFileName);
+  bool Load(const char *RecordingFileName, double FramesPerSecond = DEFAULTFRAMESPERSECOND, bool IsPesRecording = false);
   void Sort(void);
   cMark *Add(int Position);
   cMark *Get(int Position);
@@ -182,68 +210,75 @@ public:
   static void InvokeCommand(const char *State, const char *RecordingFileName);
   };
 
-//XXX+
-#define FRAMESPERSEC 25
-
 // The maximum size of a single frame (up to HDTV 1920x1080):
-#define MAXFRAMESIZE  KILOBYTE(512)
+#define MAXFRAMESIZE  (KILOBYTE(1024) / TS_SIZE * TS_SIZE) // multiple of TS_SIZE to avoid breaking up TS packets
 
 // The maximum file size is limited by the range that can be covered
-// with 'int'. 4GB might be possible (if the range is considered
-// 'unsigned'), 2GB should be possible (even if the range is considered
-// 'signed'), so let's use 2000MB for absolute safety (the actual file size
-// may be slightly higher because we stop recording only before the next
-// 'I' frame, to have a complete Group Of Pictures):
-#define MAXVIDEOFILESIZE 2000 // MB
-#define MINVIDEOFILESIZE  100 // MB
+// with a 40 bit 'unsigned int', which is 1TB. The actual maximum value
+// used is 6MB below the theoretical maximum, to have some safety (the
+// actual file size may be slightly higher because we stop recording only
+// before the next independent frame, to have a complete Group Of Pictures):
+#define MAXVIDEOFILESIZETS  1048570 // MB
+#define MAXVIDEOFILESIZEPES    2000 // MB
+#define MINVIDEOFILESIZE        100 // MB
+#define MAXVIDEOFILESIZEDEFAULT MAXVIDEOFILESIZEPES
+
+struct tIndexTs;
+class cIndexFileGenerator;
 
 class cIndexFile {
 private:
-  struct tIndex { int offset; uchar type; uchar number; short reserved; };
   int f;
   char *fileName;
   int size, last;
-  tIndex *index;
+  tIndexTs *index;
+  bool isPesRecording;
   cResumeFile resumeFile;
+  cIndexFileGenerator *indexFileGenerator;
   cMutex mutex;
+  void ConvertFromPes(tIndexTs *IndexTs, int Count);
+  void ConvertToPes(tIndexTs *IndexTs, int Count);
   bool CatchUp(int Index = -1);
 public:
-  cIndexFile(const char *FileName, bool Record);
+  cIndexFile(const char *FileName, bool Record, bool IsPesRecording = false);
   ~cIndexFile();
   bool Ok(void) { return index != NULL; }
-  bool Write(uchar PictureType, uchar FileNumber, int FileOffset);
-  bool Get(int Index, uchar *FileNumber, int *FileOffset, uchar *PictureType = NULL, int *Length = NULL);
-  int GetNextIFrame(int Index, bool Forward, uchar *FileNumber = NULL, int *FileOffset = NULL, int *Length = NULL, bool StayOffEnd = false);
-  int Get(uchar FileNumber, int FileOffset);
+  bool Write(bool Independent, uint16_t FileNumber, off_t FileOffset);
+  bool Get(int Index, uint16_t *FileNumber, off_t *FileOffset, bool *Independent = NULL, int *Length = NULL);
+  int GetNextIFrame(int Index, bool Forward, uint16_t *FileNumber = NULL, off_t *FileOffset = NULL, int *Length = NULL, bool StayOffEnd = false);
+  int Get(uint16_t FileNumber, off_t FileOffset);
   int Last(void) { CatchUp(); return last; }
   int GetResume(void) { return resumeFile.Read(); }
   bool StoreResume(int Index) { return resumeFile.Save(Index); }
   bool IsStillRecording(void);
+  void Delete(void);
   };
 
 class cFileName {
 private:
   cUnbufferedFile *file;
-  int fileNumber;
+  uint16_t fileNumber;
   char *fileName, *pFileNumber;
   bool record;
   bool blocking;
+  bool isPesRecording;
 public:
-  cFileName(const char *FileName, bool Record, bool Blocking = false);
+  cFileName(const char *FileName, bool Record, bool Blocking = false, bool IsPesRecording = false);
   ~cFileName();
   const char *Name(void) { return fileName; }
-  int Number(void) { return fileNumber; }
+  uint16_t Number(void) { return fileNumber; }
+  bool GetLastPatPmtVersions(int &PatVersion, int &PmtVersion);
   cUnbufferedFile *Open(void);
   void Close(void);
-  cUnbufferedFile *SetOffset(int Number, int Offset = 0);
+  cUnbufferedFile *SetOffset(int Number, off_t Offset = 0); // yes, Number is int for easier internal calculating
   cUnbufferedFile *NextFile(void);
   };
 
-cString IndexToHMSF(int Index, bool WithFrame = false);
+cString IndexToHMSF(int Index, bool WithFrame = false, double FramesPerSecond = DEFAULTFRAMESPERSECOND);
       // Converts the given index to a string, optionally containing the frame number.
-int HMSFToIndex(const char *HMSF);
+int HMSFToIndex(const char *HMSF, double FramesPerSecond = DEFAULTFRAMESPERSECOND);
       // Converts the given string (format: "hh:mm:ss.ff") to an index.
-int SecondsToFrames(int Seconds); //XXX+ ->player???
+int SecondsToFrames(int Seconds, double FramesPerSecond = DEFAULTFRAMESPERSECOND);
       // Returns the number of frames corresponding to the given number of seconds.
 
 int ReadFrame(cUnbufferedFile *f, uchar *b, int Length, int Max);
@@ -253,5 +288,7 @@ char *ExchangeChars(char *s, bool ToFileSystem);
       // specific representation (depending on ToFileSystem). The given string will
       // be modified and may be reallocated if more space is needed. The return
       // value points to the resulting string, which may be different from s.
+
+bool GenerateIndex(const char *FileName);
 
 #endif //__RECORDING_H

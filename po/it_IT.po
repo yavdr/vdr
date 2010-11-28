@@ -1,23 +1,26 @@
 # VDR language source file.
-# Copyright (C) 2008 Klaus Schmidinger <kls@cadsoft.de>
+# Copyright (C) 2008 Klaus Schmidinger <kls@tvdr.de>
 # This file is distributed under the same license as the VDR package.
 # Alberto Carraro <bertocar@tin.it>, 2001
 # Antonio Ospite <ospite@studenti.unina.it>, 2003, 2006
 # Sean Carlos <seanc@libero.it>, 2005
 # Nino Gerbino <ngerb@interfree.it>, 2006
-# Diego Pierotto <vdr-italian@tiscali.it>, 2007, 2008
+# Diego Pierotto <vdr-italian@tiscali.it>, 2007, 2008, 2010
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: VDR 1.6.0\n"
-"Report-Msgid-Bugs-To: <vdr-bugs@cadsoft.de>\n"
-"POT-Creation-Date: 2008-02-10 12:22+0100\n"
-"PO-Revision-Date: 2008-03-08 21:06+0100\n"
+"Report-Msgid-Bugs-To: <vdr-bugs@tvdr.de>\n"
+"POT-Creation-Date: 2010-06-06 12:52+0200\n"
+"PO-Revision-Date: 2010-06-13 00:30+0100\n"
 "Last-Translator: Diego Pierotto <vdr-italian@tiscali.it>\n"
-"Language-Team:  Italian\n"
+"Language-Team: Italian\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-15\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Italian\n"
+"X-Poedit-Country: ITALY\n"
+"X-Poedit-SourceCharset: utf-8\n"
 
 msgid "*** Invalid Channel ***"
 msgstr "*** Canale NON valido ***"
@@ -28,8 +31,297 @@ msgstr "Canale non disponibile!"
 msgid "Can't start Transfer Mode!"
 msgstr "Impossibile avviare mod. trasferimento!"
 
+msgid "off"
+msgstr "off"
+
+msgid "on"
+msgstr "on"
+
+msgid "auto"
+msgstr "automatico"
+
+msgid "none"
+msgstr "nessuno"
+
+msgid "Polarization"
+msgstr "Polarizzazione"
+
+msgid "System"
+msgstr "Sistema"
+
+msgid "Srate"
+msgstr "SymbolRate"
+
+msgid "Inversion"
+msgstr "Inversione"
+
+msgid "CoderateH"
+msgstr "CoderateH"
+
+msgid "CoderateL"
+msgstr "CoderateL"
+
+msgid "Modulation"
+msgstr "Modulazione"
+
+msgid "Bandwidth"
+msgstr "Banda passante"
+
+msgid "Transmission"
+msgstr "Trasmissione"
+
+msgid "Guard"
+msgstr "Guard"
+
+msgid "Hierarchy"
+msgstr "Gerarchia"
+
+msgid "Rolloff"
+msgstr "Rolloff"
+
 msgid "Starting EPG scan"
 msgstr "Inizio scansione EPG"
+
+msgid "Content$Movie/Drama"
+msgstr "Film/Dramma"
+
+msgid "Content$Detective/Thriller"
+msgstr "Investigativo/Giallo"
+
+msgid "Content$Adventure/Western/War"
+msgstr "Avventura/Western/Guerra"
+
+msgid "Content$Science Fiction/Fantasy/Horror"
+msgstr "Finzione/Fantasia/Horror"
+
+msgid "Content$Comedy"
+msgstr "Commedia"
+
+msgid "Content$Soap/Melodrama/Folkloric"
+msgstr "Telenovella/Melodramma/Folcloristico"
+
+msgid "Content$Romance"
+msgstr "Romanzo"
+
+msgid "Content$Serious/Classical/Religious/Historical Movie/Drama"
+msgstr "Serio/Classico/Religioso/Film storico/Dramma"
+
+msgid "Content$Adult Movie/Drama"
+msgstr "Film per adulti/Dramma"
+
+msgid "Content$News/Current Affairs"
+msgstr "Notizie/Ultima ora"
+
+msgid "Content$News/Weather Report"
+msgstr "Notizie/Previsioni meteo"
+
+msgid "Content$News Magazine"
+msgstr "Settimanale di attualit√†"
+
+msgid "Content$Documentary"
+msgstr "Documentario"
+
+msgid "Content$Discussion/Inverview/Debate"
+msgstr "Discussione/Intervista/Dibattito"
+
+msgid "Content$Show/Game Show"
+msgstr "Spettacolo/Gioco a premi"
+
+msgid "Content$Game Show/Quiz/Contest"
+msgstr "Gioco a premi/Quiz/Gara"
+
+msgid "Content$Variety Show"
+msgstr "Spettacolo di variet√†"
+
+msgid "Content$Talk Show"
+msgstr "Talk Show"
+
+msgid "Content$Sports"
+msgstr "Sport"
+
+msgid "Content$Special Event"
+msgstr "Evento speciale"
+
+msgid "Content$Sport Magazine"
+msgstr "Settimanale di sport"
+
+msgid "Content$Football/Soccer"
+msgstr "Calcio"
+
+msgid "Content$Tennis/Squash"
+msgstr "Tennis/Squash"
+
+msgid "Content$Team Sports"
+msgstr "Sport di squadra"
+
+msgid "Content$Athletics"
+msgstr "Atletica"
+
+msgid "Content$Motor Sport"
+msgstr "Sport motoristici"
+
+msgid "Content$Water Sport"
+msgstr "Sport acquatici"
+
+msgid "Content$Winter Sports"
+msgstr "Sport invernali"
+
+msgid "Content$Equestrian"
+msgstr "Equitazione"
+
+msgid "Content$Martial Sports"
+msgstr "Arti marziali"
+
+msgid "Content$Children's/Youth Programme"
+msgstr "Programmi per ragazzi/giovani"
+
+msgid "Content$Pre-school Children's Programme"
+msgstr "Programmi per ragazzi prescolastici"
+
+msgid "Content$Entertainment Programme for 6 to 14"
+msgstr "Programmi di intrattenimento da 6 a 14"
+
+msgid "Content$Entertainment Programme for 10 to 16"
+msgstr "Programmi di intrattenimento da 10 a 16"
+
+msgid "Content$Informational/Educational/School Programme"
+msgstr "Informativo/Educativo/Programma scolastico"
+
+msgid "Content$Cartoons/Puppets"
+msgstr "Cartoni/Pupazzi"
+
+msgid "Content$Music/Ballet/Dance"
+msgstr "Musica/Balletto/Danza"
+
+msgid "Content$Rock/Pop"
+msgstr "Rock/Pop"
+
+msgid "Content$Serious/Classical Music"
+msgstr "Musica Classica/Seria"
+
+msgid "Content$Folk/Tradional Music"
+msgstr "Musica Tradizionale/Folclore"
+
+msgid "Content$Jazz"
+msgstr "Jazz"
+
+msgid "Content$Musical/Opera"
+msgstr "Musical/Opera"
+
+msgid "Content$Ballet"
+msgstr "Balletto"
+
+msgid "Content$Arts/Culture"
+msgstr "Arte/Cultura"
+
+msgid "Content$Performing Arts"
+msgstr "Arti di rendimento"
+
+msgid "Content$Fine Arts"
+msgstr "Arti fine"
+
+msgid "Content$Religion"
+msgstr "Religione"
+
+msgid "Content$Popular Culture/Traditional Arts"
+msgstr "Cultura popolare/Arti tradizionali"
+
+msgid "Content$Literature"
+msgstr "Letteratura"
+
+msgid "Content$Film/Cinema"
+msgstr "Film/Cinema"
+
+msgid "Content$Experimental Film/Video"
+msgstr "Film sperimentale/Video"
+
+msgid "Content$Broadcasting/Press"
+msgstr "Trasmissione/Stampa"
+
+msgid "Content$New Media"
+msgstr "Nuovo programma"
+
+msgid "Content$Arts/Culture Magazine"
+msgstr "Arte/Settimanale di cultura"
+
+msgid "Content$Fashion"
+msgstr "Moda"
+
+msgid "Content$Social/Political/Economics"
+msgstr "Societ√†/Politica/Economia"
+
+msgid "Content$Magazine/Report/Documentary"
+msgstr "Settimanale/Reportage/Documentario"
+
+msgid "Content$Economics/Social Advisory"
+msgstr "Economia/Consulenza sociale"
+
+msgid "Content$Remarkable People"
+msgstr "Personaggi importanti"
+
+msgid "Content$Education/Science/Factual"
+msgstr "Educazione/Scienza/Fatti"
+
+msgid "Content$Nature/Animals/Environment"
+msgstr "Natura/Animali/Ambiente"
+
+msgid "Content$Technology/Natural Sciences"
+msgstr "Tecnologia/Scienze naturali"
+
+msgid "Content$Medicine/Physiology/Psychology"
+msgstr "Medicina/Filosofia/Psicologia"
+
+msgid "Content$Foreign Countries/Expeditions"
+msgstr "Paesi esteri/Spedizioni"
+
+msgid "Content$Social/Spiritual Sciences"
+msgstr "Societ√†/Scienze spirituali"
+
+msgid "Content$Further Education"
+msgstr "Altra educazione"
+
+msgid "Content$Languages"
+msgstr "Lingue"
+
+msgid "Content$Leisure/Hobbies"
+msgstr "Tempo libero/Hobby"
+
+msgid "Content$Tourism/Travel"
+msgstr "Turismo/Viaggi"
+
+msgid "Content$Handicraft"
+msgstr "Artigianato"
+
+msgid "Content$Motoring"
+msgstr "Motori"
+
+msgid "Content$Fitness & Health"
+msgstr "Culturismo & Salute"
+
+msgid "Content$Cooking"
+msgstr "Cucina"
+
+msgid "Content$Advertisement/Shopping"
+msgstr "Pubblicit√†/Acquisti"
+
+msgid "Content$Gardening"
+msgstr "Giardinaggio"
+
+msgid "Content$Original Language"
+msgstr "Lingua madre"
+
+msgid "Content$Black & White"
+msgstr "Bianco & Nero"
+
+msgid "Content$Unpublished"
+msgstr "Non pubblicato"
+
+msgid "Content$Live Broadcast"
+msgstr "Trasmissione dal vivo"
+
+#, c-format
+msgid "ParentalRating$from %d"
+msgstr "da %d"
 
 msgid "No title"
 msgstr "Senza titolo"
@@ -46,7 +338,7 @@ msgid "Phase 1: Detecting RC code type"
 msgstr "Fase 1: Rilevamento tipo codice RC"
 
 msgid "Press any key on the RC unit"
-msgstr "Premi un tasto dell'unit‡ RC"
+msgstr "Premi un tasto dell'unit√† RC"
 
 msgid "RC code detected!"
 msgstr "Codice RC rilevato!"
@@ -65,13 +357,13 @@ msgid "Press 'Up' to confirm"
 msgstr "Premi 'Su' per confermare"
 
 msgid "Press 'Down' to continue"
-msgstr "Premi 'Gi˘' per continuare"
+msgstr "Premi 'Gi√π' per continuare"
 
 msgid "(press 'Up' to go back)"
 msgstr "(premi 'Su' per tornare indietro)"
 
 msgid "(press 'Down' to end key definition)"
-msgstr "(premi 'Gi˘' per concludere definizione tasti)"
+msgstr "(premi 'Gi√π' per concludere definizione tasti)"
 
 msgid "(press 'Menu' to skip this key)"
 msgstr "(premi 'Menu' per saltare questo tasto)"
@@ -83,13 +375,13 @@ msgid "Phase 3: Saving key codes"
 msgstr "Fase 3: Salvataggio codici tasti"
 
 msgid "Press 'Up' to save, 'Down' to cancel"
-msgstr "Premi 'Su' per salvare, 'Gi˘' per annullare"
+msgstr "Premi 'Su' per salvare, 'Gi√π' per annullare"
 
 msgid "Key$Up"
 msgstr "Su"
 
 msgid "Key$Down"
-msgstr "Gi˘"
+msgstr "Gi√π"
 
 msgid "Key$Menu"
 msgstr "Menu"
@@ -190,6 +482,9 @@ msgstr "Opzioni"
 msgid "Key$Commands"
 msgstr "Comandi"
 
+msgid "Key$User0"
+msgstr "Utente0"
+
 msgid "Key$User1"
 msgstr "Utente1"
 
@@ -221,16 +516,13 @@ msgid "Disk"
 msgstr "Disco"
 
 msgid "free"
-msgstr "liberi"
+msgstr "disponibili"
 
 msgid "Free To Air"
 msgstr "in chiaro"
 
 msgid "encrypted"
 msgstr "codificato"
-
-msgid "auto"
-msgstr "automatico"
 
 msgid "Edit channel"
 msgstr "Modifica canale"
@@ -277,42 +569,6 @@ msgstr "CA"
 msgid "Sid"
 msgstr "Sid"
 
-msgid "Polarization"
-msgstr "Polarizzazione"
-
-msgid "Srate"
-msgstr "SymbolRate"
-
-msgid "Inversion"
-msgstr "Inversione"
-
-msgid "off"
-msgstr "off"
-
-msgid "CoderateH"
-msgstr "CoderateH"
-
-msgid "none"
-msgstr "nessuno"
-
-msgid "CoderateL"
-msgstr "CoderateL"
-
-msgid "Modulation"
-msgstr "Modulazione"
-
-msgid "Bandwidth"
-msgstr "Banda passante"
-
-msgid "Transmission"
-msgstr "Trasmissione"
-
-msgid "Guard"
-msgstr "Guard"
-
-msgid "Hierarchy"
-msgstr "Gerarchia"
-
 msgid "Channel settings are not unique!"
 msgstr "Parametri canale non univoci!"
 
@@ -337,6 +593,31 @@ msgstr "Canale occupato da un timer!"
 msgid "Delete channel?"
 msgstr "Eliminare il canale?"
 
+msgid "Edit folder"
+msgstr "Modifica cartella"
+
+msgid "New folder"
+msgstr "Nuova cartella"
+
+msgid "Sub folder"
+msgstr "Sotto cartella"
+
+msgid "Folder name already exists!"
+msgstr "Nome cartella gi√† esistente!"
+
+#, c-format
+msgid "Folder name must not contain '%c'!"
+msgstr "Il nome cartella non deve contenere '%c'!"
+
+msgid "Button$Select"
+msgstr "Seleziona"
+
+msgid "Delete folder and all sub folders?"
+msgstr "Eliminare la cartella e sue sottocartelle?"
+
+msgid "Delete folder?"
+msgstr "Eliminare la cartella?"
+
 msgid "Edit timer"
 msgstr "Modifica timer"
 
@@ -359,16 +640,22 @@ msgid "VPS"
 msgstr "VPS"
 
 msgid "Priority"
-msgstr "Priorit‡"
+msgstr "Priorit√†"
 
 msgid "Lifetime"
-msgstr "Durata"
+msgstr "Scadenza"
 
 msgid "File"
 msgstr "Nome"
 
+msgid "Button$Folder"
+msgstr "Cartella"
+
 msgid "First day"
-msgstr "1∞ giorno"
+msgstr "1¬∞ giorno"
+
+msgid "Select folder"
+msgstr "Seleziona cartella"
 
 msgid "Timers"
 msgstr "Timer"
@@ -404,20 +691,20 @@ msgid "What's on next?"
 msgstr "Prossimi programmi"
 
 msgid "Button$Next"
-msgstr "Prossimo"
+msgstr "Prossimi"
 
 msgid "Button$Now"
 msgstr "Adesso"
 
 msgid "Button$Schedule"
-msgstr "Programma"
+msgstr "Programmi"
 
 msgid "Can't switch channel!"
 msgstr "Impossibile cambiare canale!"
 
 #, c-format
 msgid "Schedule - %s"
-msgstr "Programma - %s"
+msgstr "Programmi - %s"
 
 #, c-format
 msgid "This event - %s"
@@ -487,20 +774,20 @@ msgstr "Stile interfaccia"
 msgid "Setup.OSD$Theme"
 msgstr "Tema colori"
 
-msgid "Setup.OSD$Left"
-msgstr "Sinistra"
+msgid "Setup.OSD$Left (%)"
+msgstr "Sinistra (%)"
 
-msgid "Setup.OSD$Top"
-msgstr "In alto"
+msgid "Setup.OSD$Top (%)"
+msgstr "In alto (%)"
 
-msgid "Setup.OSD$Width"
-msgstr "Larghezza OSD"
+msgid "Setup.OSD$Width (%)"
+msgstr "Larghezza OSD (%)"
 
-msgid "Setup.OSD$Height"
-msgstr "Altezza OSD"
+msgid "Setup.OSD$Height (%)"
+msgstr "Altezza OSD (%)"
 
 msgid "Setup.OSD$Message time (s)"
-msgstr "Tempo del messaggio (s)"
+msgstr "Durata del messaggio (s)"
 
 msgid "Setup.OSD$Use small font"
 msgstr "Utilizza caratteri piccoli"
@@ -517,14 +804,14 @@ msgstr "Caratteri piccoli"
 msgid "Setup.OSD$Fixed font"
 msgstr "Caratteri fissi"
 
-msgid "Setup.OSD$Default font size (pixel)"
-msgstr "Dim. caratteri pred. (pixel)"
+msgid "Setup.OSD$Default font size (%)"
+msgstr "Dim. caratteri pred. (%)"
 
-msgid "Setup.OSD$Small font size (pixel)"
-msgstr "Dim. caratteri piccoli (pixel)"
+msgid "Setup.OSD$Small font size (%)"
+msgstr "Dim. caratteri piccoli (%)"
 
-msgid "Setup.OSD$Fixed font size (pixel)"
-msgstr "Dim. caratteri fissi (pixel)"
+msgid "Setup.OSD$Fixed font size (%)"
+msgstr "Dim. caratteri fissi (%)"
 
 msgid "Setup.OSD$Channel info position"
 msgstr "Posizione info canale"
@@ -556,6 +843,12 @@ msgstr "Tasto Menu per chiudere"
 msgid "Setup.OSD$Recording directories"
 msgstr "Directory di registrazione"
 
+msgid "Setup.OSD$Folders in timer menu"
+msgstr "Cartelle nel menu timer"
+
+msgid "Setup.OSD$Number keys for characters"
+msgstr "Tasti numerici per i caratteri"
+
 msgid "EPG"
 msgstr "Guida programmi EPG"
 
@@ -572,7 +865,7 @@ msgid "Setup.EPG$EPG linger time (min)"
 msgstr "Mostra vecchi dati EPG (min)"
 
 msgid "Setup.EPG$Set system time"
-msgstr "Imposta orario automatico"
+msgstr "Imposta orario di sistema"
 
 msgid "Setup.EPG$Use time from transponder"
 msgstr "Utilizza orario da transponder"
@@ -622,13 +915,13 @@ msgid "Setup.DVB$Video format"
 msgstr "Formato video"
 
 msgid "Setup.DVB$Video display format"
-msgstr "Formato di visualizz. video"
+msgstr "Formato visualizzazione video"
 
 msgid "Setup.DVB$Use Dolby Digital"
 msgstr "Dolby Digital"
 
 msgid "Setup.DVB$Update channels"
-msgstr "Aggiorna i canali"
+msgstr "Aggiornamento canali"
 
 msgid "Setup.DVB$Audio languages"
 msgstr "Lingue audio"
@@ -673,10 +966,10 @@ msgid "CAM reset"
 msgstr "Reimposta la CAM"
 
 msgid "CAM present"
-msgstr "La CAM Ë presente"
+msgstr "La CAM √® presente"
 
 msgid "CAM ready"
-msgstr "La CAM Ë pronta"
+msgstr "La CAM √® pronta"
 
 msgid "CAM"
 msgstr "Accesso condizionato CAM"
@@ -694,10 +987,25 @@ msgid "Can't open CAM menu!"
 msgstr "Impossibile aprire il menu CAM!"
 
 msgid "CAM is in use - really reset?"
-msgstr "La CAM Ë in uso - vuoi reimpostarla?"
+msgstr "La CAM √® in uso - vuoi reimpostarla?"
 
 msgid "Can't reset CAM!"
 msgstr "Impossibile reimpostare il modulo CAM!"
+
+msgid "do not pause live video"
+msgstr "non pausare video dal vivo"
+
+msgid "confirm pause live video"
+msgstr "conferma pausa video dal vivo"
+
+msgid "pause live video"
+msgstr "pausa video dal vivo"
+
+msgid "confirm"
+msgstr "conferma"
+
+msgid "yes"
+msgstr "s√¨"
 
 msgid "Recording"
 msgstr "Registrazione"
@@ -712,16 +1020,19 @@ msgid "Setup.Recording$Primary limit"
 msgstr "Limite primario"
 
 msgid "Setup.Recording$Default priority"
-msgstr "Priorit‡ predefinita"
+msgstr "Priorit√† predefinita"
 
 msgid "Setup.Recording$Default lifetime (d)"
-msgstr "Durata predefinita (gg)"
+msgstr "Scadenza predefinita (gg)"
+
+msgid "Setup.Recording$Pause key handling"
+msgstr "Gestione tasto Pausa"
 
 msgid "Setup.Recording$Pause priority"
-msgstr "Priorit‡ di pausa"
+msgstr "Priorit√† di pausa"
 
 msgid "Setup.Recording$Pause lifetime (d)"
-msgstr "Durata pausa (gg)"
+msgstr "Scadenza pausa (gg)"
 
 msgid "Setup.Recording$Use episode name"
 msgstr "Utilizza nome episodio"
@@ -739,7 +1050,7 @@ msgid "Setup.Recording$Name instant recording"
 msgstr "Nome reg. immediata"
 
 msgid "Setup.Recording$Instant rec. time (min)"
-msgstr "Tempo reg. immediata (min)"
+msgstr "Durata reg. immediata (min)"
 
 msgid "Setup.Recording$Max. video file size (MB)"
 msgstr "Dim. massima file video (MB)"
@@ -747,14 +1058,17 @@ msgstr "Dim. massima file video (MB)"
 msgid "Setup.Recording$Split edited files"
 msgstr "Dividi i file modificati"
 
+msgid "Setup.Recording$Delete timeshift recording"
+msgstr "Elimina registrazione timeshift"
+
 msgid "Replay"
 msgstr "Riproduzione"
 
 msgid "Setup.Replay$Multi speed mode"
-msgstr "Modalit‡ multispeed"
+msgstr "Modalit√† multispeed"
 
 msgid "Setup.Replay$Show replay mode"
-msgstr "Mostra modalit‡ riproduzione"
+msgstr "Mostra modalit√† riproduzione"
 
 msgid "Setup.Replay$Resume ID"
 msgstr "ID di ripristino"
@@ -766,7 +1080,7 @@ msgid "Setup.Miscellaneous$Min. event timeout (min)"
 msgstr "Scadenza min. evento (min)"
 
 msgid "Setup.Miscellaneous$Min. user inactivity (min)"
-msgstr "Periodo min. inattivit‡ (min)"
+msgstr "Periodo min. inattivit√† (min)"
 
 msgid "Setup.Miscellaneous$SVDRP timeout (s)"
 msgstr "Scadenza SVDRP (s)"
@@ -785,6 +1099,9 @@ msgstr "come prima"
 
 msgid "Setup.Miscellaneous$Initial volume"
 msgstr "Volume iniziale"
+
+msgid "Setup.Miscellaneous$Channels wrap"
+msgstr "Riavvolgimento canali"
 
 msgid "Setup.Miscellaneous$Emergency exit"
 msgstr "Uscita di emergenza"
@@ -861,6 +1178,9 @@ msgstr "Nessuna periferica DVB disponibile per registrare!"
 msgid "Pausing live video..."
 msgstr "Pausa del canale in visione..."
 
+msgid "Delete timeshift recording?"
+msgstr "Eliminare registrazione timeshift?"
+
 #. TRANSLATORS: note the trailing blank!
 msgid "Jump: "
 msgstr "Vai a: "
@@ -875,16 +1195,13 @@ msgid "Editing process started"
 msgstr "Processo di modifica avviato"
 
 msgid "Editing process already active!"
-msgstr "Processo di modifica gi‡ attivo!"
+msgstr "Processo di modifica gi√† attivo!"
 
 msgid "FileNameChars$ abcdefghijklmnopqrstuvwxyz0123456789-.,#~\\^$[]|()*+?{}/:%@&"
-msgstr " a·‡bcdeÈËfghiÏÓjklmnoÚpqrstu˘vwxyz0123456789-.,#~\\^$[]|()*+?{}/:%@&∞"
-
-msgid "yes"
-msgstr "sÏ"
+msgstr " a√°√†bcde√©√®fghi√≠√¨jklmno√≥√≤pqrstu√∫√πvwxyz0123456789-.,#~\\^$[]|()*+?{}/:%@&¬∞"
 
 msgid "CharMap$ 0\t-.,1#~\\^$[]|()*+?{}/:%@&\tabc2\tdef3\tghi4\tjkl5\tmno6\tpqrs7\ttuv8\twxyz9"
-msgstr " 0\t-.,1#~\\^$[]|()*+∞?{}/:%@&\ta‡bc2\tdeËf3\tghiÏ4\tjkl5\tmnoÚ6\tpqrs7\ttu˘v8\twxyz9"
+msgstr " 0\t-.,1#~\\^$[]|()*+¬∞?{}/:%@&\ta√°√†bc2\tde√©√®f3\tghi√≠√¨4\tjkl5\tmno√≥√≤6\tpqrs7\ttu√∫√πv8\twxyz9"
 
 msgid "Button$ABC/abc"
 msgstr "ABC/abc"
@@ -899,13 +1216,19 @@ msgid "Plugin"
 msgstr "Plugin"
 
 msgid "Up/Dn for new location - OK to move"
-msgstr "Su/Gi˘ per nuova posizione - OK per muovere"
+msgstr "Su/Gi√π per nuova posizione - OK per spostare"
 
 msgid "Channel locked (recording)!"
 msgstr "Canale bloccato (in registrazione)!"
 
 msgid "Low disk space!"
 msgstr "Poco spazio su disco!"
+
+msgid "Regenerating index file"
+msgstr "Rigenerazione file indice"
+
+msgid "Index file regeneration complete"
+msgstr "Rigenerazione file indice completata"
 
 msgid "Can't shutdown - option '-s' not given!"
 msgstr "Impossibile spegnere - parametro '-s' non assegnato!"
@@ -918,7 +1241,7 @@ msgstr "Registrazione in corso - spegnere comunque?"
 
 #, c-format
 msgid "Recording in %ld minutes, shut down anyway?"
-msgstr "Registrazione fra %ld minuti - spegnere comunque?"
+msgstr "Registrazione tra %ld minuti - spegnere comunque?"
 
 msgid "shut down anyway?"
 msgstr "spegnere comunque?"
@@ -955,19 +1278,19 @@ msgid "MonTueWedThuFriSatSun"
 msgstr "LunMarMerGioVenSabDom"
 
 msgid "Monday"
-msgstr "LunedÏ"
+msgstr "Luned√¨"
 
 msgid "Tuesday"
-msgstr "MartedÏ"
+msgstr "Marted√¨"
 
 msgid "Wednesday"
-msgstr "MercoledÏ"
+msgstr "Mercoled√¨"
 
 msgid "Thursday"
-msgstr "GiovedÏ"
+msgstr "Gioved√¨"
 
 msgid "Friday"
-msgstr "VenerdÏ"
+msgstr "Venerd√¨"
 
 msgid "Saturday"
 msgstr "Sabato"
@@ -978,11 +1301,14 @@ msgstr "Domenica"
 msgid "Upcoming recording!"
 msgstr "Registrazione imminente!"
 
+msgid "Pause live video?"
+msgstr "Pausare video dal vivo?"
+
 msgid "Recording started"
 msgstr "Registrazione avviata"
 
 msgid "VDR will shut down later - press Power to force"
-msgstr "VDR si spegner‡ pi˘ tardi - premi Power per forzare"
+msgstr "VDR si spegner√† pi√π tardi - premi Power per forzare"
 
 msgid "Press any key to cancel shutdown"
 msgstr "Premi un tasto per annullare lo spegnimento"
@@ -1001,4 +1327,4 @@ msgstr "Premi un tasto per annullare il riavvio"
 
 #, c-format
 msgid "VDR will shut down in %s minutes"
-msgstr "VDR si spegner‡ tra %s minuti"
+msgstr "VDR si spegner√† tra %s minuti"

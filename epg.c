@@ -7,7 +7,7 @@
  * Original version (as used in VDR before 1.3.0) written by
  * Robert Schneider <Robert.Schneider@web.de> and Rolf Hakenes <hakenes@hippomi.de>.
  *
- * $Id: epg.c 1.83 2008/02/16 16:09:12 kls Exp $
+ * $Id: epg.c 2.6 2010/02/28 14:24:55 kls Exp $
  */
 
 #include "epg.h"
@@ -88,8 +88,10 @@ void cComponents::SetComponent(int Index, uchar Stream, uchar Type, const char *
 tComponent *cComponents::GetComponent(int Index, uchar Stream, uchar Type)
 {
   for (int i = 0; i < numComponents; i++) {
-      // In case of an audio stream the 'type' check actually just distinguishes between "normal" and "Dolby Digital":
-      if (components[i].stream == Stream && (Stream != 2 || (components[i].type < 5) == (Type < 5))) {
+      if (components[i].stream == Stream && (
+          Type == 0 || // don't care about the actual Type
+          Stream == 2 && (components[i].type < 5) == (Type < 5) // fallback "Dolby" component according to the "Premiere pseudo standard"
+         )) {
          if (!Index--)
             return &components[i];
          }
@@ -110,6 +112,8 @@ cEvent::cEvent(tEventID EventID)
   shortText = NULL;
   description = NULL;
   components = NULL;
+  memset(contents, 0, sizeof(contents));
+  parentalRating = 0;
   startTime = 0;
   duration = 0;
   vps = 0;
@@ -184,6 +188,17 @@ void cEvent::SetComponents(cComponents *Components)
   components = Components;
 }
 
+void cEvent::SetContents(uchar *Contents)
+{
+  for (int i = 0; i < MaxEventContents; i++)
+      contents[i] = Contents[i];
+}
+
+void cEvent::SetParentalRating(int ParentalRating)
+{
+  parentalRating = ParentalRating;
+}
+
 void cEvent::SetStartTime(time_t StartTime)
 {
   if (startTime != StartTime) {
@@ -232,6 +247,155 @@ bool cEvent::IsRunning(bool OrAboutToStart) const
   return runningStatus >= (OrAboutToStart ? SI::RunningStatusStartsInAFewSeconds : SI::RunningStatusPausing);
 }
 
+const char *cEvent::ContentToString(uchar Content)
+{
+  switch (Content & 0xF0) {
+    case ecgMovieDrama:
+         switch (Content & 0x0F) {
+           default:
+           case 0x00: return tr("Content$Movie/Drama");
+           case 0x01: return tr("Content$Detective/Thriller");
+           case 0x02: return tr("Content$Adventure/Western/War");
+           case 0x03: return tr("Content$Science Fiction/Fantasy/Horror");
+           case 0x04: return tr("Content$Comedy");
+           case 0x05: return tr("Content$Soap/Melodrama/Folkloric");
+           case 0x06: return tr("Content$Romance");
+           case 0x07: return tr("Content$Serious/Classical/Religious/Historical Movie/Drama");
+           case 0x08: return tr("Content$Adult Movie/Drama");
+           }
+         break;
+    case ecgNewsCurrentAffairs:
+         switch (Content & 0x0F) {
+           default:
+           case 0x00: return tr("Content$News/Current Affairs");
+           case 0x01: return tr("Content$News/Weather Report");
+           case 0x02: return tr("Content$News Magazine");
+           case 0x03: return tr("Content$Documentary");
+           case 0x04: return tr("Content$Discussion/Inverview/Debate");
+           }
+         break;
+    case ecgShow:
+         switch (Content & 0x0F) {
+           default:
+           case 0x00: return tr("Content$Show/Game Show");
+           case 0x01: return tr("Content$Game Show/Quiz/Contest");
+           case 0x02: return tr("Content$Variety Show");
+           case 0x03: return tr("Content$Talk Show");
+           }
+         break;
+    case ecgSports:
+         switch (Content & 0x0F) {
+           default:
+           case 0x00: return tr("Content$Sports");
+           case 0x01: return tr("Content$Special Event");
+           case 0x02: return tr("Content$Sport Magazine");
+           case 0x03: return tr("Content$Football/Soccer");
+           case 0x04: return tr("Content$Tennis/Squash");
+           case 0x05: return tr("Content$Team Sports");
+           case 0x06: return tr("Content$Athletics");
+           case 0x07: return tr("Content$Motor Sport");
+           case 0x08: return tr("Content$Water Sport");
+           case 0x09: return tr("Content$Winter Sports");
+           case 0x0A: return tr("Content$Equestrian");
+           case 0x0B: return tr("Content$Martial Sports");
+           }
+         break;
+    case ecgChildrenYouth:
+         switch (Content & 0x0F) {
+           default:
+           case 0x00: return tr("Content$Children's/Youth Programme");
+           case 0x01: return tr("Content$Pre-school Children's Programme");
+           case 0x02: return tr("Content$Entertainment Programme for 6 to 14");
+           case 0x03: return tr("Content$Entertainment Programme for 10 to 16");
+           case 0x04: return tr("Content$Informational/Educational/School Programme");
+           case 0x05: return tr("Content$Cartoons/Puppets");
+           }
+         break;
+    case ecgMusicBalletDance:
+         switch (Content & 0x0F) {
+           default:
+           case 0x00: return tr("Content$Music/Ballet/Dance");
+           case 0x01: return tr("Content$Rock/Pop");
+           case 0x02: return tr("Content$Serious/Classical Music");
+           case 0x03: return tr("Content$Folk/Tradional Music");
+           case 0x04: return tr("Content$Jazz");
+           case 0x05: return tr("Content$Musical/Opera");
+           case 0x06: return tr("Content$Ballet");
+           }
+         break;
+    case ecgArtsCulture:
+         switch (Content & 0x0F) {
+           default:
+           case 0x00: return tr("Content$Arts/Culture");
+           case 0x01: return tr("Content$Performing Arts");
+           case 0x02: return tr("Content$Fine Arts");
+           case 0x03: return tr("Content$Religion");
+           case 0x04: return tr("Content$Popular Culture/Traditional Arts");
+           case 0x05: return tr("Content$Literature");
+           case 0x06: return tr("Content$Film/Cinema");
+           case 0x07: return tr("Content$Experimental Film/Video");
+           case 0x08: return tr("Content$Broadcasting/Press");
+           case 0x09: return tr("Content$New Media");
+           case 0x0A: return tr("Content$Arts/Culture Magazine");
+           case 0x0B: return tr("Content$Fashion");
+           }
+         break;
+    case ecgSocialPoliticalEconomics:
+         switch (Content & 0x0F) {
+           default:
+           case 0x00: return tr("Content$Social/Political/Economics");
+           case 0x01: return tr("Content$Magazine/Report/Documentary");
+           case 0x02: return tr("Content$Economics/Social Advisory");
+           case 0x03: return tr("Content$Remarkable People");
+           }
+         break;
+    case ecgEducationalScience:
+         switch (Content & 0x0F) {
+           default:
+           case 0x00: return tr("Content$Education/Science/Factual");
+           case 0x01: return tr("Content$Nature/Animals/Environment");
+           case 0x02: return tr("Content$Technology/Natural Sciences");
+           case 0x03: return tr("Content$Medicine/Physiology/Psychology");
+           case 0x04: return tr("Content$Foreign Countries/Expeditions");
+           case 0x05: return tr("Content$Social/Spiritual Sciences");
+           case 0x06: return tr("Content$Further Education");
+           case 0x07: return tr("Content$Languages");
+           }
+         break;
+    case ecgLeisureHobbies:
+         switch (Content & 0x0F) {
+           default:
+           case 0x00: return tr("Content$Leisure/Hobbies");
+           case 0x01: return tr("Content$Tourism/Travel");
+           case 0x02: return tr("Content$Handicraft");
+           case 0x03: return tr("Content$Motoring");
+           case 0x04: return tr("Content$Fitness & Health");
+           case 0x05: return tr("Content$Cooking");
+           case 0x06: return tr("Content$Advertisement/Shopping");
+           case 0x07: return tr("Content$Gardening");
+           }
+         break;
+    case ecgSpecial:
+         switch (Content & 0x0F) {
+           case 0x00: return tr("Content$Original Language");
+           case 0x01: return tr("Content$Black & White");
+           case 0x02: return tr("Content$Unpublished");
+           case 0x03: return tr("Content$Live Broadcast");
+           default: ;
+           }
+         break;
+    default: ;
+    }
+  return "";
+}
+
+cString cEvent::GetParentalRatingString(void) const
+{
+  if (parentalRating)
+     return cString::sprintf(tr("ParentalRating$from %d"), parentalRating);
+  return NULL;
+}
+
 cString cEvent::GetDateString(void) const
 {
   return DateString(startTime);
@@ -268,11 +432,17 @@ void cEvent::Dump(FILE *f, const char *Prefix, bool InfoOnly) const
         fprintf(f, "%sD %s\n", Prefix, description);
         strreplace(description, '|', '\n');
         }
+     if (contents[0]) {
+        fprintf(f, "%sG", Prefix);
+        for (int i = 0; Contents(i); i++)
+            fprintf(f, " %02X", Contents(i));
+        fprintf(f, "\n");
+        }
+     if (parentalRating)
+        fprintf(f, "%sR %d\n", Prefix, parentalRating);
      if (components) {
         for (int i = 0; i < components->NumComponents(); i++) {
             tComponent *p = components->Component(i);
-            if (!Setup.UseDolbyDigital && p->stream == 0x02 && p->type == 0x05)
-               continue;
             fprintf(f, "%sX %s\n", Prefix, *p->ToString());
             }
         }
@@ -293,6 +463,22 @@ bool cEvent::Parse(char *s)
               break;
     case 'D': strreplace(t, '|', '\n');
               SetDescription(t);
+              break;
+    case 'G': {
+                memset(contents, 0, sizeof(contents));
+                for (int i = 0; i < MaxEventContents; i++) {
+                    char *tail = NULL;
+                    int c = strtol(t, &tail, 16);
+                    if (0x00 < c && c <= 0xFF) {
+                       contents[i] = c;
+                       t = tail;
+                       }
+                    else
+                       break;
+                    }
+              }
+              break;
+    case 'R': SetParentalRating(atoi(t));
               break;
     case 'X': if (!components)
                  components = new cComponents;
@@ -601,6 +787,7 @@ void cEvent::FixEpgBugs(void)
                      case 0x0F: p->description = strdup("HD 16:9"); break;
                      case 0x0C:
                      case 0x10: p->description = strdup("HD >16:9"); break;
+                     default: ;
                      }
                    EpgBugFixStat(9, ChannelID());
                    }
@@ -619,12 +806,13 @@ void cEvent::FixEpgBugs(void)
                 if (!p->description) {
                    switch (p->type) {
                      case 0x05: p->description = strdup("Dolby Digital"); break;
-                     // all others will just display the language
+                     default: ; // all others will just display the language
                      }
                    EpgBugFixStat(11, ChannelID());
                    }
                 }
                 break;
+           default: ;
            }
          }
      }
@@ -861,6 +1049,7 @@ void cSchedule::Dump(FILE *f, const char *Prefix, eDumpMode DumpMode, time_t AtT
                p->Dump(f, Prefix);
             }
             break;
+       default: esyslog("ERROR: unknown DumpMode %d (%s %d)", DumpMode, __FUNCTION__, __LINE__);
        }
      fprintf(f, "%sc\n", Prefix);
      }

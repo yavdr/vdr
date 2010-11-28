@@ -3,7 +3,7 @@
  *
  * See the README file for copyright information and how to reach the author.
  *
- * $Id: hello.c 1.15 2008/03/18 17:13:25 kls Exp $
+ * $Id: hello.c 2.3 2010/02/28 12:49:28 kls Exp $
  */
 
 #include <getopt.h>
@@ -12,7 +12,7 @@
 #include <vdr/interface.h>
 #include <vdr/plugin.h>
 
-static const char *VERSION        = "0.2.2";
+static const char *VERSION        = "0.2.5";
 static const char *DESCRIPTION    = trNOOP("A friendly greeting");
 static const char *MAINMENUENTRY  = trNOOP("Hello");
 
@@ -96,7 +96,7 @@ bool cPluginHello::ProcessArgs(int argc, char *argv[])
   static struct option long_options[] = {
        { "aaa",      required_argument, NULL, 'a' },
        { "bbb",      no_argument,       NULL, 'b' },
-       { NULL }
+       { NULL,       no_argument,       NULL,  0  }
      };
 
   int c;

@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: menu.h 1.91 2008/02/10 16:01:53 kls Exp $
+ * $Id: menu.h 2.3 2010/03/06 16:15:59 kls Exp $
  */
 
 #ifndef __MENU_H
@@ -31,14 +31,55 @@ public:
   virtual eOSState ProcessKey(eKeys Key);
   };
 
+class cMenuFolder : public cOsdMenu {
+private:
+  cNestedItemList *nestedItemList;
+  cList<cNestedItem> *list;
+  cString dir;
+  cOsdItem *firstFolder;
+  bool editing;
+  void SetHelpKeys(void);
+  void Set(const char *CurrentFolder = NULL);
+  void DescendPath(const char *Path);
+  eOSState SetFolder(void);
+  eOSState Select(void);
+  eOSState New(void);
+  eOSState Delete(void);
+  eOSState Edit(void);
+  cMenuFolder(const char *Title, cList<cNestedItem> *List, cNestedItemList *NestedItemList, const char *Dir, const char *Path = NULL);
+public:
+  cMenuFolder(const char *Title, cNestedItemList *NestedItemList, const char *Path = NULL);
+  cString GetFolder(void);
+  virtual eOSState ProcessKey(eKeys Key);
+  };
+
+class cMenuCommands : public cOsdMenu {
+private:
+  cList<cNestedItem> *commands;
+  cString parameters;
+  cString title;
+  cString command;
+  bool confirm;
+  char *result;
+  bool Parse(const char *s);
+  eOSState Execute(void);
+public:
+  cMenuCommands(const char *Title, cList<cNestedItem> *Commands, const char *Parameters = NULL);
+  virtual ~cMenuCommands();
+  virtual eOSState ProcessKey(eKeys Key);
+  };
+
 class cMenuEditTimer : public cOsdMenu {
 private:
   cTimer *timer;
   cTimer data;
   int channel;
   bool addIfConfirmed;
+  cMenuEditStrItem *file;
   cMenuEditDateItem *firstday;
+  eOSState SetFolder(void);
   void SetFirstDayItem(void);
+  void SetHelpKeys(void);
 public:
   cMenuEditTimer(cTimer *Timer, bool New = false);
   virtual ~cMenuEditTimer();
@@ -185,7 +226,7 @@ public:
   virtual ~cRecordControl();
   bool Process(time_t t);
   cDevice *Device(void) { return device; }
-  void Stop(void);
+  void Stop(bool ExecuteUserCommand = true);
   const char *InstantId(void) { return instantId; }
   const char *FileName(void) { return fileName; }
   cTimer *Timer(void) { return timer; }
@@ -237,6 +278,7 @@ private:
 public:
   cReplayControl(void);
   virtual ~cReplayControl();
+  void Stop(void);
   virtual cOsdObject *GetInfo(void);
   virtual eOSState ProcessKey(eKeys Key);
   virtual void Show(void);

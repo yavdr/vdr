@@ -4,7 +4,7 @@ Video Disk Recorder ('VDR')
 These files contain the source code of the "Video Disk Recorder",
 which is based on the DVB driver of the LinuxTV project (http://linuxtv.org).
 For details about the "Video Disk Recorder" project please
-refer to http://www.cadsoft.de/vdr.
+refer to http://www.tvdr.de.
 
 There is also a remote control unit described on those
 Web pages, which can be used within this program.
@@ -17,7 +17,7 @@ The MANUAL file describes how to operate the VDR.
 The CONTRIBUTORS file lists all the people who have contributed to the
 development of VDR.
 
-The author can be contacted at kls@cadsoft.de.
+The author can be contacted at kls@tvdr.de.
 
 Yet another "set-top box"?
 --------------------------
@@ -34,3 +34,7 @@ file management and even "on disk editing". The menus
 of commercial set-top boxes usually are a lot more fancy than
 the ones in this system, but here we have the full source code
 and can modify the menus in whatever way desired.
+
+
+"VDR Video Disk Recorder" is a registered trademark of Klaus Schmidinger. 
+"TVDR TV Done Right" is a registered trademark of Klaus Schmidinger. 

@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: device.h 1.91 2008/02/23 13:13:04 kls Exp $
+ * $Id: device.h 2.22 2010/04/05 09:51:29 kls Exp $
  */
 
 #ifndef __DEVICE_H
@@ -17,6 +17,7 @@
 #include "filter.h"
 #include "nit.h"
 #include "pat.h"
+#include "remux.h"
 #include "ringbuffer.h"
 #include "sdt.h"
 #include "sections.h"
@@ -29,10 +30,6 @@
 #define MAXRECEIVERS       16 // the maximum number of receivers per device
 #define MAXVOLUME         255
 #define VOLUMEDELTA         5 // used to increase/decrease the volume
-
-#define TS_SIZE          188
-#define TS_SYNC_BYTE     0x47
-#define PID_MASK_HI      0x1F
 
 enum eSetChannelResult { scrOk, scrNotAvailable, scrNoTransfer, scrFailed };
 
@@ -89,13 +86,23 @@ struct tTrackId {
 
 class cPlayer;
 class cReceiver;
-class cPesAssembler;
 class cLiveSubtitle;
+
+class cDeviceHook : public cListObject {
+public:
+  cDeviceHook(void);
+          ///< Creates a new device hook object.
+          ///< Do not delete this object - it will be automatically deleted when the
+          ///< program ends.
+  virtual bool DeviceProvidesTransponder(const cDevice *Device, const cChannel *Channel) const;
+          ///< Returns true if the given Device can provide the given Channel's transponder.
+  };
 
 /// The cDevice class is the base from which actual devices can be derived.
 
 class cDevice : public cThread {
   friend class cLiveSubtitle;
+  friend class cDeviceHook;
 private:
   static int numDevices;
   static int useDevice;
@@ -180,6 +187,8 @@ protected:
          ///< anything the device needs to set up when it becomes the primary
          ///< device (On = true) or to shut down when it no longer is the primary
          ///< device (On = false), it should do so in this function.
+         ///< A derived class must call the MakePrimaryDevice() function of its
+         ///< base class.
 public:
   bool IsPrimaryDevice(void) const { return this == primaryDevice; }
   int CardIndex(void) const { return cardIndex; }
@@ -188,6 +197,13 @@ public:
          ///< Returns the number of this device (0 ... numDevices).
   virtual bool HasDecoder(void) const;
          ///< Tells whether this device has an MPEG decoder.
+
+// Device hooks
+
+private:
+  static cList<cDeviceHook> deviceHooks;
+protected:
+  bool DeviceHooksProvidesTransponder(const cChannel *Channel) const;
 
 // SPU facilities
 
@@ -228,6 +244,17 @@ public:
          ///< function itself actually returns true.
          ///< The default implementation always returns false, so a derived cDevice
          ///< class that can provide channels must implement this function.
+  virtual int NumProvidedSystems(void) const;
+         ///< Returns the number of individual "delivery systems" this device provides.
+         ///< The default implementation returns 0, so any derived class that can
+         ///< actually provide channels must implement this function.
+         ///< The result of this function is used when selecting a device, in order
+         ///< to avoid devices that provide more than one system.
+  virtual const cChannel *GetCurrentlyTunedTransponder(void) const;
+         ///< Returns a pointer to the currently tuned transponder.
+         ///< This is not one of the channels in the global cChannels list, but rather
+         ///< a local copy. The result may be NULL if the device is not tuned to any
+         ///< transponder.
   virtual bool IsTunedToTransponder(const cChannel *Channel);
          ///< Returns true if this device is currently tuned to the given Channel's
          ///< transponder.
@@ -275,14 +302,15 @@ protected:
   class cPidHandle {
   public:
     int pid;
+    int streamType;
     int handle;
     int used;
-    cPidHandle(void) { pid = used = 0; handle = -1; }
+    cPidHandle(void) { pid = streamType = used = 0; handle = -1; }
     };
   cPidHandle pidHandles[MAXPIDHANDLES];
   bool HasPid(int Pid) const;
          ///< Returns true if this device is currently receiving the given PID.
-  bool AddPid(int Pid, ePidType PidType = ptOther);
+  bool AddPid(int Pid, ePidType PidType = ptOther, int StreamType = 0);
          ///< Adds a PID to the set of PIDs this device shall receive.
   void DelPid(int Pid, ePidType PidType = ptOther);
          ///< Deletes a PID from the set of PIDs this device shall receive.
@@ -375,6 +403,25 @@ public:
   virtual eVideoSystem GetVideoSystem(void);
          ///< Returns the video system of the currently displayed material
          ///< (default is PAL).
+  virtual void GetVideoSize(int &Width, int &Height, double &VideoAspect);
+         ///< Returns the With, Height and VideoAspect ratio of the currently
+         ///< displayed video material. The data returned by this function is
+         ///< only used for informational purposes (if any). Width and
+         ///< Height are given in pixel (e.g. 720x576) and VideoAspect is
+         ///< e.g. 1.33333 for a 4:3 broadcast, or 1.77778 for 16:9.
+         ///< The default implementation returns 0 for Width and Height
+         ///< and 1.0 for VideoAspect.
+  virtual void GetOsdSize(int &Width, int &Height, double &PixelAspect);
+         ///< Returns the With, Height and PixelAspect ratio the OSD should use
+         ///< to best fit the resolution of the output device. If PixelAspect
+         ///< is not 1.0, the OSD may take this as a hint to scale its
+         ///< graphics in a way that, e.g., a circle will actually
+         ///< show up as a circle on the screen, and not as an ellipse.
+         ///< Values greater than 1.0 mean to stretch the graphics in the
+         ///< vertical direction (or shrink it in the horizontal direction,
+         ///< depending on which dimension shall be fixed). Values less than
+         ///< 1.0 work the other way round. Note that the OSD is not guaranteed
+         ///< to actually use this hint.
 
 // Track facilities
 
@@ -471,8 +518,15 @@ public:
 
 private:
   cPlayer *player;
-  cPesAssembler *pesAssembler;
+  cPatPmtParser patPmtParser;
+  cTsToPes tsToPesVideo;
+  cTsToPes tsToPesAudio;
+  cTsToPes tsToPesSubtitle;
+  bool isPlayingVideo;
 protected:
+  const cPatPmtParser *PatPmtParser(void) const { return &patPmtParser; }
+       ///< Returns a pointer to the patPmtParser, so that a derived device
+       ///< can use the stream information from it.
   virtual bool CanReplay(void) const;
        ///< Returns true if this device can currently start a replay session.
   virtual bool SetPlayMode(ePlayMode PlayMode);
@@ -482,7 +536,7 @@ protected:
        ///< Plays the given data block as video.
        ///< Data points to exactly one complete PES packet of the given Length.
        ///< PlayVideo() shall process the packet either as a whole (returning
-       ///< Length) or not at all (returning 0 or -1 and setting 'errno' to EAGAIN).
+       ///< Length) or not at all (returning 0 or -1 and setting 'errno' accordingly).
        ///< \return Returns the number of bytes actually taken from Data, or -1
        ///< in case of an error.
   virtual int PlayAudio(const uchar *Data, int Length, uchar Id);
@@ -490,14 +544,14 @@ protected:
        ///< Data points to exactly one complete PES packet of the given Length.
        ///< Id indicates the type of audio data this packet holds.
        ///< PlayAudio() shall process the packet either as a whole (returning
-       ///< Length) or not at all (returning 0 or -1 and setting 'errno' to EAGAIN).
+       ///< Length) or not at all (returning 0 or -1 and setting 'errno' accordingly).
        ///< \return Returns the number of bytes actually taken from Data, or -1
        ///< in case of an error.
   virtual int PlaySubtitle(const uchar *Data, int Length);
        ///< Plays the given data block as a subtitle.
        ///< Data points to exactly one complete PES packet of the given Length.
        ///< PlaySubtitle() shall process the packet either as a whole (returning
-       ///< Length) or not at all (returning 0 or -1 and setting 'errno' to EAGAIN).
+       ///< Length) or not at all (returning 0 or -1 and setting 'errno' accordingly).
        ///< \return Returns the number of bytes actually taken from Data, or -1
        ///< in case of an error.
   virtual int PlayPesPacket(const uchar *Data, int Length, bool VideoOnly = false);
@@ -505,11 +559,45 @@ protected:
        ///< If VideoOnly is true, only the video will be displayed,
        ///< which is necessary for trick modes like 'fast forward'.
        ///< Data must point to one single, complete PES packet.
+  virtual int PlayTsVideo(const uchar *Data, int Length);
+       ///< Plays the given data block as video.
+       ///< Data points to exactly one complete TS packet of the given Length
+       ///< (which is always TS_SIZE).
+       ///< PlayTsVideo() shall process the packet either as a whole (returning
+       ///< Length) or not at all (returning 0 or -1 and setting 'errno' accordingly).
+       ///< The default implementation collects all incoming TS payload belonging
+       ///< to one PES packet and calls PlayVideo() with the resulting packet.
+  virtual int PlayTsAudio(const uchar *Data, int Length);
+       ///< Plays the given data block as audio.
+       ///< Data points to exactly one complete TS packet of the given Length
+       ///< (which is always TS_SIZE).
+       ///< PlayTsAudio() shall process the packet either as a whole (returning
+       ///< Length) or not at all (returning 0 or -1 and setting 'errno' accordingly).
+       ///< The default implementation collects all incoming TS payload belonging
+       ///< to one PES packet and calls PlayAudio() with the resulting packet.
+  virtual int PlayTsSubtitle(const uchar *Data, int Length);
+       ///< Plays the given data block as a subtitle.
+       ///< Data points to exactly one complete TS packet of the given Length
+       ///< (which is always TS_SIZE).
+       ///< PlayTsSubtitle() shall process the packet either as a whole (returning
+       ///< Length) or not at all (returning 0 or -1 and setting 'errno' accordingly).
+       ///< The default implementation collects all incoming TS payload belonging
+       ///< to one PES packet and displays the resulting subtitle via the OSD.
 public:
   virtual int64_t GetSTC(void);
        ///< Gets the current System Time Counter, which can be used to
        ///< synchronize audio and video. If this device is unable to
        ///< provide the STC, -1 will be returned.
+       ///< The value returned doesn't need to be an actual "clock" value,
+       ///< it is sufficient if it holds the PTS (Presentation Time Stamp) of
+       ///< the most recently presented frame. A proper value must be returned
+       ///< in normal replay mode as well as in any trick modes (like slow motion,
+       ///< fast forward/rewind).
+       ///< Only the lower 32 bit of this value are actually used, since some
+       ///< devices can't handle the msb correctly.
+  virtual bool IsPlayingVideo(void) const { return isPlayingVideo; }
+       ///< \return Returns true if the currently attached player has delivered
+       ///< any video packets.
   virtual bool HasIBPTrickSpeed(void) { return false; }
        ///< Returns true if this device can handle all frames in 'fast forward'
        ///< trick speeds.
@@ -538,6 +626,10 @@ public:
        ///< all registered cAudio objects are notified.
   virtual void StillPicture(const uchar *Data, int Length);
        ///< Displays the given I-frame as a still picture.
+       ///< Data points either to TS (first byte is 0x47) or PES (first byte
+       ///< is 0x00) data of the given Length. The default implementation
+       ///< converts TS to PES and calls itself again, allowing a derived class
+       ///< to display PES if it can't handle TS directly.
   virtual bool Poll(cPoller &Poller, int TimeoutMs = 0);
        ///< Returns true if the device itself or any of the file handles in
        ///< Poller is ready for further action.
@@ -548,7 +640,7 @@ public:
        ///< data which was bufferd so far has been processed.
        ///< If TimeoutMs is not zero, the device will wait up to the given
        ///< number of milliseconds before returning in case there is still
-       ///< data in the buffers..
+       ///< data in the buffers.
   virtual int PlayPes(const uchar *Data, int Length, bool VideoOnly = false);
        ///< Plays all valid PES packets in Data with the given Length.
        ///< If Data is NULL any leftover data from a previous call will be
@@ -559,6 +651,22 @@ public:
        ///< to a complete packet with data from the next call to PlayPes().
        ///< That way any functions called from within PlayPes() will be
        ///< guaranteed to always receive complete PES packets.
+  virtual int PlayTs(const uchar *Data, int Length, bool VideoOnly = false);
+       ///< Plays the given TS packet.
+       ///< If VideoOnly is true, only the video will be displayed,
+       ///< which is necessary for trick modes like 'fast forward'.
+       ///< Data points to a single TS packet, Length is always TS_SIZE (the total
+       ///< size of a single TS packet).
+       ///< If Data is NULL any leftover data from a previous call will be
+       ///< discarded.
+       ///< A derived device can reimplement this function to handle the
+       ///< TS packets itself. Any packets the derived function can't handle
+       ///< must be sent to the base class function. This applies especially
+       ///< to the PAT/PMT packets.
+       ///< Returns -1 in case of error, otherwise the number of actually
+       ///< processed bytes is returned.
+       ///< PlayTs() shall process the TS packets either as a whole (returning
+       ///< n*TS_SIZE) or not at all, returning 0 or -1 and setting 'errno' accordingly).
   bool Replaying(void) const;
        ///< Returns true if we are currently replaying.
   bool Transferring(void) const;

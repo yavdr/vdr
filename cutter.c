@@ -4,13 +4,12 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: cutter.c 1.18 2008/01/13 12:22:21 kls Exp $
+ * $Id: cutter.c 2.5 2010/08/29 13:35:18 kls Exp $
  */
 
 #include "cutter.h"
 #include "recording.h"
 #include "remux.h"
-#include "thread.h"
 #include "videodir.h"
 
 // --- cCuttingThread --------------------------------------------------------
@@ -18,10 +17,12 @@
 class cCuttingThread : public cThread {
 private:
   const char *error;
+  bool isPesRecording;
   cUnbufferedFile *fromFile, *toFile;
   cFileName *fromFileName, *toFileName;
   cIndexFile *fromIndex, *toIndex;
   cMarks fromMarks, toMarks;
+  off_t maxVideoFileSize;
 protected:
   virtual void Action(void);
 public:
@@ -37,12 +38,17 @@ cCuttingThread::cCuttingThread(const char *FromFileName, const char *ToFileName)
   fromFile = toFile = NULL;
   fromFileName = toFileName = NULL;
   fromIndex = toIndex = NULL;
-  if (fromMarks.Load(FromFileName) && fromMarks.Count()) {
-     fromFileName = new cFileName(FromFileName, false, true);
-     toFileName = new cFileName(ToFileName, true, true);
-     fromIndex = new cIndexFile(FromFileName, false);
-     toIndex = new cIndexFile(ToFileName, true);
-     toMarks.Load(ToFileName); // doesn't actually load marks, just sets the file name
+  cRecording Recording(FromFileName);
+  isPesRecording = Recording.IsPesRecording();
+  if (fromMarks.Load(FromFileName, Recording.FramesPerSecond(), isPesRecording) && fromMarks.Count()) {
+     fromFileName = new cFileName(FromFileName, false, true, isPesRecording);
+     toFileName = new cFileName(ToFileName, true, true, isPesRecording);
+     fromIndex = new cIndexFile(FromFileName, false, isPesRecording);
+     toIndex = new cIndexFile(ToFileName, true, isPesRecording);
+     toMarks.Load(ToFileName, Recording.FramesPerSecond(), isPesRecording); // doesn't actually load marks, just sets the file name
+     maxVideoFileSize = MEGABYTE(Setup.MaxVideoFileSize);
+     if (isPesRecording && maxVideoFileSize > MEGABYTE(MAXVIDEOFILESIZEPES))
+        maxVideoFileSize = MEGABYTE(MAXVIDEOFILESIZEPES);
      Start();
      }
   else
@@ -69,7 +75,7 @@ void cCuttingThread::Action(void)
      fromFile->SetReadAhead(MEGABYTE(20));
      int Index = Mark->position;
      Mark = fromMarks.Next(Mark);
-     int FileSize = 0;
+     off_t FileSize = 0;
      int CurrentFileNumber = 0;
      int LastIFrame = 0;
      toMarks.Add(0);
@@ -78,9 +84,10 @@ void cCuttingThread::Action(void)
      bool LastMark = false;
      bool cutIn = true;
      while (Running()) {
-           uchar FileNumber;
-           int FileOffset, Length;
-           uchar PictureType;
+           uint16_t FileNumber;
+           off_t FileOffset;
+           int Length;
+           bool Independent;
 
            // Make sure there is enough disk space:
 
@@ -88,7 +95,7 @@ void cCuttingThread::Action(void)
 
            // Read one frame:
 
-           if (fromIndex->Get(Index++, &FileNumber, &FileOffset, &PictureType, &Length)) {
+           if (fromIndex->Get(Index++, &FileNumber, &FileOffset, &Independent, &Length)) {
               if (FileNumber != CurrentFileNumber) {
                  fromFile = fromFileName->SetOffset(FileNumber, FileOffset);
                  fromFile->SetReadAhead(MEGABYTE(20));
@@ -119,10 +126,10 @@ void cCuttingThread::Action(void)
 
            // Write one frame:
 
-           if (PictureType == I_FRAME) { // every file shall start with an I_FRAME
+           if (Independent) { // every file shall start with an independent frame
               if (LastMark) // edited version shall end before next I-frame
                  break;
-              if (FileSize > MEGABYTE(Setup.MaxVideoFileSize)) {
+              if (FileSize > maxVideoFileSize) {
                  toFile = toFileName->NextFile();
                  if (!toFile) {
                     error = "toFile 1";
@@ -133,7 +140,10 @@ void cCuttingThread::Action(void)
               LastIFrame = 0;
 
               if (cutIn) {
-                 cRemux::SetBrokenLink(buffer, Length);
+                 if (isPesRecording)
+                    cRemux::SetBrokenLink(buffer, Length);
+                 else
+                    TsSetTeiOnBrokenPackets(buffer, Length);
                  cutIn = false;
                  }
               }
@@ -141,7 +151,7 @@ void cCuttingThread::Action(void)
               error = "safe_write";
               break;
               }
-           if (!toIndex->Write(PictureType, toFileName->Number(), FileSize)) {
+           if (!toIndex->Write(Independent, toFileName->Number(), FileSize)) {
               error = "toIndex";
               break;
               }
@@ -183,6 +193,7 @@ void cCuttingThread::Action(void)
 
 // --- cCutter ---------------------------------------------------------------
 
+cMutex cCutter::mutex;
 char *cCutter::editedVersionName = NULL;
 cCuttingThread *cCutter::cuttingThread = NULL;
 bool cCutter::error = false;
@@ -190,6 +201,7 @@ bool cCutter::ended = false;
 
 bool cCutter::Start(const char *FileName)
 {
+  cMutexLock MutexLock(&mutex);
   if (!cuttingThread) {
      error = false;
      ended = false;
@@ -220,6 +232,7 @@ bool cCutter::Start(const char *FileName)
 
 void cCutter::Stop(void)
 {
+  cMutexLock MutexLock(&mutex);
   bool Interrupted = cuttingThread && cuttingThread->Active();
   const char *Error = cuttingThread ? cuttingThread->Error() : NULL;
   delete cuttingThread;
@@ -236,6 +249,7 @@ void cCutter::Stop(void)
 
 bool cCutter::Active(void)
 {
+  cMutexLock MutexLock(&mutex);
   if (cuttingThread) {
      if (cuttingThread->Active())
         return true;
@@ -252,6 +266,7 @@ bool cCutter::Active(void)
 
 bool cCutter::Error(void)
 {
+  cMutexLock MutexLock(&mutex);
   bool result = error;
   error = false;
   return result;
@@ -259,7 +274,36 @@ bool cCutter::Error(void)
 
 bool cCutter::Ended(void)
 {
+  cMutexLock MutexLock(&mutex);
   bool result = ended;
   ended = false;
   return result;
+}
+
+#define CUTTINGCHECKINTERVAL 500 // ms between checks for the active cutting process
+
+bool CutRecording(const char *FileName)
+{
+  if (DirectoryOk(FileName)) {
+     cRecording Recording(FileName);
+     if (Recording.Name()) {
+        cMarks Marks;
+        if (Marks.Load(FileName, Recording.FramesPerSecond(), Recording.IsPesRecording()) && Marks.Count()) {
+           if (cCutter::Start(FileName)) {
+              while (cCutter::Active())
+                    cCondWait::SleepMs(CUTTINGCHECKINTERVAL);
+              return true;
+              }
+           else
+              fprintf(stderr, "can't start editing process\n");
+           }
+        else
+           fprintf(stderr, "'%s' has no editing marks\n", FileName);
+        }
+     else
+        fprintf(stderr, "'%s' is not a recording\n", FileName);
+     }
+  else
+     fprintf(stderr, "'%s' is not a directory\n", FileName);
+  return false;
 }

@@ -4,16 +4,19 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: cutter.h 1.1 2002/06/22 10:03:15 kls Exp $
+ * $Id: cutter.h 2.2 2010/08/29 13:32:33 kls Exp $
  */
 
 #ifndef __CUTTER_H
 #define __CUTTER_H
 
+#include "thread.h"
+
 class cCuttingThread;
 
 class cCutter {
 private:
+  static cMutex mutex;
   static char *editedVersionName;
   static cCuttingThread *cuttingThread;
   static bool error;
@@ -25,5 +28,7 @@ public:
   static bool Error(void);
   static bool Ended(void);
   };
+
+bool CutRecording(const char *FileName);
 
 #endif //__CUTTER_H

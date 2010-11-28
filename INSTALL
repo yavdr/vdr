@@ -1,7 +1,7 @@
 Installation of the Video Disk Recorder
 ---------------------------------------
 
-Version 1.6
+Version 1.7
 -----------
 
 Compiling and running the program:
@@ -16,14 +16,14 @@ to Make.config and adjust the definition of DVBDIR in that file.
 
 Refer to http://linuxtv.org for more information about the Linux-DVB driver.
 
-VDR requires the Linux-DVB driver version dated 2003-08-23 or higher
-to work properly.
+VDR requires the Linux-DVB driver version that supports the S2API interface.
 
 You will also need to install the following libraries, as well as their
 "devel" packages to get the necessary header files for compiling VDR:
 
   fontconfig
   freetype2
+  fribidi (see "BiDi support" below)
   gettext
   libcap
   libjpeg
@@ -48,7 +48,7 @@ to one of the following values in the 'make' call to make the respective control
 the default:
 
   REMOTE=RCU    control via the "Remote Control Unit" receiver
-                (see http://www.cadsoft.de/vdr/remote.htm)
+                (see http://www.tvdr.de/remote.htm)
   REMOTE=LIRC   control via the "Linux Infrared Remote Control"
                 (see http://www.lirc.org)
 
@@ -57,13 +57,8 @@ These options accept an optional path to the remote control device,
 the defaults of which can be set via the RCU_DEVICE and LIRC_DEVICE macros,
 respectively.
 
-If your video directory will be on a VFAT partition, add the compile
-time switch
-
-  VFAT=1
-
-to the 'make' command. Alternatively, you can call VDR with the command
-line option '--vfat'.
+If your video directory will be on a VFAT partition, you can call VDR with
+the command line option '--vfat'.
 
 When running, the 'vdr' program writes status information into the
 system log file, which is usually /var/log/messages (or /var/log/user.log,
@@ -72,7 +67,7 @@ messages (tail -f /var/log/messages) to see if there are any problems.
 
 The program can be controlled via a network connection to its SVDRP
 port ("Simple Video Disk Recorder Protocol"). By default, it listens
-on port 2001 (use the --port=PORT option to change this). For details
+on port 6419 (use the --port=PORT option to change this). For details
 about the SVDRP syntax see the source file 'svdrp.c'.
 
 WARNING: DUE TO THE OPEN SVDRP PORT THIS PROGRAM MAY CONSTITUTE A
@@ -117,6 +112,16 @@ in English.
 Note that for VDR's internationalized texts to work, the LANG environment
 variable must be set to a valid locale!
 
+BiDi support
+------------
+
+Some languages are written right-to-left. In order to display such languages
+correctly, you need to build VDR with BIDI=1. This will link to the "fribidi"
+library and implement a function that prepares bidirectional texts to be
+displayed correctly. Since BiDi support adds some runtime overhead by requiring
+additional memory allocation and copying, this feature is not compiled in
+by default, so that users that have no need for this don't get any overhead.
+
 Workaround for providers not encoding their EPG data correctly
 --------------------------------------------------------------
 
@@ -127,8 +132,12 @@ Users who want to set the default character set to something different can
 do this by setting the environment variable VDR_CHARSET_OVERRIDE to something
 like ISO-8859-9.
 
-Automatic restart in case of hangups:
--------------------------------------
+Start script with automatic restart in case of hangups:
+-------------------------------------------------------
+
+The VDR source directory contains a 'runvdr.template'. Just copy it as 'runvdr'
+into your /usr/bin or /usr/local/bin directory and adjust it to your particular
+requirements. (See the comments inside the script for more information.)
 
 If you run VDR using the 'runvdr' shell script it will use the built-in
 watchdog timer to restart the program in case something happens that
@@ -137,9 +146,6 @@ call to the VDR program, be sure to NOT use the '-d' option! Otherwise
 VDR will go into 'daemon' mode and the initial program call will return
 immediately! 'runvdr' needs to be started as user 'root'. Use the '-u'
 option to run the actual 'vdr' program under a different user id.
-Note that the 'runvdr' script needs to be adjusted to your particular
-requirements before you can actually use it. See the comments inside
-the script for more information.
 
 Setting the system time:
 ------------------------
@@ -330,7 +336,14 @@ with the name of the basic directory when running 'vdr':
 Note that you should not copy any non-VDR files into the /videoX directories,
 since this might cause a lot of unnecessary disk access when VDR cleans up those
 directories and there is a large number of files and/or subdirectories in
-there.
+there. If you have a large disk that you want to use for VDR's video data as
+well as other stuff, you may want to create a subdirectory for VDR, as in
+
+   /mydisk/video0
+
+and put your other stuff into, say,
+
+   /mydisk/otherstuff
 
 If your video directory is mounted via a Samba share, and you are experiencing
 problems with replaying in fast forward mode, you can comment out the line

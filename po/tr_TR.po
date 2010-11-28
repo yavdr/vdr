@@ -1,13 +1,13 @@
 # VDR language source file.
-# Copyright (C) 2008 Klaus Schmidinger <kls@cadsoft.de>
+# Copyright (C) 2008 Klaus Schmidinger <kls@tvdr.de>
 # This file is distributed under the same license as the VDR package.
 # Oktay Yolgeçen <oktay_73@yahoo.de>, 2007, 2008
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: VDR 1.6.0\n"
-"Report-Msgid-Bugs-To: <vdr-bugs@cadsoft.de>\n"
-"POT-Creation-Date: 2008-02-10 12:22+0100\n"
+"Report-Msgid-Bugs-To: <vdr-bugs@tvdr.de>\n"
+"POT-Creation-Date: 2010-06-06 12:52+0200\n"
 "PO-Revision-Date: 2008-02-28 00:33+0100\n"
 "Last-Translator: Oktay Yolgeçen <oktay_73@yahoo.de>\n"
 "Language-Team: Turkish\n"
@@ -24,8 +24,297 @@ msgstr "Kanal kullanýlamýyor!"
 msgid "Can't start Transfer Mode!"
 msgstr "Transfer modu baþlatýlamýyor!"
 
+msgid "off"
+msgstr "kapalý"
+
+msgid "on"
+msgstr ""
+
+msgid "auto"
+msgstr "otomatik"
+
+msgid "none"
+msgstr "hiç"
+
+msgid "Polarization"
+msgstr "Kutuplaþma"
+
+msgid "System"
+msgstr ""
+
+msgid "Srate"
+msgstr "Srate"
+
+msgid "Inversion"
+msgstr "Ýnversiyon"
+
+msgid "CoderateH"
+msgstr "CoderateH"
+
+msgid "CoderateL"
+msgstr "CoderateL"
+
+msgid "Modulation"
+msgstr "Modülasyon"
+
+msgid "Bandwidth"
+msgstr "Bant geniþliði"
+
+msgid "Transmission"
+msgstr "Ýletim"
+
+msgid "Guard"
+msgstr "Koruma"
+
+msgid "Hierarchy"
+msgstr "Hiyerarþi"
+
+msgid "Rolloff"
+msgstr ""
+
 msgid "Starting EPG scan"
 msgstr "EPG tarama baþlýyor"
+
+msgid "Content$Movie/Drama"
+msgstr ""
+
+msgid "Content$Detective/Thriller"
+msgstr ""
+
+msgid "Content$Adventure/Western/War"
+msgstr ""
+
+msgid "Content$Science Fiction/Fantasy/Horror"
+msgstr ""
+
+msgid "Content$Comedy"
+msgstr ""
+
+msgid "Content$Soap/Melodrama/Folkloric"
+msgstr ""
+
+msgid "Content$Romance"
+msgstr ""
+
+msgid "Content$Serious/Classical/Religious/Historical Movie/Drama"
+msgstr ""
+
+msgid "Content$Adult Movie/Drama"
+msgstr ""
+
+msgid "Content$News/Current Affairs"
+msgstr ""
+
+msgid "Content$News/Weather Report"
+msgstr ""
+
+msgid "Content$News Magazine"
+msgstr ""
+
+msgid "Content$Documentary"
+msgstr ""
+
+msgid "Content$Discussion/Inverview/Debate"
+msgstr ""
+
+msgid "Content$Show/Game Show"
+msgstr ""
+
+msgid "Content$Game Show/Quiz/Contest"
+msgstr ""
+
+msgid "Content$Variety Show"
+msgstr ""
+
+msgid "Content$Talk Show"
+msgstr ""
+
+msgid "Content$Sports"
+msgstr ""
+
+msgid "Content$Special Event"
+msgstr ""
+
+msgid "Content$Sport Magazine"
+msgstr ""
+
+msgid "Content$Football/Soccer"
+msgstr ""
+
+msgid "Content$Tennis/Squash"
+msgstr ""
+
+msgid "Content$Team Sports"
+msgstr ""
+
+msgid "Content$Athletics"
+msgstr ""
+
+msgid "Content$Motor Sport"
+msgstr ""
+
+msgid "Content$Water Sport"
+msgstr ""
+
+msgid "Content$Winter Sports"
+msgstr ""
+
+msgid "Content$Equestrian"
+msgstr ""
+
+msgid "Content$Martial Sports"
+msgstr ""
+
+msgid "Content$Children's/Youth Programme"
+msgstr ""
+
+msgid "Content$Pre-school Children's Programme"
+msgstr ""
+
+msgid "Content$Entertainment Programme for 6 to 14"
+msgstr ""
+
+msgid "Content$Entertainment Programme for 10 to 16"
+msgstr ""
+
+msgid "Content$Informational/Educational/School Programme"
+msgstr ""
+
+msgid "Content$Cartoons/Puppets"
+msgstr ""
+
+msgid "Content$Music/Ballet/Dance"
+msgstr ""
+
+msgid "Content$Rock/Pop"
+msgstr ""
+
+msgid "Content$Serious/Classical Music"
+msgstr ""
+
+msgid "Content$Folk/Tradional Music"
+msgstr ""
+
+msgid "Content$Jazz"
+msgstr ""
+
+msgid "Content$Musical/Opera"
+msgstr ""
+
+msgid "Content$Ballet"
+msgstr ""
+
+msgid "Content$Arts/Culture"
+msgstr ""
+
+msgid "Content$Performing Arts"
+msgstr ""
+
+msgid "Content$Fine Arts"
+msgstr ""
+
+msgid "Content$Religion"
+msgstr ""
+
+msgid "Content$Popular Culture/Traditional Arts"
+msgstr ""
+
+msgid "Content$Literature"
+msgstr ""
+
+msgid "Content$Film/Cinema"
+msgstr ""
+
+msgid "Content$Experimental Film/Video"
+msgstr ""
+
+msgid "Content$Broadcasting/Press"
+msgstr ""
+
+msgid "Content$New Media"
+msgstr ""
+
+msgid "Content$Arts/Culture Magazine"
+msgstr ""
+
+msgid "Content$Fashion"
+msgstr ""
+
+msgid "Content$Social/Political/Economics"
+msgstr ""
+
+msgid "Content$Magazine/Report/Documentary"
+msgstr ""
+
+msgid "Content$Economics/Social Advisory"
+msgstr ""
+
+msgid "Content$Remarkable People"
+msgstr ""
+
+msgid "Content$Education/Science/Factual"
+msgstr ""
+
+msgid "Content$Nature/Animals/Environment"
+msgstr ""
+
+msgid "Content$Technology/Natural Sciences"
+msgstr ""
+
+msgid "Content$Medicine/Physiology/Psychology"
+msgstr ""
+
+msgid "Content$Foreign Countries/Expeditions"
+msgstr ""
+
+msgid "Content$Social/Spiritual Sciences"
+msgstr ""
+
+msgid "Content$Further Education"
+msgstr ""
+
+msgid "Content$Languages"
+msgstr ""
+
+msgid "Content$Leisure/Hobbies"
+msgstr ""
+
+msgid "Content$Tourism/Travel"
+msgstr ""
+
+msgid "Content$Handicraft"
+msgstr ""
+
+msgid "Content$Motoring"
+msgstr ""
+
+msgid "Content$Fitness & Health"
+msgstr ""
+
+msgid "Content$Cooking"
+msgstr ""
+
+msgid "Content$Advertisement/Shopping"
+msgstr ""
+
+msgid "Content$Gardening"
+msgstr ""
+
+msgid "Content$Original Language"
+msgstr ""
+
+msgid "Content$Black & White"
+msgstr ""
+
+msgid "Content$Unpublished"
+msgstr ""
+
+msgid "Content$Live Broadcast"
+msgstr ""
+
+#, c-format
+msgid "ParentalRating$from %d"
+msgstr ""
 
 msgid "No title"
 msgstr "Ýsim yok"
@@ -186,6 +475,9 @@ msgstr "Ayarlar"
 msgid "Key$Commands"
 msgstr "Komutlar"
 
+msgid "Key$User0"
+msgstr "Kullanýcý0"
+
 msgid "Key$User1"
 msgstr "Kullanýcý1"
 
@@ -224,9 +516,6 @@ msgstr "Þifresiz"
 
 msgid "encrypted"
 msgstr "Þifreli"
-
-msgid "auto"
-msgstr "otomatik"
 
 msgid "Edit channel"
 msgstr "Kanal ayarlarýný deðiþtir"
@@ -273,42 +562,6 @@ msgstr "CA"
 msgid "Sid"
 msgstr "Sid"
 
-msgid "Polarization"
-msgstr "Kutuplaþma"
-
-msgid "Srate"
-msgstr "Srate"
-
-msgid "Inversion"
-msgstr "Ýnversiyon"
-
-msgid "off"
-msgstr "kapalý"
-
-msgid "CoderateH"
-msgstr "CoderateH"
-
-msgid "none"
-msgstr "hiç"
-
-msgid "CoderateL"
-msgstr "CoderateL"
-
-msgid "Modulation"
-msgstr "Modülasyon"
-
-msgid "Bandwidth"
-msgstr "Bant geniþliði"
-
-msgid "Transmission"
-msgstr "Ýletim"
-
-msgid "Guard"
-msgstr "Koruma"
-
-msgid "Hierarchy"
-msgstr "Hiyerarþi"
-
 msgid "Channel settings are not unique!"
 msgstr "Kanal ayarlarý belli deðýl!"
 
@@ -332,6 +585,31 @@ msgstr "Kanal zamanlayýcýdan kullanýlýyor!"
 
 msgid "Delete channel?"
 msgstr "Kanalý sil?"
+
+msgid "Edit folder"
+msgstr ""
+
+msgid "New folder"
+msgstr ""
+
+msgid "Sub folder"
+msgstr ""
+
+msgid "Folder name already exists!"
+msgstr ""
+
+#, c-format
+msgid "Folder name must not contain '%c'!"
+msgstr ""
+
+msgid "Button$Select"
+msgstr ""
+
+msgid "Delete folder and all sub folders?"
+msgstr ""
+
+msgid "Delete folder?"
+msgstr ""
 
 msgid "Edit timer"
 msgstr "Zamanlayýcýyý ayarla"
@@ -363,8 +641,14 @@ msgstr "Ömrü"
 msgid "File"
 msgstr "Kütük"
 
+msgid "Button$Folder"
+msgstr ""
+
 msgid "First day"
 msgstr "Ýlk gün"
+
+msgid "Select folder"
+msgstr ""
 
 msgid "Timers"
 msgstr "Zamanlayýcý"
@@ -483,17 +767,17 @@ msgstr "Yüzey"
 msgid "Setup.OSD$Theme"
 msgstr "Tema"
 
-msgid "Setup.OSD$Left"
-msgstr "Sol"
+msgid "Setup.OSD$Left (%)"
+msgstr "Sol (%)"
 
-msgid "Setup.OSD$Top"
-msgstr "Üst"
+msgid "Setup.OSD$Top (%)"
+msgstr "Üst (%)"
 
-msgid "Setup.OSD$Width"
-msgstr "Geniþlik"
+msgid "Setup.OSD$Width (%)"
+msgstr "Geniþlik (%)"
 
-msgid "Setup.OSD$Height"
-msgstr "Yükseklik"
+msgid "Setup.OSD$Height (%)"
+msgstr "Yükseklik (%)"
 
 msgid "Setup.OSD$Message time (s)"
 msgstr "Mesaj gösterme zamaný (sn)"
@@ -513,14 +797,14 @@ msgstr "Küçük font"
 msgid "Setup.OSD$Fixed font"
 msgstr "Çakýlý font"
 
-msgid "Setup.OSD$Default font size (pixel)"
-msgstr "Olaðan font boyutu (pixel)"
+msgid "Setup.OSD$Default font size (%)"
+msgstr "Olaðan font boyutu (%)"
 
-msgid "Setup.OSD$Small font size (pixel)"
-msgstr "Küçük font boyutu (pixel)"
+msgid "Setup.OSD$Small font size (%)"
+msgstr "Küçük font boyutu (%)"
 
-msgid "Setup.OSD$Fixed font size (pixel)"
-msgstr "Çakýlý font boyutu (pixel)"
+msgid "Setup.OSD$Fixed font size (%)"
+msgstr "Çakýlý font boyutu (%)"
 
 msgid "Setup.OSD$Channel info position"
 msgstr "Kanal bilgi pozisyonu"
@@ -551,6 +835,12 @@ msgstr "Menü düðmesi kapatýyor"
 
 msgid "Setup.OSD$Recording directories"
 msgstr "Kayýt dizinleri"
+
+msgid "Setup.OSD$Folders in timer menu"
+msgstr ""
+
+msgid "Setup.OSD$Number keys for characters"
+msgstr ""
 
 msgid "EPG"
 msgstr "EPG"
@@ -695,6 +985,21 @@ msgstr "CAM kullanýlýyor - gerçekden sýfýrla?"
 msgid "Can't reset CAM!"
 msgstr "CAM sýfýrlanamadý!"
 
+msgid "do not pause live video"
+msgstr ""
+
+msgid "confirm pause live video"
+msgstr ""
+
+msgid "pause live video"
+msgstr ""
+
+msgid "confirm"
+msgstr ""
+
+msgid "yes"
+msgstr "evet"
+
 msgid "Recording"
 msgstr "Kayýt"
 
@@ -712,6 +1017,9 @@ msgstr "Olaðan priorite"
 
 msgid "Setup.Recording$Default lifetime (d)"
 msgstr "Olaðan çekim ömrü (gün)"
+
+msgid "Setup.Recording$Pause key handling"
+msgstr ""
 
 msgid "Setup.Recording$Pause priority"
 msgstr "Duraklama prioritesi"
@@ -742,6 +1050,9 @@ msgstr "Maksimum Video kütük büyüklügü (MB)"
 
 msgid "Setup.Recording$Split edited files"
 msgstr "Düzenlenmiþ kütükleri ayýr"
+
+msgid "Setup.Recording$Delete timeshift recording"
+msgstr ""
 
 msgid "Replay"
 msgstr "Tekrar"
@@ -781,6 +1092,9 @@ msgstr "önceki gibi"
 
 msgid "Setup.Miscellaneous$Initial volume"
 msgstr "Açýlýþdaki ses"
+
+msgid "Setup.Miscellaneous$Channels wrap"
+msgstr ""
 
 msgid "Setup.Miscellaneous$Emergency exit"
 msgstr "Acil cýkýþ"
@@ -857,6 +1171,9 @@ msgstr "Kullanýlmayan DVB kartý bulunmadý!"
 msgid "Pausing live video..."
 msgstr "Naklen yayýn duraklatýlýyor..."
 
+msgid "Delete timeshift recording?"
+msgstr ""
+
 #. TRANSLATORS: note the trailing blank!
 msgid "Jump: "
 msgstr "Atla: "
@@ -875,9 +1192,6 @@ msgstr "Kesim henüz aktif!"
 
 msgid "FileNameChars$ abcdefghijklmnopqrstuvwxyz0123456789-.,#~\\^$[]|()*+?{}/:%@&"
 msgstr " abcçdefgðhýijklmnoöprsþtuüvyz0123456789-.,#~\\^$[]|()*+?{}/:%@&"
-
-msgid "yes"
-msgstr "evet"
 
 msgid "CharMap$ 0\t-.,1#~\\^$[]|()*+?{}/:%@&\tabc2\tdef3\tghi4\tjkl5\tmno6\tpqrs7\ttuv8\twxyz9"
 msgstr " 0\t-.,1#~\\^$[]|()*+?{}/:%@&\tabcç2\tdef3\tgðhýi4\tjkl5\tmnoö6\tprsþ7\ttuüv8\tyz9"
@@ -902,6 +1216,12 @@ msgstr "Kanal geçersiz (kayýt ediliyor)!"
 
 msgid "Low disk space!"
 msgstr "Kayýt kapasitesi az!"
+
+msgid "Regenerating index file"
+msgstr ""
+
+msgid "Index file regeneration complete"
+msgstr ""
 
 msgid "Can't shutdown - option '-s' not given!"
 msgstr "Kapatýlamýyor - '-s' seçeneði verilmemiþ!"
@@ -973,6 +1293,9 @@ msgstr "Pazar"
 
 msgid "Upcoming recording!"
 msgstr "Çekim yakýnda baþlýyor!"
+
+msgid "Pause live video?"
+msgstr ""
 
 msgid "Recording started"
 msgstr "Kayýt baþlandý"

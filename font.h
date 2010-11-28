@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: font.h 1.20 2007/06/23 10:09:14 kls Exp $
+ * $Id: font.h 2.4 2010/09/19 11:48:37 kls Exp $
  */
 
 #ifndef __FONT_H
@@ -15,6 +15,7 @@
 #include "tools.h"
 
 #define MAXFONTNAME 64
+#define MINFONTSIZE 10
 #define MAXFONTSIZE 64
 
 enum eDvbFont {
@@ -37,6 +38,11 @@ private:
   static cFont *fonts[];
 public:
   virtual ~cFont() {}
+  virtual const char *FontName(void) const { return ""; }
+          ///< Returns the font name.
+  virtual int Size(void) const { return Height(); }
+          ///< Returns the original size as requested when the font was created.
+          ///< This may be different than the actual height. 
   virtual int Width(uint c) const = 0;
           ///< Returns the width of the given character in pixel.
   virtual int Width(const char *s) const = 0;
@@ -54,9 +60,11 @@ public:
   static const cFont *GetFont(eDvbFont Font);
           ///< Gets the given Font, which was previously set by a call to SetFont().
           ///< If no SetFont() call has been made, the font as defined in the setup is returned.
-          ///< The caller must not use the returned font outside the scope in which
-          ///< it was retrieved by the call to GetFont(), because a call to SetFont()
-          ///< may delete an existing font.
+          ///< GetFont() is not thread-safe, and shall only be called from the main
+          ///< thread! A font returned by GetFont() must only be used locally inside the
+          ///< function it was retrieved from, and no long term pointer to it shall be kept,
+          ///< because the cFont object may become invalid at any time after the
+          ///< function that called GetFont() has returned.
   static cFont *CreateFont(const char *Name, int CharHeight, int CharWidth = 0);
           ///< Creates a new font object with the given Name and makes its characters
           ///< CharHeight pixels high. If CharWidth is given, it overwrites the font's
@@ -74,6 +82,11 @@ public:
           ///< Returns true if any font names were found.
   static cString GetFontFileName(const char *FontName);
           ///< Retruns the actual font file name for the given FontName.
+#ifdef BIDI
+  static cString Bidi(const char *Ltr);
+          ///< Converts any "right-to-left" parts in the "left-to-right" string Ltr
+          ///< to the proper language specific representation and returns the resulting string.
+#endif
   };
 
 class cTextWrapper {

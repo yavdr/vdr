@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: osd.h 1.58 2007/10/12 14:28:44 kls Exp $
+ * $Id: osd.h 2.5 2010/01/17 13:23:50 kls Exp $
  */
 
 #ifndef __OSD_H
@@ -36,7 +36,7 @@ enum {
   clrWhite       = 0xFFFCFCFC,
   };
 
-enum eOsdError { oeOk,
+enum eOsdError { oeOk, // see also OsdErrorTexts in osd.c
                  oeTooManyAreas,
                  oeTooManyColors,
                  oeBppNotSupported,
@@ -62,6 +62,7 @@ protected:
 public:
   cPalette(int Bpp = 8);
         ///< Initializes the palette with the given color depth.
+  virtual ~cPalette();
   void SetAntiAliasGranularity(uint FixedColors, uint BlendColors);
         ///< Allows the system to optimize utilization of the limited color
         ///< palette entries when generating blended colors for anti-aliasing.
@@ -231,9 +232,9 @@ public:
        ///< 5: vertical,   rising,  upper
        ///< 6: vertical,   falling, lower
        ///< 7: vertical,   falling, upper
-  const tIndex *Data(int x, int y);
+  const tIndex *Data(int x, int y) const;
        ///< Returns the address of the index byte at the given coordinates.
-  tColor GetColor(int x, int y) { return Color(*Data(x, y)); }
+  tColor GetColor(int x, int y) const { return Color(*Data(x, y)); }
        ///< Returns the color at the given coordinates.
   void ReduceBpp(const cPalette &Palette);
        ///< Reduces the color depth of the bitmap to that of the given Palette.
@@ -405,6 +406,9 @@ public:
 class cOsdProvider {
 private:
   static cOsdProvider *osdProvider;
+  static int oldWidth;
+  static int oldHeight;
+  static double oldAspect;
 protected:
   virtual cOsd *CreateOsd(int Left, int Top, uint Level) = 0;
       ///< Returns a pointer to a newly created cOsd object, which will be located
@@ -419,6 +423,11 @@ public:
       ///< caller must delete it. If the OSD is already in use, or there is no OSD
       ///< provider, a dummy OSD is returned so that the caller may always use the
       ///< returned pointer without having to check it every time it is accessed.
+  static void UpdateOsdSize(bool Force = false);
+      ///< Inquires the actual size of the video display and adjusts the OSD and
+      ///< font sizes accordingly. If Force is true, all settings are recalculated,
+      ///< even if the video resolution hasn't changed since the last call to
+      ///< this funtion.
   static void Shutdown(void);
       ///< Shuts down the OSD provider facility by deleting the current OSD provider.
   };

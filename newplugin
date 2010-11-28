@@ -12,7 +12,7 @@
 # See the main source file 'vdr.c' for copyright information and
 # how to reach the author.
 #
-# $Id: newplugin 1.41 2008/01/13 13:00:23 kls Exp $
+# $Id: newplugin 2.2 2010/02/06 14:50:03 kls Exp $
 
 $PLUGIN_NAME = $ARGV[0] || die "Usage: newplugin <name>\n";
 
@@ -77,13 +77,17 @@ VERSION = \$(shell grep 'static const char \\*VERSION *=' \$(PLUGIN).c | awk '{ 
 ### The C++ compiler and options:
 
 CXX      ?= g++
-CXXFLAGS ?= -fPIC -g -O2 -Wall -Woverloaded-virtual -Wno-parentheses
+CXXFLAGS ?= -g -O2 -Wall -Woverloaded-virtual -Wno-parentheses
 
 ### The directory environment:
 
 VDRDIR = ../../..
 LIBDIR = ../../lib
 TMPDIR = /tmp
+
+### Make sure that necessary options are included:
+
+include \$(VDRDIR)/Make.global
 
 ### Allow user defined options to overwrite defaults:
 

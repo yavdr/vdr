@@ -4,7 +4,7 @@
 # See the main source file 'vdr.c' for copyright information and
 # how to reach the author.
 #
-# $Id: Makefile 1.113 2008/02/29 21:43:03 kls Exp $
+# $Id: Makefile 2.10 2010/09/17 13:28:50 kls Exp $
 
 .DELETE_ON_ERROR:
 
@@ -21,7 +21,7 @@ MANDIR   = $(PREFIX)/share/man
 BINDIR   = $(PREFIX)/bin
 LOCDIR   = ./locale
 LIBS     = -ljpeg -lpthread -ldl -lcap -lrt -lfreetype -lfontconfig
-INCLUDES = -I/usr/include/freetype2
+INCLUDES ?= -I/usr/include/freetype2
 
 PLUGINDIR= ./PLUGINS
 PLUGINLIBDIR= $(PLUGINDIR)/lib
@@ -32,15 +32,16 @@ CONFDIR  = $(VIDEODIR)
 DOXYGEN  = /usr/bin/doxygen
 DOXYFILE = Doxyfile
 
+include Make.global
 -include Make.config
 
 SILIB    = $(LSIDIR)/libsi.a
 
-OBJS = audio.o channels.o ci.o config.o cutter.o device.o diseqc.o dvbdevice.o dvbci.o dvbosd.o\
+OBJS = audio.o channels.o ci.o config.o cutter.o device.o diseqc.o dvbdevice.o dvbci.o\
        dvbplayer.o dvbspu.o dvbsubtitle.o eit.o eitscan.o epg.o filter.o font.o i18n.o interface.o keys.o\
        lirc.o menu.o menuitems.o nit.o osdbase.o osd.o pat.o player.o plugin.o rcu.o\
        receiver.o recorder.o recording.o remote.o remux.o ringbuffer.o sdt.o sections.o shutdown.o\
-       skinclassic.o skins.o skinsttng.o sources.o spu.o status.o svdrp.o themes.o thread.o\
+       skinclassic.o skins.o skinsttng.o sourceparams.o sources.o spu.o status.o svdrp.o themes.o thread.o\
        timers.o tools.o transfer.o vdr.o videodir.o
 
 ifndef NO_KBD
@@ -51,6 +52,11 @@ DEFINES += -DREMOTE_$(REMOTE)
 endif
 ifdef VDR_USER
 DEFINES += -DVDR_USER=\"$(VDR_USER)\"
+endif
+ifdef BIDI
+INCLUDES += -I/usr/include/fribidi
+DEFINES += -DBIDI
+LIBS += -lfribidi
 endif
 
 LIRC_DEVICE ?= /dev/lircd
@@ -69,11 +75,6 @@ DEFINES += -DLOCDIR=\"$(LOCDIR)\"
 
 VDRVERSION = $(shell sed -ne '/define VDRVERSION/s/^.*"\(.*\)".*$$/\1/p' config.h)
 APIVERSION = $(shell sed -ne '/define APIVERSION/s/^.*"\(.*\)".*$$/\1/p' config.h)
-
-ifdef VFAT
-# for people who want their video directory on a VFAT partition
-DEFINES += -DVFAT
-endif
 
 all: vdr i18n
 
@@ -94,7 +95,7 @@ $(DEPFILE): Makefile
 # The main program:
 
 vdr: $(OBJS) $(SILIB)
-	$(CXX) $(CXXFLAGS) -rdynamic $(OBJS) $(NCURSESLIB) $(LIBS) $(LIBDIRS) $(SILIB) -o vdr
+	$(CXX) $(CXXFLAGS) -rdynamic $(OBJS) $(LIBS) $(LIBDIRS) $(SILIB) -o vdr
 
 # The libsi library:
 
@@ -113,7 +114,7 @@ I18Npot   = $(PODIR)/vdr.pot
 	msgfmt -c -o $@ $<
 
 $(I18Npot): $(wildcard *.c)
-	xgettext -C -cTRANSLATORS --no-wrap --no-location -k -ktr -ktrNOOP --msgid-bugs-address='<vdr-bugs@cadsoft.de>' -o $@ $^
+	xgettext -C -cTRANSLATORS --no-wrap --no-location -k -ktr -ktrNOOP --msgid-bugs-address='<vdr-bugs@tvdr.de>' -o $@ $^
 
 %.po: $(I18Npot)
 	msgmerge -U --no-wrap --no-location --backup=none -q $@ $<
@@ -167,7 +168,7 @@ install: install-bin install-conf install-doc install-plugins install-i18n
 
 install-bin: vdr
 	@mkdir -p $(DESTDIR)$(BINDIR)
-	@cp --remove-destination vdr runvdr svdrpsend.pl $(DESTDIR)$(BINDIR)
+	@cp --remove-destination vdr svdrpsend.pl $(DESTDIR)$(BINDIR)
 
 # Configuration files:
 

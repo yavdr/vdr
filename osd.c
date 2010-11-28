@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: osd.c 1.75 2007/10/12 12:38:36 kls Exp $
+ * $Id: osd.c 2.10 2010/05/02 13:56:53 kls Exp $
  */
 
 #include "osd.h"
@@ -14,6 +14,7 @@
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/unistd.h>
+#include "device.h"
 #include "tools.h"
 
 // --- cPalette --------------------------------------------------------------
@@ -22,6 +23,10 @@ cPalette::cPalette(int Bpp)
 {
   SetBpp(Bpp);
   SetAntiAliasGranularity(10, 10);
+}
+
+cPalette::~cPalette()
+{
 }
 
 void cPalette::SetAntiAliasGranularity(uint FixedColors, uint BlendColors)
@@ -96,6 +101,7 @@ void cPalette::Take(const cPalette &Palette, tIndexes *Indexes, tColor ColorFg, 
          switch (i) {
            case 0: Color = ColorBg; break;
            case 1: Color = ColorFg; break;
+           default: ;
            }
          }
       int n = Index(Color);
@@ -139,12 +145,14 @@ int cPalette::ClosestColor(tColor Color, int MaxDiff) const
   int R1 = (Color & 0x00FF0000) >> 16;
   int G1 = (Color & 0x0000FF00) >>  8;
   int B1 = (Color & 0x000000FF);
-  for (int i = 0; i < numColors; i++) {
+  for (int i = 0; i < numColors && d > 0; i++) {
       int A2 = (color[i] & 0xFF000000) >> 24;
       int R2 = (color[i] & 0x00FF0000) >> 16;
       int G2 = (color[i] & 0x0000FF00) >>  8;
       int B2 = (color[i] & 0x000000FF);
-      int diff = (abs(A1 - A2) << 1) + (abs(R1 - R2) << 1) + (abs(G1 - G2) << 1) + (abs(B1 - B2) << 1);
+      int diff = 0;
+      if (A1 || A2) // fully transparent colors are considered equal
+         diff = (abs(A1 - A2) << 1) + (abs(R1 - R2) << 1) + (abs(G1 - G2) << 1) + (abs(B1 - B2) << 1);
       if (diff < d) {
          d = diff;
          n = i;
@@ -352,10 +360,10 @@ bool cBitmap::SetXpm(const char *const Xpm[], bool IgnoreNone)
          }
       s = skipspace(s + 1);
       if (strcasecmp(s, "none") == 0) {
-         s = "#00000000";
          NoneColorIndex = i;
-         if (IgnoreNone)
-            continue;
+         if (!IgnoreNone)
+            SetColor(i, clrTransparent);
+         continue;
          }
       if (*s != '#') {
          esyslog("ERROR: unknown color code in XPM: '%c'", *s);
@@ -527,6 +535,7 @@ void cBitmap::DrawEllipse(int x1, int y1, int x2, int y2, tColor Color, int Quad
     case 6:          cy = y2; rx /= 2; break;
     case 7: cx = x2;          ry /= 2; break;
     case 8:          cy = y1; rx /= 2; break;
+    default: ;
     }
   int TwoASquare = 2 * rx * rx;
   int TwoBSquare = 2 * ry * ry;
@@ -552,6 +561,7 @@ void cBitmap::DrawEllipse(int x1, int y1, int x2, int y2, tColor Color, int Quad
           case -2: DrawRectangle(x1,     cy - y, cx - x, cy - y, Color); break;
           case -3: DrawRectangle(x1,     cy + y, cx - x, cy + y, Color); break;
           case -4: DrawRectangle(cx + x, cy + y, x2,     cy + y, Color); break;
+          default: ;
           }
         y++;
         StoppingY += TwoASquare;
@@ -586,6 +596,7 @@ void cBitmap::DrawEllipse(int x1, int y1, int x2, int y2, tColor Color, int Quad
           case -2: DrawRectangle(x1,     cy - y, cx - x, cy - y, Color); break;
           case -3: DrawRectangle(x1,     cy + y, cx - x, cy + y, Color); break;
           case -4: DrawRectangle(cx + x, cy + y, x2,     cy + y, Color); break;
+          default: ;
           }
         x++;
         StoppingX += TwoBSquare;
@@ -635,7 +646,7 @@ void cBitmap::DrawSlope(int x1, int y1, int x2, int y2, tColor Color, int Type)
      }
 }
 
-const tIndex *cBitmap::Data(int x, int y)
+const tIndex *cBitmap::Data(int x, int y) const
 {
   return &bitmap[y * width + x];
 }
@@ -714,6 +725,18 @@ void cBitmap::ShrinkBpp(int NewBpp)
 }
 
 // --- cOsd ------------------------------------------------------------------
+
+static const char *OsdErrorTexts[] = {
+  "ok",
+  "too many areas",
+  "too many colors",
+  "bpp not supported",
+  "areas overlap",
+  "wrong alignment",
+  "out of memory",
+  "wrong area size",
+  "unknown",
+  };
 
 int cOsd::osdLeft = 0;
 int cOsd::osdTop = 0;
@@ -805,7 +828,7 @@ eOsdError cOsd::SetAreas(const tArea *Areas, int NumAreas)
          }
      }
   else
-     esyslog("ERROR: cOsd::SetAreas returned %d", Result);
+     esyslog("ERROR: cOsd::SetAreas returned %d (%s)", Result, Result < oeUnknown ? OsdErrorTexts[Result] : OsdErrorTexts[oeUnknown]);
   return Result;
 }
 
@@ -876,6 +899,9 @@ void cOsd::Flush(void)
 // --- cOsdProvider ----------------------------------------------------------
 
 cOsdProvider *cOsdProvider::osdProvider = NULL;
+int cOsdProvider::oldWidth = 0;
+int cOsdProvider::oldHeight = 0;
+double cOsdProvider::oldAspect = 1.0;
 
 cOsdProvider::cOsdProvider(void)
 {
@@ -905,6 +931,31 @@ cOsd *cOsdProvider::NewOsd(int Left, int Top, uint Level)
   else
      esyslog("ERROR: no OSD provider available - using dummy OSD!");
   return new cOsd(Left, Top, 999); // create a dummy cOsd, so that access won't result in a segfault
+}
+
+void cOsdProvider::UpdateOsdSize(bool Force)
+{
+  int Width;
+  int Height;
+  double Aspect;
+  cDevice::PrimaryDevice()->GetOsdSize(Width, Height, Aspect);
+  if (Width != oldWidth || Height != oldHeight || !DoubleEqual(Aspect, oldAspect) || Force) {
+     Setup.OSDLeft = int(round(Width * Setup.OSDLeftP));
+     Setup.OSDTop = int(round(Height * Setup.OSDTopP));
+     Setup.OSDWidth = int(round(Width * Setup.OSDWidthP)) & ~0x07; // OSD width must be a multiple of 8
+     Setup.OSDHeight = int(round(Height * Setup.OSDHeightP));
+     Setup.OSDAspect = Aspect;
+     Setup.FontOsdSize = int(round(Height * Setup.FontOsdSizeP));
+     Setup.FontFixSize = int(round(Height * Setup.FontFixSizeP));
+     Setup.FontSmlSize = int(round(Height * Setup.FontSmlSizeP));
+     cFont::SetFont(fontOsd, Setup.FontOsd, Setup.FontOsdSize);
+     cFont::SetFont(fontFix, Setup.FontFix, Setup.FontFixSize);
+     cFont::SetFont(fontSml, Setup.FontSml, Setup.FontSmlSize);
+     oldWidth = Width;
+     oldHeight = Height;
+     oldAspect = Aspect;
+     dsyslog("OSD size changed to %dx%d @ %g", Width, Height, Aspect);
+     }
 }
 
 void cOsdProvider::Shutdown(void)

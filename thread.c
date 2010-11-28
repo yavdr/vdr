@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: thread.c 1.64 2008/02/15 14:17:42 kls Exp $
+ * $Id: thread.c 2.3 2009/04/13 13:50:39 kls Exp $
  */
 
 #include "thread.h"
@@ -17,6 +17,7 @@
 #include <sys/syscall.h>
 #include <sys/time.h>
 #include <sys/wait.h>
+#include <sys/prctl.h>
 #include <unistd.h>
 #include "tools.h"
 
@@ -24,11 +25,12 @@ static bool GetAbsTime(struct timespec *Abstime, int MillisecondsFromNow)
 {
   struct timeval now;
   if (gettimeofday(&now, NULL) == 0) {           // get current time
-     now.tv_usec += MillisecondsFromNow * 1000;  // add the timeout
-     while (now.tv_usec >= 1000000) {            // take care of an overflow
-           now.tv_sec++;
-           now.tv_usec -= 1000000;
-           }
+     now.tv_sec  += MillisecondsFromNow / 1000;  // add full seconds
+     now.tv_usec += (MillisecondsFromNow % 1000) * 1000;  // add microseconds
+     if (now.tv_usec >= 1000000) {               // take care of an overflow
+        now.tv_sec++;
+        now.tv_usec -= 1000000;
+        }
      Abstime->tv_sec = now.tv_sec;          // seconds
      Abstime->tv_nsec = now.tv_usec * 1000; // nano seconds
      return true;
@@ -224,6 +226,12 @@ void cThread::SetPriority(int Priority)
      LOG_ERROR;
 }
 
+void cThread::SetIOPriority(int Priority)
+{
+  if (syscall(SYS_ioprio_set, 1, 0, (Priority & 0xff) | (2 << 13)) < 0) // best effort class
+     LOG_ERROR;
+}
+
 void cThread::SetDescription(const char *Description, ...)
 {
   free(description);
@@ -239,8 +247,13 @@ void cThread::SetDescription(const char *Description, ...)
 void *cThread::StartThread(cThread *Thread)
 {
   Thread->childThreadId = ThreadId();
-  if (Thread->description)
+  if (Thread->description) {
      dsyslog("%s thread started (pid=%d, tid=%d)", Thread->description, getpid(), Thread->childThreadId);
+#ifdef PR_SET_NAME
+     if (prctl(PR_SET_NAME, Thread->description, 0, 0, 0) < 0)
+        esyslog("%s thread naming failed (pid=%d, tid=%d)", Thread->description, getpid(), Thread->childThreadId);
+#endif
+     }
   Thread->Action();
   if (Thread->description)
      dsyslog("%s thread ended (pid=%d, tid=%d)", Thread->description, getpid(), Thread->childThreadId);

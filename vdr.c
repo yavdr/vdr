@@ -18,11 +18,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  * Or, point your browser to http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  *
- * The author can be reached at kls@cadsoft.de
+ * The author can be reached at kls@tvdr.de
  *
- * The project's page is at http://www.cadsoft.de/vdr
+ * The project's page is at http://www.tvdr.de
  *
- * $Id: vdr.c 1.313 2008/03/14 13:22:39 kls Exp $
+ * $Id: vdr.c 2.19 2010/04/05 10:06:16 kls Exp $
  */
 
 #include <getopt.h>
@@ -58,6 +58,7 @@
 #include "shutdown.h"
 #include "skinclassic.h"
 #include "skinsttng.h"
+#include "sourceparams.h"
 #include "sources.h"
 #include "themes.h"
 #include "timers.h"
@@ -112,10 +113,10 @@ static bool SetUser(const char *UserName, bool UserDump)//XXX name?
   return true;
 }
 
-static bool SetCapSysTime(void)
+static bool DropCaps(void)
 {
-  // drop all capabilities except cap_sys_time
-  cap_t caps = cap_from_text("= cap_sys_time=ep");
+  // drop all capabilities except selected ones
+  cap_t caps = cap_from_text("= cap_sys_nice,cap_sys_time=ep");
   if (!caps) {
      fprintf(stderr, "vdr: cap_from_text failed: %s\n", strerror(errno));
      return false;
@@ -141,7 +142,6 @@ static bool SetKeepCaps(bool On)
 
 static void SignalHandler(int signum)
 {
-  isyslog("caught signal %d", signum);
   switch (signum) {
     case SIGPIPE:
          break;
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
 
   // Command line options:
 
-#define DEFAULTSVDRPPORT 2001
+#define DEFAULTSVDRPPORT 6419
 #define DEFAULTWATCHDOG     0 // seconds
 #define DEFAULTCONFDIR CONFDIR
 #define DEFAULTPLUGINDIR PLUGINDIR
@@ -210,9 +210,6 @@ int main(int argc, char *argv[])
 #elif defined(REMOTE_RCU)
   RcuDevice = RCU_DEVICE;
 #endif
-#if defined(VFAT)
-  VfatFileSystem = true;
-#endif
 #if defined(VDR_USER)
   VdrUser = VDR_USER;
 #endif
@@ -224,9 +221,12 @@ int main(int argc, char *argv[])
       { "config",   required_argument, NULL, 'c' },
       { "daemon",   no_argument,       NULL, 'd' },
       { "device",   required_argument, NULL, 'D' },
+      { "edit",     required_argument, NULL, 'e' | 0x100 },
       { "epgfile",  required_argument, NULL, 'E' },
+      { "genindex", required_argument, NULL, 'g' | 0x100 },
       { "grab",     required_argument, NULL, 'g' },
       { "help",     no_argument,       NULL, 'h' },
+      { "instance", required_argument, NULL, 'i' },
       { "lib",      required_argument, NULL, 'L' },
       { "lirc",     optional_argument, NULL, 'l' | 0x100 },
       { "localedir",required_argument, NULL, 'l' | 0x200 },
@@ -245,11 +245,11 @@ int main(int argc, char *argv[])
       { "vfat",     no_argument,       NULL, 'v' | 0x100 },
       { "video",    required_argument, NULL, 'v' },
       { "watchdog", required_argument, NULL, 'w' },
-      { NULL }
+      { NULL,       no_argument,       NULL,  0  }
     };
 
   int c;
-  while ((c = getopt_long(argc, argv, "a:c:dD:E:g:hl:L:mp:P:r:s:t:u:v:Vw:", long_options, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "a:c:dD:e:E:g:hi:l:L:mp:P:r:s:t:u:v:Vw:", long_options, NULL)) != -1) {
         switch (c) {
           case 'a': AudioCommand = optarg;
                     break;
@@ -266,12 +266,23 @@ int main(int argc, char *argv[])
                     fprintf(stderr, "vdr: invalid DVB device number: %s\n", optarg);
                     return 2;
                     break;
+          case 'e' | 0x100:
+                    return CutRecording(optarg) ? 0 : 2;
           case 'E': EpgDataFileName = (*optarg != '-' ? optarg : NULL);
                     break;
+          case 'g' | 0x100:
+                    return GenerateIndex(optarg) ? 0 : 2;
           case 'g': cSVDRP::SetGrabImageDir(*optarg != '-' ? optarg : NULL);
                     break;
           case 'h': DisplayHelp = true;
                     break;
+          case 'i': if (isnumber(optarg)) {
+                       InstanceId = atoi(optarg);
+                       if (InstanceId >= 0)
+                          break;
+                       }
+                    fprintf(stderr, "vdr: invalid instance id: %s\n", optarg);
+                    return 2;
           case 'l': {
                       char *p = strchr(optarg, '.');
                       if (p)
@@ -383,7 +394,7 @@ int main(int argc, char *argv[])
            return 2;
         if (!SetKeepCaps(false))
            return 2;
-        if (!SetCapSysTime())
+        if (!DropCaps())
            return 2;
         }
      }
@@ -402,16 +413,19 @@ int main(int argc, char *argv[])
                "  -D NUM,   --device=NUM   use only the given DVB device (NUM = 0, 1, 2...)\n"
                "                           there may be several -D options (default: all DVB\n"
                "                           devices will be used)\n"
+               "            --edit=REC     cut recording REC and exit\n"
                "  -E FILE,  --epgfile=FILE write the EPG data into the given FILE (default is\n"
                "                           '%s' in the video directory)\n"
                "                           '-E-' disables this\n"
                "                           if FILE is a directory, the default EPG file will be\n"
                "                           created in that directory\n"
+               "            --genindex=REC generate index for recording REC and exit\n"
                "  -g DIR,   --grab=DIR     write images from the SVDRP command GRAB into the\n"
                "                           given DIR; DIR must be the full path name of an\n"
                "                           existing directory, without any \"..\", double '/'\n"
                "                           or symlinks (default: none, same as -g-)\n"
                "  -h,       --help         print this help and exit\n"
+               "  -i ID,    --instance=ID  use ID as the id of this VDR instance (default: 0)\n"
                "  -l LEVEL, --log=LEVEL    set log level (default: 3)\n"
                "                           0 = no logging, 1 = errors only,\n"
                "                           2 = errors and info, 3 = errors, info and debug\n"
@@ -502,6 +516,7 @@ int main(int argc, char *argv[])
      stdout = freopen(Terminal, "w", stdout);
      stderr = freopen(Terminal, "w", stderr);
      HasStdin = true;
+     tcgetattr(STDIN_FILENO, &savedTm);
      }
 
   isyslog("VDR version %s started", VDRVERSION);
@@ -529,6 +544,7 @@ int main(int argc, char *argv[])
      isyslog("codeset is '%s' - %s", CodeSet, known ? "known" : "unknown");
      cCharSetConv::SetSystemCharacterTable(CodeSet);
      }
+  setlocale(LC_NUMERIC, "C"); // makes sure any floating point numbers written use a decimal point
 
   // Initialize internationalization:
 
@@ -563,17 +579,16 @@ int main(int argc, char *argv[])
   cThemes::SetThemesDirectory(AddDirectory(ConfigDirectory, "themes"));
 
   Setup.Load(AddDirectory(ConfigDirectory, "setup.conf"));
-  if (!(Sources.Load(AddDirectory(ConfigDirectory, "sources.conf"), true, true) &&
-        Diseqcs.Load(AddDirectory(ConfigDirectory, "diseqc.conf"), true, Setup.DiSEqC) &&
-        Channels.Load(AddDirectory(ConfigDirectory, "channels.conf"), false, true) &&
-        Timers.Load(AddDirectory(ConfigDirectory, "timers.conf")) &&
-        Commands.Load(AddDirectory(ConfigDirectory, "commands.conf"), true) &&
-        RecordingCommands.Load(AddDirectory(ConfigDirectory, "reccmds.conf"), true) &&
-        SVDRPhosts.Load(AddDirectory(ConfigDirectory, "svdrphosts.conf"), true) &&
-        Keys.Load(AddDirectory(ConfigDirectory, "remote.conf")) &&
-        KeyMacros.Load(AddDirectory(ConfigDirectory, "keymacros.conf"), true)
-        ))
-     EXIT(2);
+  Sources.Load(AddDirectory(ConfigDirectory, "sources.conf"), true, true);
+  Diseqcs.Load(AddDirectory(ConfigDirectory, "diseqc.conf"), true, Setup.DiSEqC);
+  Channels.Load(AddDirectory(ConfigDirectory, "channels.conf"), false, true);
+  Timers.Load(AddDirectory(ConfigDirectory, "timers.conf"));
+  Commands.Load(AddDirectory(ConfigDirectory, "commands.conf"));
+  RecordingCommands.Load(AddDirectory(ConfigDirectory, "reccmds.conf"));
+  SVDRPhosts.Load(AddDirectory(ConfigDirectory, "svdrphosts.conf"), true);
+  Keys.Load(AddDirectory(ConfigDirectory, "remote.conf"));
+  KeyMacros.Load(AddDirectory(ConfigDirectory, "keymacros.conf"), true);
+  Folders.Load(AddDirectory(ConfigDirectory, "folders.conf"));
 
   if (!*cFont::GetFontFileName(Setup.FontOsd)) {
      const char *msg = "no fonts available - OSD will not show any text!";
@@ -743,6 +758,14 @@ int main(int argc, char *argv[])
               CheckHasProgramme = false;
               }
            }
+        // Update the OSD size:
+        {
+          static time_t lastOsdSizeUpdate = 0;
+          if (Now != lastOsdSizeUpdate) { // once per second
+             cOsdProvider::UpdateOsdSize();
+             lastOsdSizeUpdate = Now;
+             }
+        }
         // Restart the Watchdog timer:
         if (WatchdogTimeout > 0) {
            int LatencyTime = WatchdogTimeout - alarm(WatchdogTimeout);
@@ -969,7 +992,7 @@ int main(int argc, char *argv[])
           case kRecordings: DirectMainFunction(osRecordings); break;
           case kSetup:      DirectMainFunction(osSetup); break;
           case kCommands:   DirectMainFunction(osCommands); break;
-          case kUser1 ... kUser9: cRemote::PutMacro(key); key = kNone; break;
+          case kUser0 ... kUser9: cRemote::PutMacro(key); key = kNone; break;
           case k_Plugin: {
                const char *PluginName = cRemote::GetPlugin();
                if (PluginName) {
@@ -1050,8 +1073,12 @@ int main(int argc, char *argv[])
           case kPause:
                if (!cControl::Control()) {
                   DELETE_MENU;
-                  if (!cRecordControls::PauseLiveVideo())
-                     Skins.Message(mtError, tr("No free DVB device to record!"));
+                  if (Setup.PauseKeyHandling) {
+                     if (Setup.PauseKeyHandling > 1 || Interface->Confirm(tr("Pause live video?"))) {
+                        if (!cRecordControls::PauseLiveVideo())
+                           Skins.Message(mtError, tr("No free DVB device to record!"));
+                        }
+                     }
                   key = kNone; // nobody else needs to see this key
                   }
                break;
@@ -1277,6 +1304,7 @@ Exit:
   Remotes.Clear();
   Audios.Clear();
   Skins.Clear();
+  SourceParams.Clear();
   if (ShutdownHandler.GetExitCode() != 2) {
      Setup.CurrentChannel = cDevice::CurrentChannel();
      Setup.CurrentVolume  = cDevice::CurrentVolume();
@@ -1288,9 +1316,11 @@ Exit:
   ReportEpgBugFixStats();
   if (WatchdogTimeout > 0)
      dsyslog("max. latency time %d seconds", MaxLatencyTime);
-  isyslog("exiting, exit code %d", ShutdownHandler.GetExitCode());
+  if (LastSignal)
+     isyslog("caught signal %d", LastSignal);
   if (ShutdownHandler.EmergencyExitRequested())
      esyslog("emergency exit!");
+  isyslog("exiting, exit code %d", ShutdownHandler.GetExitCode());
   if (SysLogLevel > 0)
      closelog();
   if (HasStdin)

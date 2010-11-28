@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: ringbuffer.h 1.18 2007/11/17 13:49:34 kls Exp $
+ * $Id: ringbuffer.h 2.2 2009/11/08 11:52:25 kls Exp $
  */
 
 #ifndef __RINGBUFFER_H
@@ -84,6 +84,8 @@ public:
     ///< Only one actual read() call is done.
     ///< \return Returns the number of bytes actually read and stored, or
     ///< an error value from the actual read() call.
+  int Read(cUnbufferedFile *File, int Max = 0);
+    ///< Like Read(int FileHandle, int Max), but reads fom a cUnbufferedFile).
   int Put(const uchar *Data, int Count);
     ///< Puts at most Count bytes of Data into the ring buffer.
     ///< \return Returns the number of bytes actually stored.
@@ -108,8 +110,9 @@ private:
   int count;
   eFrameType type;
   int index;
+  uint32_t pts;
 public:
-  cFrame(const uchar *Data, int Count, eFrameType = ftUnknown, int Index = -1);
+  cFrame(const uchar *Data, int Count, eFrameType = ftUnknown, int Index = -1, uint32_t Pts = 0);
     ///< Creates a new cFrame object.
     ///< If Count is negative, the cFrame object will take ownership of the given
     ///< Data. Otherwise it will allocate Count bytes of memory and copy Data.
@@ -118,6 +121,7 @@ public:
   int Count(void) const { return count; }
   eFrameType Type(void) const { return type; }
   int Index(void) const { return index; }
+  uint32_t Pts(void) const { return pts; }
   };
 
 class cRingBufferFrame : public cRingBuffer {

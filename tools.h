@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: tools.h 1.113 2008/02/17 13:41:27 kls Exp $
+ * $Id: tools.h 2.4 2009/12/23 15:14:39 kls Exp $
  */
 
 #ifndef __TOOLS_H
@@ -13,7 +13,9 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <float.h>
 #include <iconv.h>
+#include <math.h>
 #include <poll.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -38,7 +40,7 @@ extern int SysLogLevel;
 #define SECSINDAY  86400
 
 #define KILOBYTE(n) ((n) * 1024)
-#define MEGABYTE(n) ((n) * 1024 * 1024)
+#define MEGABYTE(n) ((n) * 1024LL * 1024LL)
 
 #define MALLOC(type, size)  (type *)malloc(sizeof(type) * (size))
 
@@ -60,7 +62,7 @@ void syslog_with_tid(int priority, const char *format, ...) __attribute__ ((form
 int BCD2INT(int x);
 
 // Unfortunately there are no platform independent macros for unaligned
-// access. so we do it this way:
+// access, so we do it this way:
 
 template<class T> inline T get_unaligned(T *p)
 {
@@ -72,6 +74,14 @@ template<class T> inline void put_unaligned(unsigned int v, T* p)
 {
   struct s { T v; } __attribute__((packed));
   ((s *)p)->v = v;
+}
+
+// Comparing doubles for equality is unsafe, but unfortunately we can't
+// overwrite operator==(double, double), so this will have to do:
+
+inline bool DoubleEqual(double a, double b)
+{
+  return fabs(a - b) <= DBL_EPSILON;
 }
 
 // When handling strings that might contain UTF-8 characters, it may be necessary
@@ -132,11 +142,12 @@ private:
 public:
   cCharSetConv(const char *FromCode = NULL, const char *ToCode = NULL);
      ///< Sets up a character set converter to convert from FromCode to ToCode.
-     ///< If FromCode is NULL, the previously set systemCharacterTable is used.
+     ///< If FromCode is NULL, the previously set systemCharacterTable is used
+     ///< (or "UTF-8" if no systemCharacterTable has been set).
      ///< If ToCode is NULL, "UTF-8" is used.
   ~cCharSetConv();
   const char *Convert(const char *From, char *To = NULL, size_t ToLength = 0);
-     ///< Converts the given Text from FromCode to ToCode (as set in the cosntructor).
+     ///< Converts the given Text from FromCode to ToCode (as set in the constructor).
      ///< If To is given, it is used to copy at most ToLength bytes of the result
      ///< (including the terminating 0) into that buffer. If To is not given,
      ///< the result is copied into a dynamically allocated buffer and is valid as

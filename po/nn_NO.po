@@ -1,5 +1,5 @@
 # VDR language source file.
-# Copyright (C) 2008 Klaus Schmidinger <kls@cadsoft.de>
+# Copyright (C) 2008 Klaus Schmidinger <kls@tvdr.de>
 # This file is distributed under the same license as the VDR package.
 # Jørgen Tvedt <pjtvedt@online.no>, 2001
 # Truls Slevigen <truls@slevigen.no>, 2002
@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: VDR 1.6.0\n"
-"Report-Msgid-Bugs-To: <vdr-bugs@cadsoft.de>\n"
-"POT-Creation-Date: 2008-02-10 12:22+0100\n"
+"Report-Msgid-Bugs-To: <vdr-bugs@tvdr.de>\n"
+"POT-Creation-Date: 2010-06-06 12:52+0200\n"
 "PO-Revision-Date: 2007-08-12 14:17+0200\n"
 "Last-Translator: Truls Slevigen <truls@slevigen.no>\n"
 "Language-Team: Norwegian\n"
@@ -25,7 +25,296 @@ msgstr ""
 msgid "Can't start Transfer Mode!"
 msgstr "Kan ikke starte transfer modus!"
 
+msgid "off"
+msgstr ""
+
+msgid "on"
+msgstr ""
+
+msgid "auto"
+msgstr ""
+
+msgid "none"
+msgstr ""
+
+msgid "Polarization"
+msgstr "Polarisasjon"
+
+msgid "System"
+msgstr ""
+
+msgid "Srate"
+msgstr "Srate"
+
+msgid "Inversion"
+msgstr "Inversion"
+
+msgid "CoderateH"
+msgstr "CoderateH"
+
+msgid "CoderateL"
+msgstr "CoderateL"
+
+msgid "Modulation"
+msgstr "Modulation"
+
+msgid "Bandwidth"
+msgstr "Bandwidth"
+
+msgid "Transmission"
+msgstr "Transmission"
+
+msgid "Guard"
+msgstr "Guard"
+
+msgid "Hierarchy"
+msgstr "Hierarchy"
+
+msgid "Rolloff"
+msgstr ""
+
 msgid "Starting EPG scan"
+msgstr ""
+
+msgid "Content$Movie/Drama"
+msgstr ""
+
+msgid "Content$Detective/Thriller"
+msgstr ""
+
+msgid "Content$Adventure/Western/War"
+msgstr ""
+
+msgid "Content$Science Fiction/Fantasy/Horror"
+msgstr ""
+
+msgid "Content$Comedy"
+msgstr ""
+
+msgid "Content$Soap/Melodrama/Folkloric"
+msgstr ""
+
+msgid "Content$Romance"
+msgstr ""
+
+msgid "Content$Serious/Classical/Religious/Historical Movie/Drama"
+msgstr ""
+
+msgid "Content$Adult Movie/Drama"
+msgstr ""
+
+msgid "Content$News/Current Affairs"
+msgstr ""
+
+msgid "Content$News/Weather Report"
+msgstr ""
+
+msgid "Content$News Magazine"
+msgstr ""
+
+msgid "Content$Documentary"
+msgstr ""
+
+msgid "Content$Discussion/Inverview/Debate"
+msgstr ""
+
+msgid "Content$Show/Game Show"
+msgstr ""
+
+msgid "Content$Game Show/Quiz/Contest"
+msgstr ""
+
+msgid "Content$Variety Show"
+msgstr ""
+
+msgid "Content$Talk Show"
+msgstr ""
+
+msgid "Content$Sports"
+msgstr ""
+
+msgid "Content$Special Event"
+msgstr ""
+
+msgid "Content$Sport Magazine"
+msgstr ""
+
+msgid "Content$Football/Soccer"
+msgstr ""
+
+msgid "Content$Tennis/Squash"
+msgstr ""
+
+msgid "Content$Team Sports"
+msgstr ""
+
+msgid "Content$Athletics"
+msgstr ""
+
+msgid "Content$Motor Sport"
+msgstr ""
+
+msgid "Content$Water Sport"
+msgstr ""
+
+msgid "Content$Winter Sports"
+msgstr ""
+
+msgid "Content$Equestrian"
+msgstr ""
+
+msgid "Content$Martial Sports"
+msgstr ""
+
+msgid "Content$Children's/Youth Programme"
+msgstr ""
+
+msgid "Content$Pre-school Children's Programme"
+msgstr ""
+
+msgid "Content$Entertainment Programme for 6 to 14"
+msgstr ""
+
+msgid "Content$Entertainment Programme for 10 to 16"
+msgstr ""
+
+msgid "Content$Informational/Educational/School Programme"
+msgstr ""
+
+msgid "Content$Cartoons/Puppets"
+msgstr ""
+
+msgid "Content$Music/Ballet/Dance"
+msgstr ""
+
+msgid "Content$Rock/Pop"
+msgstr ""
+
+msgid "Content$Serious/Classical Music"
+msgstr ""
+
+msgid "Content$Folk/Tradional Music"
+msgstr ""
+
+msgid "Content$Jazz"
+msgstr ""
+
+msgid "Content$Musical/Opera"
+msgstr ""
+
+msgid "Content$Ballet"
+msgstr ""
+
+msgid "Content$Arts/Culture"
+msgstr ""
+
+msgid "Content$Performing Arts"
+msgstr ""
+
+msgid "Content$Fine Arts"
+msgstr ""
+
+msgid "Content$Religion"
+msgstr ""
+
+msgid "Content$Popular Culture/Traditional Arts"
+msgstr ""
+
+msgid "Content$Literature"
+msgstr ""
+
+msgid "Content$Film/Cinema"
+msgstr ""
+
+msgid "Content$Experimental Film/Video"
+msgstr ""
+
+msgid "Content$Broadcasting/Press"
+msgstr ""
+
+msgid "Content$New Media"
+msgstr ""
+
+msgid "Content$Arts/Culture Magazine"
+msgstr ""
+
+msgid "Content$Fashion"
+msgstr ""
+
+msgid "Content$Social/Political/Economics"
+msgstr ""
+
+msgid "Content$Magazine/Report/Documentary"
+msgstr ""
+
+msgid "Content$Economics/Social Advisory"
+msgstr ""
+
+msgid "Content$Remarkable People"
+msgstr ""
+
+msgid "Content$Education/Science/Factual"
+msgstr ""
+
+msgid "Content$Nature/Animals/Environment"
+msgstr ""
+
+msgid "Content$Technology/Natural Sciences"
+msgstr ""
+
+msgid "Content$Medicine/Physiology/Psychology"
+msgstr ""
+
+msgid "Content$Foreign Countries/Expeditions"
+msgstr ""
+
+msgid "Content$Social/Spiritual Sciences"
+msgstr ""
+
+msgid "Content$Further Education"
+msgstr ""
+
+msgid "Content$Languages"
+msgstr ""
+
+msgid "Content$Leisure/Hobbies"
+msgstr ""
+
+msgid "Content$Tourism/Travel"
+msgstr ""
+
+msgid "Content$Handicraft"
+msgstr ""
+
+msgid "Content$Motoring"
+msgstr ""
+
+msgid "Content$Fitness & Health"
+msgstr ""
+
+msgid "Content$Cooking"
+msgstr ""
+
+msgid "Content$Advertisement/Shopping"
+msgstr ""
+
+msgid "Content$Gardening"
+msgstr ""
+
+msgid "Content$Original Language"
+msgstr ""
+
+msgid "Content$Black & White"
+msgstr ""
+
+msgid "Content$Unpublished"
+msgstr ""
+
+msgid "Content$Live Broadcast"
+msgstr ""
+
+#, c-format
+msgid "ParentalRating$from %d"
 msgstr ""
 
 msgid "No title"
@@ -187,6 +476,9 @@ msgstr "Konfigurasjon"
 msgid "Key$Commands"
 msgstr "Kommandoer"
 
+msgid "Key$User0"
+msgstr ""
+
 msgid "Key$User1"
 msgstr ""
 
@@ -224,9 +516,6 @@ msgid "Free To Air"
 msgstr ""
 
 msgid "encrypted"
-msgstr ""
-
-msgid "auto"
 msgstr ""
 
 msgid "Edit channel"
@@ -274,42 +563,6 @@ msgstr "Kortleser"
 msgid "Sid"
 msgstr "Sid"
 
-msgid "Polarization"
-msgstr "Polarisasjon"
-
-msgid "Srate"
-msgstr "Srate"
-
-msgid "Inversion"
-msgstr "Inversion"
-
-msgid "off"
-msgstr ""
-
-msgid "CoderateH"
-msgstr "CoderateH"
-
-msgid "none"
-msgstr ""
-
-msgid "CoderateL"
-msgstr "CoderateL"
-
-msgid "Modulation"
-msgstr "Modulation"
-
-msgid "Bandwidth"
-msgstr "Bandwidth"
-
-msgid "Transmission"
-msgstr "Transmission"
-
-msgid "Guard"
-msgstr "Guard"
-
-msgid "Hierarchy"
-msgstr "Hierarchy"
-
 msgid "Channel settings are not unique!"
 msgstr ""
 
@@ -333,6 +586,31 @@ msgstr "Kanalen er i bruk av en timer!"
 
 msgid "Delete channel?"
 msgstr "Slette kanal?"
+
+msgid "Edit folder"
+msgstr ""
+
+msgid "New folder"
+msgstr ""
+
+msgid "Sub folder"
+msgstr ""
+
+msgid "Folder name already exists!"
+msgstr ""
+
+#, c-format
+msgid "Folder name must not contain '%c'!"
+msgstr ""
+
+msgid "Button$Select"
+msgstr ""
+
+msgid "Delete folder and all sub folders?"
+msgstr ""
+
+msgid "Delete folder?"
+msgstr ""
 
 msgid "Edit timer"
 msgstr "Editer timer"
@@ -364,8 +642,14 @@ msgstr "Levetid"
 msgid "File"
 msgstr "Filnavn"
 
+msgid "Button$Folder"
+msgstr ""
+
 msgid "First day"
 msgstr "Første dag"
+
+msgid "Select folder"
+msgstr ""
 
 msgid "Timers"
 msgstr "Timere"
@@ -484,17 +768,17 @@ msgstr ""
 msgid "Setup.OSD$Theme"
 msgstr ""
 
-msgid "Setup.OSD$Left"
+msgid "Setup.OSD$Left (%)"
 msgstr ""
 
-msgid "Setup.OSD$Top"
+msgid "Setup.OSD$Top (%)"
 msgstr ""
 
-msgid "Setup.OSD$Width"
-msgstr "Bredde"
+msgid "Setup.OSD$Width (%)"
+msgstr "Bredde (%)"
 
-msgid "Setup.OSD$Height"
-msgstr "Høyde"
+msgid "Setup.OSD$Height (%)"
+msgstr "Høyde (%)"
 
 msgid "Setup.OSD$Message time (s)"
 msgstr "Tid meldinger skal vises (s)"
@@ -514,13 +798,13 @@ msgstr ""
 msgid "Setup.OSD$Fixed font"
 msgstr ""
 
-msgid "Setup.OSD$Default font size (pixel)"
+msgid "Setup.OSD$Default font size (%)"
 msgstr ""
 
-msgid "Setup.OSD$Small font size (pixel)"
+msgid "Setup.OSD$Small font size (%)"
 msgstr ""
 
-msgid "Setup.OSD$Fixed font size (pixel)"
+msgid "Setup.OSD$Fixed font size (%)"
 msgstr ""
 
 msgid "Setup.OSD$Channel info position"
@@ -552,6 +836,12 @@ msgstr ""
 
 msgid "Setup.OSD$Recording directories"
 msgstr "Kataloger til opptak"
+
+msgid "Setup.OSD$Folders in timer menu"
+msgstr ""
+
+msgid "Setup.OSD$Number keys for characters"
+msgstr ""
 
 msgid "EPG"
 msgstr "Programoversikt"
@@ -696,6 +986,21 @@ msgstr ""
 msgid "Can't reset CAM!"
 msgstr ""
 
+msgid "do not pause live video"
+msgstr ""
+
+msgid "confirm pause live video"
+msgstr ""
+
+msgid "pause live video"
+msgstr ""
+
+msgid "confirm"
+msgstr ""
+
+msgid "yes"
+msgstr "ja"
+
 msgid "Recording"
 msgstr "Opptak"
 
@@ -713,6 +1018,9 @@ msgstr "Normal prioritet (Timer)"
 
 msgid "Setup.Recording$Default lifetime (d)"
 msgstr "Normal levetid timer (d)"
+
+msgid "Setup.Recording$Pause key handling"
+msgstr ""
 
 msgid "Setup.Recording$Pause priority"
 msgstr ""
@@ -743,6 +1051,9 @@ msgstr "Maksimal størrelse på videofiler (MB)"
 
 msgid "Setup.Recording$Split edited files"
 msgstr "Splitt redigerte filer"
+
+msgid "Setup.Recording$Delete timeshift recording"
+msgstr ""
 
 msgid "Replay"
 msgstr "Spill av"
@@ -781,6 +1092,9 @@ msgid "Setup.Miscellaneous$as before"
 msgstr ""
 
 msgid "Setup.Miscellaneous$Initial volume"
+msgstr ""
+
+msgid "Setup.Miscellaneous$Channels wrap"
 msgstr ""
 
 msgid "Setup.Miscellaneous$Emergency exit"
@@ -858,6 +1172,9 @@ msgstr "Ingen ledige DVB enheter for opptak!"
 msgid "Pausing live video..."
 msgstr ""
 
+msgid "Delete timeshift recording?"
+msgstr ""
+
 #. TRANSLATORS: note the trailing blank!
 msgid "Jump: "
 msgstr "Hopp: "
@@ -876,9 +1193,6 @@ msgstr "Redigeringsprosessen er allerede aktiv!"
 
 msgid "FileNameChars$ abcdefghijklmnopqrstuvwxyz0123456789-.,#~\\^$[]|()*+?{}/:%@&"
 msgstr ""
-
-msgid "yes"
-msgstr "ja"
 
 msgid "CharMap$ 0\t-.,1#~\\^$[]|()*+?{}/:%@&\tabc2\tdef3\tghi4\tjkl5\tmno6\tpqrs7\ttuv8\twxyz9"
 msgstr ""
@@ -903,6 +1217,12 @@ msgstr "Kanalen er låst (opptak)!"
 
 msgid "Low disk space!"
 msgstr "Lite ledig diskplass!"
+
+msgid "Regenerating index file"
+msgstr ""
+
+msgid "Index file regeneration complete"
+msgstr ""
 
 msgid "Can't shutdown - option '-s' not given!"
 msgstr "Kan ikke slå av - startet uten parameteret '-s'!"
@@ -973,6 +1293,9 @@ msgid "Sunday"
 msgstr "Søndag"
 
 msgid "Upcoming recording!"
+msgstr ""
+
+msgid "Pause live video?"
 msgstr ""
 
 msgid "Recording started"

@@ -4,11 +4,12 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: menuitems.c 1.58 2008/02/10 16:03:30 kls Exp $
+ * $Id: menuitems.c 2.7 2010/06/06 10:37:08 kls Exp $
  */
 
 #include "menuitems.h"
 #include <ctype.h>
+#include <math.h>
 #include <wctype.h>
 #include "i18n.h"
 #include "plugin.h"
@@ -200,6 +201,71 @@ eOSState cMenuEditNumItem::ProcessKey(eKeys Key)
   return state;
 }
 
+// --- cMenuEditPrcItem ------------------------------------------------------
+
+cMenuEditPrcItem::cMenuEditPrcItem(const char *Name, double *Value, double Min, double Max, int Decimals)
+:cMenuEditItem(Name)
+{
+  value = Value;
+  min = Min;
+  max = Max;
+  decimals = Decimals;
+  factor = 100;
+  while (Decimals-- > 0)
+        factor *= 10;
+  if (*value < min)
+     *value = min;
+  else if (*value > max)
+     *value = max;
+  Set();
+}
+
+void cMenuEditPrcItem::Set(void)
+{
+  char buf[16];
+  snprintf(buf, sizeof(buf), "%.*f", decimals, *value * 100);
+  SetValue(buf);
+}
+
+eOSState cMenuEditPrcItem::ProcessKey(eKeys Key)
+{
+  eOSState state = cMenuEditItem::ProcessKey(Key);
+
+  if (state == osUnknown) {
+     double newValue = round(*value * factor); // avoids precision problems
+     Key = NORMALKEY(Key);
+     switch (Key) {
+       case kNone: break;
+       case k0 ... k9:
+            if (fresh) {
+               newValue = 0;
+               fresh = false;
+               }
+            newValue = newValue * 10 + (Key - k0);
+            break;
+       case kLeft: // TODO might want to increase the delta if repeated quickly?
+            newValue--;
+            fresh = true;
+            break;
+       case kRight:
+            newValue++;
+            fresh = true;
+            break;
+       default:
+            if (*value < min) { *value = min; Set(); }
+            if (*value > max) { *value = max; Set(); }
+            return state;
+       }
+     newValue /= factor;
+     if (!DoubleEqual(newValue, *value) && (!fresh || min <= newValue) && newValue <= max) {
+        *value = newValue;
+        Set();
+        }
+     state = osContinue;
+     }
+  return state;
+}
+
 // --- cMenuEditChrItem ------------------------------------------------------
 
 cMenuEditChrItem::cMenuEditChrItem(const char *Name, char *Value, const char *Allowed)
@@ -271,9 +337,9 @@ cMenuEditStrItem::cMenuEditStrItem(const char *Name, char *Value, int Length, co
 
 cMenuEditStrItem::~cMenuEditStrItem()
 {
-  delete valueUtf8;
-  delete allowedUtf8;
-  delete charMapUtf8;
+  delete[] valueUtf8;
+  delete[] allowedUtf8;
+  delete[] charMapUtf8;
 }
 
 void cMenuEditStrItem::EnterEditMode(void)
@@ -422,6 +488,20 @@ uint cMenuEditStrItem::Inc(uint c, bool Up)
   return *p;
 }
 
+void cMenuEditStrItem::Type(uint c)
+{
+  if (insert && lengthUtf8 < length - 1)
+     Insert();
+  valueUtf8[pos] = c;
+  if (pos < length - 2)
+     pos++;
+  if (pos >= lengthUtf8) {
+     valueUtf8[pos] = ' ';
+     valueUtf8[pos + 1] = 0;
+     lengthUtf8 = pos + 1;
+     }
+}
+
 void cMenuEditStrItem::Insert(void)
 {
   memmove(valueUtf8 + pos + 1, valueUtf8 + pos, (lengthUtf8 - pos + 1) * sizeof(*valueUtf8));
@@ -531,39 +611,43 @@ eOSState cMenuEditStrItem::ProcessKey(eKeys Key)
     case k0|k_Repeat ... k9|k_Repeat:
     case k0 ... k9: {
                  if (InEditMode()) {
-                    if (!SameKey) {
-                       if (!newchar)
-                          AdvancePos();
-                       currentCharUtf8 = NULL;
-                       }
-                    if (!currentCharUtf8 || !*currentCharUtf8 || *currentCharUtf8 == '\t') {
-                       // find the beginning of the character map entry for Key
-                       int n = NORMALKEY(Key) - k0;
-                       currentCharUtf8 = charMapUtf8;
-                       while (n > 0 && *currentCharUtf8) {
-                             if (*currentCharUtf8++ == '\t')
-                                n--;
-                             }
-                       // find first allowed character
-                       while (*currentCharUtf8 && *currentCharUtf8 != '\t' && !IsAllowed(*currentCharUtf8))
-                             currentCharUtf8++;
-                       }
-                    if (*currentCharUtf8 && *currentCharUtf8 != '\t') {
-                       if (insert && newchar) {
-                          // create a new character in insert mode
-                          if (lengthUtf8 < length - 1)
-                             Insert();
+                    if (Setup.NumberKeysForChars) {
+                       if (!SameKey) {
+                          if (!newchar)
+                             AdvancePos();
+                          currentCharUtf8 = NULL;
                           }
-                       valueUtf8[pos] = *currentCharUtf8;
-                       if (uppercase)
-                          valueUtf8[pos] = Utf8to(upper, valueUtf8[pos]);
-                       // find next allowed character
-                       do {
-                          currentCharUtf8++;
-                          } while (*currentCharUtf8 && *currentCharUtf8 != '\t' && !IsAllowed(*currentCharUtf8));
-                       newchar = false;
-                       autoAdvanceTimeout.Set(AUTO_ADVANCE_TIMEOUT);
+                       if (!currentCharUtf8 || !*currentCharUtf8 || *currentCharUtf8 == '\t') {
+                          // find the beginning of the character map entry for Key
+                          int n = NORMALKEY(Key) - k0;
+                          currentCharUtf8 = charMapUtf8;
+                          while (n > 0 && *currentCharUtf8) {
+                                if (*currentCharUtf8++ == '\t')
+                                   n--;
+                                }
+                          // find first allowed character
+                          while (*currentCharUtf8 && *currentCharUtf8 != '\t' && !IsAllowed(*currentCharUtf8))
+                                currentCharUtf8++;
+                          }
+                       if (*currentCharUtf8 && *currentCharUtf8 != '\t') {
+                          if (insert && newchar) {
+                             // create a new character in insert mode
+                             if (lengthUtf8 < length - 1)
+                                Insert();
+                             }
+                          valueUtf8[pos] = *currentCharUtf8;
+                          if (uppercase)
+                             valueUtf8[pos] = Utf8to(upper, valueUtf8[pos]);
+                          // find next allowed character
+                          do {
+                             currentCharUtf8++;
+                             } while (*currentCharUtf8 && *currentCharUtf8 != '\t' && !IsAllowed(*currentCharUtf8));
+                          newchar = false;
+                          autoAdvanceTimeout.Set(AUTO_ADVANCE_TIMEOUT);
+                          }
                        }
+                    else
+                       Type('0' + NORMALKEY(Key) - k0);
                     }
                  else
                     return cMenuEditItem::ProcessKey(Key);
@@ -579,19 +663,8 @@ eOSState cMenuEditStrItem::ProcessKey(eKeys Key)
     default:     if (InEditMode() && BASICKEY(Key) == kKbd) {
                     int c = KEYKBD(Key);
                     if (c <= 0xFF) { // FIXME what about other UTF-8 characters?
-                       uint *p = IsAllowed(Utf8to(lower, c));
-                       if (p) {
-                          if (insert && lengthUtf8 < length - 1)
-                             Insert();
-                          valueUtf8[pos] = c;
-                          if (pos < length - 2)
-                             pos++;
-                          if (pos >= lengthUtf8) {
-                             valueUtf8[pos] = ' ';
-                             valueUtf8[pos + 1] = 0;
-                             lengthUtf8 = pos + 1;
-                             }
-                          }
+                       if (IsAllowed(Utf8to(lower, c)))
+                          Type(c);
                        else {
                           switch (c) {
                             case 0x7F: // backspace
@@ -600,6 +673,7 @@ eOSState cMenuEditStrItem::ProcessKey(eKeys Key)
                                           return ProcessKey(kYellow);
                                           }
                                        break;
+                            default: ;
                             }
                           }
                        }
@@ -609,6 +683,7 @@ eOSState cMenuEditStrItem::ProcessKey(eKeys Key)
                          case kfEnd:  pos = lengthUtf8 - 1; break;
                          case kfIns:  return ProcessKey(kGreen);
                          case kfDel:  return ProcessKey(kYellow);
+                         default: ;
                          }
                        }
                     }
@@ -909,6 +984,7 @@ eOSState cMenuEditTimeItem::ProcessKey(eKeys Key)
                      pos++;
                      }
                   break;
+          default: ;
           }
         }
      else if (NORMALKEY(Key) == kLeft) { // TODO might want to increase the delta if repeated quickly?
@@ -931,6 +1007,62 @@ eOSState cMenuEditTimeItem::ProcessKey(eKeys Key)
         return state;
      *value = hh * 100 + mm;
      Set();
+     state = osContinue;
+     }
+  return state;
+}
+
+// --- cMenuEditMapItem ------------------------------------------------------
+
+cMenuEditMapItem::cMenuEditMapItem(const char *Name, int *Value, const tDvbParameterMap *Map, const char *ZeroString)
+:cMenuEditItem(Name)
+{
+  value = Value;
+  map = Map;
+  zeroString = ZeroString;
+  Set();
+}
+
+void cMenuEditMapItem::Set(void)
+{
+  const char *s = NULL;
+  int n = MapToUser(*value, map, &s);
+  if (n == 0 && zeroString)
+     SetValue(zeroString);
+  else if (n >= 0) {
+     if (s)
+        SetValue(s);
+     else {
+        char buf[16];
+        snprintf(buf, sizeof(buf), "%d", n);
+        SetValue(buf);
+        }
+     }
+  else
+     SetValue("???");
+}
+
+eOSState cMenuEditMapItem::ProcessKey(eKeys Key)
+{
+  eOSState state = cMenuEditItem::ProcessKey(Key);
+
+  if (state == osUnknown) {
+     int newValue = *value;
+     int n = DriverIndex(*value, map);
+     if (NORMALKEY(Key) == kLeft) { // TODO might want to increase the delta if repeated quickly?
+        if (n-- > 0)
+           newValue = map[n].driverValue;
+        }
+     else if (NORMALKEY(Key) == kRight) {
+        if (map[++n].userValue >= 0)
+           newValue = map[n].driverValue;
+        }
+     else
+        return state;
+     if (newValue != *value) {
+        *value = newValue;
+        Set();
+        }
      state = osContinue;
      }
   return state;

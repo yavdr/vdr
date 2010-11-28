@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: channels.h 1.47 2008/02/08 13:48:31 kls Exp $
+ * $Id: channels.h 2.12 2010/06/05 13:12:54 kls Exp $
  */
 
 #ifndef __CHANNELS_H
@@ -46,25 +46,6 @@
 #define CA_USER_MAX      0x00FF
 #define CA_ENCRYPTED_MIN 0x0100
 #define CA_ENCRYPTED_MAX 0xFFFF
-
-struct tChannelParameterMap {
-  int userValue;
-  int driverValue;
-  };
-
-//XXX into cChannel???
-int MapToUser(int Value, const tChannelParameterMap *Map);
-int MapToDriver(int Value, const tChannelParameterMap *Map);
-int UserIndex(int Value, const tChannelParameterMap *Map);
-int DriverIndex(int Value, const tChannelParameterMap *Map);
-
-extern const tChannelParameterMap InversionValues[];
-extern const tChannelParameterMap BandwidthValues[];
-extern const tChannelParameterMap CoderateValues[];
-extern const tChannelParameterMap ModulationValues[];
-extern const tChannelParameterMap TransmissionValues[];
-extern const tChannelParameterMap GuardValues[];
-extern const tChannelParameterMap HierarchyValues[];
 
 struct tChannelID {
 private:
@@ -108,6 +89,7 @@ class cSchedule;
 class cChannel : public cListObject {
   friend class cSchedules;
   friend class cMenuEditChannel;
+  friend class cDvbSourceParam;
 private:
   static cString ToText(const cChannel *Channel);
   char *name;
@@ -120,12 +102,18 @@ private:
   int srate;
   int vpid;
   int ppid;
+  int vtype;
   int apids[MAXAPIDS + 1]; // list is zero-terminated
+  int atypes[MAXAPIDS + 1]; // list is zero-terminated
   char alangs[MAXAPIDS][MAXLANGCODE2];
   int dpids[MAXDPIDS + 1]; // list is zero-terminated
+  int dtypes[MAXAPIDS + 1]; // list is zero-terminated
   char dlangs[MAXDPIDS][MAXLANGCODE2];
   int spids[MAXSPIDS + 1]; // list is zero-terminated
   char slangs[MAXSPIDS][MAXLANGCODE2];
+  uchar subtitlingTypes[MAXSPIDS];
+  uint16_t compositionPageIds[MAXSPIDS];
+  uint16_t ancillaryPageIds[MAXSPIDS];
   int tpid;
   int caids[MAXCAIDS + 1]; // list is zero-terminated
   int nid;
@@ -134,22 +122,13 @@ private:
   int rid;
   int number;    // Sequence number assigned on load
   bool groupSep;
-  char polarization;
-  int inversion;
-  int bandwidth;
-  int coderateH;
-  int coderateL;
-  int modulation;
-  int transmission;
-  int guard;
-  int hierarchy;
   int __EndData__;
+  cString parameters;
   int modification;
   mutable const cSchedule *schedule;
   cLinkChannels *linkChannels;
   cChannel *refChannel;
-  cString ParametersToString(void) const;
-  bool StringToParameters(const char *s);
+  cString TransponderDataToString(void) const;
 public:
   cChannel(void);
   cChannel(const cChannel &Channel);
@@ -169,6 +148,7 @@ public:
   int Srate(void) const { return srate; }
   int Vpid(void) const { return vpid; }
   int Ppid(void) const { return ppid; }
+  int Vtype(void) const { return vtype; }
   const int *Apids(void) const { return apids; }
   const int *Dpids(void) const { return dpids; }
   const int *Spids(void) const { return spids; }
@@ -178,6 +158,11 @@ public:
   const char *Alang(int i) const { return (0 <= i && i < MAXAPIDS) ? alangs[i] : ""; }
   const char *Dlang(int i) const { return (0 <= i && i < MAXDPIDS) ? dlangs[i] : ""; }
   const char *Slang(int i) const { return (0 <= i && i < MAXSPIDS) ? slangs[i] : ""; }
+  int Atype(int i) const { return (0 <= i && i < MAXAPIDS) ? atypes[i] : 0; }
+  int Dtype(int i) const { return (0 <= i && i < MAXDPIDS) ? dtypes[i] : 0; }
+  uchar SubtitlingType(int i) const { return (0 <= i && i < MAXSPIDS) ? subtitlingTypes[i] : uchar(0); }
+  uint16_t CompositionPageId(int i) const { return (0 <= i && i < MAXSPIDS) ? compositionPageIds[i] : uint16_t(0); }
+  uint16_t AncillaryPageId(int i) const { return (0 <= i && i < MAXSPIDS) ? ancillaryPageIds[i] : uint16_t(0); }
   int Tpid(void) const { return tpid; }
   const int *Caids(void) const { return caids; }
   int Ca(int Index = 0) const { return Index < MAXCAIDS ? caids[Index] : 0; }
@@ -188,35 +173,28 @@ public:
   int Number(void) const { return number; }
   void SetNumber(int Number) { number = Number; }
   bool GroupSep(void) const { return groupSep; }
-  char Polarization(void) const { return polarization; }
-  int Inversion(void) const { return inversion; }
-  int Bandwidth(void) const { return bandwidth; }
-  int CoderateH(void) const { return coderateH; }
-  int CoderateL(void) const { return coderateL; }
-  int Modulation(void) const { return modulation; }
-  int Transmission(void) const { return transmission; }
-  int Guard(void) const { return guard; }
-  int Hierarchy(void) const { return hierarchy; }
+  const char *Parameters(void) const { return parameters; }
   const cLinkChannels* LinkChannels(void) const { return linkChannels; }
   const cChannel *RefChannel(void) const { return refChannel; }
+  bool IsAtsc(void) const { return cSource::IsAtsc(source); }
   bool IsCable(void) const { return cSource::IsCable(source); }
   bool IsSat(void) const { return cSource::IsSat(source); }
   bool IsTerr(void) const { return cSource::IsTerr(source); }
+  bool IsSourceType(char Source) const { return cSource::IsType(source, Source); }
   tChannelID GetChannelID(void) const { return tChannelID(source, nid, (nid || tid) ? tid : Transponder(), sid, rid); }
   bool HasTimer(void) const;
   int Modification(int Mask = CHANNELMOD_ALL);
   void CopyTransponderData(const cChannel *Channel);
-  bool SetSatTransponderData(int Source, int Frequency, char Polarization, int Srate, int CoderateH);
-  bool SetCableTransponderData(int Source, int Frequency, int Modulation, int Srate, int CoderateH);
-  bool SetTerrTransponderData(int Source, int Frequency, int Bandwidth, int Modulation, int Hierarchy, int CodeRateH, int CodeRateL, int Guard, int Transmission);
+  bool SetTransponderData(int Source, int Frequency, int Srate, const char *Parameters, bool Quiet = false);
   void SetId(int Nid, int Tid, int Sid, int Rid = 0);
   void SetName(const char *Name, const char *ShortName, const char *Provider);
   void SetPortalName(const char *PortalName);
-  void SetPids(int Vpid, int Ppid, int *Apids, char ALangs[][MAXLANGCODE2], int *Dpids, char DLangs[][MAXLANGCODE2], int *Spids, char SLangs[][MAXLANGCODE2], int Tpid);
+  void SetPids(int Vpid, int Ppid, int Vtype, int *Apids, int *Atypes, char ALangs[][MAXLANGCODE2], int *Dpids, int *Dtypes, char DLangs[][MAXLANGCODE2], int *Spids, char SLangs[][MAXLANGCODE2], int Tpid);
   void SetCaIds(const int *CaIds); // list must be zero-terminated
   void SetCaDescriptors(int Level);
   void SetLinkChannels(cLinkChannels *LinkChannels);
   void SetRefChannel(cChannel *RefChannel);
+  void SetSubtitlingDescriptors(uchar *SubtitlingTypes, uint16_t *CompositionPageIds, uint16_t *AncillaryPageIds);
   };
 
 class cChannels : public cRwLock, public cConfig<cChannel> {

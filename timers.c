@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: timers.c 1.73 2008/02/16 14:47:40 kls Exp $
+ * $Id: timers.c 2.4 2010/01/16 11:18:53 kls Exp $
  */
 
 #include "timers.h"
@@ -51,6 +51,11 @@ cTimer::cTimer(bool Instant, bool Pause, cChannel *Channel)
   event = NULL;
   if (Instant && channel)
      snprintf(file, sizeof(file), "%s%s", Setup.MarkInstantRecord ? "@" : "", *Setup.NameInstantRecord ? Setup.NameInstantRecord : channel->Name());
+  if (VfatFileSystem && (Utf8StrLen(file) > VFAT_MAX_FILENAME)) {
+     dsyslog("timer file name too long for VFAT file system: '%s'", file);
+     file[Utf8SymChars(file, VFAT_MAX_FILENAME)] = 0;
+     dsyslog("timer file name truncated to '%s'", file);
+     }
 }
 
 cTimer::cTimer(const cEvent *Event)
@@ -83,6 +88,11 @@ cTimer::cTimer(const cEvent *Event)
   const char *Title = Event->Title();
   if (!isempty(Title))
      Utf8Strn0Cpy(file, Event->Title(), sizeof(file));
+  if (VfatFileSystem && (Utf8StrLen(file) > VFAT_MAX_FILENAME)) {
+     dsyslog("timer file name too long for VFAT file system: '%s'", file);
+     file[Utf8SymChars(file, VFAT_MAX_FILENAME)] = 0;
+     dsyslog("timer file name truncated to '%s'", file);
+     }
   aux = NULL;
   event = NULL; // let SetEvent() be called to get a log message
 }
@@ -92,6 +102,7 @@ cTimer::cTimer(const cTimer &Timer)
   channel = NULL;
   aux = NULL;
   event = NULL;
+  flags = tfNone;
   *this = Timer;
 }
 
@@ -290,18 +301,18 @@ bool cTimer::Parse(const char *s)
      //TODO add more plausibility checks
      result = ParseDay(daybuffer, day, weekdays);
      if (VfatFileSystem) {
-        char *p = strrchr(filebuffer, '~');
+        char *p = strrchr(filebuffer, FOLDERDELIMCHAR);
         if (p)
            p++;
         else
            p = filebuffer;
-        if (strlen(p) > VFAT_MAX_FILENAME) {
+        if (Utf8StrLen(p) > VFAT_MAX_FILENAME) {
            dsyslog("timer file name too long for VFAT file system: '%s'", p);
-           p[VFAT_MAX_FILENAME] = 0;
+           p[Utf8SymChars(p, VFAT_MAX_FILENAME)] = 0;
            dsyslog("timer file name truncated to '%s'", p);
            }
         }
-     Utf8Strn0Cpy(file, filebuffer, MaxFileName);
+     Utf8Strn0Cpy(file, filebuffer, sizeof(file));
      strreplace(file, '|', ':');
      if (isnumber(channelbuffer))
         channel = Channels.GetByNumber(atoi(channelbuffer));
@@ -462,7 +473,7 @@ int cTimer::Matches(const cEvent *Event, int *Overlap) const
 
 bool cTimer::Expired(void) const
 {
-  return IsSingleEvent() && !Recording() && StopTime() + EXPIRELATENCY <= time(NULL) && (!HasFlags(tfVps) || !event);
+  return IsSingleEvent() && !Recording() && StopTime() + EXPIRELATENCY <= time(NULL) && (!HasFlags(tfVps) || !event || !event->Vps());
 }
 
 time_t cTimer::StartTime(void) const

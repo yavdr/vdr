@@ -1,5 +1,5 @@
 # VDR language source file.
-# Copyright (C) 2008 Klaus Schmidinger <kls@cadsoft.de>
+# Copyright (C) 2008 Klaus Schmidinger <kls@tvdr.de>
 # This file is distributed under the same license as the VDR package.
 # Vyacheslav Dikonov <sdiconov@mail.ru>, 2004, 2005
 # Oleg Roitburd <oleg@roitburd.de>, 2005, 2006, 2007, 2008
@@ -7,9 +7,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: VDR 1.6.0\n"
-"Report-Msgid-Bugs-To: <vdr-bugs@cadsoft.de>\n"
-"POT-Creation-Date: 2008-02-10 12:22+0100\n"
-"PO-Revision-Date: 2008-02-15 16:37+0100\n"
+"Report-Msgid-Bugs-To: <vdr-bugs@tvdr.de>\n"
+"POT-Creation-Date: 2010-06-06 12:52+0200\n"
+"PO-Revision-Date: 2008-12-15 14:37+0100\n"
 "Last-Translator: Oleg Roitburd <oleg@roitburd.de>\n"
 "Language-Team: Russian\n"
 "MIME-Version: 1.0\n"
@@ -25,8 +25,297 @@ msgstr "Канал недоступен!"
 msgid "Can't start Transfer Mode!"
 msgstr "Невозможно включить режим пропуска!"
 
+msgid "off"
+msgstr "выкл"
+
+msgid "on"
+msgstr "вкл"
+
+msgid "auto"
+msgstr "авто"
+
+msgid "none"
+msgstr "ничего"
+
+msgid "Polarization"
+msgstr "Поляризация"
+
+msgid "System"
+msgstr "Система"
+
+msgid "Srate"
+msgstr "Симв. скорость"
+
+msgid "Inversion"
+msgstr "Инверсия"
+
+msgid "CoderateH"
+msgstr "CoderateH"
+
+msgid "CoderateL"
+msgstr "CoderateL"
+
+msgid "Modulation"
+msgstr "Модуляция"
+
+msgid "Bandwidth"
+msgstr "Диапазон"
+
+msgid "Transmission"
+msgstr "Передача"
+
+msgid "Guard"
+msgstr "Защита"
+
+msgid "Hierarchy"
+msgstr "Иерархия"
+
+msgid "Rolloff"
+msgstr "Rolloff"
+
 msgid "Starting EPG scan"
 msgstr "Начинаю EPG-сканирование"
+
+msgid "Content$Movie/Drama"
+msgstr ""
+
+msgid "Content$Detective/Thriller"
+msgstr ""
+
+msgid "Content$Adventure/Western/War"
+msgstr ""
+
+msgid "Content$Science Fiction/Fantasy/Horror"
+msgstr ""
+
+msgid "Content$Comedy"
+msgstr ""
+
+msgid "Content$Soap/Melodrama/Folkloric"
+msgstr ""
+
+msgid "Content$Romance"
+msgstr ""
+
+msgid "Content$Serious/Classical/Religious/Historical Movie/Drama"
+msgstr ""
+
+msgid "Content$Adult Movie/Drama"
+msgstr ""
+
+msgid "Content$News/Current Affairs"
+msgstr ""
+
+msgid "Content$News/Weather Report"
+msgstr ""
+
+msgid "Content$News Magazine"
+msgstr ""
+
+msgid "Content$Documentary"
+msgstr ""
+
+msgid "Content$Discussion/Inverview/Debate"
+msgstr ""
+
+msgid "Content$Show/Game Show"
+msgstr ""
+
+msgid "Content$Game Show/Quiz/Contest"
+msgstr ""
+
+msgid "Content$Variety Show"
+msgstr ""
+
+msgid "Content$Talk Show"
+msgstr ""
+
+msgid "Content$Sports"
+msgstr ""
+
+msgid "Content$Special Event"
+msgstr ""
+
+msgid "Content$Sport Magazine"
+msgstr ""
+
+msgid "Content$Football/Soccer"
+msgstr ""
+
+msgid "Content$Tennis/Squash"
+msgstr ""
+
+msgid "Content$Team Sports"
+msgstr ""
+
+msgid "Content$Athletics"
+msgstr ""
+
+msgid "Content$Motor Sport"
+msgstr ""
+
+msgid "Content$Water Sport"
+msgstr ""
+
+msgid "Content$Winter Sports"
+msgstr ""
+
+msgid "Content$Equestrian"
+msgstr ""
+
+msgid "Content$Martial Sports"
+msgstr ""
+
+msgid "Content$Children's/Youth Programme"
+msgstr ""
+
+msgid "Content$Pre-school Children's Programme"
+msgstr ""
+
+msgid "Content$Entertainment Programme for 6 to 14"
+msgstr ""
+
+msgid "Content$Entertainment Programme for 10 to 16"
+msgstr ""
+
+msgid "Content$Informational/Educational/School Programme"
+msgstr ""
+
+msgid "Content$Cartoons/Puppets"
+msgstr ""
+
+msgid "Content$Music/Ballet/Dance"
+msgstr ""
+
+msgid "Content$Rock/Pop"
+msgstr ""
+
+msgid "Content$Serious/Classical Music"
+msgstr ""
+
+msgid "Content$Folk/Tradional Music"
+msgstr ""
+
+msgid "Content$Jazz"
+msgstr ""
+
+msgid "Content$Musical/Opera"
+msgstr ""
+
+msgid "Content$Ballet"
+msgstr ""
+
+msgid "Content$Arts/Culture"
+msgstr ""
+
+msgid "Content$Performing Arts"
+msgstr ""
+
+msgid "Content$Fine Arts"
+msgstr ""
+
+msgid "Content$Religion"
+msgstr ""
+
+msgid "Content$Popular Culture/Traditional Arts"
+msgstr ""
+
+msgid "Content$Literature"
+msgstr ""
+
+msgid "Content$Film/Cinema"
+msgstr ""
+
+msgid "Content$Experimental Film/Video"
+msgstr ""
+
+msgid "Content$Broadcasting/Press"
+msgstr ""
+
+msgid "Content$New Media"
+msgstr ""
+
+msgid "Content$Arts/Culture Magazine"
+msgstr ""
+
+msgid "Content$Fashion"
+msgstr ""
+
+msgid "Content$Social/Political/Economics"
+msgstr ""
+
+msgid "Content$Magazine/Report/Documentary"
+msgstr ""
+
+msgid "Content$Economics/Social Advisory"
+msgstr ""
+
+msgid "Content$Remarkable People"
+msgstr ""
+
+msgid "Content$Education/Science/Factual"
+msgstr ""
+
+msgid "Content$Nature/Animals/Environment"
+msgstr ""
+
+msgid "Content$Technology/Natural Sciences"
+msgstr ""
+
+msgid "Content$Medicine/Physiology/Psychology"
+msgstr ""
+
+msgid "Content$Foreign Countries/Expeditions"
+msgstr ""
+
+msgid "Content$Social/Spiritual Sciences"
+msgstr ""
+
+msgid "Content$Further Education"
+msgstr ""
+
+msgid "Content$Languages"
+msgstr ""
+
+msgid "Content$Leisure/Hobbies"
+msgstr ""
+
+msgid "Content$Tourism/Travel"
+msgstr ""
+
+msgid "Content$Handicraft"
+msgstr ""
+
+msgid "Content$Motoring"
+msgstr ""
+
+msgid "Content$Fitness & Health"
+msgstr ""
+
+msgid "Content$Cooking"
+msgstr ""
+
+msgid "Content$Advertisement/Shopping"
+msgstr ""
+
+msgid "Content$Gardening"
+msgstr ""
+
+msgid "Content$Original Language"
+msgstr ""
+
+msgid "Content$Black & White"
+msgstr ""
+
+msgid "Content$Unpublished"
+msgstr ""
+
+msgid "Content$Live Broadcast"
+msgstr ""
+
+#, c-format
+msgid "ParentalRating$from %d"
+msgstr ""
 
 msgid "No title"
 msgstr "Без названия"
@@ -187,6 +476,9 @@ msgstr "Настройка"
 msgid "Key$Commands"
 msgstr "Команды"
 
+msgid "Key$User0"
+msgstr "Пользователь0"
+
 msgid "Key$User1"
 msgstr "Пользователь1"
 
@@ -225,9 +517,6 @@ msgstr "FTA (незакодировано)"
 
 msgid "encrypted"
 msgstr "закодировано"
-
-msgid "auto"
-msgstr "авто"
 
 msgid "Edit channel"
 msgstr "Редактирование канала"
@@ -274,42 +563,6 @@ msgstr "CA (декодер)"
 msgid "Sid"
 msgstr "Sid"
 
-msgid "Polarization"
-msgstr "Поляризация"
-
-msgid "Srate"
-msgstr "Симв. скорость"
-
-msgid "Inversion"
-msgstr "Инверсия"
-
-msgid "off"
-msgstr "выкл"
-
-msgid "CoderateH"
-msgstr "CoderateH"
-
-msgid "none"
-msgstr "ничего"
-
-msgid "CoderateL"
-msgstr "CoderateL"
-
-msgid "Modulation"
-msgstr "Модуляция"
-
-msgid "Bandwidth"
-msgstr "Диапазон"
-
-msgid "Transmission"
-msgstr "Передача"
-
-msgid "Guard"
-msgstr "Защита"
-
-msgid "Hierarchy"
-msgstr "Иерархия"
-
 msgid "Channel settings are not unique!"
 msgstr "Настройки канала не уникальны!"
 
@@ -333,6 +586,31 @@ msgstr "Канал занят таймером!"
 
 msgid "Delete channel?"
 msgstr "Удалить канал?"
+
+msgid "Edit folder"
+msgstr ""
+
+msgid "New folder"
+msgstr ""
+
+msgid "Sub folder"
+msgstr ""
+
+msgid "Folder name already exists!"
+msgstr ""
+
+#, c-format
+msgid "Folder name must not contain '%c'!"
+msgstr ""
+
+msgid "Button$Select"
+msgstr ""
+
+msgid "Delete folder and all sub folders?"
+msgstr ""
+
+msgid "Delete folder?"
+msgstr ""
 
 msgid "Edit timer"
 msgstr "Установка таймера"
@@ -364,8 +642,14 @@ msgstr "Срок хранения"
 msgid "File"
 msgstr "Файл"
 
+msgid "Button$Folder"
+msgstr ""
+
 msgid "First day"
 msgstr "Первый день"
+
+msgid "Select folder"
+msgstr ""
 
 msgid "Timers"
 msgstr "Таймеры"
@@ -484,17 +768,17 @@ msgstr "Стиль"
 msgid "Setup.OSD$Theme"
 msgstr "Тема"
 
-msgid "Setup.OSD$Left"
-msgstr "Отступ слева"
+msgid "Setup.OSD$Left (%)"
+msgstr "Отступ слева (%)"
 
-msgid "Setup.OSD$Top"
-msgstr "Отступ сверху"
+msgid "Setup.OSD$Top (%)"
+msgstr "Отступ сверху (%)"
 
-msgid "Setup.OSD$Width"
-msgstr "Ширина"
+msgid "Setup.OSD$Width (%)"
+msgstr "Ширина (%)"
 
-msgid "Setup.OSD$Height"
-msgstr "Высота"
+msgid "Setup.OSD$Height (%)"
+msgstr "Высота (%)"
 
 msgid "Setup.OSD$Message time (s)"
 msgstr "Длительность показа сообщений (сек)"
@@ -514,14 +798,14 @@ msgstr "Мелкий фонт"
 msgid "Setup.OSD$Fixed font"
 msgstr "Фиксированный фонт"
 
-msgid "Setup.OSD$Default font size (pixel)"
-msgstr "Размер фонта для меню (pixel)"
+msgid "Setup.OSD$Default font size (%)"
+msgstr "Размер фонта для меню (%)"
 
-msgid "Setup.OSD$Small font size (pixel)"
-msgstr "Размер мелкого фонта (pixel)"
+msgid "Setup.OSD$Small font size (%)"
+msgstr "Размер мелкого фонта (%)"
 
-msgid "Setup.OSD$Fixed font size (pixel)"
-msgstr "Размер фиксированного фонта (pixel)"
+msgid "Setup.OSD$Fixed font size (%)"
+msgstr "Размер фиксированного фонта (%)"
 
 msgid "Setup.OSD$Channel info position"
 msgstr "Положение окна информации о канале"
@@ -552,6 +836,12 @@ msgstr "Кнопку Меню закрыть"
 
 msgid "Setup.OSD$Recording directories"
 msgstr "Каталоги хранения записей"
+
+msgid "Setup.OSD$Folders in timer menu"
+msgstr ""
+
+msgid "Setup.OSD$Number keys for characters"
+msgstr ""
 
 msgid "EPG"
 msgstr "Телегид"
@@ -696,6 +986,21 @@ msgstr "CAM используется - действительно перегрузить?"
 msgid "Can't reset CAM!"
 msgstr "Ошибка перезапуска CAM-модуля!"
 
+msgid "do not pause live video"
+msgstr ""
+
+msgid "confirm pause live video"
+msgstr ""
+
+msgid "pause live video"
+msgstr ""
+
+msgid "confirm"
+msgstr ""
+
+msgid "yes"
+msgstr "да"
+
 msgid "Recording"
 msgstr "Запись"
 
@@ -713,6 +1018,9 @@ msgstr "Приоритет таймера по умолчанию"
 
 msgid "Setup.Recording$Default lifetime (d)"
 msgstr "Срок хранения записи по умолчанию (д)"
+
+msgid "Setup.Recording$Pause key handling"
+msgstr ""
 
 msgid "Setup.Recording$Pause priority"
 msgstr "Приоритет отложенного просмотра"
@@ -743,6 +1051,9 @@ msgstr "Макс. размер видеофайла (Мб)"
 
 msgid "Setup.Recording$Split edited files"
 msgstr "Делить отредактированные файлы"
+
+msgid "Setup.Recording$Delete timeshift recording"
+msgstr ""
 
 msgid "Replay"
 msgstr "Воспроизведение"
@@ -782,6 +1093,9 @@ msgstr "как раньше"
 
 msgid "Setup.Miscellaneous$Initial volume"
 msgstr "Громкость при включении"
+
+msgid "Setup.Miscellaneous$Channels wrap"
+msgstr ""
 
 msgid "Setup.Miscellaneous$Emergency exit"
 msgstr "Аварийный выход"
@@ -858,6 +1172,9 @@ msgstr "Нет свободного DVB-устройства для записи!"
 msgid "Pausing live video..."
 msgstr "Режим отложенного просмотра..."
 
+msgid "Delete timeshift recording?"
+msgstr ""
+
 #. TRANSLATORS: note the trailing blank!
 msgid "Jump: "
 msgstr "Перейти: "
@@ -876,9 +1193,6 @@ msgstr "Процесс видеомонтажа уже запущен!"
 
 msgid "FileNameChars$ abcdefghijklmnopqrstuvwxyz0123456789-.,#~\\^$[]|()*+?{}/:%@&"
 msgstr " abcdefghijklmnopqrstuvwxyzабвгдеёжзийклмнопрстуфхцчшщъыьюя0123456789-.,#~\\^$[]|()*+?{}/:%@&"
-
-msgid "yes"
-msgstr "да"
 
 msgid "CharMap$ 0\t-.,1#~\\^$[]|()*+?{}/:%@&\tabc2\tdef3\tghi4\tjkl5\tmno6\tpqrs7\ttuv8\twxyz9"
 msgstr " 0\t-.,1#~\\^$[]|()*+?{}/:%@&\tabcабвг2\tdefдеёжз3\tghiийкл4\tjklмно5\tmnoпрс6\tpqrsтуфх7\ttuvцчшщъ8\twxyzыьэюя9"
@@ -903,6 +1217,12 @@ msgstr "Канал заблокирован (идёт запись)!"
 
 msgid "Low disk space!"
 msgstr "Недостаточно места на диске!"
+
+msgid "Regenerating index file"
+msgstr ""
+
+msgid "Index file regeneration complete"
+msgstr ""
 
 msgid "Can't shutdown - option '-s' not given!"
 msgstr "Выключение невозможно - не задан параметр '-s'!"
@@ -974,6 +1294,9 @@ msgstr "Воскресенье"
 
 msgid "Upcoming recording!"
 msgstr "Запись скоро начнется"
+
+msgid "Pause live video?"
+msgstr ""
 
 msgid "Recording started"
 msgstr "Запись начата"

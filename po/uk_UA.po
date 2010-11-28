@@ -1,256 +1,545 @@
 # VDR language source file.
-# Copyright (C) 2008 Klaus Schmidinger <kls@cadsoft.de>
+# Copyright (C) 2008 Klaus Schmidinger <kls@tvdr.de>
 # This file is distributed under the same license as the VDR package.
-# Yarema Aka Knedlyk <yupadmin@gmail.com>, 2007, 2008
+# Yarema Aka Knedlyk <yupadmin@gmail.com>, 2007, 2008, 2010
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: VDR 1.6.0\n"
-"Report-Msgid-Bugs-To: <vdr-bugs@cadsoft.de>\n"
-"POT-Creation-Date: 2008-02-10 12:22+0100\n"
-"PO-Revision-Date: 2008-03-07 14:17+0200\n"
-"Last-Translator: Yarema Aka Knedlyk <yupadmin@gmail.com>\n"
+"Project-Id-Version: VDR 1.7.7\n"
+"Report-Msgid-Bugs-To: <vdr-bugs@tvdr.de>\n"
+"POT-Creation-Date: 2010-06-06 12:52+0200\n"
+"PO-Revision-Date: 2010-04-25 16:35+0200\n"
+"Last-Translator: Yarema aka Knedlyk <yupadmin@gmail.com>\n"
 "Language-Team: Ukrainian\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-5\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 msgid "*** Invalid Channel ***"
-msgstr "*** Ω’ﬂ‡–“ÿ€Ï›ÿŸ ⁄–›–€ ***"
+msgstr "*** –ù–µ–ø—Ä–∞–≤–∏–ª—å–Ω–∏–π –∫–∞–Ω–∞–ª ***"
 
 msgid "Channel not available!"
-msgstr "∫–›–€ ›’‘ﬁ·‚„ﬂ›ÿŸ!"
+msgstr "–ö–∞–Ω–∞–ª –Ω–µ–¥–æ—Å—Ç—É–ø–Ω–∏–π!"
 
 msgid "Can't start Transfer Mode!"
-msgstr "Ω’‹ﬁ÷€ÿ“ﬁ “⁄€ÓÁÿ‚ÿ ‡’÷ÿ‹ ﬂ‡ﬁﬂ„·⁄„!"
+msgstr "–ù–µ–º–æ–∂–ª–∏–≤–æ –≤–∫–ª—é—á–∏—Ç–∏ —Ä–µ–∂–∏–º –ø—Ä–æ–ø—É—Å–∫—É!"
+
+msgid "off"
+msgstr "–≤–∏–∫–ª"
+
+msgid "on"
+msgstr "–≤–∫–ª"
+
+msgid "auto"
+msgstr "–∞–≤—Ç–æ"
+
+msgid "none"
+msgstr "–Ω–µ–º–∞"
+
+msgid "Polarization"
+msgstr "–ü–æ–ª—è—Ä–∏–∑–∞—Ü—ñ—è"
+
+msgid "System"
+msgstr "–°–∏—Å—Ç–µ–º–∞"
+
+msgid "Srate"
+msgstr "–°–∏–º–≤. —à–≤–∏–¥–∫—ñ—Å—Ç—å"
+
+msgid "Inversion"
+msgstr "–Ü–Ω–≤–µ—Ä—Å—ñ—è"
+
+msgid "CoderateH"
+msgstr "CoderateH"
+
+msgid "CoderateL"
+msgstr "CoderateL"
+
+msgid "Modulation"
+msgstr "–ú–æ–¥—É–ª—è—Ü—ñ—è"
+
+msgid "Bandwidth"
+msgstr "–î—ñ–∞–ø–∞–∑–æ–Ω"
+
+msgid "Transmission"
+msgstr "–ü–µ—Ä–µ–¥–∞—á–∞"
+
+msgid "Guard"
+msgstr "–ó–∞—Ö–∏—Å—Ç"
+
+msgid "Hierarchy"
+msgstr "–Ü—î—Ä–∞—Ä—Ö—ñ—è"
+
+msgid "Rolloff"
+msgstr "–ö—Ä–µ–Ω"
 
 msgid "Starting EPG scan"
-msgstr "øﬁÁÿ›–Ó EPG-·⁄–›„“–››Ô"
+msgstr "–ü–æ—á–∏–Ω–∞—é EPG-—Å–∫–∞–Ω—É–≤–∞–Ω–Ω—è"
+
+msgid "Content$Movie/Drama"
+msgstr "–§—ñ–ª—å–º/–î—Ä–∞–º–∞"
+
+msgid "Content$Detective/Thriller"
+msgstr "–î–µ—Ç–µ–∫—Ç–∏–≤/–¢—Ä—ñ–ª–ª–µ—Ä"
+
+msgid "Content$Adventure/Western/War"
+msgstr "–ü—Ä–∏–≥–æ–¥–∏/–í–µ—Å—Ç–µ—Ä–Ω/–í—ñ–π–Ω–∞"
+
+msgid "Content$Science Fiction/Fantasy/Horror"
+msgstr "–ù–∞—É–∫–æ–≤–∞ —Ñ–∞–Ω—Ç–∞—Å—Ç–∏–∫–∞/–§–∞–Ω—Ç–∞—Å—Ç–∏–∫–∞/–ñ–∞—Ö–∏"
+
+msgid "Content$Comedy"
+msgstr "–ö–æ–º–µ–¥—ñ—è"
+
+msgid "Content$Soap/Melodrama/Folkloric"
+msgstr "–ú–∏–ª—å–Ω–∞ –æ–ø–µ—Ä–∞/–ú–µ–ª–æ–¥—Ä–∞–º–∞/–§–æ–ª—å–∫–ª–æ—Ä"
+
+msgid "Content$Romance"
+msgstr "–†–æ–º–∞–Ω—Å"
+
+msgid "Content$Serious/Classical/Religious/Historical Movie/Drama"
+msgstr "–°–µ—Ä–π–æ–∑–Ω–µ/–ö–ª–∞—Å–∏–∫–∞/–†–µ–ª—ñ–≥—ñ—è/–Ü—Å—Ç–æ—Ä—ñ—è/–î—Ä–∞–º–∞"
+
+msgid "Content$Adult Movie/Drama"
+msgstr "–ö—ñ–Ω–æ –¥–ª—è –¥–æ—Ä–æ—Å–ª–∏—Ö/–î—Ä–∞–º–∞"
+
+msgid "Content$News/Current Affairs"
+msgstr "–ù–æ–≤–∏–Ω–∏/–ü–æ—Ç–æ—á–Ω—ñ –ø–æ–¥—ñ—ó"
+
+msgid "Content$News/Weather Report"
+msgstr "–ù–æ–≤–∏–Ω–∏/–°–ø–æ—Ä—Ç"
+
+msgid "Content$News Magazine"
+msgstr "–ñ—É—Ä–Ω–∞–ª –Ω–æ–≤–∏–Ω"
+
+msgid "Content$Documentary"
+msgstr "–î–æ–∫—É–º–µ–Ω—Ç–∞–ª—å–Ω–µ"
+
+msgid "Content$Discussion/Inverview/Debate"
+msgstr "–î–∏—Å–∫—É—Å—ñ—è/–Ü–Ω—Ç–µ—Ä–≤‚Äô—é/–î–µ–±–∞—Ç–∏"
+
+msgid "Content$Show/Game Show"
+msgstr "–®–æ—É//–Ü–≥—Ä–∏"
+
+msgid "Content$Game Show/Quiz/Contest"
+msgstr "–Ü–≥—Ä–æ–≤–µ —à–æ—É/–¢–µ—Å—Ç–∏"
+
+msgid "Content$Variety Show"
+msgstr "–í–∞—Ä‚Äô—î—Ç–µ"
+
+msgid "Content$Talk Show"
+msgstr "–¢–æ–∫ —à–æ—É"
+
+msgid "Content$Sports"
+msgstr "–°–ø–æ—Ä—Ç"
+
+msgid "Content$Special Event"
+msgstr "–°–ø–µ—Ü—ñ–∞–ª—å–Ω—ñ –ø–æ–¥—ñ—ó"
+
+msgid "Content$Sport Magazine"
+msgstr "–°–ø–æ—Ä—Ç–∏–≤–Ω–∏–π –∂—É—Ä–Ω–∞–ª"
+
+msgid "Content$Football/Soccer"
+msgstr "–§—É—Ç–±–æ–ª"
+
+msgid "Content$Tennis/Squash"
+msgstr "–¢–µ–Ω—ñ—Å/–°–∫–≤–æ—à"
+
+msgid "Content$Team Sports"
+msgstr "–°–ø–æ—Ä—Ç–∏–≤–Ω—ñ –∫–æ–º–∞–Ω–¥–∏"
+
+msgid "Content$Athletics"
+msgstr "–ê—Ç–ª–µ—Ç–∏–∫–∞"
+
+msgid "Content$Motor Sport"
+msgstr "–ú–æ—Ç–æ—Ä–Ω–∏–π —Å–ø–æ—Ä—Ç"
+
+msgid "Content$Water Sport"
+msgstr "–í–æ–¥–Ω–∏–π —Å–ø–æ—Ä—Ç"
+
+msgid "Content$Winter Sports"
+msgstr "–ó–∏–º–æ–≤–∏–π —Å–ø–æ—Ä—Ç"
+
+msgid "Content$Equestrian"
+msgstr "–ö—ñ–Ω–Ω–∏–π —Å–ø–æ—Ä—Ç"
+
+msgid "Content$Martial Sports"
+msgstr "–í—ñ–π—Å—å–∫–æ–≤–∏–π —Å–ø–æ—Ä—Ç"
+
+msgid "Content$Children's/Youth Programme"
+msgstr "–î–∏—Ç—è—á–µ/–ú–æ–ª–æ–¥—ñ–∂–Ω—ñ –ø—Ä–æ–≥—Ä–∞–º–∏"
+
+msgid "Content$Pre-school Children's Programme"
+msgstr "–î–æ—à–∫—ñ–ª—å–Ω—ñ –¥–∏—Ç—è—á—ñ –ø—Ä–æ–≥—Ä–∞–º–∏"
+
+msgid "Content$Entertainment Programme for 6 to 14"
+msgstr "–ü—Ä–æ–≥—Ä–∞–º–∏ –¥–ª—è –¥—ñ—Ç–µ–π –≤—ñ–¥ 6 –¥–æ 14 —Ä–æ–∫—ñ–≤"
+
+msgid "Content$Entertainment Programme for 10 to 16"
+msgstr "–ü—Ä–æ–≥—Ä–∞–º–∏ –¥–ª—è –¥—ñ—Ç–µ–π –≤—ñ–¥ 10 –¥–æ 16 —Ä–æ–∫—ñ–≤"
+
+msgid "Content$Informational/Educational/School Programme"
+msgstr "–Ü–Ω—Ñ–æ—Ä–º–∞—Ü—ñ–π–Ω—ñ/–ù–∞–≤—á–∞–ª—å–Ω—ñ/–®–∫—ñ–ª—å–Ω–∞ –ø—Ä–æ–≥—Ä–∞–º–∞"
+
+msgid "Content$Cartoons/Puppets"
+msgstr "–ú—É–ª—å—Ç—Ñ—ñ–ª—å–º–∏"
+
+msgid "Content$Music/Ballet/Dance"
+msgstr "–ú—É–∑–∏–∫–∞/–ë–∞–ª–µ—Ç/–¢–∞–Ω—Ü—ñ"
+
+msgid "Content$Rock/Pop"
+msgstr "–†–æ–∫/–ü–æ–ø"
+
+msgid "Content$Serious/Classical Music"
+msgstr "–°–µ—Ä–π–æ–∑–Ω–∞/–ö–ª–∞—Å–∏—á–Ω–∞ –º—É–∑–∏–∫–∞"
+
+msgid "Content$Folk/Tradional Music"
+msgstr "–§–ª—å–∫/–¢—Ä–∞–¥–∏—Ü—ñ–π–Ω–∞ –º—É–∑–∏–∫–∞"
+
+msgid "Content$Jazz"
+msgstr "–î–∂–∞–∑"
+
+msgid "Content$Musical/Opera"
+msgstr "–ú—é–∑–∏–∫–ª/–û–ø–µ—Ä–∞"
+
+msgid "Content$Ballet"
+msgstr "–ë–∞–ª–µ—Ç"
+
+msgid "Content$Arts/Culture"
+msgstr "–ú–∏—Å—Ç–µ—Ü—Ç–≤–æ/–ö—É–ª—å—Ç—É—Ä–∞"
+
+msgid "Content$Performing Arts"
+msgstr "–î—Ä–µ—Å–∏—Ä—É–≤–∞–Ω–Ω—è"
+
+msgid "Content$Fine Arts"
+msgstr "–û–±—Ä–∞–∑–æ—Ç–≤–æ—Ä—á–µ –º–∏—Å—Ç–µ—Ü—Ç–≤–æ"
+
+msgid "Content$Religion"
+msgstr "–†–µ–ª—ñ–≥—ñ—è"
+
+msgid "Content$Popular Culture/Traditional Arts"
+msgstr "–ü–æ–ø—É–ª—è—Ä–Ω–∞ –∫—É–ª—å—Ç—É—Ä–∞/–¢—Ä–∞–¥–∏—Ü—ñ–π–Ω–µ –º–∏—Å—Ç–µ—Ü—Ç–≤–æ"
+
+msgid "Content$Literature"
+msgstr "–õ—ñ—Ç–µ—Ä–∞—Ç—É—Ä–∞"
+
+msgid "Content$Film/Cinema"
+msgstr "–ö—ñ–Ω–æ—Ñ—ñ–ª—å–º"
+
+msgid "Content$Experimental Film/Video"
+msgstr "–ï–∫—Å–ø–µ—Ä–∏–º–µ–Ω—Ç–∞–ª—å–Ω–∏–π —Ñ—ñ–ª—å–º/–í—ñ–¥–µ–æ"
+
+msgid "Content$Broadcasting/Press"
+msgstr "–¢—Ä–∞–Ω—Å–ª—è—Ü—ñ—è/–ü—Ä–µ—Å–∞"
+
+msgid "Content$New Media"
+msgstr "–ù–æ–≤—ñ –º–µ–¥—ñ—è"
+
+msgid "Content$Arts/Culture Magazine"
+msgstr "–ú–∏—Å—Ç–µ—Ü—Ç–≤–æ/–ö—É–ª—å—Ç—É—Ä–Ω–∏–π –∂—É—Ä–Ω–∞–ª"
+
+msgid "Content$Fashion"
+msgstr "–ú–æ–¥–∞"
+
+msgid "Content$Social/Political/Economics"
+msgstr "–°–æ—Ü—ñ–ª—å–Ω–µ/–ü–æ–ª—ñ—Ç–∏—á–Ω–µ/–ï–∫–æ–Ω–æ–º—ñ—á–Ω–µ"
+
+msgid "Content$Magazine/Report/Documentary"
+msgstr "–ñ—É—Ä–Ω–∞–ª/–†–∞–ø–æ—Ä—Ç/–î–æ–∫—É–º–µ–Ω—Ç–∞–ª—å–Ω–µ"
+
+msgid "Content$Economics/Social Advisory"
+msgstr "–ï–∫–æ–Ω–æ–º—ñ–∫–∞/–°–æ—Ü—ñ–∞–ª—å–Ω–∏–π –ø–æ—Ä–∞–¥–Ω–∏–∫"
+
+msgid "Content$Remarkable People"
+msgstr "–ù–µ–∑–≤–∏—á–∞–π–Ω—ñ –ª—é–¥–∏"
+
+msgid "Content$Education/Science/Factual"
+msgstr "–ù–∞–≤—á–∞–Ω–Ω—è/–ù–∞—É–∫–∞/–§–∞–∫—Ç–∏"
+
+msgid "Content$Nature/Animals/Environment"
+msgstr "–ü—Ä–∏—Ä–æ–¥–∞/–¢–≤–∞—Ä–∏–Ω–∏/–ù–∞–≤–∫–æ–ª–∏—à–Ω—î –æ—Ç–æ—á–µ–Ω–Ω—è"
+
+msgid "Content$Technology/Natural Sciences"
+msgstr "–¢–µ—Ö–Ω–æ–ª–æ–≥—ñ—è/–ü—Ä–∏—Ä–æ–¥–Ω–∏—á—ñ –Ω–∞—É–∫–∏"
+
+msgid "Content$Medicine/Physiology/Psychology"
+msgstr "–ú–µ–¥–∏—Ü–∏–Ω–∞/–§—ñ–∑—ñ–æ–ª–æ–≥—ñ—è/–ü—Å–∏—Ö–æ–ª–æ–≥—ñ—è"
+
+msgid "Content$Foreign Countries/Expeditions"
+msgstr "–ó–∞—Ä—É–±—ñ–∂–Ω—ñ –∫—Ä–∞—ó–Ω–∏/–ï–∫—Å–ø–µ–¥–∏—Ü—ñ—ó"
+
+msgid "Content$Social/Spiritual Sciences"
+msgstr "–°–æ—Ü—ñ–∞–ª—å–Ω–∞/–î—É—Ö–æ–≤–Ω–∞ –Ω–∞—É–∫–∞"
+
+msgid "Content$Further Education"
+msgstr "–î–∞–ª—å—à–µ –Ω–∞–≤—á–∞–Ω–Ω—è"
+
+msgid "Content$Languages"
+msgstr "–ú–æ–≤–∏"
+
+msgid "Content$Leisure/Hobbies"
+msgstr "–í—ñ–¥–ø–æ—á–∏–Ω–æ–∫/–•–æ–±–±—ñ"
+
+msgid "Content$Tourism/Travel"
+msgstr "–¢—É—Ä–∏–∑–º/–ü–æ–¥–æ—Ä–æ–∂—ñ"
+
+msgid "Content$Handicraft"
+msgstr "–†–µ–º—ñ—Å–Ω–∏—á–µ"
+
+msgid "Content$Motoring"
+msgstr "–ê–≤—Ç–æ–º–æ–±—ñ–ª—å–Ω–∞ —Å–ø—Ä–∞–≤–∞"
+
+msgid "Content$Fitness & Health"
+msgstr "–§—ñ—Ç–Ω–µ—Å —ñ –∑–¥–æ—Ä–æ–≤‚Äô—è"
+
+msgid "Content$Cooking"
+msgstr "–ì–æ—Ç—É–≤–∞–Ω–Ω—è —ó–∂—ñ"
+
+msgid "Content$Advertisement/Shopping"
+msgstr "–†–µ–∫–ª–∞–º–∞/–ó–∞–∫—É–ø–∏"
+
+msgid "Content$Gardening"
+msgstr "–°–∞–¥/–ì–æ—Ä–æ–¥"
+
+msgid "Content$Original Language"
+msgstr "–û—Ä–∏–≥—ñ–Ω–∞–ª—å–Ω–∞ –º–æ–≤–∞"
+
+msgid "Content$Black & White"
+msgstr "–ß–æ—Ä–Ω–µ —ñ –±—ñ–ª–µ"
+
+msgid "Content$Unpublished"
+msgstr "–ù–µ–æ–ø—É–±–ª—ñ–∫–æ–≤–∞–Ω–µ"
+
+msgid "Content$Live Broadcast"
+msgstr "–¢—Ä–∞–Ω—Å–ª—è—Ü—ñ—è"
+
+#, c-format
+msgid "ParentalRating$from %d"
+msgstr "–∑ %d"
 
 msgid "No title"
-msgstr "±’◊ ›–◊“ÿ"
+msgstr "–ë–µ–∑ –Ω–∞–∑–≤–∏"
 
 #. TRANSLATORS: The name of the language, as written natively
 msgid "LanguageName$English"
-msgstr "√⁄‡–˜›·Ï⁄–"
+msgstr "–£–∫—Ä–∞—ó–Ω—Å—å–∫–∞"
 
 #. TRANSLATORS: The 3-letter code of the language
 msgid "LanguageCode$eng"
 msgstr "ukr"
 
 msgid "Phase 1: Detecting RC code type"
-msgstr "∫‡ﬁ⁄ 1: ≤ÿ◊›–Á’››Ô ‚ÿﬂ„ ⁄ﬁ‘„ ﬂ„€Ï‚–"
+msgstr "–ö—Ä–æ–∫ 1: –í–∏–∑–Ω–∞—á–µ–Ω–Ω—è —Ç–∏–ø—É –∫–æ–¥—É –ø—É–ª—å—Ç–∞"
 
 msgid "Press any key on the RC unit"
-msgstr "Ω–‚ÿ·›ˆ‚Ï —„‘Ï-Ô⁄„ ⁄›ﬁﬂ⁄„ ›– ﬂ„€Ï‚ˆ"
+msgstr "–ù–∞—Ç–∏—Å–Ω—ñ—Ç—å –±—É–¥—å-—è–∫—É –∫–Ω–æ–ø–∫—É –Ω–∞ –ø—É–ª—å—Ç—ñ"
 
 msgid "RC code detected!"
-msgstr "≤ÿ◊›–Á’›ﬁ ⁄ﬁ‘ ﬂ„€Ï‚–!"
+msgstr "–í–∏–∑–Ω–∞—á–µ–Ω–æ –∫–æ–¥ –ø—É–ª—å—Ç–∞!"
 
 msgid "Do not press any key..."
-msgstr "Ω’ ›–‚ÿ·⁄–Ÿ‚’ ⁄›ﬁﬂ⁄ÿ..."
+msgstr "–ù–µ –Ω–∞—Ç–∏—Å–∫–∞–π—Ç–µ –∂–æ–¥–Ω–æ—ó –∫–Ω–æ–ø–∫–∏..."
 
 msgid "Phase 2: Learning specific key codes"
-msgstr "∫‡ﬁ⁄ 2: ø‡ÿﬂÿ·„“–››Ô ⁄ﬁ‘ˆ“ ‘€Ô “ˆ‘ﬂﬁ“ˆ‘›ÿÂ ⁄›ﬁﬂﬁ⁄"
+msgstr "–ö—Ä–æ–∫ 2: –ü—Ä–∏–ø–∏—Å—É–≤–∞–Ω–Ω—è –∫–æ–¥—ñ–≤ –¥–ª—è –≤—ñ–¥–ø–æ–≤—ñ–¥–Ω–∏—Ö –∫–Ω–æ–ø–æ–∫"
 
 #, c-format
 msgid "Press key for '%s'"
-msgstr "Ω–‚ÿ·›ˆ‚Ï ⁄›ﬁﬂ⁄„ '%s'"
+msgstr "–ù–∞—Ç–∏—Å–Ω—ñ—Ç—å –∫–Ω–æ–ø–∫—É '%s'"
 
 msgid "Press 'Up' to confirm"
-msgstr "Ω–‚ÿ·›ˆ‚Ï '≤“’‡Â' ‘€Ô ﬂˆ‘‚“’‡‘÷’››Ô"
+msgstr "–ù–∞—Ç–∏—Å–Ω—ñ—Ç—å '–í–≤–µ—Ä—Ö' –¥–ª—è –ø—ñ–¥—Ç–≤–µ—Ä–¥–∂–µ–Ω–Ω—è"
 
 msgid "Press 'Down' to continue"
-msgstr "Ω–‚ÿ·›ˆ‚Ï '≤›ÿ◊' ‘€Ô ﬂ‡ﬁ‘ﬁ“÷’››Ô"
+msgstr "–ù–∞—Ç–∏—Å–Ω—ñ—Ç—å '–í–Ω–∏–∑' –¥–ª—è –ø—Ä–æ–¥–æ–≤–∂–µ–Ω–Ω—è"
 
 msgid "(press 'Up' to go back)"
-msgstr "(Ω–‚ÿ·›ˆ‚Ï '≤“’‡Â' ‘€Ô ﬂﬁ“’‡›’››Ô)"
+msgstr "(–ù–∞—Ç–∏—Å–Ω—ñ—Ç—å '–í–≤–µ—Ä—Ö' –¥–ª—è –ø–æ–≤–µ—Ä–Ω–µ–Ω–Ω—è)"
 
 msgid "(press 'Down' to end key definition)"
-msgstr "(Ω–‚ÿ·›ˆ‚Ï '≤›ÿ◊' ‘€Ô ◊–⁄ˆ›Á’››Ô ›–·‚‡ﬁŸ⁄ÿ ﬂ„€Ï‚–)"
+msgstr "(–ù–∞—Ç–∏—Å–Ω—ñ—Ç—å '–í–Ω–∏–∑' –¥–ª—è –∑–∞–∫—ñ–Ω—á–µ–Ω–Ω—è –Ω–∞—Å—Ç—Ä–æ–π–∫–∏ –ø—É–ª—å—Ç–∞)"
 
 msgid "(press 'Menu' to skip this key)"
-msgstr "(Ω–‚ÿ·›ˆ‚Ï 'º’›Ó' Èﬁ— ﬂ‡ﬁﬂ„·‚ÿ‚ÿ ⁄›ﬁﬂ⁄„)"
+msgstr "(–ù–∞—Ç–∏—Å–Ω—ñ—Ç—å '–ú–µ–Ω—é' —â–æ–± –ø—Ä–æ–ø—É—Å—Ç–∏—Ç–∏ –∫–Ω–æ–ø–∫—É)"
 
 msgid "Learning Remote Control Keys"
-msgstr "Ω–“Á–››Ô ﬂ„€Ï‚–"
+msgstr "–ù–∞–≤—á–∞–Ω–Ω—è –ø—É–ª—å—Ç–∞"
 
 msgid "Phase 3: Saving key codes"
-msgstr "∫‡ﬁ⁄ 3: ∑–ﬂ–‹'Ô‚ﬁ“„“–››Ô ⁄ﬁ‘ˆ“ ⁄›ﬁﬂﬁ⁄"
+msgstr "–ö—Ä–æ–∫ 3: –ó–∞–ø–∞–º'—è—Ç–æ–≤—É–≤–∞–Ω–Ω—è –∫–æ–¥—ñ–≤ –∫–Ω–æ–ø–æ–∫"
 
 msgid "Press 'Up' to save, 'Down' to cancel"
-msgstr "Ω–‚ÿ·›ˆ‚Ï '≤“’‡Â' ‘€Ô ◊–⁄ˆ›Á’››Ô, '≤›ÿ◊' ‘€Ô “ˆ‘‹ﬁ“ÿ"
+msgstr "–ù–∞—Ç–∏—Å–Ω—ñ—Ç—å '–í–≤–µ—Ä—Ö' –¥–ª—è –∑–∞–∫—ñ–Ω—á–µ–Ω–Ω—è, '–í–Ω–∏–∑' –¥–ª—è –≤—ñ–¥–º–æ–≤–∏"
 
 msgid "Key$Up"
-msgstr "≤“’‡Â"
+msgstr "–í–≤–µ—Ä—Ö"
 
 msgid "Key$Down"
-msgstr "≤›ÿ◊"
+msgstr "–í–Ω–∏–∑"
 
 msgid "Key$Menu"
-msgstr "º’›Ó"
+msgstr "–ú–µ–Ω—é"
 
 msgid "Key$Ok"
 msgstr "Ok"
 
 msgid "Key$Back"
-msgstr "Ω–◊–‘"
+msgstr "–ù–∞–∑–∞–¥"
 
 msgid "Key$Left"
-msgstr "Ω–€ˆ“ﬁ"
+msgstr "–ù–∞–ª—ñ–≤–æ"
 
 msgid "Key$Right"
-msgstr "Ω–ﬂ‡–“ﬁ"
+msgstr "–ù–∞–ø—Ä–∞–≤–æ"
 
 msgid "Key$Red"
-msgstr "«’‡“ﬁ›–"
+msgstr "–ß–µ—Ä–≤–æ–Ω–∞"
 
 msgid "Key$Green"
-msgstr "∑’€’›–"
+msgstr "–ó–µ–ª–µ–Ω–∞"
 
 msgid "Key$Yellow"
-msgstr "∂ﬁ“‚–"
+msgstr "–ñ–æ–≤—Ç–∞"
 
 msgid "Key$Blue"
-msgstr "¡ÿ›Ô"
+msgstr "–°–∏–Ω—è"
 
 msgid "Key$Info"
-msgstr "¶›‰ﬁ"
+msgstr "–Ü–Ω—Ñ–æ"
 
 msgid "Key$Play"
-msgstr "ø‡ﬁ”‡–“–››Ô"
+msgstr "–ü—Ä–æ–≥—Ä–∞–≤–∞–Ω–Ω—è"
 
 msgid "Key$Pause"
-msgstr "ø–„◊–"
+msgstr "–ü–∞—É–∑–∞"
 
 msgid "Key$Stop"
-msgstr "¡‚ﬁﬂ"
+msgstr "–°—Ç–æ–ø"
 
 msgid "Key$Record"
-msgstr "∑–ﬂÿ·"
+msgstr "–ó–∞–ø–∏—Å"
 
 msgid "Key$FastFwd"
-msgstr "ø‡ﬁ⁄‡„‚⁄– “ﬂ’‡’‘"
+msgstr "–ü—Ä–æ–∫—Ä—É—Ç–∫–∞ –≤–ø–µ—Ä–µ–¥"
 
 msgid "Key$FastRew"
-msgstr "ø‡ﬁ⁄‡„‚⁄– ›–◊–‘"
+msgstr "–ü—Ä–æ–∫—Ä—É—Ç–∫–∞ –Ω–∞–∑–∞–¥"
 
 msgid "Key$Next"
-msgstr "≤ﬂ’‡’‘"
+msgstr "–í–ø–µ—Ä–µ–¥"
 
 msgid "Key$Prev"
-msgstr "Ω–◊–‘"
+msgstr "–ù–∞–∑–∞–¥"
 
 msgid "Key$Power"
-msgstr "≤ÿ⁄€ÓÁÿ‚ÿ"
+msgstr "–í–∏–∫–ª—é—á–∏—Ç–∏"
 
 msgid "Key$Channel+"
-msgstr "∫–›–€ +"
+msgstr "–ö–∞–Ω–∞–ª +"
 
 msgid "Key$Channel-"
-msgstr "∫–›–€ -"
+msgstr "–ö–∞–Ω–∞–ª -"
 
 msgid "Key$PrevChannel"
-msgstr "øﬁﬂ’‡’‘›ˆŸ ⁄–›–€"
+msgstr "–ü–æ–ø–µ—Ä–µ–¥–Ω—ñ–π –∫–∞–Ω–∞–ª"
 
 msgid "Key$Volume+"
-msgstr "≥„Á›ˆ·‚Ï +"
+msgstr "–ì—É—á–Ω—ñ—Å—Ç—å +"
 
 msgid "Key$Volume-"
-msgstr "≥„Á›ˆ·‚Ï -"
+msgstr "–ì—É—á–Ω—ñ—Å—Ç—å -"
 
 msgid "Key$Mute"
-msgstr "≤ÿ⁄€ÓÁÿ‚ÿ ◊“„⁄"
+msgstr "–í–∏–∫–ª—é—á–∏—Ç–∏ –∑–≤—É–∫"
 
 msgid "Key$Audio"
-msgstr "ºﬁ“–"
+msgstr "–ú–æ–≤–∞"
 
 msgid "Key$Subtitles"
-msgstr "¡„—‚ÿ‚‡ÿ"
+msgstr "–°—É–±—Ç–∏—Ç—Ä–∏"
 
 msgid "Key$Schedule"
-msgstr "¬’€’”ˆ‘"
+msgstr "–ü—Ä–æ–≥—Ä–∞–º–∞"
 
 msgid "Key$Channels"
-msgstr "∫–›–€ÿ"
+msgstr "–ö–∞–Ω–∞–ª–∏"
 
 msgid "Key$Timers"
-msgstr "¬–Ÿ‹’‡ÿ"
+msgstr "–¢–∞–π–º–µ—Ä–∏"
 
 msgid "Key$Recordings"
-msgstr "∑–ﬂÿ·ÿ"
+msgstr "–ó–∞–ø–∏—Å–∏"
 
 msgid "Key$Setup"
-msgstr "Ω–€–Ë‚„“–››Ô"
+msgstr "–ù–∞–ª–∞—à—Ç—É–≤–∞–Ω–Ω—è"
 
 msgid "Key$Commands"
-msgstr "∫ﬁ‹–›‘ÿ"
+msgstr "–ö–æ–º–∞–Ω–¥–∏"
+
+msgid "Key$User0"
+msgstr "–ö–æ—Ä–∏—Å—Ç—É–≤–∞—á0"
 
 msgid "Key$User1"
-msgstr "∫ﬁ‡ÿ·‚„“–Á1"
+msgstr "–ö–æ—Ä–∏—Å—Ç—É–≤–∞—á1"
 
 msgid "Key$User2"
-msgstr "∫ﬁ‡ÿ·‚„“–Á2"
+msgstr "–ö–æ—Ä–∏—Å—Ç—É–≤–∞—á2"
 
 msgid "Key$User3"
-msgstr "∫ﬁ‡ÿ·‚„“–Á3"
+msgstr "–ö–æ—Ä–∏—Å—Ç—É–≤–∞—á3"
 
 msgid "Key$User4"
-msgstr "∫ﬁ‡ÿ·‚„“–Á4"
+msgstr "–ö–æ—Ä–∏—Å—Ç—É–≤–∞—á4"
 
 msgid "Key$User5"
-msgstr "∫ﬁ‡ÿ·‚„“–Á5"
+msgstr "–ö–æ—Ä–∏—Å—Ç—É–≤–∞—á5"
 
 msgid "Key$User6"
-msgstr "∫ﬁ‡ÿ·‚„“–Á6"
+msgstr "–ö–æ—Ä–∏—Å—Ç—É–≤–∞—á6"
 
 msgid "Key$User7"
-msgstr "∫ﬁ‡ÿ·‚„“–Á7"
+msgstr "–ö–æ—Ä–∏—Å—Ç—É–≤–∞—á7"
 
 msgid "Key$User8"
-msgstr "∫ﬁ‡ÿ·‚„“–Á8"
+msgstr "–ö–æ—Ä–∏—Å—Ç—É–≤–∞—á8"
 
 msgid "Key$User9"
-msgstr "∫ﬁ‡ÿ·‚„“–Á8"
+msgstr "–ö–æ—Ä–∏—Å—Ç—É–≤–∞—á8"
 
 msgid "Disk"
-msgstr "¥ÿ·⁄"
+msgstr "–î–∏—Å–∫"
 
 msgid "free"
-msgstr "“ˆ€Ï›ﬁ"
+msgstr "–≤—ñ–ª—å–Ω–æ"
 
 msgid "Free To Air"
-msgstr "FTA (›’◊–⁄ﬁ‘ﬁ“–›ﬁ)"
+msgstr "FTA (–Ω–µ–∑–∞–∫–æ–¥–æ–≤–∞–Ω–æ)"
 
 msgid "encrypted"
-msgstr "◊–⁄ﬁ‘ﬁ“–›ﬁ"
-
-msgid "auto"
-msgstr "–“‚ﬁ"
+msgstr "–∑–∞–∫–æ–¥–æ–≤–∞–Ω–æ"
 
 msgid "Edit channel"
-msgstr "¿’‘–⁄‚„“–››Ô ⁄–›–€„"
+msgstr "–†–µ–¥–∞–≥—É–≤–∞–Ω–Ω—è –∫–∞–Ω–∞–ª—É"
 
 msgid "Name"
-msgstr "Ω–◊“–"
+msgstr "–ù–∞–∑–≤–∞"
 
 msgid "Source"
-msgstr "¥÷’‡’€ﬁ"
+msgstr "–î–∂–µ—Ä–µ–ª–æ"
 
 msgid "Frequency"
-msgstr "«–·‚ﬁ‚–"
+msgstr "–ß–∞—Å—Ç–æ—Ç–∞"
 
 msgid "Vpid"
-msgstr "Vpid (“ˆ‘’ﬁ)"
+msgstr "Vpid (–≤—ñ–¥–µ–æ)"
 
 msgid "Ppid"
 msgstr "Ppid"
 
 msgid "Apid1"
-msgstr "Apid1 (–„‘ˆﬁ 1)"
+msgstr "Apid1 (–∞—É–¥—ñ–æ 1)"
 
 msgid "Apid2"
-msgstr "Apid2 (–„‘ˆﬁ 2)"
+msgstr "Apid2 (–∞—É–¥—ñ–æ 2)"
 
 msgid "Dpid1"
 msgstr "Dpid1 (AC3 1)"
@@ -259,744 +548,776 @@ msgid "Dpid2"
 msgstr "Dpid2 (AC3 2)"
 
 msgid "Spid1"
-msgstr "¡„—‚ÿ‚‡ÿ ø¶¥1"
+msgstr "–°—É–±—Ç–∏—Ç—Ä–∏ 1"
 
 msgid "Spid2"
-msgstr "¡„—‚ÿ‚‡ÿ ø¶¥2"
+msgstr "–°—É–±—Ç–∏—Ç—Ä–∏ 2"
 
 msgid "Tpid"
-msgstr "Tpid (‚’€’‚’⁄·‚)"
+msgstr "Tpid (—Ç–µ–ª–µ—Ç–µ–∫—Å—Ç)"
 
 msgid "CA"
-msgstr "CA (‘’⁄ﬁ‘’‡)"
+msgstr "CA (–¥–µ–∫–æ–¥–µ—Ä)"
 
 msgid "Sid"
 msgstr "Sid"
 
-msgid "Polarization"
-msgstr "øﬁ€Ô‡ÿ◊–ÊˆÔ"
-
-msgid "Srate"
-msgstr "¡ÿ‹“. Ë“ÿ‘⁄ˆ·‚Ï"
-
-msgid "Inversion"
-msgstr "¶›“’‡·ˆÔ"
-
-msgid "off"
-msgstr "“ÿ⁄€"
-
-msgid "CoderateH"
-msgstr "CoderateH"
-
-msgid "none"
-msgstr "›ˆÁﬁ”ﬁ"
-
-msgid "CoderateL"
-msgstr "CoderateL"
-
-msgid "Modulation"
-msgstr "ºﬁ‘„€ÔÊˆÔ"
-
-msgid "Bandwidth"
-msgstr "¥ˆ–ﬂ–◊ﬁ›"
-
-msgid "Transmission"
-msgstr "ø’‡’‘–Á–"
-
-msgid "Guard"
-msgstr "∑–Âÿ·‚"
-
-msgid "Hierarchy"
-msgstr "¶Ù‡–‡ÂˆÔ"
-
 msgid "Channel settings are not unique!"
-msgstr "Ω–·‚‡ﬁŸ⁄ÿ ⁄–›–€„ ›’ Ù‘ÿ›ˆ!"
+msgstr "–ù–∞—Å—Ç—Ä–æ–π–∫–∏ –∫–∞–Ω–∞–ª—É –Ω–µ —î–¥–∏–Ω—ñ!"
 
 msgid "Channels"
-msgstr "∫–›–€ÿ"
+msgstr "–ö–∞–Ω–∞–ª–∏"
 
 msgid "Button$Edit"
-msgstr "¿’‘–⁄‚„“–‚ÿ"
+msgstr "–†–µ–¥–∞–≥—É–≤–∞—Ç–∏"
 
 msgid "Button$New"
-msgstr "¥ﬁ‘–‚ÿ"
+msgstr "–î–æ–¥–∞—Ç–∏"
 
 msgid "Button$Delete"
-msgstr "≤ÿ‘–€ÿ‚ÿ"
+msgstr "–í–∏–¥–∞–ª–∏—Ç–∏"
 
 msgid "Button$Mark"
-msgstr "ø’‡’‹ˆ·‚ÿ‚ÿ"
+msgstr "–ü–æ–º—ñ—Ç–∏—Ç–∏"
 
 msgid "Channel is being used by a timer!"
-msgstr "∫–›–€ ◊–›Ô‚ÿŸ ‚–Ÿ‹’‡ﬁ‹!"
+msgstr "–ö–∞–Ω–∞–ª –∑–∞–π–Ω—è—Ç–∏–π —Ç–∞–π–º–µ—Ä–æ–º!"
 
 msgid "Delete channel?"
-msgstr "≤ÿ‘–€ÿ‚ÿ ⁄–›–€?"
+msgstr "–í–∏–¥–∞–ª–∏—Ç–∏ –∫–∞–Ω–∞–ª?"
+
+msgid "Edit folder"
+msgstr "–†–µ–¥–∞–≥—É–≤–∞—Ç–∏ –∫–∞—Ç–∞–ª–æ–≥"
+
+msgid "New folder"
+msgstr "–ù–æ–≤–∏–π –∫–∞—Ç–∞–ª–æ–≥"
+
+msgid "Sub folder"
+msgstr "–ü—ñ–¥–∫–∞—Ç–∞–ª–æ–≥"
+
+msgid "Folder name already exists!"
+msgstr "–ù–∞–∑–≤–∞ –∫–∞—Ç–∞–ª–æ–≥—É –≤–∂–µ —ñ—Å–Ω—É—î!"
+
+#, c-format
+msgid "Folder name must not contain '%c'!"
+msgstr "–ù–∞–∑–≤–∞ –∫–∞—Ç–∞–ª–æ–≥—É –Ω–µ –ø–æ–≤–∏–Ω–Ω–∞ –º—ñ—Å—Ç–∏—Ç–∏ '%c'!"
+
+msgid "Button$Select"
+msgstr "–í–∏–±—Ä–∞—Ç–∏"
+
+msgid "Delete folder and all sub folders?"
+msgstr "–í–∏–¥–∞–ª–∏—Ç–∏ –∫–∞—Ç–∞–ª–æ–≥ —ñ –≤—Å—ñ –ø—ñ–¥–∫–∞—Ç–∞–ª–æ–≥–∏?"
+
+msgid "Delete folder?"
+msgstr "–í–∏–¥–∞–ª–∏—Ç–∏ –∫–∞—Ç–∞–ª–æ–≥?"
 
 msgid "Edit timer"
-msgstr "Ω–€–Ë‚„“–››Ô ‚–Ÿ‹’‡–"
+msgstr "–ù–∞–ª–∞—à—Ç—É–≤–∞–Ω–Ω—è —Ç–∞–π–º–µ—Ä–∞"
 
 msgid "Active"
-msgstr "∞⁄‚ÿ“ﬁ“–›ﬁ"
+msgstr "–ê–∫—Ç–∏–≤–æ–≤–∞–Ω–æ"
 
 msgid "Channel"
-msgstr "∫–›–€"
+msgstr "–ö–∞–Ω–∞–ª"
 
 msgid "Day"
-msgstr "¥’›Ï"
+msgstr "–î–µ–Ω—å"
 
 msgid "Start"
-msgstr "øﬁÁ–‚ﬁ⁄"
+msgstr "–ü–æ—á–∞—Ç–æ–∫"
 
 msgid "Stop"
-msgstr "∫ˆ›’ÊÏ"
+msgstr "–ö—ñ–Ω–µ—Ü—å"
 
 msgid "VPS"
-msgstr "VPS ﬂﬁﬂ‡–“⁄–"
+msgstr "VPS –ø–æ–ø—Ä–∞–≤–∫–∞"
 
 msgid "Priority"
-msgstr "ø‡ˆﬁ‡ÿ‚’‚"
+msgstr "–ü—Ä—ñ–æ—Ä–∏—Ç–µ—Ç"
 
 msgid "Lifetime"
-msgstr "¡‚‡ﬁ⁄ ◊—’‡ˆ”–››Ô"
+msgstr "–°—Ç—Ä–æ–∫ –∑–±–µ—Ä—ñ–≥–∞–Ω–Ω—è"
 
 msgid "File"
-msgstr "ƒ–Ÿ€"
+msgstr "–§–∞–π–ª"
+
+msgid "Button$Folder"
+msgstr "–ö–∞—Ç–∞–ª–æ–≥"
 
 msgid "First day"
-msgstr "ø’‡ËÿŸ ‘’›Ï"
+msgstr "–ü–µ—Ä—à–∏–π –¥–µ–Ω—å"
+
+msgid "Select folder"
+msgstr "–í–∏–±—Ä–∞—Ç–∏ –∫–∞—Ç–∞–ª–æ–≥"
 
 msgid "Timers"
-msgstr "¬–Ÿ‹’‡ÿ"
+msgstr "–¢–∞–π–º–µ—Ä–∏"
 
 msgid "Button$On/Off"
-msgstr "≤⁄€/≤ÿ⁄€"
+msgstr "–í–∫–ª/–í–∏–∫–ª"
 
 msgid "Button$Info"
-msgstr "¶›‰ﬁ"
+msgstr "–Ü–Ω—Ñ–æ"
 
 msgid "Delete timer?"
-msgstr "≤ÿ‘–€ÿ‚ÿ ‚–Ÿ‹’‡?"
+msgstr "–í–∏–¥–∞–ª–∏—Ç–∏ —Ç–∞–π–º–µ—Ä?"
 
 msgid "Timer still recording - really delete?"
-msgstr "π‘’ ◊–ﬂÿ· ﬂﬁ ‚–Ÿ‹’‡„ - ‘ˆŸ·›ﬁ “ÿ‘–€ÿ‚ÿ?"
+msgstr "–ô–¥–µ –∑–∞–ø–∏—Å –ø–æ —Ç–∞–π–º–µ—Ä—É - –¥—ñ–π—Å–Ω–æ –≤–∏–¥–∞–ª–∏—Ç–∏?"
 
 msgid "Event"
-msgstr "ø’‡’‘–Á–"
+msgstr "–ü–µ—Ä–µ–¥–∞—á–∞"
 
 msgid "Button$Timer"
-msgstr "¬–Ÿ‹’‡"
+msgstr "–¢–∞–π–º–µ—Ä"
 
 msgid "Button$Record"
-msgstr "∑–ﬂÿ·"
+msgstr "–ó–∞–ø–∏—Å"
 
 msgid "Button$Switch"
-msgstr "ø’‡’⁄€ÓÁÿ‚ÿ"
+msgstr "–ü–µ—Ä–µ–∫–ª—é—á–∏—Ç–∏"
 
 msgid "What's on now?"
-msgstr "∑–‡–◊ “ ’‰ˆ‡ˆ:"
+msgstr "–ó–∞—Ä–∞–∑ –≤ –µ—Ñ—ñ—Ä—ñ:"
 
 msgid "What's on next?"
-msgstr "¥–€ˆ “ ﬂ‡ﬁ”‡–‹ˆ:"
+msgstr "–î–∞–ª—ñ –≤ –ø—Ä–æ–≥—Ä–∞–º—ñ:"
 
 msgid "Button$Next"
-msgstr "¥–€ˆ"
+msgstr "–î–∞–ª—ñ"
 
 msgid "Button$Now"
-msgstr "∑–‡–◊"
+msgstr "–ó–∞—Ä–∞–∑"
 
 msgid "Button$Schedule"
-msgstr "ø‡ﬁ”‡–‹–"
+msgstr "–ü—Ä–æ–≥—Ä–∞–º–∞"
 
 msgid "Can't switch channel!"
-msgstr "Ω’‹ﬁ÷€ÿ“ﬁ ﬂ’‡’⁄€ÓÁÿ‚ÿ ⁄–›–€!"
+msgstr "–ù–µ–º–æ–∂–ª–∏–≤–æ –ø–µ—Ä–µ–∫–ª—é—á–∏—Ç–∏ –∫–∞–Ω–∞–ª!"
 
 #, c-format
 msgid "Schedule - %s"
-msgstr "ø‡ﬁ”‡–‹– - %s"
+msgstr "–ü—Ä–æ–≥—Ä–∞–º–∞ - %s"
 
 #, c-format
 msgid "This event - %s"
-msgstr "∆Ô ﬂ’‡’‘–Á– - %s"
+msgstr "–¶—è –ø–µ—Ä–µ–¥–∞—á–∞ - %s"
 
 msgid "This event - all channels"
-msgstr "∆Ô ﬂ’‡’‘–Á– - “·ˆ ⁄–›–€ÿ"
+msgstr "–¶—è –ø–µ—Ä–µ–¥–∞—á–∞ - –≤—Å—ñ –∫–∞–Ω–∞–ª–∏"
 
 msgid "All events - all channels"
-msgstr "≤·ˆ ﬂ’‡’‘–Áˆ - “·ˆ ⁄–›–€ÿ"
+msgstr "–í—Å—ñ –ø–µ—Ä–µ–¥–∞—á—ñ - –≤—Å—ñ –∫–∞–Ω–∞–ª–∏"
 
 #, c-format
 msgid "Please enter %d digits!"
-msgstr "Ω–‚ÿ·›ˆ‚Ï %d Êÿ‰‡ÿ"
+msgstr "–í–≤–µ–¥—ñ—Ç—å %d —Ü–∏—Ñ—Ä–∏!"
 
 msgid "CAM not responding!"
-msgstr "CAM ›’ “ˆ‘ﬂﬁ“ˆ‘–Ù"
+msgstr "CAM –Ω–µ –≤—ñ–¥–ø–æ–≤—ñ–¥–∞—î!"
 
 msgid "Recording info"
-msgstr "ø‡ﬁ ◊–ﬂÿ·"
+msgstr "–ü—Ä–æ –∑–∞–ø–∏—Å"
 
 msgid "Button$Play"
-msgstr "ø‡ﬁ”‡–“–‚ÿ"
+msgstr "–ü—Ä–æ–≥—Ä–∞–≤–∞—Ç–∏"
 
 msgid "Button$Rewind"
-msgstr "Ω–◊–‘"
+msgstr "–ù–∞–∑–∞–¥"
 
 msgid "Recordings"
-msgstr "∑–ﬂÿ·ÿ"
+msgstr "–ó–∞–ø–∏—Å–∏"
 
 msgid "Button$Open"
-msgstr "≤ˆ‘⁄‡ÿ‚ÿ"
+msgstr "–í—ñ–¥–∫—Ä–∏—Ç–∏"
 
 msgid "Commands"
-msgstr "∫ﬁ‹–›‘ÿ"
+msgstr "–ö–æ–º–∞–Ω–¥–∏"
 
 msgid "Error while accessing recording!"
-msgstr "øﬁ‹ÿ€⁄– ‘ﬁ·‚„ﬂ„ ‘ﬁ ◊–ﬂÿ·„!"
+msgstr "–ü–æ–º–∏–ª–∫–∞ –¥–æ—Å—Ç—É–ø—É –¥–æ –∑–∞–ø–∏—Å—É!"
 
 msgid "Delete recording?"
-msgstr "≤ÿ‚’‡‚ÿ ◊–ﬂÿ·?"
+msgstr "–í–∏—Ç–µ—Ä—Ç–∏ –∑–∞–ø–∏—Å?"
 
 msgid "Error while deleting recording!"
-msgstr "øﬁ‹ÿ€⁄– “ÿ‘–€’››Ô ◊–ﬂÿ·„!"
+msgstr "–ü–æ–º–∏–ª–∫–∞ –≤–∏–¥–∞–ª–µ–Ω–Ω—è –∑–∞–ø–∏—Å—É!"
 
 msgid "Recording commands"
-msgstr "∫ﬁ‹–›‘ÿ ◊–ﬂÿ·„"
+msgstr "–ö–æ–º–∞–Ω–¥–∏ –∑–∞–ø–∏—Å—É"
 
 msgid "never"
-msgstr "›ˆ⁄ﬁ€ÿ"
+msgstr "–Ω—ñ–∫–æ–ª–∏"
 
 msgid "skin dependent"
-msgstr "◊”ˆ‘›ﬁ ◊ ·‚ÿ€’‹"
+msgstr "–∑–≥—ñ–¥–Ω–æ –∑ —Å—Ç–∏–ª–µ–º"
 
 msgid "always"
-msgstr "◊–“÷‘ÿ"
+msgstr "–∑–∞–≤–∂–¥–∏"
 
 msgid "OSD"
-msgstr "º’›Ó"
+msgstr "–ú–µ–Ω—é"
 
 msgid "Setup.OSD$Language"
-msgstr "ºﬁ“–"
+msgstr "–ú–æ–≤–∞"
 
 msgid "Setup.OSD$Skin"
-msgstr "¡‚ÿ€Ï"
+msgstr "–°—Ç–∏–ª—å"
 
 msgid "Setup.OSD$Theme"
-msgstr "¬’‹–"
+msgstr "–¢–µ–º–∞"
 
-msgid "Setup.OSD$Left"
-msgstr "≤ˆ‘·‚„ﬂ ◊€ˆ“–"
+msgid "Setup.OSD$Left (%)"
+msgstr "–í—ñ–¥—Å—Ç—É–ø –∑–ª—ñ–≤–∞ (%)"
 
-msgid "Setup.OSD$Top"
-msgstr "≤ˆ‘·‚„ﬂ ◊“’‡Â„"
+msgid "Setup.OSD$Top (%)"
+msgstr "–í—ñ–¥—Å—Ç—É–ø –∑–≤–µ—Ä—Ö—É (%)"
 
-msgid "Setup.OSD$Width"
-msgstr "»ÿ‡ÿ›–"
+msgid "Setup.OSD$Width (%)"
+msgstr "–®–∏—Ä–∏–Ω–∞ (%)"
 
-msgid "Setup.OSD$Height"
-msgstr "≤ÿ·ﬁ‚–"
+msgid "Setup.OSD$Height (%)"
+msgstr "–í–∏—Å–æ—Ç–∞ (%)"
 
 msgid "Setup.OSD$Message time (s)"
-msgstr "¬‡ÿ“–€ˆ·‚Ï ﬂﬁ⁄–◊„ ﬂﬁ“ˆ‘ﬁ‹€’›Ï (·’⁄)"
+msgstr "–ß–∞—Å –ø–æ–∫–∞–∑—É –ø–æ–≤—ñ–¥–æ–º–ª–µ–Ω—å (—Å–µ–∫)"
 
 msgid "Setup.OSD$Use small font"
-msgstr "≤ÿ⁄ﬁ‡ÿ·‚ﬁ“„“–‚ÿ ‹–€ÿŸ Ë‡ÿ‰‚"
+msgstr "–í–∏–∫–æ—Ä. –º–∞–ª–∏–π —Ñ–æ–Ω—Ç"
 
 msgid "Setup.OSD$Anti-alias"
-msgstr "∑”€–‘÷ÿ“–››Ô Ë‡ÿ‰‚ˆ“"
+msgstr "–ó–≥–ª–∞–¥–∂—É–≤–∞–Ω–Ω—è —Ñ–æ–Ω—Ç—ñ–≤"
 
 msgid "Setup.OSD$Default font"
-msgstr "¡‚–›‘–‡‚›ÿŸ ‰ﬁ›‚"
+msgstr "–°—Ç–∞–Ω–¥–∞—Ä—Ç–Ω–∏–π —Ñ–æ–Ω—Ç"
 
 msgid "Setup.OSD$Small font"
-msgstr "º–€ÿŸ ‰ﬁ›‚"
+msgstr "–ú–∞–ª–∏–π —Ñ–æ–Ω—Ç"
 
 msgid "Setup.OSD$Fixed font"
-msgstr "ƒˆ⁄·ﬁ“–›ÿŸ ‰ﬁ›‚"
+msgstr "–§—ñ–∫—Å–æ–≤–∞–Ω–∏–π —Ñ–æ–Ω—Ç"
 
-msgid "Setup.OSD$Default font size (pixel)"
-msgstr "¿–◊‹ˆ‡ ‰ﬁ›‚– ‘€Ô ‹’›Ó (pixel)"
+msgid "Setup.OSD$Default font size (%)"
+msgstr "–†–æ–∑–º—ñ—Ä —Ç–∏–ø–æ–≤–æ–≥–æ —Ñ–æ–Ω—Ç–∞ (%)"
 
-msgid "Setup.OSD$Small font size (pixel)"
-msgstr "¿–◊‹ˆ‡ ‹–€ﬁ”ﬁ ‰ﬁ›‚– (pixel)"
+msgid "Setup.OSD$Small font size (%)"
+msgstr "–†–∞–∑–º—ñ—Ä –º–∞–ª–æ–≥–æ —Ñ–æ–Ω—Ç–∞ (%)"
 
-msgid "Setup.OSD$Fixed font size (pixel)"
-msgstr "¿–◊‹ˆ‡ ‰ˆ⁄·ﬁ“–›ﬁ”ﬁ ‰ﬁ›‚– (pixel)"
+msgid "Setup.OSD$Fixed font size (%)"
+msgstr "–†–∞–∑–º—ñ—Ä —Ñ—ñ–∫—Å–æ–≤–∞–Ω–æ–≥–æ —Ñ–æ–Ω—Ç–∞ (%)"
 
 msgid "Setup.OSD$Channel info position"
-msgstr "øﬁ€ﬁ÷’››Ô “ˆ⁄›– ˆ›‰ﬁ‡‹–Êˆ˜ ﬂ‡ﬁ ⁄–›–€"
+msgstr "–ü–æ–ª–æ–∂–µ–Ω–Ω—è —ñ–Ω—Ñ–æ—Ä–º–∞—Ü—ñ—ó –ø—Ä–æ –∫–∞–Ω–∞–ª"
 
 msgid "bottom"
-msgstr "“›ÿ◊„"
+msgstr "–≤–Ω–∏–∑—É"
 
 msgid "top"
-msgstr "““’‡Â„"
+msgstr "–≤–≤–µ—Ä—Ö—É"
 
 msgid "Setup.OSD$Channel info time (s)"
-msgstr "øﬁ⁄–◊ ˆ›‰ﬁ‡‹–Êˆ˜ ﬂ‡ﬁ ⁄–›–€ (·’⁄)"
+msgstr "–ü–æ–∫–∞–∑ —ñ–Ω—Ñ–æ—Ä–º–∞—Ü—ñ—ó –ø—Ä–æ –∫–∞–Ω–∞–ª (—Å–µ–∫)"
 
 msgid "Setup.OSD$Info on channel switch"
-msgstr "øﬁ⁄–◊„“–‚ÿ ˆ›‰ﬁ‡‹–ÊˆÓ ﬂ‡ﬁ ⁄–›–€"
+msgstr "–Ü–Ω—Ñ–æ –ø—Ä–∏ –ø–µ—Ä–µ–∫–ª—é—á–∞–Ω–Ω—ñ –∫–∞–Ω–∞–ª—É"
 
 msgid "Setup.OSD$Timeout requested channel info"
-msgstr "¶›‰ﬁ‡‹–ÊˆÓ ﬂ‡ﬁ ⁄–›–€ ◊–⁄‡ÿ‚ÿ"
+msgstr "–ß–∞—Å –æ—á—ñ–∫—É–≤–∞–Ω–Ω—è —ñ–Ω—Ñ–æ –ø—Ä–æ –∫–∞–Ω–∞–ª"
 
 msgid "Setup.OSD$Scroll pages"
-msgstr "ø‡ﬁ⁄‡„‚⁄– ·‚ﬁ‡ˆ›ﬁ⁄ ‹’›Ó"
+msgstr "–ü—Ä–æ–∫—Ä—É—Ç–∫–∞ —Å—Ç–æ—Ä—ñ–Ω–æ–∫ –º–µ–Ω—é"
 
 msgid "Setup.OSD$Scroll wraps"
-msgstr "∆ÿ⁄€ˆÁ›– ﬂ‡ﬁ⁄‡„‚⁄–"
+msgstr "–¶–∏–∫–ª—ñ—á–Ω–∞ –ø—Ä–æ–∫—Ä—É—Ç–∫–∞"
 
 msgid "Setup.OSD$Menu key closes"
-msgstr "∫›ﬁﬂ⁄„ º’›Ó ◊–⁄‡ÿ‚ÿ"
+msgstr "–ö–Ω–æ–ø–∫—É –ú–µ–Ω—é –∑–∞–∫—Ä–∏—Ç–∏"
 
 msgid "Setup.OSD$Recording directories"
-msgstr "∫–‚–€ﬁ”ÿ ◊—’‡ˆ”–››Ô ◊–ﬂÿ·ˆ“"
+msgstr "–ö–∞—Ç–∞–ª–æ–≥–∏ –∑–±–µ—Ä—ñ–≥–∞–Ω–Ω—è –∑–∞–ø–∏—Å—ñ–≤"
+
+msgid "Setup.OSD$Folders in timer menu"
+msgstr "–ö–∞—Ç–∞–ª–æ–≥–∏ –≤ –º–µ–Ω—é —Ç–∞–π–º–µ—Ä–∞"
+
+msgid "Setup.OSD$Number keys for characters"
+msgstr ""
 
 msgid "EPG"
-msgstr "¬’€’”ˆ‘"
+msgstr "–¢–µ–ª–µ–≥—ñ–¥ (EPG)"
 
 msgid "Button$Scan"
-msgstr "¡⁄–›„‡ﬁ“–‚ÿ"
+msgstr "–°–∫–∞–Ω—É–≤–∞—Ç–∏"
 
 msgid "Setup.EPG$EPG scan timeout (h)"
-msgstr "∑–‚‡ÿ‹⁄– ·⁄–›„“–››Ô ‚’€’”ˆ‘– (Á)"
+msgstr "–ó–∞—Ç—Ä–∏–º–∫–∞ —Å–∫–∞–Ω—É–≤–∞–Ω–Ω—è —Ç–µ–ª–µ–≥—ñ–¥–∞ (–≥)"
 
 msgid "Setup.EPG$EPG bugfix level"
-msgstr "¿ˆ“’›Ï ⁄ﬁ‡’⁄Êˆ˜ ﬂﬁ‹ÿ€ﬁ⁄"
+msgstr "–†—ñ–≤–µ–Ω—å –∫–æ—Ä–µ–∫—Ü—ñ—ó –ø–æ–º–∏–ª–æ–∫ EPG"
 
 msgid "Setup.EPG$EPG linger time (min)"
-msgstr "∑—’‡ˆ”–››Ô ◊–·‚–‡ˆ€ÿÂ ‘–›ÿÂ (Â“)"
+msgstr "–ó–±–µ—Ä—ñ–≥–∞–Ω–Ω—è –∑–∞—Å—Ç–∞—Ä—ñ–ª–∏—Ö –¥–∞–Ω–∏—Ö (—Ö–≤)"
 
 msgid "Setup.EPG$Set system time"
-msgstr "≤‚–›ﬁ“ÿ‚ÿ ·ÿ·‚’‹ÿŸ Á–·"
+msgstr "–í—Å—Ç–∞–Ω–æ–≤–∏—Ç–∏ —Å–∏—Å—Ç–µ–º–∏–π —á–∞—Å"
 
 msgid "Setup.EPG$Use time from transponder"
-msgstr "≤ÿ⁄ﬁ‡ÿ·‚–‚ÿ Á–· ‚‡–›·ﬂﬁ›‘’‡–"
+msgstr "–í–∏–∫–æ—Ä. —á–∞—Å –∑ —Ç—Ä–∞–Ω—Å–ø–æ–Ω–¥–µ—Ä–∞"
 
 #. TRANSLATORS: note the plural!
 msgid "Setup.EPG$Preferred languages"
-msgstr "±–÷–›ˆ ‹ﬁ“ÿ (‚’€’”ˆ‘)"
+msgstr "–ë–∞–∂–∞–Ω—ñ –º–æ–≤–∏ (—Ç–µ–ª–µ–≥—ñ–¥)"
 
 #. TRANSLATORS: note the singular!
 msgid "Setup.EPG$Preferred language"
-msgstr "≤ÿ—‡–›ﬁ"
+msgstr "–ë–∞–∂–∞–Ω–∞ –º–æ–≤–∞ (—Ç–µ–ª–µ–≥—ñ–¥)"
 
 msgid "pan&scan"
-msgstr "ﬂ–›ﬁ‡–‹„“–‚ÿ"
+msgstr "–ø–∞–Ω–æ—Ä–∞–º—É–≤–∞—Ç–∏"
 
 msgid "letterbox"
-msgstr "◊‹’›Ë„“–‚ÿ"
+msgstr "–∑–º–µ–Ω—à—É–≤–∞—Ç–∏"
 
 msgid "center cut out"
-msgstr "ﬁ—‡ˆ◊–‚ÿ ◊—ﬁ⁄„"
+msgstr "–æ–±—Ä—ñ–∑–∞—Ç–∏ –ø–æ –±–æ–∫–∞—Ö"
 
 msgid "no"
-msgstr "›ˆ"
+msgstr "–Ω—ñ"
 
 msgid "names only"
-msgstr "‚ˆ€Ï⁄ÿ ›–◊“ÿ"
+msgstr "—Ç—ñ–ª—å–∫–∏ –Ω–∞–∑–≤–∏"
 
 msgid "PIDs only"
-msgstr "¬ˆ€Ï⁄ÿ PIDÿ"
+msgstr "–¢—ñ–ª—å–∫–∏ PID–∏"
 
 msgid "names and PIDs"
-msgstr "›–◊“ÿ ˆ PIDÿ"
+msgstr "–Ω–∞–∑–≤–∏ —ñ PID–∏"
 
 msgid "add new channels"
-msgstr "‘ﬁ‘–‚ÿ ›ﬁ“ˆ ⁄–›–€ÿ"
+msgstr "–¥–æ–¥–∞—Ç–∏ –Ω–æ–≤—ñ –∫–∞–Ω–∞–ª–∏"
 
 msgid "add new transponders"
-msgstr "‘ﬁ‘–‚ÿ ›ﬁ“ˆ ‚‡–›·ﬂﬁ›‘’‡ÿ"
+msgstr "–¥–æ–¥–∞—Ç–∏ –Ω–æ–≤—ñ —Ç—Ä–∞–Ω—Å–ø–æ–Ω–¥–µ—Ä–∏"
 
 msgid "DVB"
 msgstr "DVB"
 
 msgid "Setup.DVB$Primary DVB interface"
-msgstr "æ·›ﬁ“›ÿŸ DVB-ﬂ‡ÿ·‚‡ˆŸ"
+msgstr "–û—Å–Ω–æ–≤–Ω–∏–π DVB-–ø—Ä–∏—Å—Ç—Ä—ñ–π"
 
 msgid "Setup.DVB$Video format"
-msgstr "ƒﬁ‡‹–‚ “ˆ‘’ﬁ"
+msgstr "–§–æ—Ä–º–∞—Ç –≤—ñ–¥–µ–æ"
 
 msgid "Setup.DVB$Video display format"
-msgstr "»ÿ‡ﬁ⁄ﬁ’⁄‡–›’ ◊ﬁ—‡–÷’››Ô"
+msgstr "–§–æ—Ä–º–∞—Ç –∑–æ–±—Ä–∞–∂–µ–Ω–Ω—è –≤—ñ–¥–µ–æ"
 
 msgid "Setup.DVB$Use Dolby Digital"
-msgstr "≤⁄€ÓÁÿ‚ÿ Dolby Digital"
+msgstr "–í–∏–∫–æ—Ä. Dolby Digital"
 
 msgid "Setup.DVB$Update channels"
-msgstr "æ›ﬁ“€Ó“–‚ÿ ›–·‚‡ﬁŸ⁄ÿ ⁄–›–€ˆ“"
+msgstr "–û–Ω–æ–≤–ª—é–≤–∞—Ç–∏ –∫–∞–Ω–∞–ª–∏"
 
 msgid "Setup.DVB$Audio languages"
-msgstr "±–÷–›ˆ ‹ﬁ“ÿ (◊“„⁄)"
+msgstr "–ë–∞–∂–∞–Ω—ñ –º–æ–≤–∏ (–∑–≤—É–∫)"
 
 msgid "Setup.DVB$Audio language"
-msgstr "≤ÿ—‡–›ﬁ"
+msgstr "–ú–æ–≤–∞ –∞—É–¥—ñ–æ"
 
 msgid "Setup.DVB$Display subtitles"
-msgstr "øﬁ⁄–◊„“–‚ÿ ·„—‚ÿ‚‡ÿ"
+msgstr "–ü–æ–∫–∞–∑—É–≤–∞—Ç–∏ —Å—É–±—Ç–∏—Ç—Ä–∏"
 
 msgid "Setup.DVB$Subtitle languages"
-msgstr "ºﬁ“ÿ ·„—‚ÿ‚‡ˆ“"
+msgstr "–ú–æ–≤–∏ —Å—É–±—Ç–∏—Ç—Ä—ñ–≤"
 
 msgid "Setup.DVB$Subtitle language"
-msgstr "ºﬁ“– ·„—‚ÿ‚‡ˆ“"
+msgstr "–ú–æ–≤–∞ —Å—É–±—Ç–∏—Ç—Ä—ñ–≤"
 
 msgid "Setup.DVB$Subtitle offset"
-msgstr "≤ˆ‘·‚„ﬂ ·„—‚ÿ‚‡ˆ“"
+msgstr "–í—ñ–¥—Å—Ç—É–ø —Å—É–±—Ç–∏—Ç—Ä—ñ–≤"
 
 msgid "Setup.DVB$Subtitle foreground transparency"
-msgstr "ø‡ﬁ◊ﬁ‡ˆ·‚Ï ﬂ’‡’‘›Ïﬁ”ﬁ ﬂ€–›„ ·„—‚ÿ‚‡ˆ“"
+msgstr "–ü—Ä–æ–∑–æ—Ä—ñ—Å—Ç—å –ø–µ—Ä–µ–¥–Ω—å–æ–≥–æ –ø–ª–∞–Ω—É —Å—É–±—Ç–∏—Ç—Ä—ñ–≤"
 
 msgid "Setup.DVB$Subtitle background transparency"
-msgstr "ø‡ﬁ◊ﬁ‡ˆ·‚Ï ◊–‘›Ïﬁ”ﬁ ﬂ€–›„ ·„—‚ÿ‚‡ˆ“"
+msgstr "–ü—Ä–æ–∑–æ—Ä—ñ—Å—Ç—å –∑–∞–¥–Ω—å–æ–≥–æ –ø–ª–∞–Ω—É —Å—É–±—Ç–∏—Ç—Ä—ñ–≤"
 
 msgid "LNB"
-msgstr "∫ﬁ›“’‡‚’‡"
+msgstr "–ö–æ–Ω–≤–µ—Ä—Ç–µ—Ä"
 
 msgid "Setup.LNB$Use DiSEqC"
-msgstr "≤ÿ⁄ﬁ‡ÿ·‚ﬁ“„“–‚ÿ DiSEqC"
+msgstr "–í–∏–∫–æ—Ä–∏—Å—Ç–æ–≤—É–≤–∞—Ç–∏ DiSEqC"
 
 msgid "Setup.LNB$SLOF (MHz)"
-msgstr "«–·‚ﬁ‚– ﬂ’‡’⁄€ÓÁ–››Ô (SLOF) (º≥Ê)"
+msgstr "–ß–∞—Å—Ç–æ—Ç–∞ –ø–µ—Ä–µ–∫–ª—é—á–∞–Ω–Ω—è (SLOF) (–ú–ì—Ü)"
 
 msgid "Setup.LNB$Low LNB frequency (MHz)"
-msgstr "Ωÿ÷›Ô Á–·‚ﬁ‚– ⁄ﬁ›“’‡‚’‡– (º≥Ê)"
+msgstr "–ù–∏–∂–Ω—è —á–∞—Å—Ç–æ—Ç–∞ –∫–æ–Ω–≤–µ—Ä—Ç–µ—Ä–∞ (–ú–ì—Ü)"
 
 msgid "Setup.LNB$High LNB frequency (MHz)"
-msgstr "≤’‡Â›Ô Á–·‚ﬁ‚– ⁄ﬁ›“’‡‚’‡– (º≥Ê)"
+msgstr "–í–µ—Ä—Ö–Ω—è —á–∞—Å—Ç–æ—Ç–∞ –∫–æ–Ω–≤–µ—Ä—Ç–µ—Ä–∞ (–ú–ì—Ü)"
 
 msgid "CAM reset"
-msgstr "ø’‡’◊–“–›‚–÷’››Ô CAM"
+msgstr "–ü–µ—Ä–µ–∑–∞–≤–∞–Ω—Ç–∞–∂–µ–Ω–Ω—è CAM"
 
 msgid "CAM present"
-msgstr "CAM ﬂ‡ÿ·„‚›ˆŸ"
+msgstr "CAM –ø—Ä–∏—Å—É—Ç–Ω—ñ–π"
 
 msgid "CAM ready"
-msgstr "CAM ”ﬁ‚ﬁ“ÿŸ"
+msgstr "CAM –≥–æ—Ç–æ–≤–∏–π"
 
 msgid "CAM"
-msgstr "√‹ﬁ“›ÿŸ ‘ﬁ·‚„ﬂ"
+msgstr "CAM (–£–º–æ–≤–Ω–∏–π –¥–æ—Å—Ç—É–ø)"
 
 msgid "Button$Menu"
-msgstr "º’›Ó"
+msgstr "–ú–µ–Ω—é"
 
 msgid "Button$Reset"
-msgstr "¡⁄ÿ›„‚ÿ"
+msgstr "–°–∫–∏–Ω—É—Ç–∏"
 
 msgid "Opening CAM menu..."
-msgstr "≤ˆ‘⁄‡ÿ“–Ó ‹’›Ó ‹ﬁ‘„€Ô „‹ﬁ“›ﬁ”ﬁ ‘ﬁ·‚„ﬂ„ (CAM)"
+msgstr "–í—ñ–¥–∫—Ä–∏–≤–∞—é –º–µ–Ω—é CAM-–º–æ–¥—É–ª—è..."
 
 msgid "Can't open CAM menu!"
-msgstr "º’›Ó CAM-‹ﬁ‘„€Ô ›’‘ﬁ·‚„ﬂ›’!"
+msgstr "–ú–µ–Ω—é CAM-–º–æ–¥—É–ª—è –Ω–µ–¥–æ—Å—Ç—É–ø–Ω–µ!"
 
 msgid "CAM is in use - really reset?"
-msgstr "CAM “ÿ⁄ﬁ‡ÿ·‚ﬁ“„Ù‚Ï·Ô - ‘ˆŸ·›ﬁ ﬂ’‡’◊–“–›‚–÷ÿ‚ÿ?"
+msgstr "CAM –≤–∏–∫–æ—Ä–∏—Å—Ç–æ–≤—É—î—Ç—å—Å—è - –¥—ñ–π—Å–Ω–æ –ø–µ—Ä–µ–∑–∞–ø—É—Å—Ç–∏—Ç–∏?"
 
 msgid "Can't reset CAM!"
-msgstr "øﬁ‹ÿ€⁄– ﬂ’‡’◊–ﬂ„·⁄„ CAM-‹ﬁ‘„€Ô!"
+msgstr "–ü–æ–º–∏–ª–∫–∞ –ø–µ—Ä–µ–∑–∞–ø—É—Å–∫—É CAM-–º–æ–¥—É–ª—è!"
+
+msgid "do not pause live video"
+msgstr "–Ω–µ –ø—Ä–∏–∑—É–ø–∏–Ω—è—Ç–∏ –ø–µ—Ä–µ–≥–ª—è–¥"
+
+msgid "confirm pause live video"
+msgstr "–ø—ñ–¥—Ç–≤–µ—Ä–¥–∏—Ç–∏ –ø—Ä–∏–∑—É–ø–∏–Ω–µ–Ω–Ω—è –ø–µ—Ä–µ–≥–ª—è–¥—É"
+
+msgid "pause live video"
+msgstr "–ø—Ä–∏–∑—É–ø–∏–Ω–∏—Ç–∏ –ø–µ—Ä–µ–≥–ª—è–¥"
+
+msgid "confirm"
+msgstr "–ø—ñ–¥—Ç–≤–µ—Ä–¥–∏—Ç–∏"
+
+msgid "yes"
+msgstr "—Ç–∞–∫"
 
 msgid "Recording"
-msgstr "∑–ﬂÿ·"
+msgstr "–ó–∞–ø–∏—Å"
 
 msgid "Setup.Recording$Margin at start (min)"
-msgstr "≤ÿﬂ’‡’‘÷’››Ô ﬂﬁÁ–‚⁄„ ◊–ﬂÿ·„ (Â“)"
+msgstr "–í–∏–ø–µ—Ä–µ–¥–∂–µ–Ω–Ω—è –ø–æ—á–∞—Ç–∫—É –∑–∞–ø–∏—Å—É (—Ö–≤)"
 
 msgid "Setup.Recording$Margin at stop (min)"
-msgstr "∑–ﬂˆ◊›’››Ô ◊„ﬂÿ›⁄ÿ ◊–ﬂÿ·„ (Â“)"
+msgstr "–ó–∞–ø—ñ–∑–Ω–µ–Ω–Ω—è –∑—É–ø–∏–Ω–∫–∏ –∑–∞–ø–∏—Å—É (—Ö–≤)"
 
 msgid "Setup.Recording$Primary limit"
-msgstr "ºˆ›. ﬂ‡ˆﬁ‡ÿ‚’‚ ◊–Âﬁﬂ€’››Ô ﬁ·›. ﬂ‡ÿ·‚‡ﬁÓ"
+msgstr "–ú—ñ–Ω. –ø—Ä—ñ–æ—Ä–∏—Ç–µ—Ç –∑–∞—Ö–æ–ø–ª–µ–Ω–Ω—è –æ—Å–Ω. –ø—Ä–∏—Å—Ç—Ä–æ—é"
 
 msgid "Setup.Recording$Default priority"
-msgstr "ø‡ˆﬁ‡ÿ‚’‚ ‚–Ÿ‹’‡– ﬂﬁ ◊–‹ﬁ“Á„“–››Ó"
+msgstr "–ü—Ä—ñ–æ—Ä–∏—Ç–µ—Ç —Ç–∞–π–º–µ—Ä–∞ –ø–æ –∑–∞–º–æ–≤—á—É–≤–∞–Ω–Ω—é"
 
 msgid "Setup.Recording$Default lifetime (d)"
-msgstr "¡‚‡ﬁ⁄ ◊—’‡ˆ”–››Ô ◊–ﬂÿ·„ ﬂﬁ ◊–‹ﬁ“Á„“–››Ó (‘)"
+msgstr "–°—Ç—Ä–æ–∫ –∑–±–µ—Ä—ñ–≥–∞–Ω–Ω—è –∑–∞–ø–∏—Å—É –ø–æ –∑–∞–º–æ–≤—á—É–≤–∞–Ω–Ω—é (–¥–Ω—ñ)"
+
+msgid "Setup.Recording$Pause key handling"
+msgstr "–û–±—Ä–æ–±–∫–∞ –∫–ª–∞–≤—ñ—à—ñ –≤—ñ–¥–∫–ª–∞–¥–µ–Ω–æ–≥–æ –ø–µ—Ä–µ–≥–ª—è–¥—É"
 
 msgid "Setup.Recording$Pause priority"
-msgstr "ø‡ˆﬁ‡ÿ‚’‚ “ˆ‘⁄€–‘’›ﬁ”ﬁ ﬂ’‡’”€Ô‘„"
+msgstr "–ü—Ä—ñ–æ—Ä–∏—Ç–µ—Ç –≤—ñ–¥–∫–ª–∞–¥–µ–Ω–æ–≥–æ –ø–µ—Ä–µ–≥–ª—è–¥—É"
 
 msgid "Setup.Recording$Pause lifetime (d)"
-msgstr "∑—’‡ˆ”–››Ô “ˆ‘⁄€–‘’›ﬁ”ﬁ ﬂ’‡’”€Ô‘„ (‘)"
+msgstr "–ó–±–µ—Ä—ñ–≥–∞–Ω–Ω—è –≤—ñ–¥–∫–ª–∞–¥–µ–Ω–æ–≥–æ –ø–µ—Ä–µ–≥–ª—è–¥—É (–¥–Ω—ñ)"
 
 msgid "Setup.Recording$Use episode name"
-msgstr "≥‡„ﬂ„“–‚ÿ ‰–Ÿ€ÿ ﬂﬁ ’ﬂˆ◊ﬁ‘–Â"
+msgstr "–í–∏–∫–æ—Ä. –Ω–∞–∑–≤—É –µ–ø—ñ–∑–æ–¥—É"
 
 msgid "Setup.Recording$Use VPS"
-msgstr "≤ÿ⁄ﬁ‡ÿ·‚ﬁ“„“–‚ÿ ·ÿ”›–€ÿ VPS"
+msgstr "–í–∏–∫–æ—Ä. VPS"
 
 msgid "Setup.Recording$VPS margin (s)"
-msgstr "±„‰’‡›ÿŸ Á–· VPS (·’⁄)"
+msgstr "–ë—É—Ñ–µ—Ä–Ω–∏–π —á–∞—Å VPS (—Å–µ–∫)"
 
 msgid "Setup.Recording$Mark instant recording"
-msgstr "≤ˆ‘‹ˆÁ–‚ÿ ◊‡ﬁ—€’›ˆ “‡„Á›„ ◊–ﬂÿ·ÿ"
+msgstr "–ü–æ–º—ñ—Ç–∏—Ç–∏ –∑—Ä–æ–±–ª–µ–Ω—ñ –≤—Ä—É—á–Ω—É –∑–∞–ø–∏—Å–∏"
 
 msgid "Setup.Recording$Name instant recording"
-msgstr "¡Â’‹– ›–Ÿ‹’›„“–›Ï ‡„Á›ÿÂ ◊–ﬂÿ·ˆ“"
+msgstr "–°—Ö–µ–º–∞ –Ω–∞–π–º–µ–Ω—É–≤–∞–Ω—å —Ä—É—á–Ω–∏—Ö –∑–∞–ø–∏—Å—ñ–≤"
 
 msgid "Setup.Recording$Instant rec. time (min)"
-msgstr "ø‡ﬁ‚Ô÷›ˆ·‚Ï ‡„Á›ﬁ”ﬁ ◊–ﬂÿ·„ (Â“)"
+msgstr "–ü—Ä–æ—Ç—è–∂–Ω—ñ—Å—Ç—å —Ä—É—á–Ω–æ–≥–æ –∑–∞–ø–∏—Å—É (—Ö–≤)"
 
 msgid "Setup.Recording$Max. video file size (MB)"
-msgstr "º–⁄·. ‡–◊‹ˆ‡ “ˆ‘’ﬁ‰–Ÿ€„ (º—)"
+msgstr "–ú–∞–∫—Å. —Ä–∞–∑–º—ñ—Ä –≤—ñ–¥–µ–æ—Ñ–∞–π–ª—É (–ú–±)"
 
 msgid "Setup.Recording$Split edited files"
-msgstr "¥ˆ€ÿ‚ÿ “ˆ‘‡’‘–⁄‚ﬁ“–›ˆ ‰–Ÿ€ÿ"
+msgstr "–ü–æ–¥—ñ–ª–∏—Ç–∏ –≤—ñ–¥—Ä–µ–¥–∞–≥–æ–≤–∞–Ω—ñ —Ñ–∞–π–ª–∏"
+
+msgid "Setup.Recording$Delete timeshift recording"
+msgstr "–í–∏–¥–∞–ª–∏—Ç–∏ –∑–∞–ø–∏—Å–∏ –∑ –∑—Å—É–≤–æ–º –ø–æ —á–∞—Å—É"
 
 msgid "Replay"
-msgstr "ø’‡’”€Ô‘"
+msgstr "–ü–µ—Ä–µ–≥–ª—è–¥"
 
 msgid "Setup.Replay$Multi speed mode"
-msgstr "±–”–‚ﬁË“ÿ‘⁄ˆ·›ÿŸ ‡’÷ÿ‹"
+msgstr "–ë–∞–≥–∞—Ç–æ—à–≤–∏–¥–∫—ñ—Å–Ω–∏–π —Ä–µ–∂–∏–º"
 
 msgid "Setup.Replay$Show replay mode"
-msgstr "≤ˆﬁ—‡–÷–‚ÿ ‡’÷ÿ‹ ﬂ’‡’”€Ô‘„"
+msgstr "–í—ñ–æ–±—Ä–∞–∂–∞—Ç–∏ —Ä–µ–∂–∏–º –ø–µ—Ä–µ–≥–ª—è–¥—É"
 
 msgid "Setup.Replay$Resume ID"
-msgstr "ID ﬂ’‡’”€Ô‘„"
+msgstr "ID –ø—Ä–æ–¥–æ–≤–∂–µ–Ω–Ω—è"
 
 msgid "Miscellaneous"
-msgstr "¿ˆ◊›’"
+msgstr "–†—ñ–∑–Ω–µ"
 
 msgid "Setup.Miscellaneous$Min. event timeout (min)"
-msgstr "ºˆ›. Á–· ﬁÁˆ⁄„“–››Ô ﬂﬁ‘ˆ˜ (Â“)"
+msgstr "–ú—ñ–Ω. —á–∞—Å –æ—á—ñ–∫—É–≤–∞–Ω–Ω—è –ø–æ–¥—ñ—ó (—Ö–≤)"
 
 msgid "Setup.Miscellaneous$Min. user inactivity (min)"
-msgstr "ºˆ›. Á–· ﬁÁˆ⁄„“–››Ô ““ﬁ‘„ (Â“)"
+msgstr "–ú—ñ–Ω. —á–∞—Å –æ—á—ñ–∫—É–≤–∞–Ω–Ω—è –≤–≤–æ–¥—É (—Ö–≤)"
 
 msgid "Setup.Miscellaneous$SVDRP timeout (s)"
-msgstr "∑–‚‡ÿ‹⁄⁄– ﬁ—‡ÿ“„ ◊'Ù‘›–››Ô SVDRP (·’⁄)"
+msgstr "–ó–∞—Ç—Ä–∏–º–∫–∫–∞ –æ–±—Ä–∏–≤—É –∑'—î–¥–Ω–∞–Ω–Ω—è SVDRP (—Å–µ–∫)"
 
 msgid "Setup.Miscellaneous$Zap timeout (s)"
-msgstr "∑–‚‡ÿ‹⁄– ﬂ’‡’⁄€ÓÁ–››Ô ⁄–›–€„ (·’⁄)"
+msgstr "–ó–∞—Ç—Ä–∏–º–∫–∞ –ø–µ—Ä–µ–∫–ª—é—á–∞–Ω–Ω—è –∫–∞–Ω–∞–ª—É (—Å–µ–∫)"
 
 msgid "Setup.Miscellaneous$Channel entry timeout (ms)"
-msgstr "∑–‚‡ÿ‹⁄– Á–·„ ‘€Ô “ﬂ‡ﬁ“–‘÷’››Ô ⁄–›–€„ (ms)"
+msgstr "–ó–∞—Ç—Ä–∏–º–∫–∞ —á–∞—Å—É –¥–ª—è –≤–ø—Ä–æ–≤–∞–¥–∂–µ–Ω–Ω—è –∫–∞–Ω–∞–ª—É (ms)"
 
 msgid "Setup.Miscellaneous$Initial channel"
-msgstr "∫–›–€ ﬂ‡ÿ “⁄€ÓÁ–››Ó"
+msgstr "–ö–∞–Ω–∞–ª –ø—Ä–∏ –≤–∫–ª—é—á–µ–Ω–Ω—ñ"
 
 msgid "Setup.Miscellaneous$as before"
-msgstr "Ô⁄ ‡–›ˆË’"
+msgstr "—è–∫ —Ä–∞–Ω—ñ—à–µ"
 
 msgid "Setup.Miscellaneous$Initial volume"
-msgstr "≥„Á›ˆ·‚Ï ﬂ‡ÿ “⁄€ÓÁ’››ˆ"
+msgstr "–ì—É—á–Ω—ñ—Å—Ç—å –ø—Ä–∏ –≤–∫–ª—é—á–µ–Ω–Ω—ñ"
+
+msgid "Setup.Miscellaneous$Channels wrap"
+msgstr "–ö—ñ–Ω–µ—Ü—å –∫–∞–Ω–∞–ª—ñ–≤"
 
 msgid "Setup.Miscellaneous$Emergency exit"
-msgstr "∞“–‡ˆŸ›ÿŸ “ÿÂˆ‘"
+msgstr "–ê–≤–∞—Ä—ñ–π–Ω–∏–π –≤–∏—Ö—ñ–¥"
 
 msgid "Plugins"
-msgstr "ºﬁ‘„€ˆ ‡ﬁ◊Ëÿ‡’››Ô"
+msgstr "–ú–æ–¥—É–ª—ñ —Ä–æ–∑—à–∏—Ä–µ–Ω–Ω—è"
 
 msgid "This plugin has no setup parameters!"
-msgstr "ºﬁ‘„€Ï ›’ ‹–Ù ﬂ–‡–‹’‚‡ˆ“ ›–€–Ë‚„“–›Ï!"
+msgstr "–ú–æ–¥—É–ª—å –Ω–µ –º–∞—î –ø–∞—Ä–∞–º–µ—Ç—Ä—ñ–≤ –Ω–∞–ª–∞—à—Ç—É–≤–∞–Ω—å!"
 
 msgid "Setup"
-msgstr "Ω–€–Ë‚„“–››Ô"
+msgstr "–ù–∞–ª–∞—à—Ç—É–≤–∞–Ω–Ω—è"
 
 msgid "Restart"
-msgstr "ø’‡’◊–ﬂ„·‚ÿ‚ÿ"
+msgstr "–ü–µ—Ä–µ–∑–∞–ø—É—Å—Ç–∏—Ç–∏"
 
 msgid "Really restart?"
-msgstr "¥ˆŸ·›ﬁ ﬂ’‡’◊–ﬂ„·‚ÿ‚ÿ?"
+msgstr "–î—ñ–π—Å–Ω–æ –ø–µ—Ä–µ–∑–∞–ø—É—Å—Ç–∏—Ç–∏?"
 
 #. TRANSLATORS: note the leading and trailing blanks!
 msgid " Stop recording "
-msgstr " ∑„ﬂÿ›ÿ‚ÿ ◊–ﬂÿ· "
+msgstr " –ó—É–ø–∏–Ω–∏—Ç–∏ –∑–∞–ø–∏—Å "
 
 msgid "Schedule"
-msgstr "¬’€’”ˆ‘"
+msgstr "–¢–µ–ª–µ–≥—ñ–¥"
 
 msgid "VDR"
 msgstr "VDR"
 
 #. TRANSLATORS: note the leading blank!
 msgid " Stop replaying"
-msgstr " ∑„ﬂÿ›ÿ‚ÿ ﬂ‡ﬁ”‡–“–››Ô"
+msgstr " –ó—É–ø–∏–Ω–∏—Ç–∏ –ø—Ä–æ–≥—Ä–∞–≤–∞–Ω–Ω—è"
 
 msgid "Button$Audio"
-msgstr "ºﬁ“–"
+msgstr "–ú–æ–≤–∞ –∞—É–¥—ñ–æ"
 
 msgid "Button$Pause"
-msgstr "ø–„◊–"
+msgstr "–ü–∞—É–∑–∞"
 
 msgid "Button$Stop"
-msgstr "¡‚ﬁﬂ"
+msgstr "–°—Ç–æ–ø"
 
 msgid "Button$Resume"
-msgstr "ø‡ﬁ‘ﬁ“÷ÿ‚ÿ"
+msgstr "–ü—Ä–æ–¥–æ–≤–∂–∏—Ç–∏"
 
 #. TRANSLATORS: note the leading blank!
 msgid " Cancel editing"
-msgstr " ø’‡’‡“–‚ÿ ‹ﬁ›‚–÷ ◊–ﬂÿ·„"
+msgstr " –ü–µ—Ä–µ—Ä–≤–∞—Ç–∏ –º–æ–Ω—Ç–∞–∂"
 
 msgid "Stop recording?"
-msgstr "ø‡ÿﬂÿ›ÿ‚ÿ ◊–ﬂÿ·?"
+msgstr "–ü—Ä–∏–ø–∏–Ω–∏—Ç–∏ –∑–∞–ø–∏—Å?"
 
 msgid "Cancel editing?"
-msgstr "ø’‡’‡“–‚ÿ ‡’‘–⁄‚„“–››Ô?"
+msgstr "–ü–µ—Ä–µ—Ä–≤–∞—Ç–∏ –º–æ–Ω—Ç–∞–∂?"
 
 msgid "No audio available!"
-msgstr "≤ˆ‘·„‚›ˆŸ ◊“„⁄!"
+msgstr "–í—ñ–¥—Å—É—Ç–Ω—ñ–π –∑–≤—É–∫!"
 
 msgid "No subtitles"
-msgstr "Ω’‹–Ù ·„—‚ÿ‚‡ˆ“"
+msgstr "–ù–µ–º–∞—î —Å—É–±—Ç–∏—Ç—Ä—ñ–≤"
 
 msgid "Button$Subtitles"
-msgstr "¡„—‚ÿ‚‡ÿ"
+msgstr "–°—É–±—Ç–∏—Ç—Ä–∏"
 
 msgid "No subtitles available!"
-msgstr "¡„—‚ÿ‚‡ˆ“ ›’‹–Ù!"
+msgstr "–°—É–±—Ç–∏—Ç—Ä—ñ–≤ –Ω–µ–º–∞—î!"
 
 msgid "Not enough disk space to start recording!"
-msgstr "Ω’‘ﬁ·‚–‚›Ïﬁ ‹ˆ·ÊÔ ›– ‘ÿ·⁄„ ‘€Ô ﬂﬁÁ–‚⁄„ ◊–ﬂÿ·„"
+msgstr "–ù–µ–¥–æ—Å—Ç–∞—Ç–Ω—å–æ –º—ñ—Å—Ü—è –Ω–∞ –¥–∏—Å–∫—É –¥–ª—è –ø–æ—á–∞—Ç–∫—É –∑–∞–ø–∏—Å—É"
 
 msgid "No free DVB device to record!"
-msgstr "Ω’‹–Ù “ˆ€Ï›ﬁ”ﬁ DVB-ﬂ‡ÿ·‚‡ﬁÓ ‘€Ô ◊–ﬂÿ·„!"
+msgstr "–ù–µ–º–∞—î –≤—ñ–ª—å–Ω–æ–≥–æ DVB-–ø—Ä–∏—Å—Ç—Ä–æ—é –¥–ª—è –∑–∞–ø–∏—Å—É!"
 
 msgid "Pausing live video..."
-msgstr "¿’÷ÿ‹ “ˆ‘⁄€–‘’›ﬁ”ﬁ ﬂ’‡’”€Ô‘„..."
+msgstr "–†–µ–∂–∏–º –≤—ñ–¥–∫–ª–∞–¥–µ–Ω–æ–≥–æ –ø–µ—Ä–µ–≥–ª—è–¥—É..."
+
+msgid "Delete timeshift recording?"
+msgstr "–í–∏–¥–∞–ª–∏—Ç–∏ –∑–∞–ø–∏—Å –∑ —á–∞—Å–æ–≤–∏–º –∑—Å—É–≤–æ–º?"
 
 #. TRANSLATORS: note the trailing blank!
 msgid "Jump: "
-msgstr "ø’‡’Ÿ‚ÿ: "
+msgstr "–ü–µ—Ä–µ–π—Ç–∏: "
 
 msgid "No editing marks defined!"
-msgstr "Ω’ ◊–‘–›ﬁ ‹ˆ‚ﬁ⁄ ‘€Ô ‹ﬁ›‚–÷„!"
+msgstr "–ù–µ –∑–∞–¥–∞–Ω–æ –º—ñ—Ç–æ–∫ –¥–ª—è –º–æ–Ω—Ç–∞–∂—É!"
 
 msgid "Can't start editing process!"
-msgstr "Ω’‹ﬁ÷€ÿ“ﬁ ﬂﬁÁ–‚ÿ ‹ﬁ›‚–÷ ◊–ﬂÿ·„!"
+msgstr "–ù–µ–º–æ–∂–ª–∏–≤–æ –ø–æ—á–∞—Ç–∏ –º–æ–Ω—Ç–∞–∂ –∑–∞–ø–∏—Å—É!"
 
 msgid "Editing process started"
-msgstr "ºﬁ›‚–÷ ◊–ﬂÿ·„ ﬂﬁÁ–“·Ô"
+msgstr "–ú–æ–Ω—Ç–∞–∂ –∑–∞–ø–∏—Å—É –ø–æ—á–∞–≤—Å—è"
 
 msgid "Editing process already active!"
-msgstr "ø‡ﬁÊ’· “ˆ‘’ﬁ‹ﬁ›‚–÷„ “÷’ ◊–ﬂ„È’›ÿŸ!"
+msgstr "–ü—Ä–æ—Ü–µ—Å –≤—ñ–¥–µ–æ–º–æ–Ω—Ç–∞–∂—É –≤–∂–µ –∑–∞–ø—É—â–µ–Ω–∏–π!"
 
-#, fuzzy
 msgid "FileNameChars$ abcdefghijklmnopqrstuvwxyz0123456789-.,#~\\^$[]|()*+?{}/:%@&"
-msgstr " abcdefghijklmnopqrstuvwxyz–—“”‘’ÙÒ÷◊ÿˆ˜Ÿ⁄€‹›ﬁﬂ‡·‚„‰ÂÊÁËÈÍÎÏÓÔ0123456789-.#~,/_@"
+msgstr " abcdefghijklmnopqrstuvwxyz–∞–±–≤–≥–¥–µ—î—ë–∂–∑–∏—ñ—ó–π–∫–ª–º–Ω–æ–ø—Ä—Å—Ç—É—Ñ—Ö—Ü—á—à—â—ä—ã—å—é—è0123456789-.#~,/_@"
 
-msgid "yes"
-msgstr "‚–⁄"
-
-#, fuzzy
 msgid "CharMap$ 0\t-.,1#~\\^$[]|()*+?{}/:%@&\tabc2\tdef3\tghi4\tjkl5\tmno6\tpqrs7\ttuv8\twxyz9"
-msgstr " 0\t-.#~,/_@1\tabc–—“”2\tdef‘’ÙÒ÷◊3\tghiÿˆ˜Ÿ⁄€4\tjkl‹›ﬁ5\tmnoﬂ‡·6\tpqrs‚„‰Â7\ttuvÊÁËÈÍ8\twxyzÎÏÌÓÔ9"
+msgstr " 0\t-.#~,/_@1\tabc–∞–±–≤–≥2\tdef–¥–µ—î—ë–∂–∑3\tghi–∏—ñ—ó–π–∫–ª4\tjkl–º–Ω–æ5\tmno–ø—Ä—Å6\tpqrs—Ç—É—Ñ—Ö7\ttuv—Ü—á—à—â—ä8\twxyz—ã—å—ç—é—è9"
 
 msgid "Button$ABC/abc"
-msgstr "∞±≤/–—“"
+msgstr "–ê–ë–í/–∞–±–≤"
 
 msgid "Button$Overwrite"
-msgstr "∑–‹ˆ›–"
+msgstr "–ó–∞–º—ñ–Ω–∞"
 
 msgid "Button$Insert"
-msgstr "≤·‚–“⁄–"
+msgstr "–í—Å—Ç–∞–≤–∫–∞"
 
 msgid "Plugin"
-msgstr "ºﬁ‘„€Ï"
+msgstr "–ú–æ–¥—É–ª—å"
 
 msgid "Up/Dn for new location - OK to move"
-msgstr "Ω–‚ÿ·⁄–Ÿ‚’ \"≤“’‡Â\"/\"≤›ÿ◊\" ‘€Ô “ÿ—ﬁ‡„ ﬂﬁ◊ÿÊˆ˜, – ﬂﬁ‚ˆ‹ \"OK\""
+msgstr "–ù–∞—Ç–∏—Å–∫–∞–π—Ç–µ \"–í–≤–µ—Ä—Ö\"/\"–í–Ω–∏–∑\" –¥–ª—è –≤–∏–±–æ—Ä—É –ø–æ–∑–∏—Ü—ñ—ó, –∞ –ø–æ—Ç—ñ–º \"OK\""
 
 msgid "Channel locked (recording)!"
-msgstr "∫–›–€ ◊–—€ﬁ⁄ﬁ“–›ﬁ (Ÿ‘’ ◊–ﬂÿ·)!"
+msgstr "–ö–∞–Ω–∞–ª –∑–∞–±–ª–æ–∫–æ–≤–∞–Ω–æ (–π–¥–µ –∑–∞–ø–∏—Å)!"
 
 msgid "Low disk space!"
-msgstr "Ω’‘ﬁ·‚–‚›Ïﬁ ‹ˆ·ÊÔ ›– ‘ÿ·⁄„!"
+msgstr "–ù–µ–¥–æ—Å—Ç–∞—Ç–Ω—å–æ –º—ñ—Å—Ü—è –Ω–∞ –¥–∏—Å–∫—É!"
+
+msgid "Regenerating index file"
+msgstr "–†–µ–≥–µ–Ω–µ—Ä–∞—Ü—ñ—è —Ñ–∞–π–ª—É —ñ–Ω–¥–µ–∫—Å—ñ–≤"
+
+msgid "Index file regeneration complete"
+msgstr "–†–µ–≥–µ–Ω–µ—Ä–∞—Ü—ñ—é —Ñ–∞–π–ª—É —ñ–Ω–¥–µ–∫—Å—É –∑–∞–≤–µ—Ä—à–µ–Ω–æ"
 
 msgid "Can't shutdown - option '-s' not given!"
-msgstr "≤ÿ⁄€ÓÁ’›››Ô ›’‹ﬁ÷€ÿ“’ - ›’ ◊–‘–›ﬁ ﬂ–‡–‹’‚‡ '-s'!"
+msgstr "–í–∏–∫–ª—é—á–µ–Ω–Ω–Ω—è –Ω–µ–º–æ–∂–ª–∏–≤–µ - –Ω–µ –∑–∞–¥–∞–Ω–æ –ø–∞—Ä–∞–º–µ—Ç—Ä '-s'!"
 
 msgid "Editing - shut down anyway?"
-msgstr "π‘’ ‹ﬁ›‚–÷ - ‘ˆŸ·›ﬁ “ÿ⁄€ÓÁÿ‚ÿ?"
+msgstr "–ô–¥–µ –º–æ–Ω—Ç–∞–∂ - –¥—ñ–π—Å–Ω–æ –≤–∏–∫–ª—é—á–∏—Ç–∏?"
 
 msgid "Recording - shut down anyway?"
-msgstr "π‘’ ◊–ﬂÿ· - ‘ˆŸ·›ﬁ “ÿ⁄€ÓÁÿ‚ÿ?"
+msgstr "–ô–¥–µ –∑–∞–ø–∏—Å - –¥—ñ–π—Å–Ω–æ –≤–∏–∫–ª—é—á–∏—Ç–∏?"
 
 #, c-format
 msgid "Recording in %ld minutes, shut down anyway?"
-msgstr "«’‡’◊ %ld Â“ÿ€ÿ› ﬂﬁÁ›’‚Ï·Ô ◊–ﬂÿ· - ‘ˆŸ·›ﬁ “ÿ⁄€ÓÁÿ‚ÿ?"
+msgstr "–ß–µ—Ä–µ–∑ %ld —Ö–≤–∏–ª–∏–Ω –ø–æ—á–Ω–µ—Ç—å—Å—è –∑–∞–ø–∏—Å - –¥—ñ–π—Å–Ω–æ –≤–∏–∫–ª—é—á–∏—Ç–∏?"
 
 msgid "shut down anyway?"
-msgstr "‘ˆŸ·›ﬁ “ÿ⁄€ÓÁÿ‚ÿ?"
+msgstr "–¥—ñ–π—Å–Ω–æ –≤–∏–∫–ª—é—á–∏—Ç–∏?"
 
 #, c-format
 msgid "Plugin %s wakes up in %ld min, continue?"
-msgstr "Plugin %s ﬂ‡ﬁ·›’‚Ï·Ô Á’‡’◊ %ld Â“ÿ€ÿ› - ﬂ‡ﬁ‘ﬁ“÷ÿ‚ÿ?"
+msgstr "–ú–æ–¥—É–ª—å %s –≤–∫–ª—é—á–∏—Ç—å—Å—è —á–µ—Ä–µ–∑ %ld —Ö–≤–∏–ª–∏–Ω - –ø—Ä–æ–¥–æ–≤–∂–∏—Ç–∏?"
 
 msgid "Editing - restart anyway?"
-msgstr "ø‡ﬁÊ’· ‹ﬁ›‚–÷„ - ‘ˆŸ·›ﬁ ﬂ’‡’◊–ﬂ„·‚ÿ‚ÿ?"
+msgstr "–ü—Ä–æ—Ü–µ—Å –º–æ–Ω—Ç–∞–∂—É - –¥—ñ–π—Å–Ω–æ –ø–µ—Ä–µ–∑–∞–ø—É—Å—Ç–∏—Ç–∏?"
 
 msgid "Recording - restart anyway?"
-msgstr "π‘’ ◊–ﬂÿ· - ‘ˆŸ·›ﬁ ﬂ’‡’◊–ﬂ„·‚ÿ‚ÿ?"
+msgstr "–ô–¥–µ –∑–∞–ø–∏—Å - –¥—ñ–π—Å–Ω–æ –ø–µ—Ä–µ–∑–∞–ø—É—Å—Ç–∏—Ç–∏?"
 
 msgid "restart anyway?"
-msgstr "‘ˆŸ·›ﬁ ﬂ’‡’◊–ﬂ„·‚ÿ‚ÿ?"
+msgstr "–¥—ñ–π—Å–Ω–æ –ø–µ—Ä–µ–∑–∞–ø—É—Å—Ç–∏—Ç–∏?"
 
 #. TRANSLATORS: note the trailing blank!
 msgid "Volume "
-msgstr "≥„Á›ˆ·‚Ï "
+msgstr "–ì—É—á–Ω—ñ—Å—Ç—å "
 
 msgid "Classic VDR"
-msgstr "∫€–·ÿÁ›ÿŸ"
+msgstr "–ö–ª–∞—Å–∏—á–Ω–∏–π VDR"
 
 msgid "ST:TNG Panels"
-msgstr "ST:TNG ﬂ–›’€ˆ"
+msgstr "ST:TNG –ø–∞–Ω–µ–ª—ñ"
 
 #. TRANSLATORS: the first character of each weekday, beginning with monday
 msgid "MTWTFSS"
-msgstr "ø≤¡«ø¡Ω"
+msgstr "–ü–í–°–ß–ü–°–ù"
 
 #. TRANSLATORS: abbreviated weekdays, beginning with monday (must all be 3 letters!)
 msgid "MonTueWedThuFriSatSun"
-msgstr "øﬁ›≤‚‡¡‡‘«‚“ø‚›¡„—Ω’‘"
+msgstr "–ü–æ–Ω–í—Ç—Ä–°—Ä–¥–ß—Ç–≤–ü—Ç–Ω–°—É–±–ù–µ–¥"
 
 msgid "Monday"
-msgstr "øﬁ›’‘ˆ€ﬁ⁄"
+msgstr "–ü–æ–Ω–µ–¥—ñ–ª–æ–∫"
 
 msgid "Tuesday"
-msgstr "≤ˆ“‚ﬁ‡ﬁ⁄"
+msgstr "–í—ñ–≤—Ç–æ—Ä–æ–∫"
 
 msgid "Wednesday"
-msgstr "¡’‡’‘–"
+msgstr "–°–µ—Ä–µ–¥–∞"
 
 msgid "Thursday"
-msgstr "«’‚“’‡"
+msgstr "–ß–µ—Ç–≤–µ—Ä"
 
 msgid "Friday"
-msgstr "ø'Ô‚›ÿÊÔ"
+msgstr "–ü'—è—Ç–Ω–∏—Ü—è"
 
 msgid "Saturday"
-msgstr "¡„—ﬁ‚–"
+msgstr "–°—É–±–æ—Ç–∞"
 
 msgid "Sunday"
-msgstr "Ω’‘ˆ€Ô"
+msgstr "–ù–µ–¥—ñ–ª—è"
 
 msgid "Upcoming recording!"
-msgstr "∑–ﬂÿ· ·⁄ﬁ‡ﬁ ﬂﬁÁ›’‚Ï·Ô"
+msgstr "–ó–∞–ø–∏—Å —Å–∫–æ—Ä–æ –ø–æ—á–Ω–µ—Ç—å—Å—è!"
+
+msgid "Pause live video?"
+msgstr "–ü—Ä–∏–∑—É–ø–∏–Ω–∏—Ç–∏ –ø–µ—Ä–µ–≥–ª—è–¥?"
 
 msgid "Recording started"
-msgstr "∑–ﬂÿ· ﬂﬁÁ–“·Ô"
+msgstr "–ó–∞–ø–∏—Å –ø–æ—á–∞–≤—Å—è"
 
 msgid "VDR will shut down later - press Power to force"
-msgstr "VDR “ÿ⁄€ÓÁÿ‚Ï·Ô ﬂﬂˆ◊›ˆË’ - ›–‚ÿ·›ˆ‚Ï Power ‘€Ô ﬂ‡ÿË“ÿ‘Ë’››Ô"
+msgstr "VDR –≤–∏–∫–ª—é—á–∏—Ç—å—Å—è –ø–ø—ñ–∑–Ω—ñ—à–µ - –Ω–∞—Ç–∏—Å–Ω—ñ—Ç—å Power –¥–ª—è –ø—Ä–∏—à–≤–∏–¥—à–µ–Ω–Ω—è"
 
 msgid "Press any key to cancel shutdown"
-msgstr "Ω–‚ÿ·›ˆ‚Ï —„‘Ï-Ô⁄„ ⁄›ﬁﬂ⁄„ ‘€Ô “ˆ‘‹ˆ›ÿ “ÿ⁄€ÓÁ’››Ô."
+msgstr "–ù–∞—Ç–∏—Å–Ω—ñ—Ç—å –±—É–¥—å-—è–∫—É –∫–Ω–æ–ø–∫—É –¥–ª—è –≤—ñ–¥–º—ñ–Ω–∏ –≤–∏–∫–ª—é—á–µ–Ω–Ω—è."
 
 msgid "Switching primary DVB..."
-msgstr "∑‹ˆ›– ﬁ·›ﬁ“›ﬁ”ﬁ DVB-ﬂ‡ÿ·‚‡ﬁÓ..."
+msgstr "–ó–º—ñ–Ω–∞ –æ—Å–Ω–æ–≤–Ω–æ–≥–æ DVB-–ø—Ä–∏—Å—Ç—Ä–æ—é..."
 
 msgid "Editing process failed!"
-msgstr "øﬁ‹ÿ€⁄– ﬂˆ‘ Á–· ‹ﬁ›‚–÷„ ◊–ﬂÿ·„!"
+msgstr "–ü–æ–º–∏–ª–∫–∞ –ø—ñ–¥ —á–∞—Å –º–æ–Ω—Ç–∞–∂—É –∑–∞–ø–∏—Å—É!"
 
 msgid "Editing process finished"
-msgstr "ºﬁ›‚–÷ ◊–⁄ˆ›Á’›ﬁ"
+msgstr "–ú–æ–Ω—Ç–∞–∂ –∑–∞–∫—ñ–Ω—á–µ–Ω–æ"
 
 msgid "Press any key to cancel restart"
-msgstr "Ω–‚ÿ·›ˆ‚Ï —„‘Ï-Ô⁄„ ⁄›ﬁﬂ⁄„ ‘€Ô “ˆ‘‹ˆ›ÿ ﬂ’‡’◊–“–›‚–÷’››Ô"
+msgstr "–ù–∞—Ç–∏—Å–Ω—ñ—Ç—å –±—É–¥—å-—è–∫—É –∫–Ω–æ–ø–∫—É –¥–ª—è –≤—ñ–¥–º—ñ–Ω–∏ –ø–µ—Ä–µ–∑–∞–≤–∞–Ω—Ç–∞–∂–µ–Ω–Ω—è"
 
 #, c-format
 msgid "VDR will shut down in %s minutes"
-msgstr "VDR “ÿ⁄€ÓÁÿ‚Ï·Ô Á’‡’◊ %s Â“ÿ€ÿ›"
+msgstr "VDR –≤–∏–∫–ª—é—á–∏—Ç—å—Å—è —á–µ—Ä–µ–∑ %s —Ö–≤–∏–ª–∏–Ω"

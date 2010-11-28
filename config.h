@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: config.h 1.310 2008/03/23 10:26:10 kls Exp $
+ * $Id: config.h 2.28 2010/09/12 11:31:21 kls Exp $
  */
 
 #ifndef __CONFIG_H
@@ -22,13 +22,13 @@
 
 // VDR's own version number:
 
-#define VDRVERSION  "1.6.0"
-#define VDRVERSNUM   10600  // Version * 10000 + Major * 100 + Minor
+#define VDRVERSION  "1.7.16"
+#define VDRVERSNUM   10716  // Version * 10000 + Major * 100 + Minor
 
 // The plugin API's version number:
 
-#define APIVERSION  "1.6.0"
-#define APIVERSNUM   10600  // Version * 10000 + Major * 100 + Minor
+#define APIVERSION  "1.7.16"
+#define APIVERSNUM   10716  // Version * 10000 + Major * 100 + Minor
 
 // When loading plugins, VDR searches them by their APIVERSION, which
 // may be smaller than VDRVERSION in case there have been no changes to
@@ -39,29 +39,14 @@
 #define MAXPRIORITY 99
 #define MAXLIFETIME 99
 
-#define MINOSDWIDTH  480
-#define MAXOSDWIDTH  672
-#define MINOSDHEIGHT 324
-#define MAXOSDHEIGHT 567
+#define MINOSDWIDTH   480
+#define MAXOSDWIDTH  1920
+#define MINOSDHEIGHT  324
+#define MAXOSDHEIGHT 1200
 
 #define MaxFileName 256
 #define MaxSkinName 16
 #define MaxThemeName 16
-
-class cCommand : public cListObject {
-private:
-  char *title;
-  char *command;
-  bool confirm;
-  static char *result;
-public:
-  cCommand(void);
-  virtual ~cCommand();
-  bool Parse(const char *s);
-  const char *Title(void) { return title; }
-  bool Confirm(void) { return confirm; }
-  const char *Execute(const char *Parameters = NULL);
-  };
 
 typedef uint32_t in_addr_t; //XXX from /usr/include/netinet/in.h (apparently this is not defined on systems with glibc < 2.2)
 
@@ -72,6 +57,7 @@ private:
 public:
   cSVDRPhost(void);
   bool Parse(const char *s);
+  bool IsLocalhost(void);
   bool Accepts(in_addr_t Address);
   };
 
@@ -122,7 +108,6 @@ public:
                       esyslog("ERROR: error in %s, line %d", fileName, line);
                       delete l;
                       result = false;
-                      break;
                       }
                    }
                 }
@@ -159,15 +144,43 @@ public:
   }
   };
 
-class cCommands : public cConfig<cCommand> {};
+class cNestedItem : public cListObject {
+private:
+  char *text;
+  cList<cNestedItem> *subItems;
+public:
+  cNestedItem(const char *Text, bool WithSubItems = false);
+  virtual ~cNestedItem();
+  virtual int Compare(const cListObject &ListObject) const;
+  const char *Text(void) const { return text; }
+  cList<cNestedItem> *SubItems(void) { return subItems; }
+  void AddSubItem(cNestedItem *Item);
+  void SetText(const char *Text);
+  void SetSubItems(bool On);
+  };
+
+class cNestedItemList : public cList<cNestedItem> {
+private:
+  char *fileName;
+  bool Parse(FILE *f, cList<cNestedItem> *List, int &Line);
+  bool Write(FILE *f, cList<cNestedItem> *List, int Indent = 0);
+public:
+  cNestedItemList(void);
+  virtual ~cNestedItemList();
+  void Clear(void);
+  bool Load(const char *FileName);
+  bool Save(void);
+  };
 
 class cSVDRPhosts : public cConfig<cSVDRPhost> {
 public:
+  bool LocalhostOnly(void);
   bool Acceptable(in_addr_t Address);
   };
 
-extern cCommands Commands;
-extern cCommands RecordingCommands;
+extern cNestedItemList Folders;
+extern cNestedItemList Commands;
+extern cNestedItemList RecordingCommands;
 extern cSVDRPhosts SVDRPhosts;
 
 class cSetupLine : public cListObject {
@@ -196,6 +209,7 @@ private:
   cSetupLine *Get(const char *Name, const char *Plugin = NULL);
   void Store(const char *Name, const char *Value, const char *Plugin = NULL, bool AllowMultiple = false);
   void Store(const char *Name, int Value, const char *Plugin = NULL);
+  void Store(const char *Name, double &Value, const char *Plugin = NULL);
 public:
   // Also adjust cMenuSetup (menu.c) when adding parameters here!
   int __BeginData__;
@@ -234,28 +248,37 @@ public:
   int PrimaryLimit;
   int DefaultPriority, DefaultLifetime;
   int PausePriority, PauseLifetime;
+  int PauseKeyHandling;
   int UseSubtitle;
   int UseVps;
   int VpsMargin;
   int RecordingDirs;
+  int FoldersInTimerMenu;
+  int NumberKeysForChars;
   int VideoDisplayFormat;
   int VideoFormat;
   int UpdateChannels;
   int UseDolbyDigital;
   int ChannelInfoPos;
   int ChannelInfoTime;
+  double OSDLeftP, OSDTopP, OSDWidthP, OSDHeightP;
   int OSDLeft, OSDTop, OSDWidth, OSDHeight;
+  double OSDAspect;
   int OSDMessageTime;
   int UseSmallFont;
   int AntiAlias;
   char FontOsd[MAXFONTNAME];
   char FontSml[MAXFONTNAME];
   char FontFix[MAXFONTNAME];
+  double FontOsdSizeP;
+  double FontSmlSizeP;
+  double FontFixSizeP;
   int FontOsdSize;
   int FontSmlSize;
   int FontFixSize;
   int MaxVideoFileSize;
   int SplitEditedFiles;
+  int DelTimeshiftRec;
   int MinEventTimeout, MinUserInactivity;
   time_t NextWakeupTime;
   int MultiSpeedMode;
@@ -266,6 +289,7 @@ public:
   int CurrentDolby;
   int InitialChannel;
   int InitialVolume;
+  int ChannelsWrap;
   int EmergencyExit;
   int __EndData__;
   cSetup(void);

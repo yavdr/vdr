@@ -8,7 +8,7 @@
  * Robert Schneider <Robert.Schneider@web.de> and Rolf Hakenes <hakenes@hippomi.de>.
  * Adapted to 'libsi' for VDR 1.3.0 by Marcel Wiesweg <marcel.wiesweg@gmx.de>.
  *
- * $Id: eit.c 1.126 2007/08/26 10:56:33 kls Exp $
+ * $Id: eit.c 2.12 2010/05/14 14:08:35 kls Exp $
  */
 
 #include "eit.h"
@@ -16,6 +16,8 @@
 #include "i18n.h"
 #include "libsi/section.h"
 #include "libsi/descriptor.h"
+
+#define VALID_TIME (31536000 * 2) // two years
 
 // --- cEIT ------------------------------------------------------------------
 
@@ -42,20 +44,28 @@ cEIT::cEIT(cSchedules *Schedules, int Source, u_char Tid, const u_char *Data, bo
   bool HasExternalData = false;
   time_t SegmentStart = 0;
   time_t SegmentEnd = 0;
+  time_t Now = time(NULL);
+  struct tm tm_r;
+  struct tm t = *localtime_r(&Now, &tm_r); // this initializes the time zone in 't'
+
+  if (Now < VALID_TIME)
+     return; // we need the current time for handling PDC descriptors
 
   SI::EIT::Event SiEitEvent;
   for (SI::Loop::Iterator it; eventLoop.getNext(SiEitEvent, it); ) {
       bool ExternalData = false;
+      time_t StartTime = SiEitEvent.getStartTime();
+      int Duration = SiEitEvent.getDuration();
       // Drop bogus events - but keep NVOD reference events, where all bits of the start time field are set to 1, resulting in a negative number.
-      if (SiEitEvent.getStartTime() == 0 || SiEitEvent.getStartTime() > 0 && SiEitEvent.getDuration() == 0)
+      if (StartTime == 0 || StartTime > 0 && Duration == 0)
          continue;
       Empty = false;
       if (!SegmentStart)
-         SegmentStart = SiEitEvent.getStartTime();
-      SegmentEnd = SiEitEvent.getStartTime() + SiEitEvent.getDuration();
+         SegmentStart = StartTime;
+      SegmentEnd = StartTime + Duration;
       cEvent *newEvent = NULL;
       cEvent *rEvent = NULL;
-      cEvent *pEvent = (cEvent *)pSchedule->GetEvent(SiEitEvent.getEventId(), SiEitEvent.getStartTime());
+      cEvent *pEvent = (cEvent *)pSchedule->GetEvent(SiEitEvent.getEventId(), StartTime);
       if (!pEvent) {
          if (OnlyRunningStatus)
             continue;
@@ -70,14 +80,15 @@ cEIT::cEIT(cSchedules *Schedules, int Source, u_char Tid, const u_char *Data, bo
          pEvent->SetSeen();
          // If the existing event has a zero table ID it was defined externally and shall
          // not be overwritten.
-         if (pEvent->TableID() == 0x00) {
+         uchar TableID = pEvent->TableID();
+         if (TableID == 0x00) {
             if (pEvent->Version() == getVersionNumber())
                continue;
             HasExternalData = ExternalData = true;
             }
          // If the new event has a higher table ID, let's skip it.
          // The lower the table ID, the more "current" the information.
-         else if (Tid > pEvent->TableID())
+         else if (Tid > TableID)
             continue;
          // If the new event comes from the same table and has the same version number
          // as the existing one, let's skip it to avoid unnecessary work.
@@ -85,14 +96,14 @@ cEIT::cEIT(cSchedules *Schedules, int Source, u_char Tid, const u_char *Data, bo
          // the actual Premiere transponder and the Sat.1/Pro7 transponder), but use different version numbers on
          // each of them :-( So if one DVB card is tuned to the Premiere transponder, while an other one is tuned
          // to the Sat.1/Pro7 transponder, events will keep toggling because of the bogus version numbers.
-         else if (Tid == pEvent->TableID() && pEvent->Version() == getVersionNumber())
+         else if (Tid == TableID && pEvent->Version() == getVersionNumber())
             continue;
          }
       if (!ExternalData) {
          pEvent->SetEventID(SiEitEvent.getEventId()); // unfortunately some stations use different event ids for the same event in different tables :-(
          pEvent->SetTableID(Tid);
-         pEvent->SetStartTime(SiEitEvent.getStartTime());
-         pEvent->SetDuration(SiEitEvent.getDuration());
+         pEvent->SetStartTime(StartTime);
+         pEvent->SetDuration(Duration);
          }
       if (newEvent)
          pSchedule->AddEvent(newEvent);
@@ -142,15 +153,43 @@ cEIT::cEIT(cSchedules *Schedules, int Source, u_char Tid, const u_char *Data, bo
                     }
                  }
                  break;
-            case SI::ContentDescriptorTag:
+            case SI::ContentDescriptorTag: {
+                 SI::ContentDescriptor *cd = (SI::ContentDescriptor *)d;
+                 SI::ContentDescriptor::Nibble Nibble;
+                 int NumContents = 0;
+                 uchar Contents[MaxEventContents] = { 0 };
+                 for (SI::Loop::Iterator it3; cd->nibbleLoop.getNext(Nibble, it3); ) {
+                     if (NumContents < MaxEventContents) {
+                        Contents[NumContents] = ((Nibble.getContentNibbleLevel1() & 0xF) << 4) | (Nibble.getContentNibbleLevel2() & 0xF);
+                        NumContents++;
+                        }
+                     }
+                 pEvent->SetContents(Contents);
+                 }
                  break;
-            case SI::ParentalRatingDescriptorTag:
+            case SI::ParentalRatingDescriptorTag: {
+                 int LanguagePreferenceRating = -1;
+                 SI::ParentalRatingDescriptor *prd = (SI::ParentalRatingDescriptor *)d;
+                 SI::ParentalRatingDescriptor::Rating Rating;
+                 for (SI::Loop::Iterator it3; prd->ratingLoop.getNext(Rating, it3); ) {
+                     if (I18nIsPreferredLanguage(Setup.EPGLanguages, Rating.languageCode, LanguagePreferenceRating)) {
+                        int ParentalRating = (Rating.getRating() & 0xFF);
+                        switch (ParentalRating) {
+                          // values defined by the DVB standard (minimum age = rating + 3 years):
+                          case 0x01 ... 0x0F: ParentalRating += 3; break;
+                          // values defined by broadcaster CSAT (now why didn't they just use 0x07, 0x09 and 0x0D?):
+                          case 0x11:          ParentalRating = 10; break;
+                          case 0x12:          ParentalRating = 12; break;
+                          case 0x13:          ParentalRating = 16; break;
+                          default:            ParentalRating = 0;
+                          }
+                        pEvent->SetParentalRating(ParentalRating);
+                        }
+                     }
+                 }
                  break;
             case SI::PDCDescriptorTag: {
                  SI::PDCDescriptor *pd = (SI::PDCDescriptor *)d;
-                 time_t now = time(NULL);
-                 struct tm tm_r;
-                 struct tm t = *localtime_r(&now, &tm_r); // this initializes the time zone in 't'
                  t.tm_isdst = -1; // makes sure mktime() will determine the correct DST setting
                  int month = t.tm_mon;
                  t.tm_mon = pd->getMonth() - 1;
@@ -183,8 +222,7 @@ cEIT::cEIT(cSchedules *Schedules, int Source, u_char Tid, const u_char *Data, bo
                  SI::LinkageDescriptor *ld = (SI::LinkageDescriptor *)d;
                  tChannelID linkID(Source, ld->getOriginalNetworkId(), ld->getTransportStreamId(), ld->getServiceId());
                  if (ld->getLinkageType() == 0xB0) { // Premiere World
-                    time_t now = time(NULL);
-                    bool hit = SiEitEvent.getStartTime() <= now && now < SiEitEvent.getStartTime() + SiEitEvent.getDuration();
+                    bool hit = StartTime <= Now && Now < StartTime + Duration;
                     if (hit) {
                        char linkName[ld->privateData.getLength() + 1];
                        strn0cpy(linkName, (const char *)ld->privateData.getData(), sizeof(linkName));
@@ -219,7 +257,7 @@ cEIT::cEIT(cSchedules *Schedules, int Source, u_char Tid, const u_char *Data, bo
                  SI::ComponentDescriptor *cd = (SI::ComponentDescriptor *)d;
                  uchar Stream = cd->getStreamContent();
                  uchar Type = cd->getComponentType();
-                 if (1 <= Stream && Stream <= 3 && Type != 0) { // 1=video, 2=audio, 3=subtitles
+                 if (1 <= Stream && Stream <= 6 && Type != 0) { // 1=MPEG2-video, 2=MPEG1-audio, 3=subtitles, 4=AC3-audio, 5=H.264-video, 6=HEAAC-audio
                     if (!Components)
                        Components = new cComponents;
                     char buffer[Utf8BufSize(256)];
@@ -260,11 +298,12 @@ cEIT::cEIT(cSchedules *Schedules, int Source, u_char Tid, const u_char *Data, bo
          channel->SetLinkChannels(LinkChannels);
       Modified = true;
       }
-  if (Empty && Tid == 0x4E && getSectionNumber() == 0)
-     // ETR 211: an empty entry in section 0 of table 0x4E means there is currently no event running
-     pSchedule->ClrRunningStatus(channel);
-  if (Tid == 0x4E)
+  if (Tid == 0x4E) {
+     if (Empty && getSectionNumber() == 0)
+        // ETR 211: an empty entry in section 0 of table 0x4E means there is currently no event running
+        pSchedule->ClrRunningStatus(channel);
      pSchedule->SetPresentSeen();
+     }
   if (OnlyRunningStatus)
      return;
   if (Modified) {
@@ -300,9 +339,9 @@ cTDT::cTDT(const u_char *Data)
   if (diff > 2) {
      mutex.Lock();
      if (abs(diff - lastDiff) < 3) {
-        isyslog("System Time = %s (%ld)", *TimeToString(loctim), loctim);
-        isyslog("Local Time  = %s (%ld)", *TimeToString(sattim), sattim);
-        if (stime(&sattim) < 0)
+        if (stime(&sattim) == 0)
+           isyslog("system time changed from %s (%ld) to %s (%ld)", *TimeToString(loctim), loctim, *TimeToString(sattim), sattim);
+        else
            esyslog("ERROR while setting system time: %m");
         }
      lastDiff = diff;
@@ -312,31 +351,45 @@ cTDT::cTDT(const u_char *Data)
 
 // --- cEitFilter ------------------------------------------------------------
 
+time_t cEitFilter::disableUntil = 0;
+
 cEitFilter::cEitFilter(void)
 {
-  Set(0x12, 0x4E, 0xFE);  // event info, actual(0x4E)/other(0x4F) TS, present/following
-  Set(0x12, 0x50, 0xF0);  // event info, actual TS, schedule(0x50)/schedule for future days(0x5X)
-  Set(0x12, 0x60, 0xF0);  // event info, other  TS, schedule(0x60)/schedule for future days(0x6X)
-  Set(0x14, 0x70);        // TDT
+  Set(0x12, 0x40, 0xC0);  // event info now&next actual/other TS (0x4E/0x4F), future actual/other TS (0x5X/0x6X)
+  if (Setup.SetSystemTime && Setup.TimeTransponder)
+     Set(0x14, 0x70);     // TDT
+}
+
+void cEitFilter::SetDisableUntil(time_t Time)
+{
+  disableUntil = Time;
 }
 
 void cEitFilter::Process(u_short Pid, u_char Tid, const u_char *Data, int Length)
 {
+  if (disableUntil) {
+     if (time(NULL) > disableUntil)
+        disableUntil = 0;
+     else
+        return;
+     }
   switch (Pid) {
     case 0x12: {
-         cSchedulesLock SchedulesLock(true, 10);
-         cSchedules *Schedules = (cSchedules *)cSchedules::Schedules(SchedulesLock);
-         if (Schedules)
-            cEIT EIT(Schedules, Source(), Tid, Data);
-         else {
-            // If we don't get a write lock, let's at least get a read lock, so
-            // that we can set the running status and 'seen' timestamp (well, actually
-            // with a read lock we shouldn't be doing that, but it's only integers that
-            // get changed, so it should be ok)
-            cSchedulesLock SchedulesLock;
+         if (Tid >= 0x4E && Tid <= 0x6F) {
+            cSchedulesLock SchedulesLock(true, 10);
             cSchedules *Schedules = (cSchedules *)cSchedules::Schedules(SchedulesLock);
             if (Schedules)
-               cEIT EIT(Schedules, Source(), Tid, Data, true);
+               cEIT EIT(Schedules, Source(), Tid, Data);
+            else {
+               // If we don't get a write lock, let's at least get a read lock, so
+               // that we can set the running status and 'seen' timestamp (well, actually
+               // with a read lock we shouldn't be doing that, but it's only integers that
+               // get changed, so it should be ok)
+               cSchedulesLock SchedulesLock;
+               cSchedules *Schedules = (cSchedules *)cSchedules::Schedules(SchedulesLock);
+               if (Schedules)
+                  cEIT EIT(Schedules, Source(), Tid, Data, true);
+               }
             }
          }
          break;
@@ -345,5 +398,6 @@ void cEitFilter::Process(u_short Pid, u_char Tid, const u_char *Data, int Length
             cTDT TDT(Data);
          }
          break;
+    default: ;
     }
 }

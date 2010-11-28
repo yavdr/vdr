@@ -7,7 +7,7 @@
  * Original author: Marco Schlüßler <marco@lordzodiac.de>
  * With some input from the "subtitle plugin" by Pekka Virtanen <pekka.virtanen@sci.fi>
  *
- * $Id: dvbsubtitle.c 1.3 2007/11/25 13:33:08 kls Exp $
+ * $Id: dvbsubtitle.c 2.7 2010/08/29 14:08:23 kls Exp $
  */
 
 #include "dvbsubtitle.h"
@@ -17,6 +17,7 @@
 #define REGION_COMPOSITION_SEGMENT 0x11
 #define CLUT_DEFINITION_SEGMENT    0x12
 #define OBJECT_DATA_SEGMENT        0x13
+#define DISPLAY_DEFINITION_SEGMENT 0x14
 #define END_OF_DISPLAY_SET_SEGMENT 0x80
 
 // Set these to 'true' for debug output:
@@ -160,21 +161,22 @@ void cSubtitleObject::DecodeSubBlock(const uchar *Data, int Length, bool Even)
                    ;
              break;
         case 0x20: //TODO
-             dbgobjects("sub block 2 to 4 map");
+             dbgobjects("sub block 2 to 4 map\n");
              index += 4;
              break;
         case 0x21: //TODO
-             dbgobjects("sub block 2 to 8 map");
+             dbgobjects("sub block 2 to 8 map\n");
              index += 4;
              break;
         case 0x22: //TODO
-             dbgobjects("sub block 4 to 8 map");
+             dbgobjects("sub block 4 to 8 map\n");
              index += 16;
              break;
         case 0xF0:
              x = 0;
              y += 2;
              break;
+        default: dbgobjects("unknown sub block %s %d\n", __FUNCTION__, __LINE__);
         }
       }
 }
@@ -233,7 +235,7 @@ bool cSubtitleObject::Decode2BppCodeString(const uchar *Data, int &Index, int &x
         rl = 1; //color 0
      else {
         code = Get2Bits(Data, Index);
-        switch (code & 0x3) { //switch_3
+        switch (code & 3) { //switch_3
           case 0:
                return false;
           case 1:
@@ -247,6 +249,7 @@ bool cSubtitleObject::Decode2BppCodeString(const uchar *Data, int &Index, int &x
                rl = (Get2Bits(Data, Index) << 6) + (Get2Bits(Data, Index) << 4) + (Get2Bits(Data, Index) << 2) + Get2Bits(Data, Index) + 29;
                color = Get2Bits(Data, Index);
                break;
+          default: ;
           }
         }
      }
@@ -283,6 +286,7 @@ bool cSubtitleObject::Decode4BppCodeString(const uchar *Data, int &Index, int &x
                   rl = (Get4Bits(Data, Index) << 4) + Get4Bits(Data, Index) + 25;
                   color = Get4Bits(Data, Index);
                   break;
+             default: ;
              }
            }
         else {
@@ -516,6 +520,7 @@ void cDvbSubtitlePage::SetState(int State)
          break;
     case 3: // reserved
          break;
+    default: dbgpages("unknown page state (%s %d)\n", __FUNCTION__, __LINE__);
     }
 }
 
@@ -580,12 +585,12 @@ bool cDvbSubtitleAssembler::Realloc(int Size)
 unsigned char *cDvbSubtitleAssembler::Get(int &Length)
 {
   if (length > pos + 5) {
-      Length = (data[pos + 4] << 8) + data[pos + 5] + 6;
-      if (length >= pos + Length) {
-         unsigned char *result = data + pos;
-         pos += Length;
-         return result;
-         }
+     Length = (data[pos + 4] << 8) + data[pos + 5] + 6;
+     if (length >= pos + Length) {
+        unsigned char *result = data + pos;
+        pos += Length;
+        return result;
+        }
      }
   return NULL;
 }
@@ -654,6 +659,12 @@ cDvbSubtitleConverter::cDvbSubtitleConverter(void)
 {
   dvbSubtitleAssembler = new cDvbSubtitleAssembler;
   osd = NULL;
+  frozen = false;
+  ddsVersionNumber = -1;
+  displayWidth = 720;
+  displayHeight = 576;
+  displayHorizontalOffset = 0;
+  displayVerticalOffset = 0;
   pages = new cList<cDvbSubtitlePage>;
   bitmaps = new cList<cDvbSubtitleBitmaps>;
   Start();
@@ -681,13 +692,19 @@ void cDvbSubtitleConverter::Reset(void)
   pages->Clear();
   bitmaps->Clear();
   DELETENULL(osd);
+  frozen = false;
+  ddsVersionNumber = -1;
+  displayWidth = 720;
+  displayHeight = 576;
+  displayHorizontalOffset = 0;
+  displayVerticalOffset = 0;
   Unlock();
 }
 
-int cDvbSubtitleConverter::Convert(const uchar *Data, int Length)
+int cDvbSubtitleConverter::ConvertFragments(const uchar *Data, int Length)
 {
   if (Data && Length > 8) {
-     int PayloadOffset = Data[8] + 9;
+     int PayloadOffset = PesPayloadOffset(Data);
      int SubstreamHeaderLength = 4;
      bool ResetSubtitleAssembler = Data[PayloadOffset + 3] == 0x00;
 
@@ -699,15 +716,9 @@ int cDvbSubtitleConverter::Convert(const uchar *Data, int Length)
         }
 
      if (Length > PayloadOffset + SubstreamHeaderLength) {
-        int64_t pts = 0;
-        if ((Data[7] & 0x80) && Data[8] >= 5) {
-           pts  = (((int64_t)Data[ 9]) & 0x0E) << 29;
-           pts |= ( (int64_t)Data[10])         << 22;
-           pts |= (((int64_t)Data[11]) & 0xFE) << 14;
-           pts |= ( (int64_t)Data[12])         <<  7;
-           pts |= (((int64_t)Data[13]) & 0xFE) >>  1;
+        int64_t pts = PesHasPts(Data) ? PesGetPts(Data) : 0;
+        if (pts)
            dbgconverter("Converter PTS: %lld\n", pts);
-           }
         const uchar *data = Data + PayloadOffset + SubstreamHeaderLength; // skip substream header
         int length = Length - PayloadOffset - SubstreamHeaderLength; // skip substream header
         if (ResetSubtitleAssembler)
@@ -736,6 +747,40 @@ int cDvbSubtitleConverter::Convert(const uchar *Data, int Length)
   return 0;
 }
 
+int cDvbSubtitleConverter::Convert(const uchar *Data, int Length)
+{
+  if (Data && Length > 8) {
+     int PayloadOffset = PesPayloadOffset(Data);
+     if (Length > PayloadOffset) {
+        int64_t pts = PesGetPts(Data);
+        if (pts)
+           dbgconverter("Converter PTS: %lld\n", pts);
+        const uchar *data = Data + PayloadOffset;
+        int length = Length - PayloadOffset;
+        if (length > 3) {
+           if (data[0] == 0x20 && data[1] == 0x00 && data[2] == 0x0F) {
+              data += 2;
+              length -= 2;
+              }
+           const uchar *b = data;
+           while (length > 0) {
+                 if (b[0] == 0x0F) {
+                    int n = ExtractSegment(b, length, pts);
+                    if (n < 0)
+                       break;
+                    b += n;
+                    length -= n;
+                    }
+                 else
+                    break;
+                 }
+           }
+        }
+     return Length;
+     }
+  return 0;
+}
+
 #define LimitTo32Bit(n) (n & 0x00000000FFFFFFFFL)
 #define MAXDELTA 40000 // max. reasonable PTS/STC delta in ms
 
@@ -744,46 +789,48 @@ void cDvbSubtitleConverter::Action(void)
   int LastSetupLevel = setupLevel;
   cTimeMs Timeout;
   while (Running()) {
-        if (osd) {
-           int NewSetupLevel = setupLevel;
-           if (Timeout.TimedOut() || LastSetupLevel != NewSetupLevel) {
-              DELETENULL(osd);
-              }
-           LastSetupLevel = NewSetupLevel;
-           }
         int WaitMs = 100;
-        Lock();
-        if (cDvbSubtitleBitmaps *sb = bitmaps->First()) {
-           int64_t STC = cDevice::PrimaryDevice()->GetSTC();
-           int64_t Delta = 0;
-           if (STC >= 0) {
-              Delta = LimitTo32Bit(sb->Pts()) - LimitTo32Bit(STC); // some devices only deliver 32 bits
-              if (Delta > (int64_t(1) << 31))
-                 Delta -= (int64_t(1) << 32);
-              else if (Delta < -((int64_t(1) << 31) - 1))
-                 Delta += (int64_t(1) << 32);
-              }
-           else {
-              //TODO sync on PTS? are there actually devices that don't deliver an STC?
-              }
-           Delta /= 90; // STC and PTS are in 1/90000s
-           if (Delta <= MAXDELTA) {
-              if (Delta <= 0) {
-                 dbgconverter("Got %d bitmaps, showing #%d\n", bitmaps->Count(), sb->Index() + 1);
-                 if (AssertOsd()) {
-                    sb->Draw(osd);
-                    Timeout.Set(sb->Timeout() * 1000);
-                    dbgconverter("PTS: %lld  STC: %lld (%lld) timeout: %d\n", sb->Pts(), cDevice::PrimaryDevice()->GetSTC(), Delta, sb->Timeout());
-                    }
-                 bitmaps->Del(sb);
+        if (!frozen) {
+           if (osd) {
+              int NewSetupLevel = setupLevel;
+              if (Timeout.TimedOut() || LastSetupLevel != NewSetupLevel) {
+                 DELETENULL(osd);
                  }
-              else if (Delta < WaitMs)
-                 WaitMs = Delta;
+              LastSetupLevel = NewSetupLevel;
               }
-           else
-              bitmaps->Del(sb);
+           Lock();
+           if (cDvbSubtitleBitmaps *sb = bitmaps->First()) {
+              int64_t STC = cDevice::PrimaryDevice()->GetSTC();
+              int64_t Delta = 0;
+              if (STC >= 0) {
+                 Delta = LimitTo32Bit(sb->Pts()) - LimitTo32Bit(STC); // some devices only deliver 32 bits
+                 if (Delta > (int64_t(1) << 31))
+                    Delta -= (int64_t(1) << 32);
+                 else if (Delta < -((int64_t(1) << 31) - 1))
+                    Delta += (int64_t(1) << 32);
+                 }
+              else {
+                 //TODO sync on PTS? are there actually devices that don't deliver an STC?
+                 }
+              Delta /= 90; // STC and PTS are in 1/90000s
+              if (Delta <= MAXDELTA) {
+                 if (Delta <= 0) {
+                    dbgconverter("Got %d bitmaps, showing #%d\n", bitmaps->Count(), sb->Index() + 1);
+                    if (AssertOsd()) {
+                       sb->Draw(osd);
+                       Timeout.Set(sb->Timeout() * 1000);
+                       dbgconverter("PTS: %lld  STC: %lld (%lld) timeout: %d\n", sb->Pts(), cDevice::PrimaryDevice()->GetSTC(), Delta, sb->Timeout());
+                       }
+                    bitmaps->Del(sb);
+                    }
+                 else if (Delta < WaitMs)
+                    WaitMs = Delta;
+                 }
+              else
+                 bitmaps->Del(sb);
+              }
+           Unlock();
            }
-        Unlock();
         cCondWait::SleepMs(WaitMs);
         }
 }
@@ -806,7 +853,7 @@ tColor cDvbSubtitleConverter::yuv2rgb(int Y, int Cb, int Cr)
 
 bool cDvbSubtitleConverter::AssertOsd(void)
 {
-  return osd || (osd = cOsdProvider::NewOsd(0, Setup.SubtitleOffset, OSD_LEVEL_SUBTITLES));
+  return osd || (osd = cOsdProvider::NewOsd(displayHorizontalOffset, displayVerticalOffset + Setup.SubtitleOffset, OSD_LEVEL_SUBTITLES));
 }
 
 int cDvbSubtitleConverter::ExtractSegment(const uchar *Data, int Length, int64_t Pts)
@@ -872,6 +919,7 @@ int cDvbSubtitleConverter::ExtractSegment(const uchar *Data, int Length, int64_t
                  case 2: region->FillRegion((Data[6 + 9] & 0x0C) >> 2); break;
                  case 4: region->FillRegion((Data[6 + 9] & 0xF0) >> 4); break;
                  case 8: region->FillRegion(Data[6 + 8]); break;
+                 default: dbgregions("unknown bpp %d (%s %d)\n", region->Bpp(), __FUNCTION__, __LINE__);
                  }
                }
             for (int i = 6 + 10; i < segmentLength; i += 6) {
@@ -961,6 +1009,26 @@ int cDvbSubtitleConverter::ExtractSegment(const uchar *Data, int Length, int64_t
                }
             else if (codingMethod == 1) { // coded as a string of characters
                //TODO implement textual subtitles
+               }
+            break;
+            }
+       case DISPLAY_DEFINITION_SEGMENT: {
+            dbgsegments("DISPLAY_DEFINITION_SEGMENT\n");
+            int version = (Data[6] & 0xF0) >> 4;
+            if (version != ddsVersionNumber) {
+               int displayWindowFlag   = (Data[6] & 0x08) >> 3;
+               displayHorizontalOffset = 0;
+               displayVerticalOffset   = 0;
+               displayWidth            = ((Data[7] << 8) | Data[8]) + 1;
+               displayHeight           = ((Data[9] << 8) | Data[10]) + 1;
+               if (displayWindowFlag) { 
+                  displayHorizontalOffset = (Data[11] << 8) | Data[12];                                 // displayWindowHorizontalPositionMinimum
+                  displayWidth            = ((Data[13] << 8) | Data[14]) - displayHorizontalOffset + 1; // displayWindowHorizontalPositionMaximum
+                  displayVerticalOffset   = (Data[15] << 8) | Data[16];                                 // displayWindowVerticalPositionMinimum
+                  displayHeight           = ((Data[17] << 8) | Data[18]) - displayVerticalOffset + 1;   // displayWindowVerticalPositionMaximum
+                  }
+               SetupChanged();
+               ddsVersionNumber = version;
                }
             break;
             }

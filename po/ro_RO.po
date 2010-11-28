@@ -1,15 +1,15 @@
 # VDR language source file.
-# Copyright (C) 2008 Klaus Schmidinger <kls@cadsoft.de>
+# Copyright (C) 2008 Klaus Schmidinger <kls@tvdr.de>
 # This file is distributed under the same license as the VDR package.
 # Paul Lacatus <paul@campina.iiruc.ro>, 2002
-# Lucian Muresan <lucianm@users.sourceforge.net>, 2004, 2005, 2006, 2008
+# Lucian Muresan <lucianm@users.sourceforge.net>, 2004, 2005, 2006, 2008, 2010
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: VDR 1.6.0\n"
-"Report-Msgid-Bugs-To: <vdr-bugs@cadsoft.de>\n"
-"POT-Creation-Date: 2008-02-10 12:22+0100\n"
-"PO-Revision-Date: 2008-02-25 00:39+0100\n"
+"Project-Id-Version: VDR 1.7.12\n"
+"Report-Msgid-Bugs-To: <vdr-bugs@tvdr.de>\n"
+"POT-Creation-Date: 2010-06-06 12:52+0200\n"
+"PO-Revision-Date: 2010-02-11 13:38+0100\n"
 "Last-Translator: Lucian Muresan <lucianm@users.sourceforge.net>\n"
 "Language-Team: Romanian\n"
 "MIME-Version: 1.0\n"
@@ -27,8 +27,297 @@ msgstr "Canal indisponibil"
 msgid "Can't start Transfer Mode!"
 msgstr "Nu pot porni modul de transfer!"
 
+msgid "off"
+msgstr "oprit"
+
+msgid "on"
+msgstr "pornit"
+
+msgid "auto"
+msgstr "automat"
+
+msgid "none"
+msgstr "niciuna(ul)"
+
+msgid "Polarization"
+msgstr "Polarizare"
+
+msgid "System"
+msgstr "Sistem"
+
+msgid "Srate"
+msgstr "Ratã simboluri"
+
+msgid "Inversion"
+msgstr "Inversiune"
+
+msgid "CoderateH"
+msgstr "CoderateH"
+
+msgid "CoderateL"
+msgstr "CoderateL"
+
+msgid "Modulation"
+msgstr "Modulaþie"
+
+msgid "Bandwidth"
+msgstr "Lãrgime de bandã"
+
+msgid "Transmission"
+msgstr "Transmisie"
+
+msgid "Guard"
+msgstr "Guard"
+
+msgid "Hierarchy"
+msgstr "Ierarhie"
+
+msgid "Rolloff"
+msgstr "Rolloff"
+
 msgid "Starting EPG scan"
 msgstr "Pornesc achiziþia EPG"
+
+msgid "Content$Movie/Drama"
+msgstr "Film/Dramã"
+
+msgid "Content$Detective/Thriller"
+msgstr "Poliþist/Suspense"
+
+msgid "Content$Adventure/Western/War"
+msgstr "Aventuri/Western/Rãzboi"
+
+msgid "Content$Science Fiction/Fantasy/Horror"
+msgstr "Science-Fiction/Fantastic/Groazã"
+
+msgid "Content$Comedy"
+msgstr "Comedie"
+
+msgid "Content$Soap/Melodrama/Folkloric"
+msgstr "Telenovelã/Melodramã/Folclor"
+
+msgid "Content$Romance"
+msgstr "Film romantic"
+
+msgid "Content$Serious/Classical/Religious/Historical Movie/Drama"
+msgstr "Film serios/clasic/religios/istoric/Dramã"
+
+msgid "Content$Adult Movie/Drama"
+msgstr "Film pentru adulþi/Dramã"
+
+msgid "Content$News/Current Affairs"
+msgstr "ªtiri/Actualitãþi"
+
+msgid "Content$News/Weather Report"
+msgstr "ªtiri/Buletin meteorologic"
+
+msgid "Content$News Magazine"
+msgstr "Magazin de ºtiri"
+
+msgid "Content$Documentary"
+msgstr "Documentar"
+
+msgid "Content$Discussion/Inverview/Debate"
+msgstr "Discuþie/Interviu/Dezbatere"
+
+msgid "Content$Show/Game Show"
+msgstr "Show/Jocuri"
+
+msgid "Content$Game Show/Quiz/Contest"
+msgstr "Emisiune jocuri/quiz/concurs"
+
+msgid "Content$Variety Show"
+msgstr "Varietãþi"
+
+msgid "Content$Talk Show"
+msgstr "Talk Show"
+
+msgid "Content$Sports"
+msgstr "Sport"
+
+msgid "Content$Special Event"
+msgstr "Eveniment special"
+
+msgid "Content$Sport Magazine"
+msgstr "Magazin sportiv"
+
+msgid "Content$Football/Soccer"
+msgstr "Football/fotbal"
+
+msgid "Content$Tennis/Squash"
+msgstr "Tenis/Squash"
+
+msgid "Content$Team Sports"
+msgstr "Sporturi de echipã"
+
+msgid "Content$Athletics"
+msgstr "Atletism"
+
+msgid "Content$Motor Sport"
+msgstr "Sport cu motor"
+
+msgid "Content$Water Sport"
+msgstr "Sporturi acvatice"
+
+msgid "Content$Winter Sports"
+msgstr "Sporturi de iarnã"
+
+msgid "Content$Equestrian"
+msgstr "Echitaþie"
+
+msgid "Content$Martial Sports"
+msgstr "Arte marþiale"
+
+msgid "Content$Children's/Youth Programme"
+msgstr "Emisiune pentru copii/tineret"
+
+msgid "Content$Pre-school Children's Programme"
+msgstr "Emisiune pentru copii preºcolari"
+
+msgid "Content$Entertainment Programme for 6 to 14"
+msgstr "Divertisment pentru copii intre 6 - 16 ani"
+
+msgid "Content$Entertainment Programme for 10 to 16"
+msgstr "Divertisment pentru copii intre 10 - 16 ani"
+
+msgid "Content$Informational/Educational/School Programme"
+msgstr "Informaþional/Educaþional/Emisiune ºcoalã"
+
+msgid "Content$Cartoons/Puppets"
+msgstr "Desene animate/Teatru de pãpuºi"
+
+msgid "Content$Music/Ballet/Dance"
+msgstr "Muzicã/Balet/Dans"
+
+msgid "Content$Rock/Pop"
+msgstr "Rock/Pop"
+
+msgid "Content$Serious/Classical Music"
+msgstr "Muzicã clasicã/serioasã"
+
+msgid "Content$Folk/Tradional Music"
+msgstr "Muzicã folk/tradiþionalã"
+
+msgid "Content$Jazz"
+msgstr "Jazz"
+
+msgid "Content$Musical/Opera"
+msgstr "Teatru muzical/Operã/Operetã"
+
+msgid "Content$Ballet"
+msgstr "Balet"
+
+msgid "Content$Arts/Culture"
+msgstr "Artã/Culturã"
+
+msgid "Content$Performing Arts"
+msgstr "Spectacole"
+
+msgid "Content$Fine Arts"
+msgstr "Belle arte"
+
+msgid "Content$Religion"
+msgstr "Religie"
+
+msgid "Content$Popular Culture/Traditional Arts"
+msgstr "Culturã Pop/Arte tradiþionale"
+
+msgid "Content$Literature"
+msgstr "Literaturã"
+
+msgid "Content$Film/Cinema"
+msgstr "Film/Cinema"
+
+msgid "Content$Experimental Film/Video"
+msgstr "Film experimental/Video"
+
+msgid "Content$Broadcasting/Press"
+msgstr "Radiodifuziune/Presã"
+
+msgid "Content$New Media"
+msgstr "Medii noi"
+
+msgid "Content$Arts/Culture Magazine"
+msgstr "Artã/Magazin cultural"
+
+msgid "Content$Fashion"
+msgstr "Modã"
+
+msgid "Content$Social/Political/Economics"
+msgstr "Social/Politic/Economie"
+
+msgid "Content$Magazine/Report/Documentary"
+msgstr "Magazin/Reportaj/Documentar"
+
+msgid "Content$Economics/Social Advisory"
+msgstr "Economie/Consiliere socialã"
+
+msgid "Content$Remarkable People"
+msgstr "Oameni remarcabili"
+
+msgid "Content$Education/Science/Factual"
+msgstr "Educaþie/ªtiinþã/Practic"
+
+msgid "Content$Nature/Animals/Environment"
+msgstr "Naturã/Animale/Mediu"
+
+msgid "Content$Technology/Natural Sciences"
+msgstr "Tehnologie/ªtiinþe naturale"
+
+msgid "Content$Medicine/Physiology/Psychology"
+msgstr "Medicinã/Fiziologie/Psihologie"
+
+msgid "Content$Foreign Countries/Expeditions"
+msgstr "Þãri strãine/Expediþii"
+
+msgid "Content$Social/Spiritual Sciences"
+msgstr "Social/ªtiinþe spirituale"
+
+msgid "Content$Further Education"
+msgstr "Cursuri de aprofundare"
+
+msgid "Content$Languages"
+msgstr "Limbi"
+
+msgid "Content$Leisure/Hobbies"
+msgstr "Timp liber/Hobby"
+
+msgid "Content$Tourism/Travel"
+msgstr "Turism/Cãlãtorie"
+
+msgid "Content$Handicraft"
+msgstr "Meºteºug"
+
+msgid "Content$Motoring"
+msgstr "Motoare"
+
+msgid "Content$Fitness & Health"
+msgstr "Miºcare & Sãnãtate"
+
+msgid "Content$Cooking"
+msgstr "Gãtit"
+
+msgid "Content$Advertisement/Shopping"
+msgstr "Publicitate/Cumpãrãturi"
+
+msgid "Content$Gardening"
+msgstr "Grãdinãrit"
+
+msgid "Content$Original Language"
+msgstr "Limba originalã"
+
+msgid "Content$Black & White"
+msgstr "Alb-Negru"
+
+msgid "Content$Unpublished"
+msgstr "Nepublicat"
+
+msgid "Content$Live Broadcast"
+msgstr "Transmisie în direct"
+
+#, c-format
+msgid "ParentalRating$from %d"
+msgstr "de la %d ani"
 
 msgid "No title"
 msgstr "Fãrã titlu"
@@ -189,6 +478,9 @@ msgstr "Configuraþie"
 msgid "Key$Commands"
 msgstr "Comenzi"
 
+msgid "Key$User0"
+msgstr "Utilizator0"
+
 msgid "Key$User1"
 msgstr "Utilizator1"
 
@@ -227,9 +519,6 @@ msgstr "FTA (necriptat)"
 
 msgid "encrypted"
 msgstr "criptat"
-
-msgid "auto"
-msgstr "automat"
 
 msgid "Edit channel"
 msgstr "Modificare canal"
@@ -276,42 +565,6 @@ msgstr "CA (Acces Condiþional)"
 msgid "Sid"
 msgstr "Sid"
 
-msgid "Polarization"
-msgstr "Polarizare"
-
-msgid "Srate"
-msgstr "Ratã simboluri"
-
-msgid "Inversion"
-msgstr "Inversiune"
-
-msgid "off"
-msgstr "inactiv"
-
-msgid "CoderateH"
-msgstr "CoderateH"
-
-msgid "none"
-msgstr "niciuna(ul)"
-
-msgid "CoderateL"
-msgstr "CoderateL"
-
-msgid "Modulation"
-msgstr "Modulaþie"
-
-msgid "Bandwidth"
-msgstr "Lãrgime de bandã"
-
-msgid "Transmission"
-msgstr "Transmisie"
-
-msgid "Guard"
-msgstr "Guard"
-
-msgid "Hierarchy"
-msgstr "Ierarhie"
-
 msgid "Channel settings are not unique!"
 msgstr "Parametrii canalului nu sunt univoci!"
 
@@ -335,6 +588,31 @@ msgstr "Canalul este utilizat de un timer!"
 
 msgid "Delete channel?"
 msgstr "ªterg canalul?"
+
+msgid "Edit folder"
+msgstr "Editeazã directorul"
+
+msgid "New folder"
+msgstr "Director nou"
+
+msgid "Sub folder"
+msgstr "Sub-director"
+
+msgid "Folder name already exists!"
+msgstr "Un director cu acelaºi nume existã!"
+
+#, c-format
+msgid "Folder name must not contain '%c'!"
+msgstr "Numele directorului nu poate sã conþinã '%c'!"
+
+msgid "Button$Select"
+msgstr "Selecteazã"
+
+msgid "Delete folder and all sub folders?"
+msgstr "ªterg directorul ºi toate sub-directoarele?"
+
+msgid "Delete folder?"
+msgstr "ªterg directorul?"
 
 msgid "Edit timer"
 msgstr "Modificare timer"
@@ -366,8 +644,14 @@ msgstr "Timp de pãstrare"
 msgid "File"
 msgstr "Fiºier"
 
+msgid "Button$Folder"
+msgstr "Director"
+
 msgid "First day"
 msgstr "Prima zi"
+
+msgid "Select folder"
+msgstr "Selecteazã directorul"
 
 msgid "Timers"
 msgstr "Timer-e"
@@ -486,17 +770,17 @@ msgstr "Skin"
 msgid "Setup.OSD$Theme"
 msgstr "Temã"
 
-msgid "Setup.OSD$Left"
-msgstr "Stânga"
+msgid "Setup.OSD$Left (%)"
+msgstr "Stânga (%)"
 
-msgid "Setup.OSD$Top"
-msgstr "Sus"
+msgid "Setup.OSD$Top (%)"
+msgstr "Sus (%)"
 
-msgid "Setup.OSD$Width"
-msgstr "Lãþime OSD"
+msgid "Setup.OSD$Width (%)"
+msgstr "Lãþime OSD (%)"
 
-msgid "Setup.OSD$Height"
-msgstr "Înãlþime OSD"
+msgid "Setup.OSD$Height (%)"
+msgstr "Înãlþime OSD (%)"
 
 msgid "Setup.OSD$Message time (s)"
 msgstr "Timp afiºare mesaje (sec)"
@@ -516,14 +800,14 @@ msgstr "Font mic"
 msgid "Setup.OSD$Fixed font"
 msgstr "Font cu lãþime fixã"
 
-msgid "Setup.OSD$Default font size (pixel)"
-msgstr "Mãrimea implicitã a fontului (pixeli)"
+msgid "Setup.OSD$Default font size (%)"
+msgstr "Mãrimea implicitã a fontului (%)"
 
-msgid "Setup.OSD$Small font size (pixel)"
-msgstr "Mãrimea 'micã' a fontului (pixeli)"
+msgid "Setup.OSD$Small font size (%)"
+msgstr "Mãrimea 'micã' a fontului (%)"
 
-msgid "Setup.OSD$Fixed font size (pixel)"
-msgstr "Mãrimea 'fixã' a fontului (pixeli)"
+msgid "Setup.OSD$Fixed font size (%)"
+msgstr "Mãrimea 'fixã' a fontului (%)"
 
 msgid "Setup.OSD$Channel info position"
 msgstr "Poziþia informaþiilor despre canal"
@@ -554,6 +838,12 @@ msgstr "Tasta 'Meniu' închide"
 
 msgid "Setup.OSD$Recording directories"
 msgstr "Directoare înregistrãri"
+
+msgid "Setup.OSD$Folders in timer menu"
+msgstr ""
+
+msgid "Setup.OSD$Number keys for characters"
+msgstr ""
 
 msgid "EPG"
 msgstr "EPG"
@@ -672,7 +962,7 @@ msgid "CAM reset"
 msgstr "Resetare CAM"
 
 msgid "CAM present"
-msgstr "CAM preyent"
+msgstr "CAM prezent"
 
 msgid "CAM ready"
 msgstr "CAM pregãtit"
@@ -698,6 +988,21 @@ msgstr "CAM-ul este in folosinþã - totuºi resetez?"
 msgid "Can't reset CAM!"
 msgstr "Nu pot reseta CAM"
 
+msgid "do not pause live video"
+msgstr "nu înregistra emisiunea"
+
+msgid "confirm pause live video"
+msgstr "confirmã înregistrarea emisiunii"
+
+msgid "pause live video"
+msgstr "înregistreazã emisiunea"
+
+msgid "confirm"
+msgstr ""
+
+msgid "yes"
+msgstr "da"
+
 msgid "Recording"
 msgstr "Înregistrare"
 
@@ -715,6 +1020,9 @@ msgstr "Prioritate implicitã"
 
 msgid "Setup.Recording$Default lifetime (d)"
 msgstr "Timp de pãstrare predefinit (zile)"
+
+msgid "Setup.Recording$Pause key handling"
+msgstr "Funcþia tastei 'pauzã'"
 
 msgid "Setup.Recording$Pause priority"
 msgstr "Prioritate pauzã"
@@ -745,6 +1053,9 @@ msgstr "Dimensiune maximã a fiºierului video (MB)"
 
 msgid "Setup.Recording$Split edited files"
 msgstr "Separare fiºiere montate"
+
+msgid "Setup.Recording$Delete timeshift recording"
+msgstr ""
 
 msgid "Replay"
 msgstr "Redare"
@@ -784,6 +1095,9 @@ msgstr "ca mai înainte"
 
 msgid "Setup.Miscellaneous$Initial volume"
 msgstr "Volumul la pornire"
+
+msgid "Setup.Miscellaneous$Channels wrap"
+msgstr "Lista de canale în buclã"
 
 msgid "Setup.Miscellaneous$Emergency exit"
 msgstr "Oprire de urgenþã"
@@ -860,6 +1174,9 @@ msgstr "Nu mai sunt dispozitive DVB disponibile pentru înregistrare!"
 msgid "Pausing live video..."
 msgstr "Trec în pauzã emisiunea transmisã..."
 
+msgid "Delete timeshift recording?"
+msgstr ""
+
 #. TRANSLATORS: note the trailing blank!
 msgid "Jump: "
 msgstr "Salt la: "
@@ -878,9 +1195,6 @@ msgstr "Montajul înregistrãrii este deja activ!"
 
 msgid "FileNameChars$ abcdefghijklmnopqrstuvwxyz0123456789-.,#~\\^$[]|()*+?{}/:%@&"
 msgstr " aãâbcdefghiîjklmnopqrsºtþuvwxyz0123456789-.,#~\\^$[]|()*+?{}/:%@&"
-
-msgid "yes"
-msgstr "da"
 
 msgid "CharMap$ 0\t-.,1#~\\^$[]|()*+?{}/:%@&\tabc2\tdef3\tghi4\tjkl5\tmno6\tpqrs7\ttuv8\twxyz9"
 msgstr " 0\t-.,1#~\\^$[]|()*+?{}/:%@&\taãâbc2\tdef3\tghiî4\tjkl5\tmno6\tpqrsº7\ttþuv8\twxyz9"
@@ -905,6 +1219,12 @@ msgstr "Canal blocat (înregistrare)!"
 
 msgid "Low disk space!"
 msgstr "Spaþiul pe disc e foarte scãzut!"
+
+msgid "Regenerating index file"
+msgstr "Generez index"
+
+msgid "Index file regeneration complete"
+msgstr "Generarea indexului s-a incheiat"
 
 msgid "Can't shutdown - option '-s' not given!"
 msgstr "Nu pot închide - vezi opþiunea '-s'"
@@ -976,6 +1296,9 @@ msgstr "Duminicã"
 
 msgid "Upcoming recording!"
 msgstr "Urmeazã o înregistrare!"
+
+msgid "Pause live video?"
+msgstr "Înregistrez emisiunea?"
 
 msgid "Recording started"
 msgstr "A început înregistrarea"

@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: config.c 1.161 2008/02/17 13:39:00 kls Exp $
+ * $Id: config.c 2.13 2010/06/06 10:06:43 kls Exp $
  */
 
 #include "config.h"
@@ -20,70 +20,7 @@
 // format characters in order to allow any number of blanks after a numeric
 // value!
 
-// --- cCommand --------------------------------------------------------------
-
-char *cCommand::result = NULL;
-
-cCommand::cCommand(void)
-{
-  title = command = NULL;
-  confirm = false;
-}
-
-cCommand::~cCommand()
-{
-  free(title);
-  free(command);
-}
-
-bool cCommand::Parse(const char *s)
-{
-  const char *p = strchr(s, ':');
-  if (p) {
-     int l = p - s;
-     if (l > 0) {
-        title = MALLOC(char, l + 1);
-        stripspace(strn0cpy(title, s, l + 1));
-        if (!isempty(title)) {
-           int l = strlen(title);
-           if (l > 1 && title[l - 1] == '?') {
-              confirm = true;
-              title[l - 1] = 0;
-              }
-           command = stripspace(strdup(skipspace(p + 1)));
-           return !isempty(command);
-           }
-        }
-     }
-  return false;
-}
-
-const char *cCommand::Execute(const char *Parameters)
-{
-  free(result);
-  result = NULL;
-  cString cmdbuf;
-  if (Parameters)
-     cmdbuf = cString::sprintf("%s %s", command, Parameters);
-  const char *cmd = *cmdbuf ? *cmdbuf : command;
-  dsyslog("executing command '%s'", cmd);
-  cPipe p;
-  if (p.Open(cmd, "r")) {
-     int l = 0;
-     int c;
-     while ((c = fgetc(p)) != EOF) {
-           if (l % 20 == 0)
-              result = (char *)realloc(result, l + 21);
-           result[l++] = c;
-           }
-     if (result)
-        result[l] = 0;
-     p.Close();
-     }
-  else
-     esyslog("ERROR: can't open pipe for command '%s'", cmd);
-  return result;
-}
+#define ChkDoublePlausibility(Variable, Default) { if (Variable < 0.00001) Variable = Default; }
 
 // --- cSVDRPhost ------------------------------------------------------------
 
@@ -116,19 +53,179 @@ bool cSVDRPhost::Parse(const char *s)
   return result != 0 && (mask != 0 || addr.s_addr == 0);
 }
 
+bool cSVDRPhost::IsLocalhost(void)
+{
+  return addr.s_addr == htonl(INADDR_LOOPBACK);
+}
+
 bool cSVDRPhost::Accepts(in_addr_t Address)
 {
   return (Address & mask) == (addr.s_addr & mask);
 }
 
-// --- cCommands -------------------------------------------------------------
+// --- cNestedItem -----------------------------------------------------------
 
-cCommands Commands;
-cCommands RecordingCommands;
+cNestedItem::cNestedItem(const char *Text, bool WithSubItems)
+{
+  text = strdup(Text ? Text : "");
+  subItems = WithSubItems ? new cList<cNestedItem> : NULL;
+}
+
+cNestedItem::~cNestedItem()
+{
+  delete subItems;
+  free(text);
+}
+
+int cNestedItem::Compare(const cListObject &ListObject) const
+{
+  return strcasecmp(text, ((cNestedItem *)&ListObject)->text);
+}
+
+void cNestedItem::AddSubItem(cNestedItem *Item)
+{
+  if (!subItems)
+     subItems = new cList<cNestedItem>;
+  if (Item)
+     subItems->Add(Item);
+}
+
+void cNestedItem::SetText(const char *Text)
+{
+  free(text);
+  text = strdup(Text ? Text : "");
+}
+
+void cNestedItem::SetSubItems(bool On)
+{
+  if (On && !subItems)
+     subItems = new cList<cNestedItem>;
+  else if (!On && subItems) {
+     delete subItems;
+     subItems = NULL;
+     }
+}
+
+// --- cNestedItemList -------------------------------------------------------
+
+cNestedItemList::cNestedItemList(void)
+{
+  fileName = NULL;
+}
+
+cNestedItemList::~cNestedItemList()
+{
+  free(fileName);
+}
+
+bool cNestedItemList::Parse(FILE *f, cList<cNestedItem> *List, int &Line)
+{
+  char *s;
+  cReadLine ReadLine;
+  while ((s = ReadLine.Read(f)) != NULL) {
+        Line++;
+        char *p = strchr(s, '#');
+        if (p)
+           *p = 0;
+        s = skipspace(stripspace(s));
+        if (!isempty(s)) {
+           p = s + strlen(s) - 1;
+           if (*p == '{') {
+              *p = 0;
+              stripspace(s);
+              cNestedItem *Item = new cNestedItem(s, true);
+              List->Add(Item);
+              if (!Parse(f, Item->SubItems(), Line))
+                 return false;
+              }
+           else if (*s == '}')
+              break;
+           else
+              List->Add(new cNestedItem(s));
+           }
+        }
+  return true;
+}
+
+bool cNestedItemList::Write(FILE *f, cList<cNestedItem> *List, int Indent)
+{
+  for (cNestedItem *Item = List->First(); Item; Item = List->Next(Item)) {
+      if (Item->SubItems()) {
+         fprintf(f, "%*s%s {\n", Indent, "", Item->Text());
+         Write(f, Item->SubItems(), Indent + 2);
+         fprintf(f, "%*s}\n", Indent + 2, "");
+         }
+      else
+         fprintf(f, "%*s%s\n", Indent, "", Item->Text());
+      }
+  return true;
+}
+
+void cNestedItemList::Clear(void)
+{
+  free(fileName);
+  fileName = NULL;
+  cList<cNestedItem>::Clear();
+}
+
+bool cNestedItemList::Load(const char *FileName)
+{
+  cList<cNestedItem>::Clear();
+  if (FileName) {
+     free(fileName);
+     fileName = strdup(FileName);
+     }
+  bool result = false;
+  if (fileName && access(fileName, F_OK) == 0) {
+     isyslog("loading %s", fileName);
+     FILE *f = fopen(fileName, "r");
+     if (f) {
+        int Line = 0;
+        result = Parse(f, this, Line);
+        fclose(f);
+        }
+     else {
+        LOG_ERROR_STR(fileName);
+        result = false;
+        }
+     }
+  return result;
+}
+
+bool cNestedItemList::Save(void)
+{
+  bool result = true;
+  cSafeFile f(fileName);
+  if (f.Open()) {
+     result = Write(f, this);
+     if (!f.Close())
+        result = false;
+     }
+  else
+     result = false;
+  return result;
+}
+
+// --- Folders and Commands --------------------------------------------------
+
+cNestedItemList Folders;
+cNestedItemList Commands;
+cNestedItemList RecordingCommands;
 
 // --- cSVDRPhosts -----------------------------------------------------------
 
 cSVDRPhosts SVDRPhosts;
+
+bool cSVDRPhosts::LocalhostOnly(void)
+{
+  cSVDRPhost *h = First();
+  while (h) {
+        if (!h->IsLocalhost())
+           return false;
+        h = (cSVDRPhost *)h->Next();
+        }
+  return true;
+}
 
 bool cSVDRPhosts::Acceptable(in_addr_t Address)
 {
@@ -250,33 +347,45 @@ cSetup::cSetup(void)
   PrimaryLimit = 0;
   DefaultPriority = 50;
   DefaultLifetime = 99;
+  PauseKeyHandling = 2;
   PausePriority = 10;
   PauseLifetime = 1;
   UseSubtitle = 1;
   UseVps = 0;
   VpsMargin = 120;
   RecordingDirs = 1;
+  FoldersInTimerMenu = 1;
+  NumberKeysForChars = 1;
   VideoDisplayFormat = 1;
   VideoFormat = 0;
   UpdateChannels = 5;
   UseDolbyDigital = 1;
   ChannelInfoPos = 0;
   ChannelInfoTime = 5;
+  OSDLeftP = 0.08;
+  OSDTopP = 0.08;
+  OSDWidthP = 0.87;
+  OSDHeightP = 0.84;
   OSDLeft = 54;
   OSDTop = 45;
   OSDWidth = 624;
   OSDHeight = 486;
+  OSDAspect = 1.0;
   OSDMessageTime = 1;
   UseSmallFont = 1;
   AntiAlias = 1;
   strcpy(FontOsd, DefaultFontOsd);
   strcpy(FontSml, DefaultFontSml);
   strcpy(FontFix, DefaultFontFix);
+  FontOsdSizeP = 0.038;
+  FontSmlSizeP = 0.035;
+  FontFixSizeP = 0.031;
   FontOsdSize = 22;
   FontSmlSize = 18;
   FontFixSize = 20;
-  MaxVideoFileSize = MAXVIDEOFILESIZE;
+  MaxVideoFileSize = MAXVIDEOFILESIZEDEFAULT;
   SplitEditedFiles = 0;
+  DelTimeshiftRec = 0;
   MinEventTimeout = 30;
   MinUserInactivity = 300;
   NextWakeupTime = 0;
@@ -288,6 +397,7 @@ cSetup::cSetup(void)
   CurrentDolby = 0;
   InitialChannel = 0;
   InitialVolume = -1;
+  ChannelsWrap = 0;
   EmergencyExit = 1;
 }
 
@@ -322,6 +432,11 @@ void cSetup::Store(const char *Name, const char *Value, const char *Plugin, bool
 void cSetup::Store(const char *Name, int Value, const char *Plugin)
 {
   Store(Name, cString::sprintf("%d", Value), Plugin);
+}
+
+void cSetup::Store(const char *Name, double &Value, const char *Plugin)
+{
+  Store(Name, cString::sprintf("%f", Value), Plugin);
 }
 
 bool cSetup::Load(const char *FileName)
@@ -423,33 +538,45 @@ bool cSetup::Parse(const char *Name, const char *Value)
   else if (!strcasecmp(Name, "PrimaryLimit"))        PrimaryLimit       = atoi(Value);
   else if (!strcasecmp(Name, "DefaultPriority"))     DefaultPriority    = atoi(Value);
   else if (!strcasecmp(Name, "DefaultLifetime"))     DefaultLifetime    = atoi(Value);
+  else if (!strcasecmp(Name, "PauseKeyHandling"))    PauseKeyHandling   = atoi(Value);
   else if (!strcasecmp(Name, "PausePriority"))       PausePriority      = atoi(Value);
   else if (!strcasecmp(Name, "PauseLifetime"))       PauseLifetime      = atoi(Value);
   else if (!strcasecmp(Name, "UseSubtitle"))         UseSubtitle        = atoi(Value);
   else if (!strcasecmp(Name, "UseVps"))              UseVps             = atoi(Value);
   else if (!strcasecmp(Name, "VpsMargin"))           VpsMargin          = atoi(Value);
   else if (!strcasecmp(Name, "RecordingDirs"))       RecordingDirs      = atoi(Value);
+  else if (!strcasecmp(Name, "FoldersInTimerMenu"))  FoldersInTimerMenu = atoi(Value);
+  else if (!strcasecmp(Name, "NumberKeysForChars"))  NumberKeysForChars = atoi(Value);
   else if (!strcasecmp(Name, "VideoDisplayFormat"))  VideoDisplayFormat = atoi(Value);
   else if (!strcasecmp(Name, "VideoFormat"))         VideoFormat        = atoi(Value);
   else if (!strcasecmp(Name, "UpdateChannels"))      UpdateChannels     = atoi(Value);
   else if (!strcasecmp(Name, "UseDolbyDigital"))     UseDolbyDigital    = atoi(Value);
   else if (!strcasecmp(Name, "ChannelInfoPos"))      ChannelInfoPos     = atoi(Value);
   else if (!strcasecmp(Name, "ChannelInfoTime"))     ChannelInfoTime    = atoi(Value);
+  else if (!strcasecmp(Name, "OSDLeftP"))            OSDLeftP           = atof(Value);
+  else if (!strcasecmp(Name, "OSDTopP"))             OSDTopP            = atof(Value);
+  else if (!strcasecmp(Name, "OSDWidthP"))         { OSDWidthP          = atof(Value); ChkDoublePlausibility(OSDWidthP, 0.87); }
+  else if (!strcasecmp(Name, "OSDHeightP"))        { OSDHeightP         = atof(Value); ChkDoublePlausibility(OSDHeightP, 0.84); }
   else if (!strcasecmp(Name, "OSDLeft"))             OSDLeft            = atoi(Value);
   else if (!strcasecmp(Name, "OSDTop"))              OSDTop             = atoi(Value);
-  else if (!strcasecmp(Name, "OSDWidth"))          { OSDWidth           = atoi(Value); if (OSDWidth  < 100) OSDWidth  *= 12; OSDWidth &= ~0x07; } // OSD width must be a multiple of 8
-  else if (!strcasecmp(Name, "OSDHeight"))         { OSDHeight          = atoi(Value); if (OSDHeight < 100) OSDHeight *= 27; }
+  else if (!strcasecmp(Name, "OSDWidth"))          { OSDWidth           = atoi(Value); OSDWidth &= ~0x07; } // OSD width must be a multiple of 8
+  else if (!strcasecmp(Name, "OSDHeight"))           OSDHeight          = atoi(Value);
+  else if (!strcasecmp(Name, "OSDAspect"))           OSDAspect          = atof(Value);
   else if (!strcasecmp(Name, "OSDMessageTime"))      OSDMessageTime     = atoi(Value);
   else if (!strcasecmp(Name, "UseSmallFont"))        UseSmallFont       = atoi(Value);
   else if (!strcasecmp(Name, "AntiAlias"))           AntiAlias          = atoi(Value);
   else if (!strcasecmp(Name, "FontOsd"))             Utf8Strn0Cpy(FontOsd, Value, MAXFONTNAME);
   else if (!strcasecmp(Name, "FontSml"))             Utf8Strn0Cpy(FontSml, Value, MAXFONTNAME);
   else if (!strcasecmp(Name, "FontFix"))             Utf8Strn0Cpy(FontFix, Value, MAXFONTNAME);
+  else if (!strcasecmp(Name, "FontOsdSizeP"))      { FontOsdSizeP       = atof(Value); ChkDoublePlausibility(FontOsdSizeP, 0.038); }
+  else if (!strcasecmp(Name, "FontSmlSizeP"))      { FontSmlSizeP       = atof(Value); ChkDoublePlausibility(FontSmlSizeP, 0.035); }
+  else if (!strcasecmp(Name, "FontFixSizeP"))      { FontFixSizeP       = atof(Value); ChkDoublePlausibility(FontFixSizeP, 0.031); }
   else if (!strcasecmp(Name, "FontOsdSize"))         FontOsdSize        = atoi(Value);
   else if (!strcasecmp(Name, "FontSmlSize"))         FontSmlSize        = atoi(Value);
   else if (!strcasecmp(Name, "FontFixSize"))         FontFixSize        = atoi(Value);
   else if (!strcasecmp(Name, "MaxVideoFileSize"))    MaxVideoFileSize   = atoi(Value);
   else if (!strcasecmp(Name, "SplitEditedFiles"))    SplitEditedFiles   = atoi(Value);
+  else if (!strcasecmp(Name, "DelTimeshiftRec"))     DelTimeshiftRec    = atoi(Value);
   else if (!strcasecmp(Name, "MinEventTimeout"))     MinEventTimeout    = atoi(Value);
   else if (!strcasecmp(Name, "MinUserInactivity"))   MinUserInactivity  = atoi(Value);
   else if (!strcasecmp(Name, "NextWakeupTime"))      NextWakeupTime     = atoi(Value);
@@ -461,6 +588,7 @@ bool cSetup::Parse(const char *Name, const char *Value)
   else if (!strcasecmp(Name, "CurrentDolby"))        CurrentDolby       = atoi(Value);
   else if (!strcasecmp(Name, "InitialChannel"))      InitialChannel     = atoi(Value);
   else if (!strcasecmp(Name, "InitialVolume"))       InitialVolume      = atoi(Value);
+  else if (!strcasecmp(Name, "ChannelsWrap"))        ChannelsWrap       = atoi(Value);
   else if (!strcasecmp(Name, "EmergencyExit"))       EmergencyExit      = atoi(Value);
   else
      return false;
@@ -506,33 +634,45 @@ bool cSetup::Save(void)
   Store("PrimaryLimit",       PrimaryLimit);
   Store("DefaultPriority",    DefaultPriority);
   Store("DefaultLifetime",    DefaultLifetime);
+  Store("PauseKeyHandling",   PauseKeyHandling);
   Store("PausePriority",      PausePriority);
   Store("PauseLifetime",      PauseLifetime);
   Store("UseSubtitle",        UseSubtitle);
   Store("UseVps",             UseVps);
   Store("VpsMargin",          VpsMargin);
   Store("RecordingDirs",      RecordingDirs);
+  Store("FoldersInTimerMenu", FoldersInTimerMenu);
+  Store("NumberKeysForChars", NumberKeysForChars);
   Store("VideoDisplayFormat", VideoDisplayFormat);
   Store("VideoFormat",        VideoFormat);
   Store("UpdateChannels",     UpdateChannels);
   Store("UseDolbyDigital",    UseDolbyDigital);
   Store("ChannelInfoPos",     ChannelInfoPos);
   Store("ChannelInfoTime",    ChannelInfoTime);
+  Store("OSDLeftP",           OSDLeftP);
+  Store("OSDTopP",            OSDTopP);
+  Store("OSDWidthP",          OSDWidthP);
+  Store("OSDHeightP",         OSDHeightP);
   Store("OSDLeft",            OSDLeft);
   Store("OSDTop",             OSDTop);
   Store("OSDWidth",           OSDWidth);
   Store("OSDHeight",          OSDHeight);
+  Store("OSDAspect",          OSDAspect);
   Store("OSDMessageTime",     OSDMessageTime);
   Store("UseSmallFont",       UseSmallFont);
   Store("AntiAlias",          AntiAlias);
   Store("FontOsd",            FontOsd);
   Store("FontSml",            FontSml);
   Store("FontFix",            FontFix);
+  Store("FontOsdSizeP",       FontOsdSizeP);
+  Store("FontSmlSizeP",       FontSmlSizeP);
+  Store("FontFixSizeP",       FontFixSizeP);
   Store("FontOsdSize",        FontOsdSize);
   Store("FontSmlSize",        FontSmlSize);
   Store("FontFixSize",        FontFixSize);
   Store("MaxVideoFileSize",   MaxVideoFileSize);
   Store("SplitEditedFiles",   SplitEditedFiles);
+  Store("DelTimeshiftRec",    DelTimeshiftRec);
   Store("MinEventTimeout",    MinEventTimeout);
   Store("MinUserInactivity",  MinUserInactivity);
   Store("NextWakeupTime",     NextWakeupTime);
@@ -544,6 +684,7 @@ bool cSetup::Save(void)
   Store("CurrentDolby",       CurrentDolby);
   Store("InitialChannel",     InitialChannel);
   Store("InitialVolume",      InitialVolume);
+  Store("ChannelsWrap",       ChannelsWrap);
   Store("EmergencyExit",      EmergencyExit);
 
   Sort();

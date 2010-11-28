@@ -4,124 +4,19 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: channels.c 1.60 2008/03/05 16:42:50 kls Exp $
+ * $Id: channels.c 2.16 2010/06/05 13:33:57 kls Exp $
  */
 
 #include "channels.h"
-#include <linux/dvb/frontend.h>
 #include <ctype.h>
 #include "device.h"
 #include "epg.h"
+#include "libsi/si.h"
 #include "timers.h"
 
 // IMPORTANT NOTE: in the 'sscanf()' calls there is a blank after the '%d'
 // format characters in order to allow any number of blanks after a numeric
 // value!
-
-// --- Channel Parameter Maps ------------------------------------------------
-
-const tChannelParameterMap InversionValues[] = {
-  {   0, INVERSION_OFF },
-  {   1, INVERSION_ON },
-  { 999, INVERSION_AUTO },
-  { -1 }
-  };
-
-const tChannelParameterMap BandwidthValues[] = {
-  {   6, BANDWIDTH_6_MHZ },
-  {   7, BANDWIDTH_7_MHZ },
-  {   8, BANDWIDTH_8_MHZ },
-  { 999, BANDWIDTH_AUTO },
-  { -1 }
-  };
-
-const tChannelParameterMap CoderateValues[] = {
-  {   0, FEC_NONE },
-  {  12, FEC_1_2 },
-  {  23, FEC_2_3 },
-  {  34, FEC_3_4 },
-  {  45, FEC_4_5 },
-  {  56, FEC_5_6 },
-  {  67, FEC_6_7 },
-  {  78, FEC_7_8 },
-  {  89, FEC_8_9 },
-  { 999, FEC_AUTO },
-  { -1 }
-  };
-
-const tChannelParameterMap ModulationValues[] = {
-  {   0, QPSK },
-  {  16, QAM_16 },
-  {  32, QAM_32 },
-  {  64, QAM_64 },
-  { 128, QAM_128 },
-  { 256, QAM_256 },
-  { 999, QAM_AUTO },
-  { -1 }
-  };
-
-const tChannelParameterMap TransmissionValues[] = {
-  {   2, TRANSMISSION_MODE_2K },
-  {   8, TRANSMISSION_MODE_8K },
-  { 999, TRANSMISSION_MODE_AUTO },
-  { -1 }
-  };
-
-const tChannelParameterMap GuardValues[] = {
-  {   4, GUARD_INTERVAL_1_4 },
-  {   8, GUARD_INTERVAL_1_8 },
-  {  16, GUARD_INTERVAL_1_16 },
-  {  32, GUARD_INTERVAL_1_32 },
-  { 999, GUARD_INTERVAL_AUTO },
-  { -1 }
-  };
-
-const tChannelParameterMap HierarchyValues[] = {
-  {   0, HIERARCHY_NONE },
-  {   1, HIERARCHY_1 },
-  {   2, HIERARCHY_2 },
-  {   4, HIERARCHY_4 },
-  { 999, HIERARCHY_AUTO },
-  { -1 }
-  };
-
-int UserIndex(int Value, const tChannelParameterMap *Map)
-{
-  const tChannelParameterMap *map = Map;
-  while (map && map->userValue != -1) {
-        if (map->userValue == Value)
-           return map - Map;
-        map++;
-        }
-  return -1;
-}
-
-int DriverIndex(int Value, const tChannelParameterMap *Map)
-{
-  const tChannelParameterMap *map = Map;
-  while (map && map->userValue != -1) {
-        if (map->driverValue == Value)
-           return map - Map;
-        map++;
-        }
-  return -1;
-}
-
-int MapToUser(int Value, const tChannelParameterMap *Map)
-{
-  int n = DriverIndex(Value, Map);
-  if (n >= 0)
-     return Map[n].userValue;
-  return -1;
-}
-
-int MapToDriver(int Value, const tChannelParameterMap *Map)
-{
-  int n = UserIndex(Value, Map);
-  if (n >= 0)
-     return Map[n].driverValue;
-  return -1;
-}
 
 // --- tChannelID ------------------------------------------------------------
 
@@ -167,14 +62,7 @@ cChannel::cChannel(void)
   provider = strdup("");
   portalName = strdup("");
   memset(&__BeginData__, 0, (char *)&__EndData__ - (char *)&__BeginData__);
-  inversion    = INVERSION_AUTO;
-  bandwidth    = BANDWIDTH_AUTO;
-  coderateH    = FEC_AUTO;
-  coderateL    = FEC_AUTO;
-  modulation   = QAM_AUTO;
-  transmission = TRANSMISSION_MODE_AUTO;
-  guard        = GUARD_INTERVAL_AUTO;
-  hierarchy    = HIERARCHY_AUTO;
+  parameters = "";
   modification = CHANNELMOD_NONE;
   schedule     = NULL;
   linkChannels = NULL;
@@ -224,17 +112,19 @@ cChannel& cChannel::operator= (const cChannel &Channel)
   provider = strcpyrealloc(provider, Channel.provider);
   portalName = strcpyrealloc(portalName, Channel.portalName);
   memcpy(&__BeginData__, &Channel.__BeginData__, (char *)&Channel.__EndData__ - (char *)&Channel.__BeginData__);
+  parameters = Channel.parameters;
   return *this;
 }
 
 int cChannel::Transponder(int Frequency, char Polarization)
 {
   // some satellites have transponders at the same frequency, just with different polarization:
-  switch (tolower(Polarization)) {
-    case 'h': Frequency += 100000; break;
-    case 'v': Frequency += 200000; break;
-    case 'l': Frequency += 300000; break;
-    case 'r': Frequency += 400000; break;
+  switch (toupper(Polarization)) {
+    case 'H': Frequency += 100000; break;
+    case 'V': Frequency += 200000; break;
+    case 'L': Frequency += 300000; break;
+    case 'R': Frequency += 400000; break;
+    default: esyslog("ERROR: invalid value for Polarization '%c'", Polarization);
     }
   return Frequency;
 }
@@ -244,8 +134,11 @@ int cChannel::Transponder(void) const
   int tf = frequency;
   while (tf > 20000)
         tf /= 1000;
-  if (IsSat())
-     tf = Transponder(tf, polarization);
+  if (IsSat()) {
+     const char *p = strpbrk(parameters, "HVLRhvlr"); // lowercase for backwards compatibility
+     if (p)
+        tf = Transponder(tf, *p);
+     }
   return tf;
 }
 
@@ -271,20 +164,16 @@ void cChannel::CopyTransponderData(const cChannel *Channel)
      frequency    = Channel->frequency;
      source       = Channel->source;
      srate        = Channel->srate;
-     polarization = Channel->polarization;
-     inversion    = Channel->inversion;
-     bandwidth    = Channel->bandwidth;
-     coderateH    = Channel->coderateH;
-     coderateL    = Channel->coderateL;
-     modulation   = Channel->modulation;
-     transmission = Channel->transmission;
-     guard        = Channel->guard;
-     hierarchy    = Channel->hierarchy;
+     parameters   = Channel->parameters;
      }
 }
 
-bool cChannel::SetSatTransponderData(int Source, int Frequency, char Polarization, int Srate, int CoderateH)
+bool cChannel::SetTransponderData(int Source, int Frequency, int Srate, const char *Parameters, bool Quiet)
 {
+  if (strchr(Parameters, ':')) {
+     esyslog("ERROR: parameter string '%s' contains ':'", Parameters);
+     return false;
+     }
   // Workarounds for broadcaster stupidity:
   // Some providers broadcast the transponder frequency of their channels with two different
   // values (like 12551 and 12552), so we need to allow for a little tolerance here
@@ -297,59 +186,18 @@ bool cChannel::SetSatTransponderData(int Source, int Frequency, char Polarizatio
   if (abs(srate - Srate) <= 1)
      Srate = srate;
 
-  if (source != Source || frequency != Frequency || polarization != Polarization || srate != Srate || coderateH != CoderateH) {
-     if (Number()) {
-        dsyslog("changing transponder data of channel %d from %s:%d:%c:%d:%d to %s:%d:%c:%d:%d", Number(), *cSource::ToString(source), frequency, polarization, srate, coderateH, *cSource::ToString(Source), Frequency, Polarization, Srate, CoderateH);
-        modification |= CHANNELMOD_TRANSP;
-        Channels.SetModified();
-        }
+  if (source != Source || frequency != Frequency || srate != Srate || strcmp(parameters, Parameters)) {
+     cString OldTransponderData = TransponderDataToString();
      source = Source;
      frequency = Frequency;
-     polarization = Polarization;
      srate = Srate;
-     coderateH = CoderateH;
-     modulation = QPSK;
+     parameters = Parameters;
      schedule = NULL;
-     }
-  return true;
-}
-
-bool cChannel::SetCableTransponderData(int Source, int Frequency, int Modulation, int Srate, int CoderateH)
-{
-  if (source != Source || frequency != Frequency || modulation != Modulation || srate != Srate || coderateH != CoderateH) {
-     if (Number()) {
-        dsyslog("changing transponder data of channel %d from %s:%d:%d:%d:%d to %s:%d:%d:%d:%d", Number(), *cSource::ToString(source), frequency, modulation, srate, coderateH, *cSource::ToString(Source), Frequency, Modulation, Srate, CoderateH);
+     if (Number() && !Quiet) {
+        dsyslog("changing transponder data of channel %d from %s to %s", Number(), *OldTransponderData, *TransponderDataToString());
         modification |= CHANNELMOD_TRANSP;
         Channels.SetModified();
         }
-     source = Source;
-     frequency = Frequency;
-     modulation = Modulation;
-     srate = Srate;
-     coderateH = CoderateH;
-     schedule = NULL;
-     }
-  return true;
-}
-
-bool cChannel::SetTerrTransponderData(int Source, int Frequency, int Bandwidth, int Modulation, int Hierarchy, int CoderateH, int CoderateL, int Guard, int Transmission)
-{
-  if (source != Source || frequency != Frequency || bandwidth != Bandwidth || modulation != Modulation || hierarchy != Hierarchy || coderateH != CoderateH || coderateL != CoderateL || guard != Guard || transmission != Transmission) {
-     if (Number()) {
-        dsyslog("changing transponder data of channel %d from %s:%d:%d:%d:%d:%d:%d:%d:%d to %s:%d:%d:%d:%d:%d:%d:%d:%d", Number(), *cSource::ToString(source), frequency, bandwidth, modulation, hierarchy, coderateH, coderateL, guard, transmission, *cSource::ToString(Source), Frequency, Bandwidth, Modulation, Hierarchy, CoderateH, CoderateL, Guard, Transmission);
-        modification |= CHANNELMOD_TRANSP;
-        Channels.SetModified();
-        }
-     source = Source;
-     frequency = Frequency;
-     bandwidth = Bandwidth;
-     modulation = Modulation;
-     hierarchy = Hierarchy;
-     coderateH = CoderateH;
-     coderateL = CoderateL;
-     guard = Guard;
-     transmission = Transmission;
-     schedule = NULL;
      }
   return true;
 }
@@ -424,14 +272,21 @@ static int IntArraysDiffer(const int *a, const int *b, const char na[][MAXLANGCO
   return result;
 }
 
-static int IntArrayToString(char *s, const int *a, int Base = 10, const char n[][MAXLANGCODE2] = NULL)
+static int IntArrayToString(char *s, const int *a, int Base = 10, const char n[][MAXLANGCODE2] = NULL, const int *t = NULL)
 {
   char *q = s;
   int i = 0;
   while (a[i] || i == 0) {
         q += sprintf(q, Base == 16 ? "%s%X" : "%s%d", i ? "," : "", a[i]);
-        if (a[i] && n && *n[i])
-           q += sprintf(q, "=%s", n[i]);
+        const char *Delim = "=";
+        if (a[i]) {
+           if (n && *n[i]) {
+              q += sprintf(q, "%s%s", Delim, n[i]);
+              Delim = "";
+              }
+           if (t && t[i])
+              q += sprintf(q, "%s@%d", Delim, t[i]);
+           }
         if (!a[i])
            break;
         i++;
@@ -440,32 +295,32 @@ static int IntArrayToString(char *s, const int *a, int Base = 10, const char n[]
   return q - s;
 }
 
-void cChannel::SetPids(int Vpid, int Ppid, int *Apids, char ALangs[][MAXLANGCODE2], int *Dpids, char DLangs[][MAXLANGCODE2], int *Spids, char SLangs[][MAXLANGCODE2], int Tpid)
+void cChannel::SetPids(int Vpid, int Ppid, int Vtype, int *Apids, int *Atypes, char ALangs[][MAXLANGCODE2], int *Dpids, int *Dtypes, char DLangs[][MAXLANGCODE2], int *Spids, char SLangs[][MAXLANGCODE2], int Tpid)
 {
   int mod = CHANNELMOD_NONE;
-  if (vpid != Vpid || ppid != Ppid || tpid != Tpid)
+  if (vpid != Vpid || ppid != Ppid || vtype != Vtype || tpid != Tpid)
      mod |= CHANNELMOD_PIDS;
-  int m = IntArraysDiffer(apids, Apids, alangs, ALangs) | IntArraysDiffer(dpids, Dpids, dlangs, DLangs) | IntArraysDiffer(spids, Spids, slangs, SLangs);
+  int m = IntArraysDiffer(apids, Apids, alangs, ALangs) | IntArraysDiffer(atypes, Atypes) | IntArraysDiffer(dpids, Dpids, dlangs, DLangs) | IntArraysDiffer(dtypes, Dtypes) | IntArraysDiffer(spids, Spids, slangs, SLangs);
   if (m & STRDIFF)
      mod |= CHANNELMOD_LANGS;
   if (m & VALDIFF)
      mod |= CHANNELMOD_PIDS;
   if (mod) {
-     const int BufferSize = (MAXAPIDS + MAXDPIDS) * (5 + 1 + MAXLANGCODE2) + 10; // 5 digits plus delimiting ',' or ';' plus optional '=cod+cod', +10: paranoia
+     const int BufferSize = (MAXAPIDS + MAXDPIDS) * (5 + 1 + MAXLANGCODE2 + 5) + 10; // 5 digits plus delimiting ',' or ';' plus optional '=cod+cod@type', +10: paranoia
      char OldApidsBuf[BufferSize];
      char NewApidsBuf[BufferSize];
      char *q = OldApidsBuf;
-     q += IntArrayToString(q, apids, 10, alangs);
+     q += IntArrayToString(q, apids, 10, alangs, atypes);
      if (dpids[0]) {
         *q++ = ';';
-        q += IntArrayToString(q, dpids, 10, dlangs);
+        q += IntArrayToString(q, dpids, 10, dlangs, dtypes);
         }
      *q = 0;
      q = NewApidsBuf;
-     q += IntArrayToString(q, Apids, 10, ALangs);
+     q += IntArrayToString(q, Apids, 10, ALangs, Atypes);
      if (Dpids[0]) {
         *q++ = ';';
-        q += IntArrayToString(q, Dpids, 10, DLangs);
+        q += IntArrayToString(q, Dpids, 10, DLangs, Dtypes);
         }
      *q = 0;
      const int SBufferSize = MAXSPIDS * (5 + 1 + MAXLANGCODE2) + 10; // 5 digits plus delimiting ',' or ';' plus optional '=cod', +10: paranoia
@@ -477,16 +332,20 @@ void cChannel::SetPids(int Vpid, int Ppid, int *Apids, char ALangs[][MAXLANGCODE
      q = NewSpidsBuf;
      q += IntArrayToString(q, Spids, 10, SLangs);
      *q = 0;
-     dsyslog("changing pids of channel %d from %d+%d:%s:%s:%d to %d+%d:%s:%s:%d", Number(), vpid, ppid, OldApidsBuf, OldSpidsBuf, tpid, Vpid, Ppid, NewApidsBuf, NewSpidsBuf, Tpid);
+     if (Number())
+        dsyslog("changing pids of channel %d from %d+%d=%d:%s:%s:%d to %d+%d=%d:%s:%s:%d", Number(), vpid, ppid, vtype, OldApidsBuf, OldSpidsBuf, tpid, Vpid, Ppid, Vtype, NewApidsBuf, NewSpidsBuf, Tpid);
      vpid = Vpid;
      ppid = Ppid;
+     vtype = Vtype;
      for (int i = 0; i < MAXAPIDS; i++) {
          apids[i] = Apids[i];
+         atypes[i] = Atypes[i];
          strn0cpy(alangs[i], ALangs[i], MAXLANGCODE2);
          }
      apids[MAXAPIDS] = 0;
      for (int i = 0; i < MAXDPIDS; i++) {
          dpids[i] = Dpids[i];
+         dtypes[i] = Dtypes[i];
          strn0cpy(dlangs[i], DLangs[i], MAXLANGCODE2);
          }
      dpids[MAXDPIDS] = 0;
@@ -501,16 +360,33 @@ void cChannel::SetPids(int Vpid, int Ppid, int *Apids, char ALangs[][MAXLANGCODE
      }
 }
 
+void cChannel::SetSubtitlingDescriptors(uchar *SubtitlingTypes, uint16_t *CompositionPageIds, uint16_t *AncillaryPageIds)
+{
+  if (SubtitlingTypes) {
+     for (int i = 0; i < MAXSPIDS; i++)
+         subtitlingTypes[i] = SubtitlingTypes[i];
+     }
+  if (CompositionPageIds) {
+     for (int i = 0; i < MAXSPIDS; i++)
+         compositionPageIds[i] = CompositionPageIds[i];
+     }
+  if (AncillaryPageIds) {
+     for (int i = 0; i < MAXSPIDS; i++)
+         ancillaryPageIds[i] = AncillaryPageIds[i];
+     }
+}
+
 void cChannel::SetCaIds(const int *CaIds)
 {
-  if (caids[0] && caids[0] <= 0x00FF)
+  if (caids[0] && caids[0] <= CA_USER_MAX)
      return; // special values will not be overwritten
   if (IntArraysDiffer(caids, CaIds)) {
      char OldCaIdsBuf[MAXCAIDS * 5 + 10]; // 5: 4 digits plus delimiting ',', 10: paranoia
      char NewCaIdsBuf[MAXCAIDS * 5 + 10];
      IntArrayToString(OldCaIdsBuf, caids, 16);
      IntArrayToString(NewCaIdsBuf, CaIds, 16);
-     dsyslog("changing caids of channel %d from %s to %s", Number(), OldCaIdsBuf, NewCaIdsBuf);
+     if (Number())
+        dsyslog("changing caids of channel %d from %s to %s", Number(), OldCaIdsBuf, NewCaIdsBuf);
      for (int i = 0; i <= MAXCAIDS; i++) { // <= to copy the terminating 0
          caids[i] = CaIds[i];
          if (!CaIds[i])
@@ -526,7 +402,7 @@ void cChannel::SetCaDescriptors(int Level)
   if (Level > 0) {
      modification |= CHANNELMOD_CA;
      Channels.SetModified();
-     if (Level > 1)
+     if (Number() && Level > 1)
         dsyslog("changing ca descriptors of channel %d", Number());
      }
 }
@@ -574,7 +450,8 @@ void cChannel::SetLinkChannels(cLinkChannels *LinkChannels)
      }
   else
      q += sprintf(q, " none");
-  dsyslog(buffer);
+  if (Number())
+     dsyslog("%s", buffer);
 }
 
 void cChannel::SetRefChannel(cChannel *RefChannel)
@@ -582,69 +459,11 @@ void cChannel::SetRefChannel(cChannel *RefChannel)
   refChannel = RefChannel;
 }
 
-static int PrintParameter(char *p, char Name, int Value)
+cString cChannel::TransponderDataToString(void) const
 {
-  return Value >= 0 && Value != 999 ? sprintf(p, "%c%d", Name, Value) : 0;
-}
-
-cString cChannel::ParametersToString(void) const
-{
-  char type = **cSource::ToString(source);
-  if (isdigit(type))
-     type = 'S';
-#define ST(s) if (strchr(s, type))
-  char buffer[64];
-  char *q = buffer;
-  *q = 0;
-  ST(" S ")  q += sprintf(q, "%c", polarization);
-  ST("CST")  q += PrintParameter(q, 'I', MapToUser(inversion, InversionValues));
-  ST("CST")  q += PrintParameter(q, 'C', MapToUser(coderateH, CoderateValues));
-  ST("  T")  q += PrintParameter(q, 'D', MapToUser(coderateL, CoderateValues));
-  ST("C T")  q += PrintParameter(q, 'M', MapToUser(modulation, ModulationValues));
-  ST("  T")  q += PrintParameter(q, 'B', MapToUser(bandwidth, BandwidthValues));
-  ST("  T")  q += PrintParameter(q, 'T', MapToUser(transmission, TransmissionValues));
-  ST("  T")  q += PrintParameter(q, 'G', MapToUser(guard, GuardValues));
-  ST("  T")  q += PrintParameter(q, 'Y', MapToUser(hierarchy, HierarchyValues));
-  return buffer;
-}
-
-static const char *ParseParameter(const char *s, int &Value, const tChannelParameterMap *Map)
-{
-  if (*++s) {
-     char *p = NULL;
-     errno = 0;
-     int n = strtol(s, &p, 10);
-     if (!errno && p != s) {
-        Value = MapToDriver(n, Map);
-        if (Value >= 0)
-           return p;
-        }
-     }
-  esyslog("ERROR: invalid value for parameter '%c'", *(s - 1));
-  return NULL;
-}
-
-bool cChannel::StringToParameters(const char *s)
-{
-  while (s && *s) {
-        switch (toupper(*s)) {
-          case 'B': s = ParseParameter(s, bandwidth, BandwidthValues); break;
-          case 'C': s = ParseParameter(s, coderateH, CoderateValues); break;
-          case 'D': s = ParseParameter(s, coderateL, CoderateValues); break;
-          case 'G': s = ParseParameter(s, guard, GuardValues); break;
-          case 'H': polarization = *s++; break;
-          case 'I': s = ParseParameter(s, inversion, InversionValues); break;
-          case 'L': polarization = *s++; break;
-          case 'M': s = ParseParameter(s, modulation, ModulationValues); break;
-          case 'R': polarization = *s++; break;
-          case 'T': s = ParseParameter(s, transmission, TransmissionValues); break;
-          case 'V': polarization = *s++; break;
-          case 'Y': s = ParseParameter(s, hierarchy, HierarchyValues); break;
-          default: esyslog("ERROR: unknown parameter key '%c'", *s);
-                   return false;
-          }
-        }
-  return true;
+  if (cSource::IsTerr(source))
+     return cString::sprintf("%d:%s:%s", frequency, *parameters, *cSource::ToString(source));
+  return cString::sprintf("%d:%s:%s:%d", frequency, *parameters, *cSource::ToString(source), srate);
 }
 
 cString cChannel::ToText(const cChannel *Channel)
@@ -654,6 +473,8 @@ cString cChannel::ToText(const cChannel *Channel)
   q += sprintf(q, "%s", Channel->name);
   if (!isempty(Channel->shortName))
      q += sprintf(q, ",%s", Channel->shortName);
+  else if (strchr(Channel->name, ','))
+     q += sprintf(q, ",");
   if (!isempty(Channel->provider))
      q += sprintf(q, ";%s", Channel->provider);
   *q = 0;
@@ -671,21 +492,23 @@ cString cChannel::ToText(const cChannel *Channel)
      q += snprintf(q, sizeof(vpidbuf), "%d", Channel->vpid);
      if (Channel->ppid && Channel->ppid != Channel->vpid)
         q += snprintf(q, sizeof(vpidbuf) - (q - vpidbuf), "+%d", Channel->ppid);
+     if (Channel->vpid && Channel->vtype)
+        q += snprintf(q, sizeof(vpidbuf) - (q - vpidbuf), "=%d", Channel->vtype);
      *q = 0;
-     const int BufferSize = (MAXAPIDS + MAXDPIDS) * (5 + 1 + MAXLANGCODE2) + 10; // 5 digits plus delimiting ',' or ';' plus optional '=cod+cod', +10: paranoia
+     const int BufferSize = (MAXAPIDS + MAXDPIDS) * (5 + 1 + MAXLANGCODE2 + 5) + 10; // 5 digits plus delimiting ',' or ';' plus optional '=cod+cod@type', +10: paranoia
      char apidbuf[BufferSize];
      q = apidbuf;
-     q += IntArrayToString(q, Channel->apids, 10, Channel->alangs);
+     q += IntArrayToString(q, Channel->apids, 10, Channel->alangs, Channel->atypes);
      if (Channel->dpids[0]) {
         *q++ = ';';
-        q += IntArrayToString(q, Channel->dpids, 10, Channel->dlangs);
+        q += IntArrayToString(q, Channel->dpids, 10, Channel->dlangs, Channel->dtypes);
         }
      *q = 0;
      char caidbuf[MAXCAIDS * 5 + 10]; // 5: 4 digits plus delimiting ',', 10: paranoia
      q = caidbuf;
      q += IntArrayToString(q, Channel->caids, 16);
      *q = 0;
-     buffer = cString::sprintf("%s:%d:%s:%s:%d:%s:%s:%d:%s:%d:%d:%d:%d\n", FullName, Channel->frequency, *Channel->ParametersToString(), *cSource::ToString(Channel->source), Channel->srate, vpidbuf, apidbuf, Channel->tpid, caidbuf, Channel->sid, Channel->nid, Channel->tid, Channel->rid);
+     buffer = cString::sprintf("%s:%d:%s:%s:%d:%s:%s:%d:%s:%d:%d:%d:%d\n", FullName, Channel->frequency, *Channel->parameters, *cSource::ToString(Channel->source), Channel->srate, vpidbuf, apidbuf, Channel->tpid, caidbuf, Channel->sid, Channel->nid, Channel->tid, Channel->rid);
      }
   return buffer;
 }
@@ -732,23 +555,33 @@ bool cChannel::Parse(const char *s)
            tpid = 0;
            }
         vpid = ppid = 0;
+        vtype = 0;
         apids[0] = 0;
+        atypes[0] = 0;
         dpids[0] = 0;
+        dtypes[0] = 0;
         ok = false;
         if (parambuf && sourcebuf && vpidbuf && apidbuf) {
-           ok = StringToParameters(parambuf) && (source = cSource::FromString(sourcebuf)) >= 0;
+           parameters = parambuf;
+           ok = (source = cSource::FromString(sourcebuf)) >= 0;
 
-           char *p = strchr(vpidbuf, '+');
-           if (p)
+           char *p;
+           if ((p = strchr(vpidbuf, '=')) != NULL) {
               *p++ = 0;
-           if (sscanf(vpidbuf, "%d", &vpid) != 1)
-              return false;
-           if (p) {
+              if (sscanf(p, "%d", &vtype) != 1)
+                 return false;
+              }
+           if ((p = strchr(vpidbuf, '+')) != NULL) {
+              *p++ = 0;
               if (sscanf(p, "%d", &ppid) != 1)
                  return false;
               }
-           else
+           if (sscanf(vpidbuf, "%d", &vpid) != 1)
+              return false;
+           if (!ppid)
               ppid = vpid;
+           if (vpid && !vtype)
+              vtype = 2; // default is MPEG-2
 
            char *dpidbuf = strchr(apidbuf, ';');
            if (dpidbuf)
@@ -759,9 +592,15 @@ bool cChannel::Parse(const char *s)
            char *strtok_next;
            while ((q = strtok_r(p, ",", &strtok_next)) != NULL) {
                  if (NumApids < MAXAPIDS) {
+                    atypes[NumApids] = 4; // backwards compatibility
                     char *l = strchr(q, '=');
                     if (l) {
                        *l++ = 0;
+                       char *t = strchr(l, '@');
+                       if (t) {
+                          *t++ = 0;
+                          atypes[NumApids] = strtol(t, NULL, 10);
+                          }
                        strn0cpy(alangs[NumApids], l, MAXLANGCODE2);
                        }
                     else
@@ -773,6 +612,7 @@ bool cChannel::Parse(const char *s)
                  p = NULL;
                  }
            apids[NumApids] = 0;
+           atypes[NumApids] = 0;
            if (dpidbuf) {
               char *p = dpidbuf;
               char *q;
@@ -780,9 +620,15 @@ bool cChannel::Parse(const char *s)
               char *strtok_next;
               while ((q = strtok_r(p, ",", &strtok_next)) != NULL) {
                     if (NumDpids < MAXDPIDS) {
+                       dtypes[NumDpids] = SI::AC3DescriptorTag; // backwards compatibility
                        char *l = strchr(q, '=');
                        if (l) {
                           *l++ = 0;
+                          char *t = strchr(l, '@');
+                          if (t) {
+                             *t++ = 0;
+                             dtypes[NumDpids] = strtol(t, NULL, 10);
+                             }
                           strn0cpy(dlangs[NumDpids], l, MAXLANGCODE2);
                           }
                        else
@@ -794,6 +640,7 @@ bool cChannel::Parse(const char *s)
                     p = NULL;
                     }
               dpids[NumDpids] = 0;
+              dtypes[NumDpids] = 0;
               }
 
            if (caidbuf) {
@@ -804,7 +651,7 @@ bool cChannel::Parse(const char *s)
               while ((q = strtok_r(p, ",", &strtok_next)) != NULL) {
                     if (NumCaIds < MAXCAIDS) {
                        caids[NumCaIds++] = strtol(q, NULL, 16) & 0xFFFF;
-                       if (NumCaIds == 1 && caids[0] <= 0x00FF)
+                       if (NumCaIds == 1 && caids[0] <= CA_USER_MAX)
                           break;
                        }
                     else
@@ -821,7 +668,7 @@ bool cChannel::Parse(const char *s)
            *p++ = 0;
            provider = strcpyrealloc(provider, p);
            }
-        p = strchr(namebuf, ',');
+        p = strrchr(namebuf, ','); // long name might contain a ',', so search for the rightmost one
         if (p) {
            *p++ = 0;
            shortName = strcpyrealloc(shortName, p);
