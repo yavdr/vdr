@@ -5,17 +5,23 @@
 ##   - adapted to VDR-1.5.8 with liemikuutio, menuorg and MainMenuHooks patches
 ##   - adapted to VDR-1.5.10 with liemikuutio, menuorg and MainMenuHooks patches
 ##   - adapted to vdr-1.5.13-liemikuutio-1.17.diff.gz
-## Tobias Grimm <tg@e-tobi.net>##
+##   - adapted to vdr-1.7.0-liemikuutio-1.20.diff.gz
+##   - adapted to VDR-1.7.9 with liemikuutio, ttxtsubs, menuorg and MainMenuHooks patches
+##   - adapted to vdr-workaround-broken-sys-capability patch
+##   - adapted to VDR-1.7.12 with liemikuutio, ttxtsubs, menuorg and MainMenuHooks patches
+## Tobias Grimm <tg@e-tobi.net>:
 ##   - adapted to VDR 1.5.15
+##   - adapted to new ttxtsubs patch
+##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Patch for the PIN plugin from version 0.1.7 of the Plugin
-## (vdr-1.4.5.diff)
+## DP: (vdr-1.4.5.diff)
 
 @DPATCH@
-diff -urNad vdr-1.6.0~/Makefile vdr-1.6.0/Makefile
---- vdr-1.6.0~/Makefile	2010-01-14 01:40:15.000000000 +0100
-+++ vdr-1.6.0/Makefile	2010-01-14 01:40:15.000000000 +0100
-@@ -45,6 +45,8 @@
+diff -Naurp vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/Makefile vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/Makefile
+--- vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/Makefile	2010-02-01 14:54:18.000000000 +0000
++++ vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/Makefile	2010-02-01 14:56:26.000000000 +0000
+@@ -45,6 +45,8 @@ OBJS = audio.o channels.o ci.o config.o 
  
  OBJS += vdrttxtsubshooks.o
  
@@ -24,9 +30,9 @@ diff -urNad vdr-1.6.0~/Makefile vdr-1.6.0/Makefile
  ifndef NO_KBD
  DEFINES += -DREMOTE_KBD
  endif
-diff -urNad vdr-1.6.0~/childlock.c vdr-1.6.0/childlock.c
---- vdr-1.6.0~/childlock.c	1970-01-01 01:00:00.000000000 +0100
-+++ vdr-1.6.0/childlock.c	2010-01-14 01:40:15.000000000 +0100
+diff -Naurp vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/childlock.c vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/childlock.c
+--- vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/childlock.c	1970-01-01 00:00:00.000000000 +0000
++++ vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/childlock.c	2010-02-01 14:56:26.000000000 +0000
 @@ -0,0 +1,166 @@
 +#include "childlock.h"
 +#include "childlockservice.h"
@@ -194,9 +200,9 @@ diff -urNad vdr-1.6.0~/childlock.c vdr-1.6.0/childlock.c
 +        notificationService->NotifyUserAction(key, Interact);
 +    }
 +}
-diff -urNad vdr-1.6.0~/childlock.h vdr-1.6.0/childlock.h
---- vdr-1.6.0~/childlock.h	1970-01-01 01:00:00.000000000 +0100
-+++ vdr-1.6.0/childlock.h	2010-01-14 01:40:15.000000000 +0100
+diff -Naurp vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/childlock.h vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/childlock.h
+--- vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/childlock.h	1970-01-01 00:00:00.000000000 +0000
++++ vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/childlock.h	2010-02-01 14:56:26.000000000 +0000
 @@ -0,0 +1,47 @@
 +#ifndef __CHILDLOCK_H
 +#define __CHILDLOCK_H
@@ -245,9 +251,9 @@ diff -urNad vdr-1.6.0~/childlock.h vdr-1.6.0/childlock.h
 +
 +};
 +#endif
-diff -urNad vdr-1.6.0~/childlockservice.h vdr-1.6.0/childlockservice.h
---- vdr-1.6.0~/childlockservice.h	1970-01-01 01:00:00.000000000 +0100
-+++ vdr-1.6.0/childlockservice.h	2010-01-14 01:40:15.000000000 +0100
+diff -Naurp vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/childlockservice.h vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/childlockservice.h
+--- vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/childlockservice.h	1970-01-01 00:00:00.000000000 +0000
++++ vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/childlockservice.h	2010-02-01 14:56:26.000000000 +0000
 @@ -0,0 +1,46 @@
 +#ifndef __CHILDLOCKSERVICE_H
 +#define __CHILDLOCKSERVICE_H
@@ -295,59 +301,60 @@ diff -urNad vdr-1.6.0~/childlockservice.h vdr-1.6.0/childlockservice.h
 +
 +};
 +#endif
-diff -urNad vdr-1.6.0~/device.c vdr-1.6.0/device.c
---- vdr-1.6.0~/device.c	2010-01-14 01:40:15.000000000 +0100
-+++ vdr-1.6.0/device.c	2010-01-14 01:40:15.000000000 +0100
-@@ -18,6 +18,7 @@
- #include "receiver.h"
+diff -Naurp vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/device.c vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/device.c
+--- vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/device.c	2010-02-01 14:54:18.000000000 +0000
++++ vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/device.c	2010-02-01 14:56:26.000000000 +0000
+@@ -19,6 +19,7 @@
  #include "status.h"
  #include "transfer.h"
+ #include "vdrttxtsubshooks.h"
 +#include "childlock.h"
  
  // --- cLiveSubtitle ---------------------------------------------------------
  
-@@ -769,6 +770,7 @@
+@@ -637,6 +638,7 @@ bool cDevice::SwitchChannel(int Directio
       cChannel *channel;
       while ((channel = Channels.GetByNumber(n, Direction)) != NULL) {
             // try only channels which are currently available
-+        if (PinPatch::ChildLock::IsChannelProtected(channel) == false)
++           if (!PinPatch::ChildLock::IsChannelProtected(channel))
             if (GetDevice(channel, 0, true))
                break;
             n = channel->Number() + Direction;
-@@ -790,6 +792,9 @@
+@@ -658,6 +660,9 @@ bool cDevice::SwitchChannel(int Directio
  
  eSetChannelResult cDevice::SetChannel(const cChannel *Channel, bool LiveView)
  {
-+  if (LiveView && PinPatch::ChildLock::IsChannelProtected(Channel) == true)
++  if (LiveView && PinPatch::ChildLock::IsChannelProtected(Channel))
 +     return scrNotAvailable;
 +
    if (LiveView) {
       StopReplay();
       DELETENULL(liveSubtitle);
-diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
---- vdr-1.6.0~/menu.c	2010-01-14 01:40:15.000000000 +0100
-+++ vdr-1.6.0/menu.c	2010-01-14 01:40:15.000000000 +0100
+diff -Naurp vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/menu.c vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/menu.c
+--- vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/menu.c	2010-02-01 14:54:39.000000000 +0000
++++ vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/menu.c	2010-02-01 15:00:48.000000000 +0000
 @@ -32,6 +32,7 @@
- #include "vdrttxtsubshooks.h"
+ #include "transfer.h"
  #include "videodir.h"
  #include "menuorgpatch.h"
 +#include "childlock.h"
  
  #define MAXWAIT4EPGINFO   3 // seconds
  #define MODETIMEOUT       3 // seconds
-@@ -757,6 +758,9 @@
+@@ -911,6 +912,10 @@ cMenuEditTimer::cMenuEditTimer(cTimer *T
+      Add(new cMenuEditBitItem( tr("VPS"),          &data.flags, tfVps));
       Add(new cMenuEditIntItem( tr("Priority"),     &data.priority, 0, MAXPRIORITY));
       Add(new cMenuEditIntItem( tr("Lifetime"),     &data.lifetime, 0, MAXLIFETIME));
- 
-+     if (PinPatch::ChildLock::IsUnlocked())
-+       Add(new cMenuEditBitItem(tr("Timer$Childlock"), &data.flags, tfProtected));
 +
-      char* p = strrchr(data.file, '~');
-      if (p) {
-         p++;
-@@ -2342,7 +2346,8 @@
++     if (PinPatch::ChildLock::IsUnlocked())
++        Add(new cMenuEditBitItem(tr("Timer$Childlock"), &data.flags, tfProtected));
++
+      Add(file = new cMenuEditStrItem( tr("File"),   data.file, sizeof(data.file)));
+      SetFirstDayItem();
+      }
+@@ -2429,7 +2434,8 @@ void cMenuRecordings::Set(bool Refresh)
    for (cRecording *recording = Recordings.First(); recording; recording = Recordings.Next(recording)) {
-       if (!base || (strstr(recording->Name(), base) == recording->Name() && recording->Name()[strlen(base)] == '~')) {
+       if (!base || (strstr(recording->Name(), base) == recording->Name() && recording->Name()[strlen(base)] == FOLDERDELIMCHAR)) {
           cMenuRecordingItem *Item = new cMenuRecordingItem(recording, level);
 -         if (*Item->Text() && (!LastItem || strcmp(Item->Text(), LastItemText) != 0)) {
 +         if ((*Item->Text() && (!LastItem || strcmp(Item->Text(), LastItemText) != 0))
@@ -355,17 +362,17 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
              Add(Item);
              LastItem = Item;
              free(LastItemText);
-@@ -2405,6 +2410,9 @@
+@@ -2479,6 +2485,9 @@ eOSState cMenuRecordings::Play(void)
  {
    cMenuRecordingItem *ri = (cMenuRecordingItem *)Get(Current());
    if (ri) {
-+     if (PinPatch::ChildLock::IsRecordingProtected(GetRecording(ri), ri->Name(), base, ri->IsDirectory()) == true)
++     if (PinPatch::ChildLock::IsRecordingProtected(GetRecording(ri), ri->Name(), base, ri->IsDirectory()))
 +        return osContinue;
 +
       if (ri->IsDirectory())
          Open();
       else {
-@@ -3437,6 +3445,8 @@
+@@ -3501,6 +3510,8 @@ void cMenuMain::Set(void)
              }
           else if ((*i)->IsPluginItem()) {
              const char *item = (*i)->PluginMenuEntry();
@@ -374,7 +381,7 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
              if (item)
                osdItem = new cMenuPluginItem(hk(item), (*i)->PluginIndex());
              }
-@@ -3451,9 +3461,13 @@
+@@ -3515,9 +3526,13 @@ void cMenuMain::Set(void)
  
    // Basic menu items:
  
@@ -388,7 +395,7 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
    Add(new cOsdItem(hk(tr("Recordings")), osRecordings));
  
    // Plugins:
-@@ -3461,18 +3475,22 @@
+@@ -3525,18 +3540,22 @@ void cMenuMain::Set(void)
    for (int i = 0; ; i++) {
        cPlugin *p = cPluginManager::GetPlugin(i);
        if (p) {
@@ -411,7 +418,7 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
       Add(new cOsdItem(hk(tr("Commands")),  osCommands));
  
    }
-@@ -3553,6 +3571,11 @@
+@@ -3617,6 +3636,11 @@ eOSState cMenuMain::ProcessKey(eKeys Key
    eOSState state = cOsdMenu::ProcessKey(Key);
    HadSubMenu |= HasSubMenu();
  
@@ -423,7 +430,7 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
    cOsdMenu *menu = NULL;
    switch (state) {
      case osSchedule:
-@@ -3599,6 +3622,7 @@
+@@ -3663,6 +3687,7 @@ eOSState cMenuMain::ProcessKey(eKeys Key
                           if (item) {
                              cPlugin *p = cPluginManager::GetPlugin(item->PluginIndex());
                              if (p) {
@@ -431,23 +438,23 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
                                 cOsdObject *menu = p->MainMenuAction();
                                 if (menu) {
                                    if (menu->IsMenu())
-@@ -3610,6 +3634,7 @@
+@@ -3673,6 +3698,7 @@ eOSState cMenuMain::ProcessKey(eKeys Key
+                                      }
                                    }
                                 }
++                               }
                              }
-+                         }
                           state = osEnd;
                         }
-                        break;
-@@ -3812,6 +3837,7 @@
-   if (Direction) {
-      while (Channel) {
+@@ -3881,6 +3907,7 @@ cChannel *cDisplayChannel::NextAvailable
             Channel = Direction > 0 ? Channels.Next(Channel) : Channels.Prev(Channel);
-+        if (PinPatch::ChildLock::IsChannelProtected(Channel) == false)                                                       
+            if (!Channel && Setup.ChannelsWrap)
+               Channel = Direction > 0 ? Channels.First() : Channels.Last();
++           if (!PinPatch::ChildLock::IsChannelProtected(Channel))
             if (Channel && !Channel->GroupSep() && cDevice::GetDevice(Channel, 0, true))
                return Channel;
             }
-@@ -4446,6 +4472,7 @@
+@@ -4513,6 +4540,7 @@ bool cRecordControls::Start(cTimer *Time
             for (int i = 0; i < MAXRECORDCONTROLS; i++) {
                 if (!RecordControls[i]) {
                    RecordControls[i] = new cRecordControl(device, Timer, Pause);
@@ -455,10 +462,10 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
                    return RecordControls[i]->Process(time(NULL));
                    }
                 }
-diff -urNad vdr-1.6.0~/po/de_DE.po vdr-1.6.0/po/de_DE.po
---- vdr-1.6.0~/po/de_DE.po	2010-01-14 01:40:15.000000000 +0100
-+++ vdr-1.6.0/po/de_DE.po	2010-01-14 01:40:15.000000000 +0100
-@@ -360,6 +360,9 @@
+diff -Naurp vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/po/de_DE.po vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/po/de_DE.po
+--- vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/po/de_DE.po	2010-02-01 13:57:45.000000000 +0000
++++ vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/po/de_DE.po	2010-02-01 14:56:26.000000000 +0000
+@@ -635,6 +635,9 @@ msgstr "Priorität"
  msgid "Lifetime"
  msgstr "Lebensdauer"
  
@@ -468,10 +475,10 @@ diff -urNad vdr-1.6.0~/po/de_DE.po vdr-1.6.0/po/de_DE.po
  msgid "File"
  msgstr "Datei"
  
-diff -urNad vdr-1.6.0~/po/fr_FR.po vdr-1.6.0/po/fr_FR.po
---- vdr-1.6.0~/po/fr_FR.po	2010-01-14 01:40:15.000000000 +0100
-+++ vdr-1.6.0/po/fr_FR.po	2010-01-14 01:40:15.000000000 +0100
-@@ -366,6 +366,9 @@
+diff -Naurp vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/po/fr_FR.po vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/po/fr_FR.po
+--- vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/po/fr_FR.po	2010-02-01 13:57:45.000000000 +0000
++++ vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/po/fr_FR.po	2010-02-01 14:56:26.000000000 +0000
+@@ -641,6 +641,9 @@ msgstr "Priorité"
  msgid "Lifetime"
  msgstr "Durée de vie"
  
@@ -481,9 +488,9 @@ diff -urNad vdr-1.6.0~/po/fr_FR.po vdr-1.6.0/po/fr_FR.po
  msgid "File"
  msgstr "Fichier"
  
-diff -urNad vdr-1.6.0~/timers.c vdr-1.6.0/timers.c
---- vdr-1.6.0~/timers.c	2010-01-14 01:40:15.000000000 +0100
-+++ vdr-1.6.0/timers.c	2010-01-14 01:40:15.000000000 +0100
+diff -Naurp vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/timers.c vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/timers.c
+--- vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/timers.c	2010-01-16 11:18:53.000000000 +0000
++++ vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/timers.c	2010-02-01 14:56:26.000000000 +0000
 @@ -16,6 +16,7 @@
  #include "recording.h"
  #include "remote.h"
@@ -500,7 +507,7 @@ diff -urNad vdr-1.6.0~/timers.c vdr-1.6.0/timers.c
    startTime = stopTime = 0;
    lastSetEvent = 0;
    recording = pending = inVpsMargin = false;
-@@ -47,7 +49,6 @@
+@@ -47,7 +49,6 @@ cTimer::cTimer(bool Instant, bool Pause,
    priority = Pause ? Setup.PausePriority : Setup.DefaultPriority;
    lifetime = Pause ? Setup.PauseLifetime : Setup.DefaultLifetime;
    *file = 0;
@@ -508,7 +515,7 @@ diff -urNad vdr-1.6.0~/timers.c vdr-1.6.0/timers.c
    event = NULL;
    if (Instant && channel)
       snprintf(file, sizeof(file), "%s%s", Setup.MarkInstantRecord ? "@" : "", *Setup.NameInstantRecord ? Setup.NameInstantRecord : channel->Name());
-@@ -55,6 +56,7 @@
+@@ -60,6 +61,7 @@ cTimer::cTimer(bool Instant, bool Pause,
  
  cTimer::cTimer(const cEvent *Event)
  {
@@ -516,17 +523,17 @@ diff -urNad vdr-1.6.0~/timers.c vdr-1.6.0/timers.c
    startTime = stopTime = 0;
    lastSetEvent = 0;
    recording = pending = inVpsMargin = false;
-@@ -83,8 +85,8 @@
-   const char *Title = Event->Title();
-   if (!isempty(Title))
-      Utf8Strn0Cpy(file, Event->Title(), sizeof(file));
+@@ -93,8 +95,8 @@ cTimer::cTimer(const cEvent *Event)
+      file[Utf8SymChars(file, VFAT_MAX_FILENAME)] = 0;
+      dsyslog("timer file name truncated to '%s'", file);
+      }
 -  aux = NULL;
    event = NULL; // let SetEvent() be called to get a log message
 +  PinPatch::ChildLock::NotifyTimerCreation(this, Event);
  }
  
  cTimer::cTimer(const cTimer &Timer)
-@@ -259,6 +261,8 @@
+@@ -269,6 +271,8 @@ cString cTimer::PrintFirstDay(void) cons
    return ""; // not NULL, so the caller can always use the result
  }
  
@@ -535,16 +542,16 @@ diff -urNad vdr-1.6.0~/timers.c vdr-1.6.0/timers.c
  bool cTimer::Parse(const char *s)
  {
    char *channelbuffer = NULL;
-@@ -313,6 +317,8 @@
+@@ -323,6 +327,8 @@ bool cTimer::Parse(const char *s)
          result = false;
          }
       }
 +  if (aux && strstr(aux, AUX_STR_PROTECTED))
-+    SetFlags(tfProtected);
++     SetFlags(tfProtected);
    free(channelbuffer);
    free(daybuffer);
    free(filebuffer);
-@@ -582,6 +588,26 @@
+@@ -592,6 +598,26 @@ void cTimer::SetPriority(int Priority)
  void cTimer::SetFlags(uint Flags)
  {
    flags |= Flags;
@@ -571,10 +578,10 @@ diff -urNad vdr-1.6.0~/timers.c vdr-1.6.0/timers.c
  }
  
  void cTimer::ClrFlags(uint Flags)
-diff -urNad vdr-1.6.0~/timers.h vdr-1.6.0/timers.h
---- vdr-1.6.0~/timers.h	2008-02-16 15:33:23.000000000 +0100
-+++ vdr-1.6.0/timers.h	2010-01-14 01:40:15.000000000 +0100
-@@ -20,6 +20,7 @@
+diff -Naurp vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/timers.h vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/timers.h
+--- vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/timers.h	2008-02-16 14:33:23.000000000 +0000
++++ vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/timers.h	2010-02-01 14:56:26.000000000 +0000
+@@ -20,6 +20,7 @@ enum eTimerFlags { tfNone      = 0x0000,
                     tfInstant   = 0x0002,
                     tfVps       = 0x0004,
                     tfRecording = 0x0008,
@@ -582,18 +589,18 @@ diff -urNad vdr-1.6.0~/timers.h vdr-1.6.0/timers.h
                     tfAll       = 0xFFFF,
                   };
  enum eTimerMatch { tmNone, tmPartial, tmFull };
-diff -urNad vdr-1.6.0~/vdr.c vdr-1.6.0/vdr.c
---- vdr-1.6.0~/vdr.c	2010-01-14 01:40:15.000000000 +0100
-+++ vdr-1.6.0/vdr.c	2010-01-14 01:40:50.000000000 +0100
-@@ -66,6 +66,7 @@
- // include this one last due to some versions of it being buggy:
- // http://www.linuxtv.org/pipermail/vdr/2009-August/021194.html
- #include <sys/capability.h>
+diff -Naurp vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/vdr.c vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/vdr.c
+--- vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks/vdr.c	2010-01-31 11:14:40.000000000 +0000
++++ vdr-1.7.12-liemikuutio-ttxtsubs-menuorg-MainMenuHooks-pin/vdr.c	2010-02-01 14:56:26.000000000 +0000
+@@ -63,6 +63,7 @@
+ #include "timers.h"
+ #include "tools.h"
+ #include "transfer.h"
 +#include "childlock.h"
+ #include "videodir.h"
  
  #define MINCHANNELWAIT        10 // seconds to wait between failed channel switchings
- #define ACTIVITYTIMEOUT       60 // seconds before starting housekeeping
-@@ -924,6 +925,7 @@
+@@ -928,6 +929,7 @@ int main(int argc, char *argv[])
          cOsdObject *Interact = Menu ? Menu : cControl::Control();
          eKeys key = Interface->GetKey(!Interact || !Interact->NeedsFastResponse());
          if (ISREALKEY(key)) {
@@ -601,24 +608,24 @@ diff -urNad vdr-1.6.0~/vdr.c vdr-1.6.0/vdr.c
             EITScanner.Activity();
             // Cancel shutdown countdown:
             if (ShutdownHandler.countdown)
-@@ -996,10 +998,12 @@
+@@ -1000,10 +1002,12 @@ int main(int argc, char *argv[])
                       cControl::Control()->Hide();
                    cPlugin *plugin = cPluginManager::GetPlugin(PluginName);
                    if (plugin) {
-+                   if (!PinPatch::ChildLock::IsPluginProtected(plugin)) {
++                     if (!PinPatch::ChildLock::IsPluginProtected(plugin)) {
                       Menu = plugin->MainMenuAction();
                       if (Menu)
                          Menu->Show();
                       }
-+                  }
++                     }
                    else
                       esyslog("ERROR: unknown plugin '%s'", PluginName);
                    }
-@@ -1209,9 +1213,11 @@
+@@ -1217,9 +1221,11 @@ int main(int argc, char *argv[])
               // Instant resume of the last viewed recording:
               case kPlay:
                    if (cReplayControl::LastReplayed()) {
-+                     if (PinPatch::ChildLock::IsRecordingProtected(0, cReplayControl::LastReplayed(), 0, false) == false) {
++                     if (!PinPatch::ChildLock::IsRecordingProtected(0, cReplayControl::LastReplayed(), 0, false)) {
                       cControl::Shutdown();
                       cControl::Launch(new cReplayControl);
                       }

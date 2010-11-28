@@ -1,6 +1,10 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
 ## 82_valgrind.dpatch by Tobias Grimm <tg@e-tobi.net>
 ##
+## Thomas Günther <tom@toms-cafe.de>:
+##   - adapted to VDR-1.7.4
+##   - adapted to VDR-1.7.11
+##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: In order to allow valgrind to find memory leaks in VDR plugins, VDR
 ## DP: must not unload the plugin libraries when shutting down. This
@@ -8,10 +12,9 @@
 ## DP: in the debug build) to disable plugin unloading.
 
 @DPATCH@
-diff -urNad vdr-1.3.49~/plugin.c vdr-1.3.49/plugin.c
---- vdr-1.3.49~/plugin.c	2006-04-17 11:20:05.000000000 +0200
-+++ vdr-1.3.49/plugin.c	2006-05-01 12:17:01.000000000 +0200
-@@ -144,6 +144,10 @@
+--- vdr-1.7.11/plugin.c
++++ vdr-1.7.11/plugin.c
+@@ -152,6 +152,10 @@ const char *cPlugin::ConfigDirectory(con
  
  // --- cDll ------------------------------------------------------------------
  
@@ -22,7 +25,7 @@ diff -urNad vdr-1.3.49~/plugin.c vdr-1.3.49/plugin.c
  cDll::cDll(const char *FileName, const char *Args)
  {
    fileName = strdup(FileName);
-@@ -155,8 +159,16 @@
+@@ -163,8 +167,16 @@ cDll::cDll(const char *FileName, const c
  cDll::~cDll()
  {
    delete plugin;
@@ -39,10 +42,9 @@ diff -urNad vdr-1.3.49~/plugin.c vdr-1.3.49/plugin.c
    free(args);
    free(fileName);
  }
-diff -urNad vdr-1.3.49~/plugin.h vdr-1.3.49/plugin.h
---- vdr-1.3.49~/plugin.h	2006-04-17 11:18:16.000000000 +0200
-+++ vdr-1.3.49/plugin.h	2006-05-01 12:16:44.000000000 +0200
-@@ -67,6 +67,9 @@
+--- vdr-1.7.11/plugin.h
++++ vdr-1.7.11/plugin.h
+@@ -68,6 +68,9 @@ private:
    void *handle;
    cPlugin *plugin;
  public:
@@ -52,32 +54,31 @@ diff -urNad vdr-1.3.49~/plugin.h vdr-1.3.49/plugin.h
    cDll(const char *FileName, const char *Args);
    virtual ~cDll();
    bool Load(bool Log = false);
-diff -urNad vdr-1.3.49~/vdr.c vdr-1.3.49/vdr.c
---- vdr-1.3.49~/vdr.c	2006-05-01 12:13:12.000000000 +0200
-+++ vdr-1.3.49/vdr.c	2006-05-01 12:17:12.000000000 +0200
-@@ -213,6 +213,9 @@
-       { "epgfile",  required_argument, NULL, 'E' },
+--- vdr-1.7.11/vdr.c
++++ vdr-1.7.11/vdr.c
+@@ -226,6 +226,9 @@ int main(int argc, char *argv[])
        { "grab",     required_argument, NULL, 'g' },
        { "help",     no_argument,       NULL, 'h' },
+       { "instance", required_argument, NULL, 'i' },
 +#ifdef VDRDEBUG
 +      { "keep-plugins", no_argument,   NULL, 'k' },
 +#endif
        { "lib",      required_argument, NULL, 'L' },
        { "lirc",     optional_argument, NULL, 'l' | 0x100 },
-       { "log",      required_argument, NULL, 'l' },
-@@ -233,7 +236,7 @@
+       { "localedir",required_argument, NULL, 'l' | 0x200 },
+@@ -248,7 +251,7 @@ int main(int argc, char *argv[])
      };
  
    int c;
--  while ((c = getopt_long(argc, argv, "a:c:dD:E:g:hl:L:mp:P:r:s:t:u:v:Vw:", long_options, NULL)) != -1) {
-+  while ((c = getopt_long(argc, argv, "a:c:dD:E:g:hkl:L:mp:P:r:s:t:u:v:Vw:", long_options, NULL)) != -1) {
+-  while ((c = getopt_long(argc, argv, "a:c:dD:e:E:g:hi:l:L:mp:P:r:s:t:u:v:Vw:", long_options, NULL)) != -1) {
++  while ((c = getopt_long(argc, argv, "a:c:dD:e:E:g:hi:kl:L:mp:P:r:s:t:u:v:Vw:", long_options, NULL)) != -1) {
          switch (c) {
            case 'a': AudioCommand = optarg;
                      break;
-@@ -256,6 +259,10 @@
-                     break;
-           case 'h': DisplayHelp = true;
-                     break;
+@@ -282,6 +285,10 @@ int main(int argc, char *argv[])
+                        }
+                     fprintf(stderr, "vdr: invalid instance id: %s\n", optarg);
+                     return 2;
 +#ifdef VDRDEBUG
 +          case 'k': cDll::keepPlugins = true;
 +                    break;
@@ -85,10 +86,10 @@ diff -urNad vdr-1.3.49~/vdr.c vdr-1.3.49/vdr.c
            case 'l': {
                        char *p = strchr(optarg, '.');
                        if (p)
-@@ -385,6 +392,9 @@
-                "                           existing directory, without any \"..\", double '/'\n"
+@@ -425,6 +432,9 @@ int main(int argc, char *argv[])
                 "                           or symlinks (default: none, same as -g-)\n"
                 "  -h,       --help         print this help and exit\n"
+                "  -i ID,    --instance=ID  use ID as the id of this VDR instance (default: 0)\n"
 +#ifdef VDRDEBUG
 +               "  -k        --keep-plugins Support valgrind by not unloading plugins\n"
 +#endif

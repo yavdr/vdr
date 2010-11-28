@@ -1,17 +1,8 @@
-03_cmdsubmenu
 04_newplugin
 06_default_svdrp_port_0
-09_sort_options
-10_dd-record-option
 11_sortrecordings
 12_osdbase-maxitems
-14_cap-memsize
-15_dvbplayer
 16_channels.conf.terr-fix
-17_vdr-maintenance-1.6.0-1
-18_vdr-maintenance-1.6.0-2
-19_dvb-api-v5
-20_gcc44_ftbfs
 
 81_Make_config
 82_valgrind
@@ -28,7 +19,7 @@ opt-21_internal-cam-devices
 
 # Easy editing of cutting marks
 # (Requires opt-20_liemikuutio!)
-# opt-22-x_edit_marks
+opt-22-x_edit_marks
 
 # The Jump patch allows automatic jumping over cutting marks.
 opt-24_jumpplay
@@ -36,15 +27,8 @@ opt-24_jumpplay
 # Patch needed for the ttxtsubs plugin.
 opt-27_ttxtsubs
 
-# Fixes length calculation for radio recordings
-opt-28_audioindexer
-
 # Speed up zapping channels.
 # opt-29_syncearly
-opt-29_syncearly-audioindexer
-
-# Patch needed for the analogtv plugin.
-opt-30-x_analogtv
 
 # Makes VDR aware of the reelchannelscan plugin
 opt-31-x_reelchannelscan
@@ -60,9 +44,6 @@ opt-38_disableDoubleEpgEntrys
 
 # Patch to disable normal epg update for specified channels.
 opt-39_noepg
-
-# Patch required by the IPTV and other plugins
-opt-40_pluginparam
 
 # Patch to show an info, if it is possible to record an event in the timer-info.
 opt-41-x_timer-info
@@ -80,17 +61,13 @@ opt-44_rotor
 # Patch needed for the yaepg plugin.
 opt-45_yaepg
 
-# Patch for assigning special satellites to one dvb card.
-opt-47_sourcecaps
-
 # Patch for the PIN plugin
 opt-48-x_pin
 
-# Patch for the pvrinput plugin
-opt-49-x_pvrinput
-
 # Patch required for the GraphTFT plugin
 opt-50_graphtft
+opt-50_graphtft-liemikuutio
+opt-91_ext-graphtft
 
 # Modifies the start time of recordings to the first cutting mark
 # (disabled by default - enable in VDR's recording setup)
@@ -100,7 +77,4 @@ opt-51_cuttime
 opt-52_hard_link_cutter
 
 # Setup for AC3 transfer, QAM_256, disable primary tuner
-opt-53_dvbsetup
-
-# Offers the choice to delete timeshift recordings
-opt-54_deltimeshiftrec
+# opt-53_dvbsetup

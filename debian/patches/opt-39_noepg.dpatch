@@ -2,27 +2,36 @@
 ## opt-39_noepg.dpatch from version the vdr-noepgmenu plugin 0.0.6.beta3
 ## http://winni.vdr-developer.org/noepgmenu/downloads/beta
 ##
+## Thomas Günther <tom@toms-cafe.de>:
+##   - adapted to VDR-1.7.8
+##   - solved conflicts with other patches
+##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: The patch allows to disable normal epg update for specified channels.
 ## DP: This is useful if you get epg data of the channels from external sources.
 
 @DPATCH@
-diff -urNad vdr-1.6.0~/config.c vdr-1.6.0/config.c
---- vdr-1.6.0~/config.c	2008-05-11 03:35:16.000000000 +0200
-+++ vdr-1.6.0/config.c	2008-05-11 03:35:44.000000000 +0200
-@@ -339,11 +339,20 @@
-   ShowRecLength = 0;
-   ShowProgressBar = 0;
-   MenuCmdPosition = 0;
+diff -Naurp vdr-1.7.8/config.c vdr-1.7.8-noepg/config.c
+--- vdr-1.7.8/config.c	2009-06-13 10:25:05.000000000 +0000
++++ vdr-1.7.8-noepg/config.c	2009-06-15 21:04:42.000000000 +0000
+@@ -234,6 +234,8 @@ cSetup::cSetup(void)
+   SetSystemTime = 0;
+   TimeSource = 0;
+   TimeTransponder = 0;
 +  noEPGMode=0;
 +  noEPGList=strdup("");
-+}
-+
+   MarginStart = 2;
+   MarginStop = 10;
+   AudioLanguages[0] = -1;
+@@ -302,9 +304,16 @@ cSetup::cSetup(void)
+   EmergencyExit = 1;
+ }
+ 
 +cSetup::~cSetup()
 +{
 +  free(noEPGList);
- }
- 
++}
++
  cSetup& cSetup::operator= (const cSetup &s)
  {
    memcpy(&__BeginData__, &s.__BeginData__, (char *)&s.__EndData__ - (char *)&s.__BeginData__);
@@ -31,41 +40,41 @@ diff -urNad vdr-1.6.0~/config.c vdr-1.6.0/config.c
    return *this;
  }
  
-@@ -504,6 +513,11 @@
-   else if (!strcasecmp(Name, "FontOsdSize"))         FontOsdSize        = atoi(Value);
-   else if (!strcasecmp(Name, "FontSmlSize"))         FontSmlSize        = atoi(Value);
-   else if (!strcasecmp(Name, "FontFixSize"))         FontFixSize        = atoi(Value);
+@@ -421,6 +430,11 @@ bool cSetup::Parse(const char *Name, con
+   else if (!strcasecmp(Name, "SetSystemTime"))       SetSystemTime      = atoi(Value);
+   else if (!strcasecmp(Name, "TimeSource"))          TimeSource         = cSource::FromString(Value);
+   else if (!strcasecmp(Name, "TimeTransponder"))     TimeTransponder    = atoi(Value);
 +  else if (!strcasecmp(Name, "noEPGMode"))           noEPGMode          = atoi(Value);
 +  else if (!strcasecmp(Name, "noEPGList")) {
 +    free(noEPGList);
 +    noEPGList=strdup(Value ? Value : "");
 +  }
-   else if (!strcasecmp(Name, "MaxVideoFileSize"))    MaxVideoFileSize   = atoi(Value);
-   else if (!strcasecmp(Name, "SplitEditedFiles"))    SplitEditedFiles   = atoi(Value);
-   else if (!strcasecmp(Name, "MinEventTimeout"))     MinEventTimeout    = atoi(Value);
-@@ -599,6 +613,8 @@
-   Store("FontOsd",            FontOsd);
-   Store("FontSml",            FontSml);
-   Store("FontFix",            FontFix);
+   else if (!strcasecmp(Name, "MarginStart"))         MarginStart        = atoi(Value);
+   else if (!strcasecmp(Name, "MarginStop"))          MarginStop         = atoi(Value);
+   else if (!strcasecmp(Name, "AudioLanguages"))      return ParseLanguages(Value, AudioLanguages);
+@@ -513,6 +527,8 @@ bool cSetup::Save(void)
+   Store("SetSystemTime",      SetSystemTime);
+   Store("TimeSource",         cSource::ToString(TimeSource));
+   Store("TimeTransponder",    TimeTransponder);
 +  Store("noEPGMode",          noEPGMode);
 +  Store("noEPGList",          noEPGList);
-   Store("FontOsdSize",        FontOsdSize);
-   Store("FontSmlSize",        FontSmlSize);
-   Store("FontFixSize",        FontFixSize);
-diff -urNad vdr-1.6.0~/config.h vdr-1.6.0/config.h
---- vdr-1.6.0~/config.h	2008-05-11 03:35:16.000000000 +0200
-+++ vdr-1.6.0/config.h	2008-05-11 03:35:16.000000000 +0200
-@@ -280,6 +280,7 @@
-   int FontOsdSize;
-   int FontSmlSize;
-   int FontFixSize;
+   Store("MarginStart",        MarginStart);
+   Store("MarginStop",         MarginStop);
+   StoreLanguages("AudioLanguages", AudioLanguages);
+diff -Naurp vdr-1.7.8/config.h vdr-1.7.8-noepg/config.h
+--- vdr-1.7.8/config.h	2009-05-21 11:11:32.000000000 +0000
++++ vdr-1.7.8-noepg/config.h	2009-06-15 21:02:48.000000000 +0000
+@@ -218,6 +218,7 @@ public:
+   int SetSystemTime;
+   int TimeSource;
+   int TimeTransponder;
 +  int noEPGMode;
-   int MaxVideoFileSize;
-   int SplitEditedFiles;
-   int MinEventTimeout, MinUserInactivity;
-@@ -299,7 +300,9 @@
+   int MarginStart, MarginStop;
+   int AudioLanguages[I18N_MAX_LANGUAGES + 1];
+   int DisplaySubtitles;
+@@ -274,7 +275,9 @@ public:
+   int InitialVolume;
    int EmergencyExit;
-   int ShowRecDate, ShowRecTime, ShowRecLength, ShowProgressBar, MenuCmdPosition;
    int __EndData__;
 +  char *noEPGList; // pointer not to be flat-copied
    cSetup(void);
@@ -73,10 +82,10 @@ diff -urNad vdr-1.6.0~/config.h vdr-1.6.0/config.h
    cSetup& operator= (const cSetup &s);
    bool Load(const char *FileName);
    bool Save(void);
-diff -urNad vdr-1.6.0~/eit.c vdr-1.6.0/eit.c
---- vdr-1.6.0~/eit.c	2008-05-11 03:35:16.000000000 +0200
-+++ vdr-1.6.0/eit.c	2008-05-11 03:35:16.000000000 +0200
-@@ -22,8 +22,28 @@
+diff -Naurp vdr-1.7.8/eit.c vdr-1.7.8-noepg/eit.c
+--- vdr-1.7.8/eit.c	2009-05-15 12:34:43.000000000 +0000
++++ vdr-1.7.8-noepg/eit.c	2009-06-15 20:43:10.000000000 +0000
+@@ -24,8 +24,28 @@
  class cEIT : public SI::EIT {
  public:
    cEIT(cSchedules *Schedules, int Source, u_char Tid, const u_char *Data, bool OnlyRunningStatus = false);
@@ -105,7 +114,7 @@ diff -urNad vdr-1.6.0~/eit.c vdr-1.6.0/eit.c
  cEIT::cEIT(cSchedules *Schedules, int Source, u_char Tid, const u_char *Data, bool OnlyRunningStatus)
  :SI::EIT(Data, false)
  {
-@@ -35,6 +55,12 @@
+@@ -37,6 +57,12 @@ cEIT::cEIT(cSchedules *Schedules, int So
    if (!channel)
       return; // only collect data for known channels
  
@@ -118,10 +127,10 @@ diff -urNad vdr-1.6.0~/eit.c vdr-1.6.0/eit.c
    cSchedule *pSchedule = (cSchedule *)Schedules->GetSchedule(channel, true);
  
    bool Empty = true;
-diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
---- vdr-1.6.0~/menu.c	2008-05-11 03:35:16.000000000 +0200
-+++ vdr-1.6.0/menu.c	2008-05-11 03:35:16.000000000 +0200
-@@ -2604,6 +2604,7 @@
+diff -Naurp vdr-1.7.8/menu.c vdr-1.7.8-noepg/menu.c
+--- vdr-1.7.8/menu.c	2009-05-21 11:10:38.000000000 +0000
++++ vdr-1.7.8-noepg/menu.c	2009-06-15 21:06:02.000000000 +0000
+@@ -2289,6 +2289,7 @@ eOSState cMenuSetupOSD::ProcessKey(eKeys
  
  class cMenuSetupEPG : public cMenuSetupBase {
  private:
@@ -129,7 +138,7 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
    int originalNumLanguages;
    int numLanguages;
    void Setup(void);
-@@ -2626,6 +2627,9 @@
+@@ -2311,6 +2312,9 @@ void cMenuSetupEPG::Setup(void)
  {
    int current = Current();
  
@@ -139,11 +148,11 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
    Clear();
  
    Add(new cMenuEditIntItem( tr("Setup.EPG$EPG scan timeout (h)"),      &data.EPGScanTimeout));
-@@ -2644,6 +2648,7 @@
-   Add(new cMenuEditBoolItem(tr("Setup.EPG$extern double Epg entry"),   &data.DoubleEpgAction, "adjust", "delete"));
-   Add(new cMenuEditBoolItem(tr("Setup.EPG$Mix intern and extern EPG"), &data.MixEpgAction));
-   Add(new cMenuEditBoolItem(tr("Setup.EPG$Disable running VPS event"), &data.DisableVPS));
+@@ -2319,6 +2323,7 @@ void cMenuSetupEPG::Setup(void)
+   Add(new cMenuEditBoolItem(tr("Setup.EPG$Set system time"),           &data.SetSystemTime));
+   if (data.SetSystemTime)
+      Add(new cMenuEditTranItem(tr("Setup.EPG$Use time from transponder"), &data.TimeTransponder, &data.TimeSource));
 +  Add(new cMenuEditStraItem(tr("Setup.EPG$Mode noEPG-Patch"),          &data.noEPGMode, 2, noEPGModes));
- 
-   SetCurrent(Get(current));
-   Display();
+   // TRANSLATORS: note the plural!
+   Add(new cMenuEditIntItem( tr("Setup.EPG$Preferred languages"),       &numLanguages, 0, I18nLanguages()->Size()));
+   for (int i = 0; i < numLanguages; i++)

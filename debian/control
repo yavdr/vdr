@@ -5,7 +5,7 @@ Maintainer: Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>
 Uploaders: Thomas Schmidt <tschmidt@debian.org>, Tobias Grimm <etobi@debian.org>, Thomas Günther <tom@toms-cafe.de>
 Build-Depends: debhelper (>= 5), dpatch, libjpeg62-dev, libcap2-dev | libcap-dev,
   libncursesw5-dev, libfreetype6-dev, libfontconfig-dev, gettext,
-  txt2man, python, linux-libc-dev
+  txt2man, python, linux-libc-dev (>= 2.6.29), libfribidi-dev
 Standards-Version: 3.9.1
 Vcs-Svn: svn://svn.debian.org/pkg-vdr-dvb/vdr/vdr/trunk/
 Vcs-Browser: http://svn.debian.org/wsvn/pkg-vdr-dvb/vdr/vdr/trunk/
@@ -24,7 +24,7 @@ Description: Video Disk Recorder for DVB cards
  as well as output the stream to TV. It is also possible to watch DVDs
  (hardware accelerated) with some comfort and use an IR remote control.
  .
- This package contains the vdr main program which is controlled via the
+ This package contains the VDR main program which is controlled via the
  PC keyboard or a IR remote control.
  .
  NOTE: You should install compatible DVB drivers before using these
@@ -34,7 +34,7 @@ Description: Video Disk Recorder for DVB cards
 
 Package: vdr-dev
 Architecture: all
-Depends: ${misc:Depends}, debhelper, linux-libc-dev
+Depends: ${misc:Depends}, debhelper, dvb-s2api-liplianin-headers | linux-libc-dev (>= 2.6.29)
 Suggests: dh-make
 Description: Video Disk Recorder for DVB cards
  Video Disk Recorder (VDR) is a digital sat-receiver program using
@@ -48,28 +48,27 @@ Description: Video Disk Recorder for DVB cards
 Package: vdr-dbg
 Section: debug
 Priority: extra
-Architecture: any 
+Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, vdr (= ${binary:Version}), gdb
 Suggests: valgrind
 Description: Debuggable version of the VDR Video Disk Recorder
- This package installs an unoptimized vdr binary with debugging symbols as well
+ This package installs an unoptimized VDR binary with debugging symbols as well
  as some helper scripts to debug VDR and its plugins.
 
-Package: vdr-plugin-sky
-Architecture: any 
+Package: vdr-plugin-dvbsddevice
+Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, vdr (= ${binary:Version})
-Description: Plugin for using a Sky Digibox with vdr
+Description: Plugin that adds support for full featured DVB cards to VDR
  Video Disk Recorder (VDR) is a digital sat-receiver program using
  Linux and DVB technologies. It allows one to record MPEG2 streams,
  as well as output the stream to TV.
  .
- This package contains the sky-plugin, which allows you to connect 
- the analog a/v output of a Sky Digibox to VDR, so that you can 
- enjoy the full recording flexibility of VDR with your Sky 
- subscription. 
+ This package contains the dvbsddevice-plugin, which implements the
+ output device for the "Full Featured" DVB cards based on the
+ TechnoTrend/Fujitsu-Siemens design.
 
 Package: vdr-plugin-examples
-Architecture: any 
+Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, vdr (= ${binary:Version})
 Description: Plugins for vdr to show some possible features
  Video Disk Recorder (VDR) is a digital sat-receiver program using

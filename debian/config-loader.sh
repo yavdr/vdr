@@ -37,7 +37,7 @@ EPG_FILE=/var/cache/vdr/epg.data
 USER=vdr
 
 # Default port for SVDRP
-SVDRP_PORT=2001
+SVDRP_PORT=6419
 
 # Enable / Disable vdr daemon
 ENABLED=0

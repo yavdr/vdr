@@ -30,7 +30,7 @@ usage()
     cat "$0" | grep "$HELPCOMMENTPATTERN" | sed "s/$HELPCOMMENTPATTERN//"
 }
 
-while getopts :h opt
+while getopts h opt
 do
     case $opt in
         h)
@@ -40,6 +40,6 @@ do
     esac
 done
 
-export DEB_BUILD_OPTIONS="noopt nostrip $DEB_BUILD_OPTIONS"
+export DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS noopt nostrip"
 export VDRDEBUG=yes
 dpkg-buildpackage $*

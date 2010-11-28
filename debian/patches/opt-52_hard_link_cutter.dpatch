@@ -4,15 +4,20 @@
 ##
 ## This is version 0.2.2 of the patch
 ##
+## Thomas Günther <tom@toms-cafe.de>:
+##   - adapted to VDR-1.7.10
+##   - adapted to VDR-1.7.11
+##   - made independend from liemikuutio patch
+##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: The hard link cutter patch changes the recording editing algorithms
 ## DP: of VDR to use filesystem hard links to 'copy' recording files whenever
 ## DP: possible to speed up editing recordings noticeably.
 
 @DPATCH@
-diff -urNad vdr-1.6.0~/README-HLCUTTER vdr-1.6.0/README-HLCUTTER
---- vdr-1.6.0~/README-HLCUTTER	1970-01-01 01:00:00.000000000 +0100
-+++ vdr-1.6.0/README-HLCUTTER	2009-11-28 12:09:29.000000000 +0100
+diff -Naurp vdr-1.7.14/README-HLCUTTER vdr-1.7.14-cutter/README-HLCUTTER
+--- vdr-1.7.14/README-HLCUTTER	1970-01-01 00:00:00.000000000 +0000
++++ vdr-1.7.14-cutter/README-HLCUTTER	2010-03-14 17:35:55.000000000 +0000
 @@ -0,0 +1,117 @@
 +
 +                    VDR-HLCUTTER README
@@ -131,74 +136,74 @@ diff -urNad vdr-1.6.0~/README-HLCUTTER vdr-1.6.0/README-HLCUTTER
 +
 +
 +SetBrokenLink may get lost on rare cases, this needs some more thoughts.
-diff -urNad vdr-1.6.0~/config.c vdr-1.6.0/config.c
---- vdr-1.6.0~/config.c	2009-11-28 12:09:25.000000000 +0100
-+++ vdr-1.6.0/config.c	2009-11-28 12:09:29.000000000 +0100
-@@ -321,7 +321,9 @@
+diff -Naurp vdr-1.7.14/config.c vdr-1.7.14-cutter/config.c
+--- vdr-1.7.14/config.c	2010-03-12 16:41:37.000000000 +0000
++++ vdr-1.7.14-cutter/config.c	2010-03-14 17:43:56.000000000 +0000
+@@ -383,7 +383,9 @@ cSetup::cSetup(void)
    FontSmlSize = 18;
    FontFixSize = 20;
-   MaxVideoFileSize = MAXVIDEOFILESIZE;
+   MaxVideoFileSize = MAXVIDEOFILESIZEDEFAULT;
 +  MaxRecordingSize = DEFAULTRECORDINGSIZE;
    SplitEditedFiles = 0;
 +  HardLinkCutter = 0;
+   DelTimeshiftRec = 0;
    MinEventTimeout = 30;
    MinUserInactivity = 300;
-   NextWakeupTime = 0;
-@@ -567,7 +569,9 @@
-     noEPGList=strdup(Value ? Value : "");
-   }
+@@ -573,7 +575,9 @@ bool cSetup::Parse(const char *Name, con
+   else if (!strcasecmp(Name, "FontSmlSize"))         FontSmlSize        = atoi(Value);
+   else if (!strcasecmp(Name, "FontFixSize"))         FontFixSize        = atoi(Value);
    else if (!strcasecmp(Name, "MaxVideoFileSize"))    MaxVideoFileSize   = atoi(Value);
 +  else if (!strcasecmp(Name, "MaxRecordingSize"))    MaxRecordingSize   = atoi(Value);
    else if (!strcasecmp(Name, "SplitEditedFiles"))    SplitEditedFiles   = atoi(Value);
 +  else if (!strcasecmp(Name, "HardLinkCutter"))      HardLinkCutter     = atoi(Value);
+   else if (!strcasecmp(Name, "DelTimeshiftRec"))     DelTimeshiftRec    = atoi(Value);
    else if (!strcasecmp(Name, "MinEventTimeout"))     MinEventTimeout    = atoi(Value);
    else if (!strcasecmp(Name, "MinUserInactivity"))   MinUserInactivity  = atoi(Value);
-   else if (!strcasecmp(Name, "NextWakeupTime"))      NextWakeupTime     = atoi(Value);
-@@ -669,7 +673,9 @@
+@@ -668,7 +672,9 @@ bool cSetup::Save(void)
    Store("FontSmlSize",        FontSmlSize);
    Store("FontFixSize",        FontFixSize);
    Store("MaxVideoFileSize",   MaxVideoFileSize);
 +  Store("MaxRecordingSize",   MaxRecordingSize);
    Store("SplitEditedFiles",   SplitEditedFiles);
 +  Store("HardLinkCutter",     HardLinkCutter);
+   Store("DelTimeshiftRec",    DelTimeshiftRec);
    Store("MinEventTimeout",    MinEventTimeout);
    Store("MinUserInactivity",  MinUserInactivity);
-   Store("NextWakeupTime",     NextWakeupTime);
-diff -urNad vdr-1.6.0~/config.h vdr-1.6.0/config.h
---- vdr-1.6.0~/config.h	2009-11-28 12:09:25.000000000 +0100
-+++ vdr-1.6.0/config.h	2009-11-28 12:09:29.000000000 +0100
-@@ -293,7 +293,9 @@
+diff -Naurp vdr-1.7.14/config.h vdr-1.7.14-cutter/config.h
+--- vdr-1.7.14/config.h	2010-03-12 16:02:53.000000000 +0000
++++ vdr-1.7.14-cutter/config.h	2010-03-14 17:38:29.000000000 +0000
+@@ -276,7 +276,9 @@ public:
+   int FontSmlSize;
    int FontFixSize;
-   int noEPGMode;
    int MaxVideoFileSize;
 +  int MaxRecordingSize;
    int SplitEditedFiles;
 +  int HardLinkCutter;
+   int DelTimeshiftRec;
    int MinEventTimeout, MinUserInactivity;
    time_t NextWakeupTime;
-   int MultiSpeedMode;
-diff -urNad vdr-1.6.0~/cutter.c vdr-1.6.0/cutter.c
---- vdr-1.6.0~/cutter.c	2009-11-28 12:09:25.000000000 +0100
-+++ vdr-1.6.0/cutter.c	2009-11-28 12:09:28.000000000 +0100
-@@ -71,6 +71,7 @@
+diff -Naurp vdr-1.7.14/cutter.c vdr-1.7.14-cutter/cutter.c
+--- vdr-1.7.14/cutter.c	2010-01-02 13:08:08.000000000 +0000
++++ vdr-1.7.14-cutter/cutter.c	2010-03-14 17:35:55.000000000 +0000
+@@ -78,6 +78,7 @@ void cCuttingThread::Action(void)
       Mark = fromMarks.Next(Mark);
-      int FileSize = 0;
+      off_t FileSize = 0;
       int CurrentFileNumber = 0;
 +     bool SkipThisSourceFile = false;
       int LastIFrame = 0;
       toMarks.Add(0);
       toMarks.Save();
-@@ -88,12 +89,92 @@
+@@ -96,12 +97,92 @@ void cCuttingThread::Action(void)
  
             // Read one frame:
  
--           if (fromIndex->Get(Index++, &FileNumber, &FileOffset, &PictureType, &Length)) {
+-           if (fromIndex->Get(Index++, &FileNumber, &FileOffset, &Independent, &Length)) {
 -              if (FileNumber != CurrentFileNumber) {
 -                 fromFile = fromFileName->SetOffset(FileNumber, FileOffset);
 -                 fromFile->SetReadAhead(MEGABYTE(20));
 -                 CurrentFileNumber = FileNumber;
 -                 }
-+           if (!fromIndex->Get(Index++, &FileNumber, &FileOffset, &PictureType, &Length)) {
++           if (!fromIndex->Get(Index++, &FileNumber, &FileOffset, &Independent, &Length)) {
 +              // Error, unless we're past last cut-in and there's no cut-out
 +              if (Mark || LastMark)
 +                 error = "index";
@@ -229,8 +234,8 @@ diff -urNad vdr-1.6.0~/cutter.c vdr-1.6.0/cutter.c
 +                 // if !Mark && !LastMark, then there's just a cut-in, but no cut-out
 +                 // if Mark, then we're between a cut-in and a cut-out
 +                 
-+                 uchar MarkFileNumber;
-+                 int MarkFileOffset;
++                 uint16_t MarkFileNumber;
++                 off_t MarkFileOffset;
 +                 // Get file number of next cut mark
 +                 if (!Mark && !LastMark
 +                     || Mark
@@ -287,7 +292,7 @@ diff -urNad vdr-1.6.0~/cutter.c vdr-1.6.0/cutter.c
                if (fromFile) {
                   int len = ReadFrame(fromFile, buffer,  Length, sizeof(buffer));
                   if (len < 0) {
-@@ -110,19 +191,12 @@
+@@ -118,19 +199,12 @@ void cCuttingThread::Action(void)
                   break;
                   }
                }
@@ -300,21 +305,24 @@ diff -urNad vdr-1.6.0~/cutter.c vdr-1.6.0/cutter.c
 -
             // Write one frame:
  
-            if (PictureType == I_FRAME) { // every file shall start with an I_FRAME
+            if (Independent) { // every file shall start with an independent frame
                if (LastMark) // edited version shall end before next I-frame
                   break;
--              if (FileSize > MEGABYTE(Setup.MaxVideoFileSize)) {
+-              if (FileSize > maxVideoFileSize) {
 +              if (!SkipThisSourceFile && FileSize > toFileName->MaxFileSize()) {
                   toFile = toFileName->NextFile();
                   if (!toFile) {
                      error = "toFile 1";
-@@ -132,12 +206,12 @@
+@@ -140,7 +214,7 @@ void cCuttingThread::Action(void)
                   }
                LastIFrame = 0;
  
 -              if (cutIn) {
 +              if (!SkipThisSourceFile && cutIn) {
-                  cRemux::SetBrokenLink(buffer, Length);
+                  if (isPesRecording)
+                     cRemux::SetBrokenLink(buffer, Length);
+                  else
+@@ -148,7 +222,7 @@ void cCuttingThread::Action(void)
                   cutIn = false;
                   }
                }
@@ -323,7 +331,7 @@ diff -urNad vdr-1.6.0~/cutter.c vdr-1.6.0/cutter.c
                error = "safe_write";
                break;
                }
-@@ -172,7 +246,7 @@
+@@ -183,7 +257,7 @@ void cCuttingThread::Action(void)
                      }
                   }
                else
@@ -332,83 +340,83 @@ diff -urNad vdr-1.6.0~/cutter.c vdr-1.6.0/cutter.c
                }
             }
       Recordings.TouchUpdate();
-diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
---- vdr-1.6.0~/menu.c	2009-11-28 12:09:25.000000000 +0100
-+++ vdr-1.6.0/menu.c	2009-11-28 12:10:21.000000000 +0100
-@@ -3185,7 +3185,9 @@
-   Add(new cMenuEditStrItem( tr("Setup.Recording$Name instant recording"),     data.NameInstantRecord, sizeof(data.NameInstantRecord)));
-   Add(new cMenuEditIntItem( tr("Setup.Recording$Instant rec. time (min)"),   &data.InstantRecordTime, 1, MAXINSTANTRECTIME));
-   Add(new cMenuEditIntItem( tr("Setup.Recording$Max. video file size (MB)"), &data.MaxVideoFileSize, MINVIDEOFILESIZE, MAXVIDEOFILESIZE));
+diff -Naurp vdr-1.7.14/menu.c vdr-1.7.14-cutter/menu.c
+--- vdr-1.7.14/menu.c	2010-03-12 16:03:07.000000000 +0000
++++ vdr-1.7.14-cutter/menu.c	2010-03-14 17:35:55.000000000 +0000
+@@ -3056,1 +3056,3 @@ cMenuSetupRecord::cMenuSetupRecord(void)
 +  Add(new cMenuEditIntItem( tr("Setup.Recording$Max. recording size (GB)"),  &data.MaxRecordingSize, MINRECORDINGSIZE, MAXRECORDINGSIZE));
    Add(new cMenuEditBoolItem(tr("Setup.Recording$Split edited files"),        &data.SplitEditedFiles));
 +  Add(new cMenuEditBoolItem(tr("Setup.Recording$Hard Link Cutter"),          &data.HardLinkCutter));
-   Add(new cMenuEditBoolItem(tr("Setup.Recording$Show date"),                 &data.ShowRecDate));
-   Add(new cMenuEditBoolItem(tr("Setup.Recording$Show time"),                 &data.ShowRecTime));
-   Add(new cMenuEditBoolItem(tr("Setup.Recording$Show length"),               &data.ShowRecLength));
-diff -urNad vdr-1.6.0~/recorder.c vdr-1.6.0/recorder.c
---- vdr-1.6.0~/recorder.c	2009-11-28 12:09:25.000000000 +0100
-+++ vdr-1.6.0/recorder.c	2009-11-28 12:09:29.000000000 +0100
-@@ -90,7 +90,7 @@
- bool cFileWriter::NextFile(void)
+diff -Naurp vdr-1.7.14/recorder.c vdr-1.7.14-cutter/recorder.c
+--- vdr-1.7.14/recorder.c	2010-01-29 16:37:22.000000000 +0000
++++ vdr-1.7.14-cutter/recorder.c	2010-03-14 17:35:55.000000000 +0000
+@@ -87,7 +87,7 @@ bool cRecorder::RunningLowOnDiskSpace(vo
+ bool cRecorder::NextFile(void)
  {
-   if (recordFile && pictureType == I_FRAME) { // every file shall start with an I_FRAME
--     if (fileSize > MEGABYTE(Setup.MaxVideoFileSize) || RunningLowOnDiskSpace()) {
+   if (recordFile && frameDetector->IndependentFrame()) { // every file shall start with an independent frame
+-     if (fileSize > MEGABYTE(off_t(Setup.MaxVideoFileSize)) || RunningLowOnDiskSpace()) {
 +     if (fileSize > fileName->MaxFileSize() || RunningLowOnDiskSpace()) {
          recordFile = fileName->NextFile();
          fileSize = 0;
          }
-diff -urNad vdr-1.6.0~/recording.c vdr-1.6.0/recording.c
---- vdr-1.6.0~/recording.c	2009-11-28 12:09:25.000000000 +0100
-+++ vdr-1.6.0/recording.c	2009-11-28 12:09:29.000000000 +0100
-@@ -1630,6 +1630,16 @@
+diff -Naurp vdr-1.7.14/recording.c vdr-1.7.14-cutter/recording.c
+--- vdr-1.7.14/recording.c	2010-03-07 14:06:04.000000000 +0000
++++ vdr-1.7.14-cutter/recording.c	2010-03-14 17:35:55.000000000 +0000
+@@ -1935,6 +1935,20 @@ cUnbufferedFile *cFileName::SetOffset(in
    return NULL;
  }
  
-+int cFileName::MaxFileSize() {
-+  const int smallFiles = (255 * MAXVIDEOFILESIZE - 1024 * Setup.MaxRecordingSize)
-+                          / max(MAXVIDEOFILESIZE - Setup.MaxVideoFileSize, 1);
++off_t cFileName::MaxFileSize() {
++  const int maxVideoFileSize = isPesRecording ? MAXVIDEOFILESIZEPES : MAXVIDEOFILESIZETS;
++  const int setupMaxVideoFileSize = min(maxVideoFileSize, Setup.MaxVideoFileSize);
++  const int maxFileNumber = isPesRecording ? 255 : 65535;
++
++  const off_t smallFiles = (maxFileNumber * off_t(maxVideoFileSize) - 1024 * Setup.MaxRecordingSize)
++                           / max(maxVideoFileSize - setupMaxVideoFileSize, 1);
 +
 +  if (fileNumber <= smallFiles)
-+     return MEGABYTE(Setup.MaxVideoFileSize);
++     return MEGABYTE(off_t(setupMaxVideoFileSize));
 +  
-+  return MEGABYTE(MAXVIDEOFILESIZE);
++  return MEGABYTE(off_t(maxVideoFileSize));
 +}
 +
  cUnbufferedFile *cFileName::NextFile(void)
  {
    return SetOffset(fileNumber + 1);
-diff -urNad vdr-1.6.0~/recording.h vdr-1.6.0/recording.h
---- vdr-1.6.0~/recording.h	2009-11-28 12:09:25.000000000 +0100
-+++ vdr-1.6.0/recording.h	2009-11-28 12:09:29.000000000 +0100
-@@ -213,7 +213,15 @@
- // may be slightly higher because we stop recording only before the next
- // 'I' frame, to have a complete Group Of Pictures):
- #define MAXVIDEOFILESIZE 2000 // MB
--#define MINVIDEOFILESIZE  100 // MB
-+#define MINVIDEOFILESIZE    1 // MB
-+
+diff -Naurp vdr-1.7.14/recording.h vdr-1.7.14-cutter/recording.h
+--- vdr-1.7.14/recording.h	2010-03-07 14:06:15.000000000 +0000
++++ vdr-1.7.14-cutter/recording.h	2010-03-14 17:35:55.000000000 +0000
+@@ -220,9 +220,17 @@ public:
+ // before the next independent frame, to have a complete Group Of Pictures):
+ #define MAXVIDEOFILESIZETS  1048570 // MB
+ #define MAXVIDEOFILESIZEPES    2000 // MB
+-#define MINVIDEOFILESIZE        100 // MB
++#define MINVIDEOFILESIZE          1 // MB
+ #define MAXVIDEOFILESIZEDEFAULT MAXVIDEOFILESIZEPES
+ 
 +#define MINRECORDINGSIZE      25 // GB
 +#define MAXRECORDINGSIZE     500 // GB
 +#define DEFAULTRECORDINGSIZE 100 // GB
 +// Dynamic recording size:
 +// Keep recording file size at Setup.MaxVideoFileSize for as long as possible,
 +// but switch to MAXVIDEOFILESIZE early enough, so that Setup.MaxRecordingSize
-+// will be reached, before recording to file 255.vdr
++// will be reached, before recording to file 65535.vdr
++
+ struct tIndexTs;
+ class cIndexFileGenerator;
  
- class cIndexFile {
- private:
-@@ -256,6 +264,8 @@
+@@ -271,6 +279,8 @@ public:
    cUnbufferedFile *Open(void);
    void Close(void);
-   cUnbufferedFile *SetOffset(int Number, int Offset = 0);
-+  int MaxFileSize();
+   cUnbufferedFile *SetOffset(int Number, off_t Offset = 0); // yes, Number is int for easier internal calculating
++  off_t MaxFileSize();
 +      // Dynamic file size for this file
    cUnbufferedFile *NextFile(void);
    };
  
-diff -urNad vdr-1.6.0~/videodir.c vdr-1.6.0/videodir.c
---- vdr-1.6.0~/videodir.c	2009-11-28 11:57:20.000000000 +0100
-+++ vdr-1.6.0/videodir.c	2009-11-28 12:09:29.000000000 +0100
+diff -Naurp vdr-1.7.14/videodir.c vdr-1.7.14-cutter/videodir.c
+--- vdr-1.7.14/videodir.c	2008-02-16 13:00:03.000000000 +0000
++++ vdr-1.7.14-cutter/videodir.c	2010-03-14 17:35:55.000000000 +0000
 @@ -19,6 +19,9 @@
  #include "recording.h"
  #include "tools.h"
@@ -419,7 +427,7 @@ diff -urNad vdr-1.6.0~/videodir.c vdr-1.6.0/videodir.c
  const char *VideoDirectory = VIDEODIR;
  
  class cVideoDirectory {
-@@ -168,6 +171,120 @@
+@@ -168,6 +171,120 @@ bool RemoveVideoFile(const char *FileNam
    return RemoveFileOrDir(FileName, true);
  }
  
@@ -540,10 +548,10 @@ diff -urNad vdr-1.6.0~/videodir.c vdr-1.6.0/videodir.c
  bool VideoFileSpaceAvailable(int SizeMB)
  {
    cVideoDirectory Dir;
-diff -urNad vdr-1.6.0~/videodir.h vdr-1.6.0/videodir.h
---- vdr-1.6.0~/videodir.h	2009-11-28 11:57:20.000000000 +0100
-+++ vdr-1.6.0/videodir.h	2009-11-28 12:09:29.000000000 +0100
-@@ -19,6 +19,7 @@
+diff -Naurp vdr-1.7.14/videodir.h vdr-1.7.14-cutter/videodir.h
+--- vdr-1.7.14/videodir.h	2008-02-16 12:53:11.000000000 +0000
++++ vdr-1.7.14-cutter/videodir.h	2010-03-14 17:35:55.000000000 +0000
+@@ -19,6 +19,7 @@ cUnbufferedFile *OpenVideoFile(const cha
  int CloseVideoFile(cUnbufferedFile *File);
  bool RenameVideoFile(const char *OldName, const char *NewName);
  bool RemoveVideoFile(const char *FileName);

@@ -62,7 +62,7 @@ SHUTDOWNCMD="<COMMAND>"
 
 SVDRP_PORT=<PORT>
 
-    Default: 2001
+    Default: 6419
 
     Default port for SVDRP (Simple Video Disk Recorder Protocol), the telnet
     like interface to control VDR.

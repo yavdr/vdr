@@ -1,16 +1,16 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
 ## opt-41-x_timer-info.dpatch by Andreas Brugger <brougs78@gmx.net>, Thomas Günther <tom@toms-cafe.de>
-## http://toms-cafe.de/vdr/download/vdr-timer-info-0.5-1.5.15.diff
+## http://toms-cafe.de/vdr/download/vdr-timer-info-0.5-1.7.13.diff
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Shows info, if it is possible to record an event in the timer-info of
 ## DP: vdr - see README.timer-info for details.
 
 @DPATCH@
-diff -Naurp vdr-1.5.15/README.timer-info vdr-1.5.15-timer-info-0.5/README.timer-info
---- vdr-1.5.15/README.timer-info	1970-01-01 00:00:00.000000000 +0000
-+++ vdr-1.5.15-timer-info-0.5/README.timer-info	2008-04-12 11:54:16.000000000 +0000
-@@ -0,0 +1,65 @@
+diff -Naurp vdr-1.7.13/README.timer-info vdr-1.7.13-timer-info-0.5/README.timer-info
+--- vdr-1.7.13/README.timer-info	1970-01-01 00:00:00.000000000 +0000
++++ vdr-1.7.13-timer-info-0.5/README.timer-info	2010-02-28 18:26:31.000000000 +0000
+@@ -0,0 +1,69 @@
 ++------------------------------------------------------------------------------+
 +|               Info about the timer-info-patch by Brougs78                    |
 +|                brougs78@gmx.net / home.pages.at/brougs78                     |
@@ -76,10 +76,14 @@ diff -Naurp vdr-1.5.15/README.timer-info vdr-1.5.15-timer-info-0.5/README.timer-
 +12.04.2008: v0.5 - Thomas Günther <tom@toms-cafe.de>
 + - Fixed display of +/- sign with UTF-8
 +   http://toms-cafe.de/vdr/download/vdr-timer-info-0.5-1.5.15.diff
-diff -Naurp vdr-1.5.15/menu.c vdr-1.5.15-timer-info-0.5/menu.c
---- vdr-1.5.15/menu.c	2008-02-16 13:53:26.000000000 +0000
-+++ vdr-1.5.15-timer-info-0.5/menu.c	2008-04-12 11:49:23.000000000 +0000
-@@ -777,8 +777,10 @@ eOSState cMenuEditTimer::ProcessKey(eKey
++
++28.02.2010:      - Thomas Günther <tom@toms-cafe.de>
++ - Adapted to vdr-1.7.13
++   http://toms-cafe.de/vdr/download/vdr-timer-info-0.5-1.7.13.diff
+diff -Naurp vdr-1.7.13/menu.c vdr-1.7.13-timer-info-0.5/menu.c
+--- vdr-1.7.13/menu.c	2010-02-21 14:09:19.000000000 +0000
++++ vdr-1.7.13-timer-info-0.5/menu.c	2010-02-28 18:24:26.000000000 +0000
+@@ -1010,8 +1010,10 @@ eOSState cMenuEditTimer::ProcessKey(eKey
  class cMenuTimerItem : public cOsdItem {
  private:
    cTimer *timer;
@@ -90,7 +94,7 @@ diff -Naurp vdr-1.5.15/menu.c vdr-1.5.15-timer-info-0.5/menu.c
    virtual int Compare(const cListObject &ListObject) const;
    virtual void Set(void);
    cTimer *Timer(void) { return timer; }
-@@ -787,6 +789,7 @@ public:
+@@ -1020,6 +1022,7 @@ public:
  cMenuTimerItem::cMenuTimerItem(cTimer *Timer)
  {
    timer = Timer;
@@ -98,10 +102,10 @@ diff -Naurp vdr-1.5.15/menu.c vdr-1.5.15-timer-info-0.5/menu.c
    Set();
  }
  
-@@ -812,7 +815,10 @@ void cMenuTimerItem::Set(void)
-      strftime(buffer, sizeof(buffer), "%Y%m%d", &tm_r);
-      day = buffer;
-      }
+@@ -1050,7 +1053,10 @@ void cMenuTimerItem::Set(void)
+      File++;
+   else
+      File = timer->File();
 -  SetText(cString::sprintf("%c\t%d\t%s%s%s\t%02d:%02d\t%02d:%02d\t%s",
 +  cCharSetConv csc("ISO-8859-1", cCharSetConv::SystemCharacterTable());
 +  char diskStatusString[2] = { diskStatus, 0 };
@@ -110,8 +114,8 @@ diff -Naurp vdr-1.5.15/menu.c vdr-1.5.15-timer-info-0.5/menu.c
                      !(timer->HasFlags(tfActive)) ? ' ' : timer->FirstDay() ? '!' : timer->Recording() ? '#' : '>',
                      timer->Channel()->Number(),
                      *name,
-@@ -825,6 +831,57 @@ void cMenuTimerItem::Set(void)
-                     timer->File()));
+@@ -1063,6 +1069,57 @@ void cMenuTimerItem::Set(void)
+                     File));
  }
  
 +void cMenuTimerItem::SetDiskStatus(char DiskStatus)
@@ -168,7 +172,7 @@ diff -Naurp vdr-1.5.15/menu.c vdr-1.5.15-timer-info-0.5/menu.c
  // --- cMenuTimers -----------------------------------------------------------
  
  class cMenuTimers : public cOsdMenu {
-@@ -837,14 +894,17 @@ private:
+@@ -1075,14 +1132,17 @@ private:
    eOSState Info(void);
    cTimer *CurrentTimer(void);
    void SetHelpKeys(void);
@@ -187,7 +191,7 @@ diff -Naurp vdr-1.5.15/menu.c vdr-1.5.15-timer-info-0.5/menu.c
  {
    helpKeys = -1;
    for (cTimer *timer = Timers.First(); timer; timer = Timers.Next(timer)) {
-@@ -855,6 +915,7 @@ cMenuTimers::cMenuTimers(void)
+@@ -1093,6 +1153,7 @@ cMenuTimers::cMenuTimers(void)
    SetCurrent(First());
    SetHelpKeys();
    Timers.IncBeingEdited();
@@ -195,7 +199,7 @@ diff -Naurp vdr-1.5.15/menu.c vdr-1.5.15-timer-info-0.5/menu.c
  }
  
  cMenuTimers::~cMenuTimers()
-@@ -893,7 +954,7 @@ eOSState cMenuTimers::OnOff(void)
+@@ -1131,7 +1192,7 @@ eOSState cMenuTimers::OnOff(void)
       timer->OnOff();
       timer->SetEventFromSchedule();
       RefreshCurrent();
@@ -204,7 +208,7 @@ diff -Naurp vdr-1.5.15/menu.c vdr-1.5.15-timer-info-0.5/menu.c
       if (timer->FirstDay())
          isyslog("timer %s first day set to %s", *timer->ToDescr(), *timer->PrintFirstDay());
       else
-@@ -952,6 +1013,67 @@ eOSState cMenuTimers::Info(void)
+@@ -1190,6 +1251,67 @@ eOSState cMenuTimers::Info(void)
    return osContinue;
  }
  
@@ -272,7 +276,7 @@ diff -Naurp vdr-1.5.15/menu.c vdr-1.5.15-timer-info-0.5/menu.c
  eOSState cMenuTimers::ProcessKey(eKeys Key)
  {
    int TimerNumber = HasSubMenu() ? Count() : -1;
-@@ -960,18 +1082,22 @@ eOSState cMenuTimers::ProcessKey(eKeys K
+@@ -1198,18 +1320,22 @@ eOSState cMenuTimers::ProcessKey(eKeys K
    if (state == osUnknown) {
       switch (Key) {
         case kOk:     return Edit();

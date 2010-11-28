@@ -1,26 +1,27 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
-## opt-50_graphtft-0.1.dpatch by Jörg Wendel (Horchi)
+## opt-50_graphtft.dpatch by JÃ¶rg Wendel (Horchi)
+## from vdr-graphtft svn repository (20090728.2153):
+## https://vdr-graphtft.svn.sourceforge.net/svnroot/vdr-graphtft
 ##
-## Thomas Günther <tom@toms-cafe.de>:
-##   - adapted to pin patch
+## Thomas GÃ¼nther <tom@toms-cafe.de>:
+##   - adapted to VDR-1.7.13
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
-## DP: Patch from the Graphtft plugin version 0.1.6.alpha
-## DP: http://www.jwendel.de/vdr/
+## DP: Patch required for the GraphTFT plugin.
 
 @DPATCH@
-diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
---- vdr-1.6.0~/menu.c	2008-04-04 17:17:26.000000000 +0200
-+++ vdr-1.6.0/menu.c	2008-04-04 17:19:44.000000000 +0200
-@@ -262,6 +262,7 @@
+diff -Naurp vdr-1.7.13/menu.c vdr-1.7.13-graphtft/menu.c
+--- vdr-1.7.13/menu.c	2010-02-21 14:09:19.000000000 +0000
++++ vdr-1.7.13-graphtft/menu.c	2010-02-28 20:28:03.000000000 +0000
+@@ -196,6 +196,7 @@ private:
  public:
    cMenuEditChannel(cChannel *Channel, bool New = false);
    virtual eOSState ProcessKey(eKeys Key);
-+  virtual const char* MenuKind() { return "MenuEditChannel"; }
++  virtual const char* MenuKind() { return "MenuEditChannel"; } 
    };
  
  cMenuEditChannel::cMenuEditChannel(cChannel *Channel, bool New)
-@@ -484,6 +485,7 @@
+@@ -372,6 +373,7 @@ public:
    cMenuChannels(void);
    ~cMenuChannels();
    virtual eOSState ProcessKey(eKeys Key);
@@ -28,15 +29,15 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
    };
  
  cMenuChannels::cMenuChannels(void)
-@@ -955,6 +957,7 @@
+@@ -1079,6 +1081,7 @@ public:
+   cMenuTimers(void);
    virtual ~cMenuTimers();
-   virtual void Display(void);
    virtual eOSState ProcessKey(eKeys Key);
 +  virtual const char* MenuKind() { return "MenuTimers"; }
    };
  
  cMenuTimers::cMenuTimers(void)
-@@ -1181,6 +1184,7 @@
+@@ -1239,6 +1242,7 @@ void cMenuEvent::Display(void)
  {
    cOsdMenu::Display();
    DisplayMenu()->SetEvent(event);
@@ -44,31 +45,63 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
    if (event->Description())
       cStatus::MsgOsdTextItem(event->Description());
  }
-@@ -1323,6 +1327,7 @@
+@@ -1361,6 +1365,8 @@ public:
    static void SetCurrentChannel(int ChannelNr) { currentChannel = ChannelNr; }
    static const cEvent *ScheduleEvent(void);
    virtual eOSState ProcessKey(eKeys Key);
 +  virtual const char* MenuKind() { return now ? "MenuWhatsOnNow" : "MenuWhatsOnNext"; }
++  virtual void Display(void);
    };
  
  int cMenuWhatsOn::currentChannel = 0;
-@@ -1490,6 +1495,7 @@
+@@ -1388,6 +1394,18 @@ cMenuWhatsOn::cMenuWhatsOn(const cSchedu
+   SetHelpKeys();
+ }
+ 
++void cMenuWhatsOn::Display(void)
++{
++   cOsdMenu::Display();
++   
++   if (Count() > 0) {
++      int ni = 0;
++      for (cOsdItem *item = First(); item; item = Next(item)) {
++         cStatus::MsgOsdEventItem(((cMenuScheduleItem*)item)->event, item->Text(), ni++, Count());
++      }
++   }
++}
++
+ bool cMenuWhatsOn::Update(void)
+ {
+   bool result = false;
+@@ -1528,6 +1546,8 @@ public:
    cMenuSchedule(void);
    virtual ~cMenuSchedule();
    virtual eOSState ProcessKey(eKeys Key);
 +  virtual const char* MenuKind() { return "MenuSchedule"; }
++  virtual void Display(void);
    };
  
  cMenuSchedule::cMenuSchedule(void)
-@@ -1757,6 +1763,7 @@
-   cMenuCommands(const char *Title, cCommands *Commands, const char *Parameters = NULL);
-   virtual ~cMenuCommands();
-   virtual eOSState ProcessKey(eKeys Key);
-+  virtual const char* MenuKind() { return "MenuCommands"; }
-   };
+@@ -1553,6 +1573,18 @@ cMenuSchedule::~cMenuSchedule()
+   cMenuWhatsOn::ScheduleEvent(); // makes sure any posted data is cleared
+ }
  
- cMenuCommands::cMenuCommands(const char *Title, cCommands *Commands, const char *Parameters)
-@@ -1833,6 +1840,7 @@
++void cMenuSchedule::Display(void)
++{
++   cOsdMenu::Display();
++   
++   if (Count() > 0) {
++      int ni = 0;
++      for (cOsdItem *item = First(); item; item = Next(item)) {
++         cStatus::MsgOsdEventItem(((cMenuScheduleItem*)item)->event, item->Text(), ni++, Count());
++      }
++   }
++}
++
+ void cMenuSchedule::PrepareScheduleAllThis(const cEvent *Event, const cChannel *Channel)
+ {
+   Clear();
+@@ -1908,6 +1940,7 @@ public:
    cMenuCam(cCamSlot *CamSlot);
    virtual ~cMenuCam();
    virtual eOSState ProcessKey(eKeys Key);
@@ -76,7 +109,7 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
    };
  
  cMenuCam::cMenuCam(cCamSlot *CamSlot)
-@@ -2012,6 +2020,7 @@
+@@ -2087,6 +2120,7 @@ public:
    cMenuRecording(const cRecording *Recording, bool WithButtons = false);
    virtual void Display(void);
    virtual eOSState ProcessKey(eKeys Key);
@@ -84,7 +117,7 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
  };
  
  cMenuRecording::cMenuRecording(const cRecording *Recording, bool WithButtons)
-@@ -2027,6 +2036,7 @@
+@@ -2102,6 +2136,7 @@ void cMenuRecording::Display(void)
  {
    cOsdMenu::Display();
    DisplayMenu()->SetRecording(recording);
@@ -92,15 +125,7 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
    if (recording->Info()->Description())
       cStatus::MsgOsdTextItem(recording->Info()->Description());
  }
-@@ -2133,6 +2143,7 @@
- public:
-   cMenuRenameRecording(cRecording *Recording);
-   virtual eOSState ProcessKey(eKeys Key);
-+  virtual const char* MenuKind() { return "MenuRenameRecording"; }
- };
- 
- cMenuRenameRecording::cMenuRenameRecording(cRecording *Recording)
-@@ -2573,6 +2584,7 @@
+@@ -2498,6 +2533,7 @@ public:
    cMenuSetupOSD(void);
    virtual ~cMenuSetupOSD();
    virtual eOSState ProcessKey(eKeys Key);
@@ -108,7 +133,7 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
    };
  
  cMenuSetupOSD::cMenuSetupOSD(void)
-@@ -2720,6 +2732,7 @@
+@@ -2637,6 +2673,7 @@ private:
  public:
    cMenuSetupEPG(void);
    virtual eOSState ProcessKey(eKeys Key);
@@ -116,7 +141,7 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
    };
  
  cMenuSetupEPG::cMenuSetupEPG(void)
-@@ -2824,6 +2837,7 @@
+@@ -2732,6 +2769,7 @@ private:
  public:
    cMenuSetupDVB(void);
    virtual eOSState ProcessKey(eKeys Key);
@@ -124,7 +149,7 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
    };
  
  cMenuSetupDVB::cMenuSetupDVB(void)
-@@ -2955,6 +2969,7 @@
+@@ -2861,6 +2899,7 @@ private:
  public:
    cMenuSetupLNB(void);
    virtual eOSState ProcessKey(eKeys Key);
@@ -132,7 +157,7 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
    };
  
  cMenuSetupLNB::cMenuSetupLNB(void)
-@@ -3035,6 +3050,7 @@
+@@ -2941,6 +2980,7 @@ private:
  public:
    cMenuSetupCAM(void);
    virtual eOSState ProcessKey(eKeys Key);
@@ -140,7 +165,7 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
    };
  
  cMenuSetupCAM::cMenuSetupCAM(void)
-@@ -3205,6 +3221,7 @@
+@@ -3111,6 +3151,7 @@ class cMenuSetupPlugins : public cMenuSe
  public:
    cMenuSetupPlugins(void);
    virtual eOSState ProcessKey(eKeys Key);
@@ -148,7 +173,7 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
    };
  
  cMenuSetupPlugins::cMenuSetupPlugins(void)
-@@ -3254,6 +3271,7 @@
+@@ -3160,6 +3201,7 @@ private:
  public:
    cMenuSetup(void);
    virtual eOSState ProcessKey(eKeys Key);
@@ -156,18 +181,26 @@ diff -urNad vdr-1.6.0~/menu.c vdr-1.6.0/menu.c
    };
  
  cMenuSetup::cMenuSetup(void)
-diff -urNad vdr-1.6.0~/menu.h vdr-1.6.0/menu.h
---- vdr-1.6.0~/menu.h	2008-04-04 17:17:25.000000000 +0200
-+++ vdr-1.6.0/menu.h	2008-04-04 17:20:43.000000000 +0200
-@@ -29,6 +29,7 @@
+diff -Naurp vdr-1.7.13/menu.h vdr-1.7.13-graphtft/menu.h
+--- vdr-1.7.13/menu.h	2010-02-06 10:17:24.000000000 +0000
++++ vdr-1.7.13-graphtft/menu.h	2010-02-28 20:27:52.000000000 +0000
+@@ -29,6 +29,7 @@ public:
    void SetText(const char *Text);
    virtual void Display(void);
    virtual eOSState ProcessKey(eKeys Key);
 +  virtual const char* MenuKind() { return "MenuText"; }
    };
  
+ class cMenuFolder : public cOsdMenu {
+@@ -67,6 +68,7 @@ public:
+   cMenuCommands(const char *Title, cList<cNestedItem> *Commands, const char *Parameters = NULL);
+   virtual ~cMenuCommands();
+   virtual eOSState ProcessKey(eKeys Key);
++  virtual const char* MenuKind() { return "MenuCommands"; }
+   };
+ 
  class cMenuEditTimer : public cOsdMenu {
-@@ -44,6 +45,7 @@
+@@ -84,6 +86,7 @@ public:
    cMenuEditTimer(cTimer *Timer, bool New = false);
    virtual ~cMenuEditTimer();
    virtual eOSState ProcessKey(eKeys Key);
@@ -175,7 +208,7 @@ diff -urNad vdr-1.6.0~/menu.h vdr-1.6.0/menu.h
    };
  
  class cMenuEvent : public cOsdMenu {
-@@ -53,6 +55,7 @@
+@@ -93,6 +96,7 @@ public:
    cMenuEvent(const cEvent *Event, bool CanSwitch = false, bool Buttons = false);
    virtual void Display(void);
    virtual eOSState ProcessKey(eKeys Key);
@@ -183,7 +216,7 @@ diff -urNad vdr-1.6.0~/menu.h vdr-1.6.0/menu.h
    };
  
  class cMenuMain : public cOsdMenu {
-@@ -69,6 +72,7 @@
+@@ -109,6 +113,7 @@ public:
    cMenuMain(eOSState State = osUnknown);
    virtual eOSState ProcessKey(eKeys Key);
    static cOsdObject *PluginOsdObject(void);
@@ -191,7 +224,7 @@ diff -urNad vdr-1.6.0~/menu.h vdr-1.6.0/menu.h
    };
  
  class cDisplayChannel : public cOsdObject {
-@@ -171,6 +175,7 @@
+@@ -210,6 +215,7 @@ public:
    cMenuRecordings(const char *Base = NULL, int Level = 0, bool OpenSubMenus = false);
    ~cMenuRecordings();
    virtual eOSState ProcessKey(eKeys Key);
@@ -199,10 +232,10 @@ diff -urNad vdr-1.6.0~/menu.h vdr-1.6.0/menu.h
    };
  
  class cRecordControl {
-diff -urNad vdr-1.6.0~/menuitems.h vdr-1.6.0/menuitems.h
---- vdr-1.6.0~/menuitems.h	2008-02-16 17:09:58.000000000 +0100
-+++ vdr-1.6.0/menuitems.h	2008-04-04 17:17:53.000000000 +0200
-@@ -174,6 +174,7 @@
+diff -Naurp vdr-1.7.13/menuitems.h vdr-1.7.13-graphtft/menuitems.h
+--- vdr-1.7.13/menuitems.h	2010-02-21 13:58:21.000000000 +0000
++++ vdr-1.7.13-graphtft/menuitems.h	2010-02-28 20:20:08.000000000 +0000
+@@ -198,6 +198,7 @@ public:
    cMenuSetupPage(void);
    virtual eOSState ProcessKey(eKeys Key);
    void SetPlugin(cPlugin *Plugin);
@@ -210,10 +243,10 @@ diff -urNad vdr-1.6.0~/menuitems.h vdr-1.6.0/menuitems.h
    };
  
  #endif //__MENUITEMS_H
-diff -urNad vdr-1.6.0~/osdbase.c vdr-1.6.0/osdbase.c
---- vdr-1.6.0~/osdbase.c	2008-04-04 17:17:25.000000000 +0200
-+++ vdr-1.6.0/osdbase.c	2008-04-04 17:18:05.000000000 +0200
-@@ -98,6 +98,7 @@
+diff -Naurp vdr-1.7.13/osdbase.c vdr-1.7.13-graphtft/osdbase.c
+--- vdr-1.7.13/osdbase.c	2010-01-17 11:36:12.000000000 +0000
++++ vdr-1.7.13-graphtft/osdbase.c	2010-02-28 20:20:07.000000000 +0000
+@@ -97,6 +97,7 @@ cOsdMenu::~cOsdMenu()
    free(status);
    displayMenu->Clear();
    cStatus::MsgOsdClear();
@@ -221,7 +254,7 @@ diff -urNad vdr-1.6.0~/osdbase.c vdr-1.6.0/osdbase.c
    if (!--displayMenuCount)
       DELETENULL(displayMenu);
  }
-@@ -203,6 +204,7 @@
+@@ -202,6 +203,7 @@ void cOsdMenu::Display(void)
    displayMenu->SetMessage(mtStatus, NULL);
    displayMenu->Clear();
    cStatus::MsgOsdClear();
@@ -229,10 +262,10 @@ diff -urNad vdr-1.6.0~/osdbase.c vdr-1.6.0/osdbase.c
    displayMenu->SetTabs(cols[0], cols[1], cols[2], cols[3], cols[4]);//XXX
    displayMenu->SetTitle(title);
    cStatus::MsgOsdTitle(title);
-diff -urNad vdr-1.6.0~/osdbase.h vdr-1.6.0/osdbase.h
---- vdr-1.6.0~/osdbase.h	2008-04-04 17:17:25.000000000 +0200
-+++ vdr-1.6.0/osdbase.h	2008-04-04 17:18:11.000000000 +0200
-@@ -131,6 +131,7 @@
+diff -Naurp vdr-1.7.13/osdbase.h vdr-1.7.13-graphtft/osdbase.h
+--- vdr-1.7.13/osdbase.h	2010-01-16 14:25:31.000000000 +0000
++++ vdr-1.7.13-graphtft/osdbase.h	2010-02-28 20:20:08.000000000 +0000
+@@ -131,6 +131,7 @@ public:
    void Ins(cOsdItem *Item, bool Current = false, cOsdItem *Before = NULL);
    virtual void Display(void);
    virtual eOSState ProcessKey(eKeys Key);
@@ -240,24 +273,25 @@ diff -urNad vdr-1.6.0~/osdbase.h vdr-1.6.0/osdbase.h
    };
  
  #endif //__OSDBASE_H
-diff -urNad vdr-1.6.0~/recording.h vdr-1.6.0/recording.h
---- vdr-1.6.0~/recording.h	2008-04-04 17:17:25.000000000 +0200
-+++ vdr-1.6.0/recording.h	2008-04-04 17:19:50.000000000 +0200
-@@ -56,6 +56,7 @@
-   const char *ChannelName(void) const { return channelName; }
+diff -Naurp vdr-1.7.13/recording.h vdr-1.7.13-graphtft/recording.h
+--- vdr-1.7.13/recording.h	2010-01-16 11:16:20.000000000 +0000
++++ vdr-1.7.13-graphtft/recording.h	2010-02-28 20:20:08.000000000 +0000
+@@ -65,6 +65,7 @@ public:
+   const cEvent *GetEvent(void) const { return event; }
    const char *Title(void) const { return event->Title(); }
    const char *ShortText(void) const { return event->ShortText(); }
 +  tEventID EventID(void) const { return event->EventID(); }
    const char *Description(void) const { return event->Description(); }
    const cComponents *Components(void) const { return event->Components(); }
    const char *Aux(void) const { return aux; }
-diff -urNad vdr-1.6.0~/status.c vdr-1.6.0/status.c
---- vdr-1.6.0~/status.c	2008-02-16 15:46:31.000000000 +0100
-+++ vdr-1.6.0/status.c	2008-04-04 17:20:11.000000000 +0200
-@@ -124,3 +124,26 @@
+diff -Naurp vdr-1.7.13/status.c vdr-1.7.13-graphtft/status.c
+--- vdr-1.7.13/status.c	2008-02-16 14:46:31.000000000 +0000
++++ vdr-1.7.13-graphtft/status.c	2010-02-28 20:20:08.000000000 +0000
+@@ -124,3 +124,32 @@ void cStatus::MsgOsdProgramme(time_t Pre
    for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
        sm->OsdProgramme(PresentTime, PresentTitle, PresentSubtitle, FollowingTime, FollowingTitle, FollowingSubtitle);
  }
++
 +void cStatus::MsgOsdSetEvent(const cEvent* event)
 +{
 +  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
@@ -281,10 +315,15 @@ diff -urNad vdr-1.6.0~/status.c vdr-1.6.0/status.c
 +  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
 +      sm->OsdMenuDestroy();
 +}
-diff -urNad vdr-1.6.0~/status.h vdr-1.6.0/status.h
---- vdr-1.6.0~/status.h	2008-02-16 16:00:33.000000000 +0100
-+++ vdr-1.6.0/status.h	2008-04-04 17:20:03.000000000 +0200
-@@ -80,6 +80,15 @@
++void cStatus::MsgOsdEventItem(const cEvent* Event, const char *Text, int Index, int Count)
++{
++  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
++     sm->OsdEventItem(Event, Text, Index, Count);
++}
+diff -Naurp vdr-1.7.13/status.h vdr-1.7.13-graphtft/status.h
+--- vdr-1.7.13/status.h	2008-02-16 15:00:33.000000000 +0000
++++ vdr-1.7.13-graphtft/status.h	2010-02-28 20:20:08.000000000 +0000
+@@ -80,6 +80,17 @@ protected:
                 // The OSD displays the single line Text with the current channel information.
    virtual void OsdProgramme(time_t PresentTime, const char *PresentTitle, const char *PresentSubtitle, time_t FollowingTime, const char *FollowingTitle, const char *FollowingSubtitle) {}
                 // The OSD displays the given programme information.
@@ -296,11 +335,13 @@ diff -urNad vdr-1.6.0~/status.h vdr-1.6.0/status.h
 +               // report menu creation
 +  virtual void OsdMenuDestroy() {}
 +               // report menu destruvtion
++  virtual void OsdEventItem(const cEvent* Event, const char *Text, int Index, int Count) {}
++               // The OSD displays the given single line Event as menu item at Index.
 +
  public:
    cStatus(void);
    virtual ~cStatus();
-@@ -101,6 +110,10 @@
+@@ -101,6 +112,11 @@ public:
    static void MsgOsdTextItem(const char *Text,  bool Scroll = false);
    static void MsgOsdChannel(const char *Text);
    static void MsgOsdProgramme(time_t PresentTime, const char *PresentTitle, const char *PresentSubtitle, time_t FollowingTime, const char *FollowingTitle, const char *FollowingSubtitle);
@@ -308,6 +349,7 @@ diff -urNad vdr-1.6.0~/status.h vdr-1.6.0/status.h
 +  static void MsgOsdSetRecording(const cRecording* recording);
 +  static void MsgOsdMenuDisplay(const char* kind);
 +  static void MsgOsdMenuDestroy();
++  static void MsgOsdEventItem(const cEvent* Event, const char *Text, int Index, int Count);
    };
  
  #endif //__STATUS_H

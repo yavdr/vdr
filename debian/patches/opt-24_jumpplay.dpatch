@@ -1,15 +1,15 @@
 #! /bin/sh /usr/share/dpatch/dpatch-run
 ## opt-24_jumpplay.dpatch by Torsten Kunkel <vdr@tkunkel.de>, Thomas Günther <tom@toms-cafe.de>
-## http://toms-cafe.de/vdr/download/vdr-jumpplay-1.0-1.6.0.diff
+## http://toms-cafe.de/vdr/download/vdr-jumpplay-1.0-1.7.6.diff
 ##
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Play after jump to next mark. Automatically jump over commercial breaks.
 ## DP: See README.jumpplay and MANUAL for details.
 
 @DPATCH@
-diff -Naurp vdr-1.6.0/MANUAL vdr-1.6.0-jumpplay-1.0/MANUAL
---- vdr-1.6.0/MANUAL	2008-02-24 10:09:17.000000000 +0000
-+++ vdr-1.6.0-jumpplay-1.0/MANUAL	2009-03-31 00:11:13.000000000 +0000
+diff -Naurp vdr-1.7.6/MANUAL vdr-1.7.6-jumpplay/MANUAL
+--- vdr-1.7.6/MANUAL	2008-02-24 10:09:17.000000000 +0000
++++ vdr-1.7.6-jumpplay/MANUAL	2009-04-27 15:49:00.000000000 +0000
 @@ -813,6 +813,30 @@ Version 1.6
                           0 resulting in a file named 'resume.vdr', and any other
                           value resulting in 'resume.n.vdr'.
@@ -41,9 +41,9 @@ diff -Naurp vdr-1.6.0/MANUAL vdr-1.6.0-jumpplay-1.0/MANUAL
    Miscellaneous:
  
    Min. event timeout = 30
-diff -Naurp vdr-1.6.0/README.jumpplay vdr-1.6.0-jumpplay-1.0/README.jumpplay
---- vdr-1.6.0/README.jumpplay	1970-01-01 00:00:00.000000000 +0000
-+++ vdr-1.6.0-jumpplay-1.0/README.jumpplay	2009-03-31 00:24:59.000000000 +0000
+diff -Naurp vdr-1.7.6/README.jumpplay vdr-1.7.6-jumpplay/README.jumpplay
+--- vdr-1.7.6/README.jumpplay	1970-01-01 00:00:00.000000000 +0000
++++ vdr-1.7.6-jumpplay/README.jumpplay	2009-04-27 15:49:00.000000000 +0000
 @@ -0,0 +1,92 @@
 +JumpPlay patch for VDR
 +----------------------
@@ -137,9 +137,9 @@ diff -Naurp vdr-1.6.0/README.jumpplay vdr-1.6.0-jumpplay-1.0/README.jumpplay
 +    Play&Jump:
 +      - set resume position to 0 if replay stops at the first mark
 +    Added French language texts (thanks to Michaël Nival)
-diff -Naurp vdr-1.6.0/config.c vdr-1.6.0-jumpplay-1.0/config.c
---- vdr-1.6.0/config.c	2008-02-17 13:39:00.000000000 +0000
-+++ vdr-1.6.0-jumpplay-1.0/config.c	2009-03-31 00:11:13.000000000 +0000
+diff -Naurp vdr-1.7.6/config.c vdr-1.7.6-jumpplay/config.c
+--- vdr-1.7.6/config.c	2009-01-24 15:05:32.000000000 +0000
++++ vdr-1.7.6-jumpplay/config.c	2009-04-27 15:49:00.000000000 +0000
 @@ -283,6 +283,10 @@ cSetup::cSetup(void)
    MultiSpeedMode = 0;
    ShowReplayMode = 0;
@@ -173,9 +173,9 @@ diff -Naurp vdr-1.6.0/config.c vdr-1.6.0-jumpplay-1.0/config.c
    Store("CurrentChannel",     CurrentChannel);
    Store("CurrentVolume",      CurrentVolume);
    Store("CurrentDolby",       CurrentDolby);
-diff -Naurp vdr-1.6.0/config.h vdr-1.6.0-jumpplay-1.0/config.h
---- vdr-1.6.0/config.h	2008-03-23 10:26:10.000000000 +0000
-+++ vdr-1.6.0-jumpplay-1.0/config.h	2009-03-31 00:11:13.000000000 +0000
+diff -Naurp vdr-1.7.6/config.h vdr-1.7.6-jumpplay/config.h
+--- vdr-1.7.6/config.h	2009-04-12 14:20:52.000000000 +0000
++++ vdr-1.7.6-jumpplay/config.h	2009-04-27 15:49:00.000000000 +0000
 @@ -36,6 +36,8 @@
  // plugins to work with newer versions of the core VDR as long as no
  // VDR header files have changed.
@@ -185,7 +185,7 @@ diff -Naurp vdr-1.6.0/config.h vdr-1.6.0-jumpplay-1.0/config.h
  #define MAXPRIORITY 99
  #define MAXLIFETIME 99
  
-@@ -261,6 +263,10 @@ public:
+@@ -260,6 +262,10 @@ public:
    int MultiSpeedMode;
    int ShowReplayMode;
    int ResumeID;
@@ -196,18 +196,18 @@ diff -Naurp vdr-1.6.0/config.h vdr-1.6.0-jumpplay-1.0/config.h
    int CurrentChannel;
    int CurrentVolume;
    int CurrentDolby;
-diff -Naurp vdr-1.6.0/dvbplayer.c vdr-1.6.0-jumpplay-1.0/dvbplayer.c
---- vdr-1.6.0/dvbplayer.c	2008-02-09 15:10:54.000000000 +0000
-+++ vdr-1.6.0-jumpplay-1.0/dvbplayer.c	2009-03-31 00:17:08.000000000 +0000
-@@ -193,6 +193,7 @@ private:
+diff -Naurp vdr-1.7.6/dvbplayer.c vdr-1.7.6-jumpplay/dvbplayer.c
+--- vdr-1.7.6/dvbplayer.c	2009-04-19 15:19:10.000000000 +0000
++++ vdr-1.7.6-jumpplay/dvbplayer.c	2009-04-27 17:33:20.000000000 +0000
+@@ -204,6 +204,7 @@ private:
    cNonBlockingFileReader *nonBlockingFileReader;
    cRingBufferFrame *ringBuffer;
-   cBackTrace *backTrace;
+   cPtsIndex ptsIndex;
 +  cMarksReload marks;
    cFileName *fileName;
    cIndexFile *index;
    cUnbufferedFile *replayFile;
-@@ -234,7 +235,7 @@ public:
+@@ -249,7 +250,7 @@ public:
  int cDvbPlayer::Speeds[] = { 0, -2, -4, -8, 1, 2, 4, 12, 0 };
  
  cDvbPlayer::cDvbPlayer(const char *FileName)
@@ -216,18 +216,18 @@ diff -Naurp vdr-1.6.0/dvbplayer.c vdr-1.6.0-jumpplay-1.0/dvbplayer.c
  {
    nonBlockingFileReader = NULL;
    ringBuffer = NULL;
-@@ -341,6 +342,10 @@ bool cDvbPlayer::Save(void)
+@@ -357,6 +358,10 @@ bool cDvbPlayer::Save(void)
    if (index) {
-      int Index = writeIndex;
+      int Index = ptsIndex.FindIndex(DeviceGetSTC());
       if (Index >= 0) {
 +        // set resume position to 0 if replay stops at the first mark
 +        if (Setup.PlayJump && marks.First() &&
-+            abs(Index - marks.First()->position) <= RESUMEBACKUP)
++            abs(Index - marks.First()->position) <= int(round(RESUMEBACKUP * framesPerSecond)))
 +           Index = 0;
-         Index -= RESUMEBACKUP;
+         Index -= int(round(RESUMEBACKUP * framesPerSecond));
          if (Index > 0)
             Index = index->GetNextIFrame(Index, false);
-@@ -368,11 +373,26 @@ void cDvbPlayer::Action(void)
+@@ -384,11 +389,26 @@ void cDvbPlayer::Action(void)
    uchar *b = NULL;
    uchar *p = NULL;
    int pc = 0;
@@ -236,16 +236,16 @@ diff -Naurp vdr-1.6.0/dvbplayer.c vdr-1.6.0-jumpplay-1.0/dvbplayer.c
  
    readIndex = Resume();
    if (readIndex >= 0)
-      isyslog("resuming replay at index %d (%s)", readIndex, *IndexToHMSF(readIndex, true));
+      isyslog("resuming replay at index %d (%s)", readIndex, *IndexToHMSF(readIndex, true, framesPerSecond));
  
 +  if (Setup.PlayJump && readIndex <= 0 && marks.First() && index) {
 +     int Index = marks.First()->position;
-+     uchar FileNumber;
-+     int FileOffset;
++     uint16_t FileNumber;
++     off_t FileOffset;
 +     if (index->Get(Index, &FileNumber, &FileOffset) &&
 +         NextFile(FileNumber, FileOffset)) {
 +        isyslog("PlayJump: start replay at first mark %d (%s)",
-+                Index, *IndexToHMSF(Index, true));
++                Index, *IndexToHMSF(Index, true, framesPerSecond));
 +        readIndex = Index;
 +        }
 +     }
@@ -254,91 +254,93 @@ diff -Naurp vdr-1.6.0/dvbplayer.c vdr-1.6.0-jumpplay-1.0/dvbplayer.c
    nonBlockingFileReader = new cNonBlockingFileReader;
    int Length = 0;
    bool Sleep = false;
-@@ -393,7 +413,7 @@ void cDvbPlayer::Action(void)
+@@ -411,7 +431,7 @@ void cDvbPlayer::Action(void)
  
-            // Read the next frame from the file:
+           // Read the next frame from the file:
  
--           if (playMode != pmStill && playMode != pmPause) {
-+           if (playMode != pmStill && playMode != pmPause && !LastMarkPause) {
-               if (!readFrame && (replayFile || readIndex >= 0)) {
-                  if (!nonBlockingFileReader->Reading()) {
-                     if (playMode == pmFast || (playMode == pmSlow && playDir == pdBackward)) {
-@@ -438,6 +458,44 @@ void cDvbPlayer::Action(void)
-                        uchar FileNumber;
-                        int FileOffset;
-                        readIndex++;
-+                       if (Setup.PlayJump || Setup.PauseLastMark) {
-+                          // check for end mark - jump to next mark or pause
-+                          marks.Reload();
-+                          cMark *m = marks.Get(readIndex);
-+                          if (m && (m->Index() & 0x01) != 0) {
-+                             m = marks.Next(m);
-+                             int Index;
-+                             if (m)
-+                                Index = m->position;
-+                             else if (Setup.PauseLastMark) {
-+                                // pause at last mark
-+                                isyslog("PauseLastMark: pause at position %d (%s)",
-+                                        readIndex, *IndexToHMSF(readIndex, true));
-+                                LastMarkPause = true;
-+                                Index = -1;
-+                                }
-+                             else if (total == index->Last())
-+                                // at last mark jump to end of recording
-+                                Index = index->Last() - 1;
-+                             else
-+                                // jump but stay off end of live-recordings
-+                                Index = index->GetNextIFrame(index->Last() - 150, true);
-+                             // don't jump in edited recordings
-+                             if (Setup.PlayJump && Index > readIndex &&
-+                                 Index > index->GetNextIFrame(readIndex, true)) {
-+                                isyslog("PlayJump: %d frames to %d (%s)",
-+                                        Index - readIndex, Index,
-+                                        *IndexToHMSF(Index, true));
-+                                readIndex = Index;
-+                                cutIn = true;
-+                                }
-+                             }
-+                          }
-+                       // for detecting growing length of live-recordings
-+                       uchar PictureType;
-+                       if (index->Get(readIndex, &FileNumber, &FileOffset, &PictureType) &&
-+                           PictureType == I_FRAME)
-+                          total = index->Last();
-                        if (!(index->Get(readIndex, &FileNumber, &FileOffset, NULL, &Length) && NextFile(FileNumber, FileOffset))) {
-                           readIndex = -1;
-                           eof = true;
-@@ -473,6 +531,10 @@ void cDvbPlayer::Action(void)
-               // Store the frame in the buffer:
+-          if (playMode != pmStill && playMode != pmPause) {
++          if (playMode != pmStill && playMode != pmPause && !LastMarkPause) {
+              if (!readFrame && (replayFile || readIndex >= 0)) {
+                 if (!nonBlockingFileReader->Reading()) {
+                    if (!SwitchToPlayFrame && (playMode == pmFast || (playMode == pmSlow && playDir == pdBackward))) {
+@@ -448,6 +468,44 @@ void cDvbPlayer::Action(void)
+                    else if (index) {
+                       uint16_t FileNumber;
+                       off_t FileOffset;
++                      if (Setup.PlayJump || Setup.PauseLastMark) {
++                         // check for end mark - jump to next mark or pause
++                         readIndex++;
++                         marks.Reload();
++                         cMark *m = marks.Get(readIndex);
++                         if (m && (m->Index() & 0x01) != 0) {
++                            m = marks.Next(m);
++                            int Index;
++                            if (m)
++                               Index = m->position;
++                            else if (Setup.PauseLastMark) {
++                               // pause at last mark
++                               isyslog("PauseLastMark: pause at position %d (%s)",
++                                       readIndex, *IndexToHMSF(readIndex, true, framesPerSecond));
++                               LastMarkPause = true;
++                               Index = -1;
++                               }
++                            else if (total == index->Last())
++                               // at last mark jump to end of recording
++                               Index = index->Last() - 1;
++                            else
++                               // jump but stay off end of live-recordings
++                               Index = index->GetNextIFrame(index->Last() - int(round(MAXSTUCKATEOF * framesPerSecond)), true);
++                            // don't jump in edited recordings
++                            if (Setup.PlayJump && Index > readIndex &&
++                                Index > index->GetNextIFrame(readIndex, true)) {
++                               isyslog("PlayJump: %d frames to %d (%s)",
++                                       Index - readIndex, Index,
++                                       *IndexToHMSF(Index, true, framesPerSecond));
++                               readIndex = Index;
++                               cutIn = true;
++                               }
++                            }
++                         readIndex--;
++                      }
++                      // for detecting growing length of live-recordings
++                      if (index->Get(readIndex + 1, &FileNumber, &FileOffset, &readIndependent) && readIndependent)
++                         total = index->Last();
+                       if (index->Get(readIndex + 1, &FileNumber, &FileOffset, &readIndependent, &Length) && NextFile(FileNumber, FileOffset))
+                          readIndex++;
+                       else
+@@ -489,6 +547,13 @@ void cDvbPlayer::Action(void)
+              // Store the frame in the buffer:
  
-               if (readFrame) {
-+                 if (cutIn) {
-+                    cRemux::SetBrokenLink(readFrame->Data(), readFrame->Count());
-+                    cutIn = false;
-+                    }
-                  if (ringBuffer->Put(readFrame))
-                     readFrame = NULL;
-                  }
-@@ -521,8 +583,14 @@ void cDvbPlayer::Action(void)
-                  p = NULL;
-                  }
-               }
--           else
-+           else {
-+              if (LastMarkPause) {
-+                 LastMarkPause = false;
-+                 playMode = pmPause;
-+                 writeIndex = readIndex;
-+                 }
-               Sleep = true;
-+              }
-            }
-         }
+              if (readFrame) {
++                if (cutIn) {
++                   if (isPesRecording)
++                      cRemux::SetBrokenLink(readFrame->Data(), readFrame->Count());
++                   else
++                      TsSetTeiOnBrokenPackets(readFrame->Data(), readFrame->Count());
++                   cutIn = false;
++                   }
+                 if (ringBuffer->Put(readFrame))
+                    readFrame = NULL;
+                 else
+@@ -548,8 +613,13 @@ void cDvbPlayer::Action(void)
+                 p = NULL;
+                 }
+              }
+-          else
++          else {
++             if (LastMarkPause) {
++                LastMarkPause = false;
++                playMode = pmPause;
++                }
+              Sleep = true;
++             }
  
-diff -Naurp vdr-1.6.0/menu.c vdr-1.6.0-jumpplay-1.0/menu.c
---- vdr-1.6.0/menu.c	2008-03-16 11:15:28.000000000 +0000
-+++ vdr-1.6.0-jumpplay-1.0/menu.c	2009-03-31 00:11:13.000000000 +0000
-@@ -2775,6 +2775,10 @@ cMenuSetupReplay::cMenuSetupReplay(void)
+           // Handle hitting begin/end of recording:
+ 
+diff -Naurp vdr-1.7.6/menu.c vdr-1.7.6-jumpplay/menu.c
+--- vdr-1.7.6/menu.c	2009-01-24 15:05:43.000000000 +0000
++++ vdr-1.7.6-jumpplay/menu.c	2009-04-27 15:49:00.000000000 +0000
+@@ -2717,6 +2717,10 @@ cMenuSetupReplay::cMenuSetupReplay(void)
    Add(new cMenuEditBoolItem(tr("Setup.Replay$Multi speed mode"), &data.MultiSpeedMode));
    Add(new cMenuEditBoolItem(tr("Setup.Replay$Show replay mode"), &data.ShowReplayMode));
    Add(new cMenuEditIntItem(tr("Setup.Replay$Resume ID"), &data.ResumeID, 0, 99));
@@ -349,7 +351,7 @@ diff -Naurp vdr-1.6.0/menu.c vdr-1.6.0-jumpplay-1.0/menu.c
  }
  
  void cMenuSetupReplay::Store(void)
-@@ -4064,7 +4068,7 @@ char *cReplayControl::fileName = NULL;
+@@ -4008,7 +4012,7 @@ char *cReplayControl::fileName = NULL;
  char *cReplayControl::title = NULL;
  
  cReplayControl::cReplayControl(void)
@@ -358,15 +360,15 @@ diff -Naurp vdr-1.6.0/menu.c vdr-1.6.0-jumpplay-1.0/menu.c
  {
    currentReplayControl = this;
    displayReplay = NULL;
-@@ -4074,7 +4078,6 @@ cReplayControl::cReplayControl(void)
-   lastSpeed = -2; // an invalid value
-   timeoutShow = 0;
+@@ -4020,7 +4024,6 @@ cReplayControl::cReplayControl(void)
    timeSearchActive = false;
--  marks.Load(fileName);
    cRecording Recording(fileName);
    cStatus::MsgReplaying(this, Recording.Name(), Recording.FileName(), true);
+-  marks.Load(fileName, Recording.FramesPerSecond(), Recording.IsPesRecording());
    SetTrackDescriptions(false);
-@@ -4304,8 +4307,10 @@ void cReplayControl::MarkToggle(void)
+ }
+ 
+@@ -4248,8 +4251,10 @@ void cReplayControl::MarkToggle(void)
          ShowTimed(2);
          bool Play, Forward;
          int Speed;
@@ -378,7 +380,7 @@ diff -Naurp vdr-1.6.0/menu.c vdr-1.6.0-jumpplay-1.0/menu.c
          }
       marks.Save();
       }
-@@ -4318,8 +4323,17 @@ void cReplayControl::MarkJump(bool Forwa
+@@ -4262,8 +4267,17 @@ void cReplayControl::MarkJump(bool Forwa
       if (GetIndex(Current, Total)) {
          cMark *m = Forward ? marks.GetNext(Current) : marks.GetPrev(Current);
          if (m) {
@@ -387,7 +389,7 @@ diff -Naurp vdr-1.6.0/menu.c vdr-1.6.0-jumpplay-1.0/menu.c
 +           bool Play2, Forward2;
 +           int Speed;
 +           if (Setup.JumpPlay && GetReplayMode(Play2, Forward2, Speed) &&
-+               Play2 && Forward && m->position < Total - SecondsToFrames(3)) {
++               Play2 && Forward && m->position < Total - SecondsToFrames(3, FramesPerSecond())) {
 +              Goto(m->position);
 +              Play();
 +              }
@@ -398,7 +400,7 @@ diff -Naurp vdr-1.6.0/menu.c vdr-1.6.0-jumpplay-1.0/menu.c
             }
          }
       }
-@@ -4374,7 +4388,7 @@ void cReplayControl::EditTest(void)
+@@ -4318,7 +4332,7 @@ void cReplayControl::EditTest(void)
       if (!m)
          m = marks.GetNext(Current);
       if (m) {
@@ -406,8 +408,8 @@ diff -Naurp vdr-1.6.0/menu.c vdr-1.6.0-jumpplay-1.0/menu.c
 +        if ((m->Index() & 0x01) != 0 && !Setup.PlayJump)
             m = marks.Next(m);
          if (m) {
-            Goto(m->position - SecondsToFrames(3));
-@@ -4396,6 +4410,7 @@ eOSState cReplayControl::ProcessKey(eKey
+            Goto(m->position - SecondsToFrames(3, FramesPerSecond()));
+@@ -4340,6 +4354,7 @@ eOSState cReplayControl::ProcessKey(eKey
  {
    if (!Active())
       return osEnd;
@@ -415,9 +417,9 @@ diff -Naurp vdr-1.6.0/menu.c vdr-1.6.0-jumpplay-1.0/menu.c
    if (visible) {
       if (timeoutShow && time(NULL) > timeoutShow) {
          Hide();
-diff -Naurp vdr-1.6.0/menu.h vdr-1.6.0-jumpplay-1.0/menu.h
---- vdr-1.6.0/menu.h	2008-02-10 16:01:53.000000000 +0000
-+++ vdr-1.6.0-jumpplay-1.0/menu.h	2009-03-31 00:11:13.000000000 +0000
+diff -Naurp vdr-1.7.6/menu.h vdr-1.7.6-jumpplay/menu.h
+--- vdr-1.7.6/menu.h	2008-02-10 16:01:53.000000000 +0000
++++ vdr-1.7.6-jumpplay/menu.h	2009-04-27 15:49:00.000000000 +0000
 @@ -212,7 +212,7 @@ public:
  class cReplayControl : public cDvbPlayerControl {
  private:
@@ -427,10 +429,10 @@ diff -Naurp vdr-1.6.0/menu.h vdr-1.6.0-jumpplay-1.0/menu.h
    bool visible, modeOnly, shown, displayFrames;
    int lastCurrent, lastTotal;
    bool lastPlay, lastForward;
-diff -Naurp vdr-1.6.0/po/de_DE.po vdr-1.6.0-jumpplay-1.0/po/de_DE.po
---- vdr-1.6.0/po/de_DE.po	2008-03-23 10:31:29.000000000 +0000
-+++ vdr-1.6.0-jumpplay-1.0/po/de_DE.po	2009-03-31 00:11:13.000000000 +0000
-@@ -746,6 +746,18 @@ msgstr "Editierte Dateien aufteilen"
+diff -Naurp vdr-1.7.6/po/de_DE.po vdr-1.7.6-jumpplay/po/de_DE.po
+--- vdr-1.7.6/po/de_DE.po	2009-04-18 15:24:48.000000000 +0000
++++ vdr-1.7.6-jumpplay/po/de_DE.po	2009-04-27 15:49:00.000000000 +0000
+@@ -755,6 +755,18 @@ msgstr "Editierte Dateien aufteilen"
  msgid "Replay"
  msgstr "Wiedergabe"
  
@@ -449,10 +451,10 @@ diff -Naurp vdr-1.6.0/po/de_DE.po vdr-1.6.0-jumpplay-1.0/po/de_DE.po
  msgid "Setup.Replay$Multi speed mode"
  msgstr "Mehrstufiger Vor-/Rücklauf"
  
-diff -Naurp vdr-1.6.0/po/fr_FR.po vdr-1.6.0-jumpplay-1.0/po/fr_FR.po
---- vdr-1.6.0/po/fr_FR.po	2008-03-23 10:31:29.000000000 +0000
-+++ vdr-1.6.0-jumpplay-1.0/po/fr_FR.po	2009-03-31 00:11:13.000000000 +0000
-@@ -752,6 +752,18 @@ msgstr "Séparer les séquences éditées"
+diff -Naurp vdr-1.7.6/po/fr_FR.po vdr-1.7.6-jumpplay/po/fr_FR.po
+--- vdr-1.7.6/po/fr_FR.po	2009-04-18 15:24:48.000000000 +0000
++++ vdr-1.7.6-jumpplay/po/fr_FR.po	2009-04-27 15:49:00.000000000 +0000
+@@ -761,6 +761,18 @@ msgstr "Séparer les séquences éditées"
  msgid "Replay"
  msgstr "Lecture"
  
@@ -471,10 +473,10 @@ diff -Naurp vdr-1.6.0/po/fr_FR.po vdr-1.6.0-jumpplay-1.0/po/fr_FR.po
  msgid "Setup.Replay$Multi speed mode"
  msgstr "Mode multi-vitesses"
  
-diff -Naurp vdr-1.6.0/recording.c vdr-1.6.0-jumpplay-1.0/recording.c
---- vdr-1.6.0/recording.c	2008-02-24 10:28:53.000000000 +0000
-+++ vdr-1.6.0-jumpplay-1.0/recording.c	2009-03-31 00:11:13.000000000 +0000
-@@ -1154,6 +1154,49 @@ cMark *cMarks::GetNext(int Position)
+diff -Naurp vdr-1.7.6/recording.c vdr-1.7.6-jumpplay/recording.c
+--- vdr-1.7.6/recording.c	2009-04-13 13:50:39.000000000 +0000
++++ vdr-1.7.6-jumpplay/recording.c	2009-04-27 15:49:00.000000000 +0000
+@@ -1295,6 +1295,52 @@ cMark *cMarks::GetNext(int Position)
    return NULL;
  }
  
@@ -488,7 +490,9 @@ diff -Naurp vdr-1.6.0/recording.c vdr-1.6.0-jumpplay-1.0/recording.c
 +:recDir(RecordingFileName)
 +{
 +  struct stat sbuf;
-+  if (Load(recDir) && stat(FileName(), &sbuf) == 0)
++  cRecording rec(recDir);
++  if (Load(recDir, rec.FramesPerSecond(), rec.IsPesRecording()) &&
++      stat(FileName(), &sbuf) == 0)
 +     lastmodtime = sbuf.st_mtime;
 +  else
 +     lastmodtime = 0;
@@ -505,7 +509,8 @@ diff -Naurp vdr-1.6.0/recording.c vdr-1.6.0-jumpplay-1.0/recording.c
 +     struct stat sbuf;
 +     if (stat(FileName(), &sbuf) == 0 && sbuf.st_mtime != lastmodtime) {
 +        lastmodtime = sbuf.st_mtime;
-+        if (Load(recDir))
++        cRecording rec(recDir);
++        if (Load(recDir, rec.FramesPerSecond(), rec.IsPesRecording()))
 +           return true;
 +        }
 +     }
@@ -524,10 +529,10 @@ diff -Naurp vdr-1.6.0/recording.c vdr-1.6.0-jumpplay-1.0/recording.c
  // --- cRecordingUserCommand -------------------------------------------------
  
  const char *cRecordingUserCommand::command = NULL;
-diff -Naurp vdr-1.6.0/recording.h vdr-1.6.0-jumpplay-1.0/recording.h
---- vdr-1.6.0/recording.h	2007-10-14 10:11:34.000000000 +0000
-+++ vdr-1.6.0-jumpplay-1.0/recording.h	2009-03-31 00:11:13.000000000 +0000
-@@ -170,6 +170,18 @@ public:
+diff -Naurp vdr-1.7.6/recording.h vdr-1.7.6-jumpplay/recording.h
+--- vdr-1.7.6/recording.h	2009-04-19 09:00:45.000000000 +0000
++++ vdr-1.7.6-jumpplay/recording.h	2009-04-27 15:49:00.000000000 +0000
+@@ -194,6 +194,18 @@ public:
    cMark *GetNext(int Position);
    };
  
