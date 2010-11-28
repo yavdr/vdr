@@ -1,7 +1,7 @@
 vdr (1.7.16-1) UNRELEASED; urgency=low
 
   [ Thomas Günther, Tobias Grimm ]
-  * Updated to the latest upstream development version release
+  * Updated to the latest upstream development version release (Closes: #573896)
   * Updated/Removed debian/patches/*
   * Setting default SVDRP port to 6419 (this was already changed by upstrem)
   * Added BIDI define to 81_Make_config.dpatch
@@ -16,7 +16,7 @@ vdr (1.7.16-1) UNRELEASED; urgency=low
   * Added option LIRC to /etc/default/vdr, which allows to change the LIRC device
     or disabling it by setting it to /dev/null
 
- -- Tobias Grimm <etobi@debian.org>  Sun, 28 Nov 2010 18:48:25 +0100
+ -- Tobias Grimm <etobi@debian.org>  Sun, 28 Nov 2010 22:52:40 +0100
 
 vdr (1.6.0-19.1) unstable; urgency=low
 
