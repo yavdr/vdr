@@ -16,7 +16,10 @@ vdr (1.7.16-1) UNRELEASED; urgency=low
   * Added option LIRC to /etc/default/vdr, which allows to change the LIRC device
     or disabling it by setting it to /dev/null
 
- -- Tobias Grimm <etobi@debian.org>  Sun, 28 Nov 2010 22:52:40 +0100
+  [ Thomas Schmidt ]
+  * Update Vcs-* fields: Move packaging from svn to git
+
+ -- Thomas Schmidt <tschmidt@debian.org>  Mon, 29 Nov 2010 17:44:44 +0100
 
 vdr (1.6.0-19.1) unstable; urgency=low
 
