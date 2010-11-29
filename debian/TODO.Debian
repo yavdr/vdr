@@ -5,3 +5,4 @@ TODO: Add option USE_LIRC=yes|no (see http://www.vdr-portal.de/board/thread.php?
 TODO: Get rid of bash in init script, debugvdr and vdrleaktest
 TODO: The runvdr module (re)loading stuff is weird - it was introduced to workaround driver bugs and can probably be removed
 TODO: Recommend vdr-plugin-dvbsddevice?
+TODO: Add note/install instructions/helper script for the special firmware required for FF cards
