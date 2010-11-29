@@ -67,7 +67,6 @@ opt-48-x_pin
 # Patch required for the GraphTFT plugin
 opt-50_graphtft
 opt-50_graphtft-liemikuutio
-opt-91_ext-graphtft
 
 # Modifies the start time of recordings to the first cutting mark
 # (disabled by default - enable in VDR's recording setup)

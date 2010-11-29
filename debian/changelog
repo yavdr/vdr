@@ -13,13 +13,14 @@ vdr (1.7.16-1) UNRELEASED; urgency=low
   * Removed 03_cmdsubmenu.dpatch (command submenus now integrated in upstream)
   * Removed installation of the sky plugin
   * Added installation of the dvbsddevice plugin
-  * Added option LIRC to /etc/default/vdr, which allows to change the LIRC device
-    or disabling it by setting it to /dev/null
+  * Added option LIRC to /etc/default/vdr, which allows to change the LIRC
+    device or disabling it by setting it to /dev/null
 
   [ Thomas Schmidt ]
   * Update Vcs-* fields: Move packaging from svn to git
+  * Fixed some lintian warnings 
 
- -- Thomas Schmidt <tschmidt@debian.org>  Mon, 29 Nov 2010 17:44:44 +0100
+ -- Thomas Schmidt <tschmidt@debian.org>  Mon, 29 Nov 2010 21:15:39 +0100
 
 vdr (1.6.0-19.1) unstable; urgency=low
 
