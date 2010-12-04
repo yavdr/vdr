@@ -1,0 +1,13 @@
+vdr (1.7.16-1) unstable; urgency=low
+
+  Starting with VDR 1.7 support for full featured DVB cards (the ones with
+  built-in SDTV video output) requires to install an extra plug-in provided by
+  the vdr-plugin-dvbsddevice package.
+
+  Please also note, that proper trick speed playback with a full featured DVB
+  card, needs an improved av7110 firmware. Oliver Endriss provides such a
+  firmware, which you can download here:
+
+  http://www.escape-edv.de/endriss/firmware/
+
+ -- Tobias Grimm <etobi@debian.org>  Sat, 04 Dec 2010 11:00:54 +0100
