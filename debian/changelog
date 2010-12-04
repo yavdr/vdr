@@ -13,6 +13,7 @@ vdr (1.7.16-1) UNRELEASED; urgency=low
   * Removed 03_cmdsubmenu.dpatch (command submenus now integrated in upstream)
   * Removed installation of the sky plugin
   * Added installation of the dvbsddevice plugin
+  * Suggest vdr-plugin-dvbsddevice
 
   [ Thomas Schmidt ]
   * Update Vcs-* fields: Move packaging from svn to git
