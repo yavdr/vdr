@@ -15,6 +15,7 @@ debian/patches/opt-41-x_timer-info.dpatch:04511ae02243eb1bab94f3f45b59e574
 debian/patches/opt-24_jumpplay.dpatch:cfa5a357bd499978dd87c0167a538cd0
 debian/patches/opt-50_graphtft-liemikuutio.dpatch:f82320b9c64e17d06b5d0dbbddf50e8f
 debian/patches/opt-31-x_reelchannelscan.dpatch:f8c06ac51888248f68badcab8533c2be
+debian/patches/99_add-language-to-po.dpatch:98572846a526dcde511c1163ea3eacb5
 debian/patches/81_Make_config.dpatch:da281b9af48273bcbd19f3052ee993fd
 debian/patches/opt-51_cuttime.dpatch:5459582bf3c6d95895d7e0ca18b52213
 debian/patches/opt-48-x_pin.dpatch:3dd524fa2c484cd03fa2f46194ceff18
@@ -23,7 +24,6 @@ debian/patches/opt-45_yaepg.dpatch:fbac27f726253a228d7fe15c1cdabeb2
 debian/patches/opt-27_ttxtsubs.dpatch:af553c89b0f4cb7f75fb38768c0ab72a
 debian/patches/99_ncursesw-include.dpatch:90810d58108ff8d9afd768fec67be904
 debian/patches/opt-39_noepg.dpatch:8e479efb77a9a7635a78e21832a56101
-debian/patches/opt-91_ext-graphtft.dpatch:afbe9ba764e67d293de8024f8093b014
 debian/patches/04_newplugin.dpatch:e99f8d21734a19b3eb93d9e3f11b680a
 debian/patches/opt-38_disableDoubleEpgEntrys.dpatch:7a09fa581f95613497b718b5c4a4a875
 debian/patches/opt-22-x_edit_marks.dpatch:d6b10d4000a85dbf0e42664c349fc5c9
