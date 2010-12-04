@@ -16,6 +16,7 @@ vdr (1.7.16-1) UNRELEASED; urgency=low
   * Suggest vdr-plugin-dvbsddevice
   * Added NEWS entry about vdr-plugin-dvbsddevice and a probably required 
     modified firmware
+  * Updated README.Debian
 
   [ Thomas Schmidt ]
   * Update Vcs-* fields: Move packaging from svn to git

@@ -3,11 +3,21 @@ vdr for Debian
 
 Comments to the Debian version:
 
- - You need a DVB card and a driver using the "Linux DVB API"
-   (http://www.linuxtv.org/developer/dvbapi.xml). The standard VDR 
-   (without special plugins) requires a DVB-card with an integrated 
-   mpeg-decoder, a so called Full-Featured card. (For example the 
-   Hauppauge Nexus, or a TechnoTrend FullFeatured 1.x)
+ - You need a DVB card and a driver using the "Linux DVB S2API".
+   These drivers have been merged into the Linux-Kernel in version 2.6.28,
+   but you might require a later kernel or special drivers for you DVB card.
+   You can get more information about the DVB driver development at:
+
+   http://www.linuxtv.org
+
+   Please note, that for a DVB-card with an integrated mpeg-decoder and
+   video output (a so called SDTV Full-Featured card) you need to install
+   the plugin vdr-plugin-dvbsddevice. For proper trick speed mode playback
+   with such cards, you also need a modified firmware, which is provided
+   by Olvier Endriss:
+
+   http://www.escape-edv.de/endriss/firmware/
+
  - all the small scripts and tools distributed with the package are located in
    /usr/lib/vdr/. You may use and modify them for you own purposes.
  - if you want to use the vdr-initscript, edit /etc/default/vdr and change
@@ -18,8 +28,6 @@ Comments to the Debian version:
    vdr-rcu) is now handled via update-alternatives, so if you have more than 
    one of these packages installed, and are not happy with the default 
    priorities, you can select the binary via "update-alternatives --config vdr"
-
- -- Thomas Schmidt <tschmidt@debian.org>,  Tue, 28 Dec 2004 14:22:21 +0100
 
 
 Additional configuration options
@@ -106,8 +114,6 @@ VIDEO_DIR="<VIDEODIR>"
 
     The video directory where vdr recordings will be stored.  
 
- -- Tobias Grimm <tg@e-tobi.net>,  Sat, 03 Jun 2006 19:00:00 +0100
-
 
 Automatic Loading of Plugins
 ----------------------------
@@ -120,8 +126,6 @@ If a file /etc/vdr/plugins/plugin.<plugin_name>.conf exists, it will be
 parsed for command line arguments for the specified plugin. This file may
 contain comments prefixed by a "#" and the command line arguments may also be
 distributed across several lines.
-
- -- Tobias Grimm <tg@e-tobi.net>,  Sun, 23 May 2004 18:00:00 +0100
 
 
 Command-Hooks
@@ -152,8 +156,6 @@ reccmds.conf in the vdr documentation.
 Commands added by the user, should go to commands.custom.conf and
 reccmds.custom.conf in /etc/vdr/command-hooks/. These files contain also some
 examples.
-
- -- Tobias Grimm <tg@e-tobi.net>,  Sun, 23 May 2004 18:00:00 +0100
 
 
 Recording-Hooks
@@ -189,8 +191,6 @@ to /usr/share/vdr/recording-hooks/.
 
 Custom user commands associated with the vdr package, can be added by the user
 to /etc/vdr/recording-hooks/R90.custom.
-
- -- Tobias Grimm <tg@e-tobi.net>,  Sun, 23 May 2004 19:00:00 +0100
 
 
 Shutdown-Hooks
@@ -251,7 +251,7 @@ plugin requires this group membership.
 In postinst a plugin should call:
 
     /bin/sh /usr/lib/vdr/vdr-groups.sh --add vdr-plugin-foo
-    
+
 and in prerm:
 
     /bin/sh /usr/lib/vdr/vdr-groups.sh --remove vdr-plugin-foo
@@ -259,8 +259,6 @@ and in prerm:
 If you manually add vdr to a group, you must add the group to
 /etc/vdr/vdr.groups. If you don't do so, vdr may be removed from this group when
 uninstalling a plugin.
-
- -- Thomas Schmidt <tschmidt@debian.org>,  Tue, 01 May 2007 14:12:15 +0200
 
 
 Optional Patches
@@ -286,5 +284,3 @@ anymore on the official Debian repositories to update existing vdr or plugin
 packages or install additional plugins. You always have to compile the plugins
 yourself! The optional patches are mainly intended for people who would like to
 create their own customized vdr distribution.
-
- -- Tobias Grimm <tg@e-tobi.net>,  Thu, 3 Jun 2004 02:20:00 +0100
