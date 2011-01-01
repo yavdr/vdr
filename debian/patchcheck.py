@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import re
-import md5
+import hashlib
 import os
 from optparse import OptionParser
 
@@ -22,7 +22,7 @@ def get_active_patches():
             if not os.path.exists(patchFileName):
                 patchFileName += ".dpatch"
             if os.path.exists(patchFileName):
-                active_patches[patchFileName] = md5.new(open(patchFileName).read()).hexdigest()
+                active_patches[patchFileName] = hashlib.md5(open(patchFileName).read()).hexdigest()
     return active_patches
 
 def get_last_patches():
@@ -32,13 +32,13 @@ def get_last_patches():
         if match:
             lastPatches[match.group(1)] = match.group(2)
     return lastPatches
-        
+
 def update_patchlist():
     patchListFile = open(file_name_for_patch_variant(PATCHES_FILE), "w")
     patches = get_active_patches()
     for fileName in patches:
         patchListFile.write(fileName + ":" + patches[fileName] + "\n")
-                    
+
 def report_patches(patches, reportText):
     if len(patches) > 0:
         print reportText
@@ -48,16 +48,16 @@ def report_patches(patches, reportText):
 
 def check_patches():
     active_patches = get_active_patches()
-    last_patches = get_last_patches()    
+    last_patches = get_last_patches()
 
     new_patches = [p for p in active_patches if last_patches.keys().count(p) == 0]
     removed_patches = [p for p in last_patches if active_patches.keys().count(p) == 0]
     changed_patches = [p for p in last_patches if p in active_patches and active_patches[p] != last_patches[p]]
-        
+
     report_patches(new_patches, "The following patches are new:")
     report_patches(removed_patches, "The following patches have been disabled:") 
     report_patches(changed_patches, "The following patches have been modified:")
-    
+
     if len(new_patches) + len(removed_patches) + len(changed_patches) > 0:
         commandLine = "debian/rules accept-patches"
         abiVersion = "abi-version"
