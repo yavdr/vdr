@@ -33,30 +33,25 @@ case "$1" in
 
         # install/move channels.conf 
         if [ ! -e /var/lib/vdr/channels.conf ]; then
-                if  [ -e /etc/vdr/channels.conf ]; then
-                        printf "Note: Moving /etc/vdr/channels.conf to /var/lib/vdr/channels.conf\n"
-                        mv /etc/vdr/channels.conf /var/lib/vdr/channels.conf
-                else
-                        db_get vdr/select_dvb_card
+                db_get vdr/select_dvb_card
 
-                        case "$RET" in
-                        Satellite)
-                                gzip -dc /usr/share/doc/vdr/examples/channels.conf.gz \
-                                > /var/lib/vdr/channels.conf
-                                chmod 644 /var/lib/vdr/channels.conf
-                        ;;
-                        Terrestrial)
-                                gzip -dc /usr/share/doc/vdr/examples/channels.conf.terr.gz \
-                                > /var/lib/vdr/channels.conf
-                                chmod 644 /var/lib/vdr/channels.conf
-                        ;;
-                        Cable)
-                                gzip -dc /usr/share/doc/vdr/examples/channels.conf.cable.gz \
-                                > /var/lib/vdr/channels.conf
-                                chmod 644 /var/lib/vdr/channels.conf
-                        ;;
-                        esac
-                fi
+                case "$RET" in
+                Satellite)
+                        gzip -dc /usr/share/doc/vdr/examples/channels.conf.gz \
+                        > /var/lib/vdr/channels.conf
+                        chmod 644 /var/lib/vdr/channels.conf
+                ;;
+                Terrestrial)
+                        gzip -dc /usr/share/doc/vdr/examples/channels.conf.terr.gz \
+                        > /var/lib/vdr/channels.conf
+                        chmod 644 /var/lib/vdr/channels.conf
+                ;;
+                Cable)
+                        gzip -dc /usr/share/doc/vdr/examples/channels.conf.cable.gz \
+                        > /var/lib/vdr/channels.conf
+                        chmod 644 /var/lib/vdr/channels.conf
+                ;;
+                esac
         fi
 
         db_get vdr/create_video_dir
@@ -144,7 +139,7 @@ db_stop
 
 # FIXME
 # wait for vdr to properly shutdown before it is restarted again
-sleep 5 
+sleep 5
 
 
 #DEBHELPER#

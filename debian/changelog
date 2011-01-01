@@ -27,6 +27,7 @@ vdr (1.7.16-1) UNRELEASED; urgency=low
   * Removed vdr-kbd, vdr-daemon, vdr-lirc and vdr-rcu - /usr/bin/vdr should be
     used instead
   * Dropped conflicts to vdradmin
+  * Dropped moving of channels.conf from /etc/vdr/ to /var/lib/vdr/
 
  -- Tobias Grimm <etobi@debian.org>  Sat, 01 Jan 2011 16:20:54 +0100
 
