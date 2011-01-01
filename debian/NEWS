@@ -1,5 +1,7 @@
 vdr (1.7.16-1) unstable; urgency=low
 
+  * Changed Full Featured DVB card support
+
   Starting with VDR 1.7 support for full featured DVB cards (the ones with
   built-in SDTV video output) requires to install an extra plug-in provided by
   the vdr-plugin-dvbsddevice package.
@@ -9,5 +11,11 @@ vdr (1.7.16-1) unstable; urgency=low
   firmware, which you can download here:
 
   http://www.escape-edv.de/endriss/firmware/
+
+  * Dropped vdr-* scripts
+
+  The vdr-daemon, vdr-lirc and vdr-rcu wrapper scripts as well as the vdr-kbd
+  binary have been removed from the package. Please use /use/bin/vdr with the
+  options "--no-kbd", "--lirc" and "--rcu" instead.
 
  -- Tobias Grimm <etobi@debian.org>  Sat, 04 Dec 2010 11:00:54 +0100

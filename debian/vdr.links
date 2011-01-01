@@ -12,11 +12,6 @@ etc/vdr/keymacros.conf   var/lib/vdr/keymacros.conf
 etc/vdr/sources.conf     var/lib/vdr/sources.conf
 etc/vdr/svdrphosts.conf  var/lib/vdr/svdrphosts.conf
 
-usr/share/man/man1/vdr.1.gz usr/share/man/man1/vdr-daemon.1.gz
-usr/share/man/man1/vdr.1.gz usr/share/man/man1/vdr-kbd.1.gz
-usr/share/man/man1/vdr.1.gz usr/share/man/man1/vdr-lirc.1.gz
-usr/share/man/man1/vdr.1.gz usr/share/man/man1/vdr-rcu.1.gz
-
 var/lib/vdr/setup.conf       etc/vdr/setup.conf
 var/lib/vdr/remote.conf      etc/vdr/remote.conf
 var/lib/vdr/channels.conf    etc/vdr/channels.conf

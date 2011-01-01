@@ -16,9 +16,8 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, psmisc
 Recommends: lirc, ttf-bitstream-vera | ttf-freefont
 Suggests: vdr-plugin-dvbsddevice
-Provides: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu, ${vdr:Provides}
-Conflicts: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu, vdradmin (<< 3.4.3)
-Replaces: vdr-daemon, vdr-kbd, vdr-lirc, vdr-rcu
+Provides: ${vdr:Provides}
+Conflicts: vdradmin (<< 3.4.3)
 Description: Video Disk Recorder for DVB cards
  Video Disk Recorder (VDR) is a digital sat-receiver program using
  Linux and DVB technologies. It allows one to record MPEG2 streams,

@@ -73,7 +73,6 @@ build-stamp: configure-stamp
 
 	# build "productive" vdr
 	$(MAKE) all $(MAKE_OPTIONS)
-	ln -f vdr vdr-kbd
 
 	# plugins
 	mkdir -p PLUGINS/lib
@@ -96,7 +95,7 @@ clean-patched:
 	$(MAKE) -o .dependencies clean-plugins $(MAKE_OPTIONS)
 	$(MAKE) -o .dependencies clean $(MAKE_OPTIONS)
 	rm -f vdr-dbg
-	rm -f vdr-kbd
+	rm -f vdr
 	rm -rf PLUGINS/lib
 	rm -f vdr-newplugin
 	rm -f debian/vdr-shutdown.wrapper

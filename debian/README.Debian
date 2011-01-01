@@ -24,10 +24,6 @@ Comments to the Debian version:
    ENABLED=0 to ENABLED=1, and the other options in this file
  - video-dir is moved to /var/lib/video see #234429
  - cfg-dir was moved to /var/lib/vdr, to be FHS-compliant
- - The selection of your favourite vdr-binary (vdr-daemon, vdr-kbd, vdr-lirc or 
-   vdr-rcu) is now handled via update-alternatives, so if you have more than 
-   one of these packages installed, and are not happy with the default 
-   priorities, you can select the binary via "update-alternatives --config vdr"
 
 
 Additional configuration options

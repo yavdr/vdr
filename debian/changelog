@@ -23,7 +23,11 @@ vdr (1.7.16-1) UNRELEASED; urgency=low
   * Update Vcs-* fields: Move packaging from svn to git
   * Fixed some lintian warnings 
 
- -- Thomas Schmidt <tschmidt@debian.org>  Mon, 29 Nov 2010 21:15:39 +0100
+  [ Tobias Grimm ]
+  * Removed vdr-kbd, vdr-daemon, vdr-lirc and vdr-rcu - /usr/bin/vdr should be
+    used instead
+
+ -- Tobias Grimm <etobi@debian.org>  Sat, 01 Jan 2011 16:20:54 +0100
 
 vdr (1.6.0-19.1) unstable; urgency=low
 

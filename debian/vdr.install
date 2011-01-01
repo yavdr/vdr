@@ -1,7 +1,4 @@
-vdr-kbd                   usr/bin/
-debian/scripts/vdr-daemon usr/bin/
-debian/scripts/vdr-lirc   usr/bin/
-debian/scripts/vdr-rcu    usr/bin/
+vdr                       usr/bin/
 
 debian/runvdr usr/sbin/
 

@@ -119,11 +119,12 @@ case "$1" in
             chmod 6750 /usr/lib/vdr/vdr-shutdown.wrapper
         fi
 
-        # Install alternatives for the different control methods
-        update-alternatives --install /usr/bin/vdr vdr /usr/bin/vdr-lirc   120
-        update-alternatives --install /usr/bin/vdr vdr /usr/bin/vdr-kbd    110
-        update-alternatives --install /usr/bin/vdr vdr /usr/bin/vdr-rcu    105
-        update-alternatives --install /usr/bin/vdr vdr /usr/bin/vdr-daemon 100
+        # Dropped alternatives from old package version
+        # (This can be dropped at squeeze +2)
+        update-alternatives --remove vdr /usr/bin/vdr-daemon
+        update-alternatives --remove vdr /usr/bin/vdr-kbd
+        update-alternatives --remove vdr /usr/bin/vdr-lirc
+        update-alternatives --remove vdr /usr/bin/vdr-rcu
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
