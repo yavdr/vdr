@@ -28,9 +28,9 @@ set -e
 
 case "$1" in
     configure)
-        
+
         . /usr/share/debconf/confmodule
-    
+
         # install/move channels.conf 
         if [ ! -e /var/lib/vdr/channels.conf ]; then
                 if  [ -e /etc/vdr/channels.conf ]; then
@@ -38,7 +38,7 @@ case "$1" in
                         mv /etc/vdr/channels.conf /var/lib/vdr/channels.conf
                 else
                         db_get vdr/select_dvb_card
-        
+
                         case "$RET" in
                         Satellite)
                                 gzip -dc /usr/share/doc/vdr/examples/channels.conf.gz \
@@ -58,7 +58,7 @@ case "$1" in
                         esac
                 fi
         fi
-        
+
         db_get vdr/create_video_dir
         if $RET; then
                 # check if an old directory /var/lib/video exists, and 
@@ -97,7 +97,7 @@ case "$1" in
                         $USER
                 echo "...done"
         fi
-        
+
         # put vdr in group video so that it can access the DVB device nodes
         adduser $USER video > /dev/null || true
 
