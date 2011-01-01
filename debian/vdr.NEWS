@@ -1,3 +1,25 @@
+vdr (1.7.16-1) unstable; urgency=low
+
+  * Changed Full Featured DVB card support
+
+  Starting with VDR 1.7 support for full featured DVB cards (the ones with
+  built-in SDTV video output) requires to install an extra plug-in provided by
+  the vdr-plugin-dvbsddevice package.
+
+  Please also note, that proper trick speed playback with a full featured DVB
+  card, needs an improved av7110 firmware. Oliver Endriss provides such a
+  firmware, which you can download here:
+
+  http://www.escape-edv.de/endriss/firmware/
+
+  * Dropped vdr-* scripts
+
+  The vdr-daemon, vdr-lirc and vdr-rcu wrapper scripts as well as the vdr-kbd
+  binary have been removed from the package. Please use /use/bin/vdr with the
+  options "--no-kbd", "--lirc" and "--rcu" instead.
+
+ -- Tobias Grimm <etobi@debian.org>  Sat, 01 Jan 2011 16:24:50 +0100
+
 vdr (1.4.7-1) experimental; urgency=low
 
   The script /usr/lib/vdr/vdr-groups.sh may now be used by plugins to

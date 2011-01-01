@@ -26,6 +26,7 @@ vdr (1.7.16-1) UNRELEASED; urgency=low
   [ Tobias Grimm ]
   * Removed vdr-kbd, vdr-daemon, vdr-lirc and vdr-rcu - /usr/bin/vdr should be
     used instead
+  * Dropped conflicts to vdradmin
 
  -- Tobias Grimm <etobi@debian.org>  Sat, 01 Jan 2011 16:20:54 +0100
 
