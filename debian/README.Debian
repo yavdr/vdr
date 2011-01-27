@@ -10,12 +10,12 @@ Comments to the Debian version:
 
    http://www.linuxtv.org
 
-   Please note, that for a DVB-card with an integrated mpeg-decoder and
-   video output (a so called SDTV Full-Featured card) you need to install
-   the plugin vdr-plugin-dvbsddevice. For proper trick speed mode playback
-   with such cards, you also need a modified firmware, which is provided
-   by Olvier Endriss:
-
+   Please also note, that proper trick speed playback with a full featured DVB
+   card needs an improved av7110 firmware. Without this firmware you might
+   experience problems like jumping backwards when stopping fast-forward
+   playback. The improved firmware is provided by Oliver Endriss and can be
+   download here:
+ 
    http://www.escape-edv.de/endriss/firmware/
 
  - all the small scripts and tools distributed with the package are located in

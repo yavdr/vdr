@@ -7,8 +7,9 @@ vdr (1.7.16-1) unstable; urgency=low
   the vdr-plugin-dvbsddevice package.
 
   Please also note, that proper trick speed playback with a full featured DVB
-  card, needs an improved av7110 firmware. Oliver Endriss provides such a
-  firmware, which you can download here:
+  card needs an improved av7110 firmware. Without this firmware you might
+  experience problems like jumping backwards when stopping fast-forward playback.
+  The improved firmware is provided by Oliver Endriss and can be download here:
 
   http://www.escape-edv.de/endriss/firmware/
 
