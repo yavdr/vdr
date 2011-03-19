@@ -18,7 +18,7 @@ vdr (1.7.17-1) UNRELEASED; urgency=low
   * Added NEWS entry about vdr-plugin-dvbsddevice and a probably required 
     modified firmware
   * Updated README.Debian
-  * Added 99_add-language-to-po.dpatch (Closes: #593925)
+  * Made sure po files are unmodified after clean (Closes: #593925)
 
   [ Thomas Schmidt ]
   * Update Vcs-* fields: Move packaging from svn to git

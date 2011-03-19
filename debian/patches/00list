@@ -7,7 +7,6 @@
 81_Make_config
 82_valgrind
 
-99_add-language-to-po
 99_ncursesw-include
 99_vdr-workaround-broken-sys-capability
 

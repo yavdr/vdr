@@ -66,6 +66,9 @@ build: build-stamp $(MANPAGES) $(TXT2MANPAGES)
 build-stamp: configure-stamp
 	dh_testdir
 
+	# Backup po files
+	find PLUGINS po -name "*.po" -exec test ! -f {}.backup \; -exec cp {} {}.backup \;
+
 	# build unoptimized vdr with debugging symbols
 	$(MAKE) all $(MAKE_OPTIONS) VDRDEBUG=yes DEB_BUILD_OPTIONS=nostrip,noopt
 	cp vdr vdr-dbg
@@ -101,6 +104,10 @@ clean-patched:
 	rm -f debian/vdr-shutdown.wrapper
 	rm -f debian/patchinfo
 	rm -f $(MANPAGES) $(TXT2MANPAGES)
+
+	# Restore po files
+	find PLUGINS po -name "*.po" -exec test -f {}.backup \; -exec mv {}.backup {} \;
+
 	dh_clean
 
 install: patchinfo build

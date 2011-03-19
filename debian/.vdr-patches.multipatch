@@ -15,7 +15,6 @@ debian/patches/opt-41-x_timer-info.dpatch:04511ae02243eb1bab94f3f45b59e574
 debian/patches/opt-24_jumpplay.dpatch:cfa5a357bd499978dd87c0167a538cd0
 debian/patches/opt-50_graphtft-liemikuutio.dpatch:f82320b9c64e17d06b5d0dbbddf50e8f
 debian/patches/opt-31-x_reelchannelscan.dpatch:f8c06ac51888248f68badcab8533c2be
-debian/patches/99_add-language-to-po.dpatch:98572846a526dcde511c1163ea3eacb5
 debian/patches/81_Make_config.dpatch:da281b9af48273bcbd19f3052ee993fd
 debian/patches/opt-51_cuttime.dpatch:5459582bf3c6d95895d7e0ca18b52213
 debian/patches/opt-48-x_pin.dpatch:3dd524fa2c484cd03fa2f46194ceff18

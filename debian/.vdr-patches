@@ -1,4 +1,3 @@
-debian/patches/99_add-language-to-po.dpatch:98572846a526dcde511c1163ea3eacb5
 debian/patches/81_Make_config.dpatch:da281b9af48273bcbd19f3052ee993fd
 debian/patches/12_osdbase-maxitems.dpatch:e45d1b62f7d66c3e5d279e3561034107
 debian/patches/11_sortrecordings.dpatch:9ed4cd1e144ee59dab34d4df4aa9af51
