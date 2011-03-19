@@ -29,6 +29,7 @@ vdr (1.7.17-1) UNRELEASED; urgency=low
     used instead
   * Dropped conflicts to vdradmin
   * Dropped moving of channels.conf from /etc/vdr/ to /var/lib/vdr/
+  * Dropped marks reloading from jumpplay patch (Patch modified by Udo Richter)
 
  -- Tobias Grimm <etobi@debian.org>  Sat, 19 Mar 2011 21:10:15 +0100
 

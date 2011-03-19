@@ -5,12 +5,13 @@
 ## All lines beginning with `## DP:' are a description of the patch.
 ## DP: Play after jump to next mark. Automatically jump over commercial breaks.
 ## DP: See README.jumpplay and MANUAL for details.
+## DP: 2011-03-19: Remove marks reloading for VDR-1.7.17, by Udo Richter <udo_richter@gmx.de>
 
 @DPATCH@
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' vdr~/MANUAL vdr/MANUAL
---- vdr~/MANUAL	2011-01-27 23:35:24.000000000 +0100
-+++ vdr/MANUAL	2011-03-19 22:52:02.000000000 +0100
-@@ -856,6 +856,30 @@
+diff -Naurp vdr-1.7.17/MANUAL vdr-1.7.17-jumpplay/MANUAL
+--- vdr-1.7.17/MANUAL	2010-06-06 12:42:35.000000000 +0200
++++ vdr-1.7.17-jumpplay/MANUAL	2011-03-19 17:49:09.000000000 +0100
+@@ -856,6 +856,25 @@ Version 1.6
                           0 resulting in a file named 'resume', and any other
                           value resulting in 'resume.n'.
  
@@ -33,17 +34,12 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
 +                         Turns pausing of replay at the last editing mark on or
 +                         off.
 +
-+  Reload marks = no      Turns reloading of editing marks on or off. This can
-+                         be used if an external programme adjusts the editing
-+                         marks, e.g. noad in online mode. The marks are reloaded
-+                         in 10 seconds intervals.
-+
    Miscellaneous:
  
    Min. event timeout = 30
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' vdr~/README.jumpplay vdr/README.jumpplay
---- vdr~/README.jumpplay	1970-01-01 01:00:00.000000000 +0100
-+++ vdr/README.jumpplay	2011-03-19 22:52:02.000000000 +0100
+diff -Naurp vdr-1.7.17/README.jumpplay vdr-1.7.17-jumpplay/README.jumpplay
+--- vdr-1.7.17/README.jumpplay	1970-01-01 01:00:00.000000000 +0100
++++ vdr-1.7.17-jumpplay/README.jumpplay	2011-03-19 17:49:09.000000000 +0100
 @@ -0,0 +1,92 @@
 +JumpPlay patch for VDR
 +----------------------
@@ -137,86 +133,81 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
 +    Play&Jump:
 +      - set resume position to 0 if replay stops at the first mark
 +    Added French language texts (thanks to Michaël Nival)
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' vdr~/config.c vdr/config.c
---- vdr~/config.c	2011-03-19 22:52:02.000000000 +0100
-+++ vdr/config.c	2011-03-19 22:52:02.000000000 +0100
-@@ -392,6 +392,10 @@
+diff -Naurp vdr-1.7.17/config.c vdr-1.7.17-jumpplay/config.c
+--- vdr-1.7.17/config.c	2010-06-06 12:06:43.000000000 +0200
++++ vdr-1.7.17-jumpplay/config.c	2011-03-19 17:49:09.000000000 +0100
+@@ -392,6 +392,9 @@ cSetup::cSetup(void)
    MultiSpeedMode = 0;
    ShowReplayMode = 0;
    ResumeID = 0;
 +  JumpPlay = 0;
 +  PlayJump = 0;
 +  PauseLastMark = 0;
-+  ReloadMarks = 0;
    CurrentChannel = -1;
    CurrentVolume = MAXVOLUME;
    CurrentDolby = 0;
-@@ -588,6 +592,10 @@
+@@ -583,6 +586,9 @@ bool cSetup::Parse(const char *Name, con
    else if (!strcasecmp(Name, "MultiSpeedMode"))      MultiSpeedMode     = atoi(Value);
    else if (!strcasecmp(Name, "ShowReplayMode"))      ShowReplayMode     = atoi(Value);
    else if (!strcasecmp(Name, "ResumeID"))            ResumeID           = atoi(Value);
 +  else if (!strcasecmp(Name, "JumpPlay"))            JumpPlay           = atoi(Value);
 +  else if (!strcasecmp(Name, "PlayJump"))            PlayJump           = atoi(Value);
 +  else if (!strcasecmp(Name, "PauseLastMark"))       PauseLastMark      = atoi(Value);
-+  else if (!strcasecmp(Name, "ReloadMarks"))         ReloadMarks        = atoi(Value);
    else if (!strcasecmp(Name, "CurrentChannel"))      CurrentChannel     = atoi(Value);
    else if (!strcasecmp(Name, "CurrentVolume"))       CurrentVolume      = atoi(Value);
    else if (!strcasecmp(Name, "CurrentDolby"))        CurrentDolby       = atoi(Value);
-@@ -689,6 +697,10 @@
+@@ -679,6 +685,9 @@ bool cSetup::Save(void)
    Store("MultiSpeedMode",     MultiSpeedMode);
    Store("ShowReplayMode",     ShowReplayMode);
    Store("ResumeID",           ResumeID);
 +  Store("JumpPlay",           JumpPlay);
 +  Store("PlayJump",           PlayJump);
 +  Store("PauseLastMark",      PauseLastMark);
-+  Store("ReloadMarks",        ReloadMarks);
    Store("CurrentChannel",     CurrentChannel);
    Store("CurrentVolume",      CurrentVolume);
    Store("CurrentDolby",       CurrentDolby);
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' vdr~/config.h vdr/config.h
---- vdr~/config.h	2011-03-19 22:52:02.000000000 +0100
-+++ vdr/config.h	2011-03-19 22:52:02.000000000 +0100
-@@ -38,6 +38,8 @@
- 
- #define LIEMIKUUTIO  130
+diff -Naurp vdr-1.7.17/config.h vdr-1.7.17-jumpplay/config.h
+--- vdr-1.7.17/config.h	2010-10-24 13:22:35.000000000 +0200
++++ vdr-1.7.17-jumpplay/config.h	2011-03-19 17:49:09.000000000 +0100
+@@ -36,6 +36,8 @@
+ // plugins to work with newer versions of the core VDR as long as no
+ // VDR header files have changed.
  
 +#define JUMPPLAYVERSNUM 100
 +
  #define MAXPRIORITY 99
  #define MAXLIFETIME 99
  
-@@ -286,6 +288,10 @@
+@@ -284,6 +286,9 @@ public:
    int MultiSpeedMode;
    int ShowReplayMode;
    int ResumeID;
 +  int JumpPlay;
 +  int PlayJump;
 +  int PauseLastMark;
-+  int ReloadMarks;
    int CurrentChannel;
    int CurrentVolume;
    int CurrentDolby;
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' vdr~/dvbplayer.c vdr/dvbplayer.c
---- vdr~/dvbplayer.c	2011-01-27 23:35:25.000000000 +0100
-+++ vdr/dvbplayer.c	2011-03-19 22:52:02.000000000 +0100
-@@ -204,6 +204,7 @@
+diff -Naurp vdr-1.7.17/dvbplayer.c vdr-1.7.17-jumpplay/dvbplayer.c
+--- vdr-1.7.17/dvbplayer.c	2010-03-07 15:24:26.000000000 +0100
++++ vdr-1.7.17-jumpplay/dvbplayer.c	2011-03-19 17:49:09.000000000 +0100
+@@ -204,6 +204,7 @@ private:
    cNonBlockingFileReader *nonBlockingFileReader;
    cRingBufferFrame *ringBuffer;
    cPtsIndex ptsIndex;
-+  cMarksReload marks;
++  cMarks marks;
    cFileName *fileName;
    cIndexFile *index;
    cUnbufferedFile *replayFile;
-@@ -250,7 +251,7 @@
- int cDvbPlayer::Speeds[] = { 0, -2, -4, -8, 1, 2, 4, 12, 0 };
+@@ -282,6 +283,7 @@ cDvbPlayer::cDvbPlayer(const char *FileN
+      delete index;
+      index = NULL;
+      }
++  marks.Load(FileName, framesPerSecond, isPesRecording);
+ }
  
- cDvbPlayer::cDvbPlayer(const char *FileName)
--:cThread("dvbplayer")
-+:cThread("dvbplayer"), marks(FileName)
- {
-   nonBlockingFileReader = NULL;
-   ringBuffer = NULL;
-@@ -360,6 +361,10 @@
+ cDvbPlayer::~cDvbPlayer()
+@@ -360,6 +362,10 @@ bool cDvbPlayer::Save(void)
    if (index) {
       int Index = ptsIndex.FindIndex(DeviceGetSTC());
       if (Index >= 0) {
@@ -227,7 +218,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
          Index -= int(round(RESUMEBACKUP * framesPerSecond));
          if (Index > 0)
             Index = index->GetNextIFrame(Index, false);
-@@ -386,11 +391,26 @@
+@@ -386,11 +392,26 @@ void cDvbPlayer::Action(void)
  {
    uchar *p = NULL;
    int pc = 0;
@@ -254,7 +245,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
    nonBlockingFileReader = new cNonBlockingFileReader;
    int Length = 0;
    bool Sleep = false;
-@@ -415,7 +435,7 @@
+@@ -415,7 +436,7 @@ void cDvbPlayer::Action(void)
  
            // Read the next frame from the file:
  
@@ -263,14 +254,14 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
               if (!readFrame && (replayFile || readIndex >= 0)) {
                  if (!nonBlockingFileReader->Reading()) {
                     if (!SwitchToPlayFrame && (playMode == pmFast || (playMode == pmSlow && playDir == pdBackward))) {
-@@ -452,6 +472,44 @@
+@@ -452,6 +473,44 @@ void cDvbPlayer::Action(void)
                     else if (index) {
                        uint16_t FileNumber;
                        off_t FileOffset;
 +                      if (Setup.PlayJump || Setup.PauseLastMark) {
 +                         // check for end mark - jump to next mark or pause
 +                         readIndex++;
-+                         marks.Reload();
++                         marks.Update();
 +                         cMark *m = marks.Get(readIndex);
 +                         if (m && (m->Index() & 0x01) != 0) {
 +                            m = marks.Next(m);
@@ -308,7 +299,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
                        if (index->Get(readIndex + 1, &FileNumber, &FileOffset, &readIndependent, &Length) && NextFile(FileNumber, FileOffset))
                           readIndex++;
                        else
-@@ -496,6 +554,13 @@
+@@ -496,6 +555,13 @@ void cDvbPlayer::Action(void)
               // Store the frame in the buffer:
  
               if (readFrame) {
@@ -322,7 +313,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
                  if (ringBuffer->Put(readFrame))
                     readFrame = NULL;
                  else
-@@ -561,8 +626,13 @@
+@@ -561,8 +627,13 @@ void cDvbPlayer::Action(void)
                  p = NULL;
                  }
               }
@@ -337,38 +328,20 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
  
            // Handle hitting begin/end of recording:
  
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' vdr~/menu.c vdr/menu.c
---- vdr~/menu.c	2011-03-19 22:52:02.000000000 +0100
-+++ vdr/menu.c	2011-03-19 22:53:55.000000000 +0100
-@@ -3286,6 +3286,10 @@
+diff -Naurp vdr-1.7.17/menu.c vdr-1.7.17-jumpplay/menu.c
+--- vdr-1.7.17/menu.c	2011-02-27 13:37:48.000000000 +0100
++++ vdr-1.7.17-jumpplay/menu.c	2011-03-19 17:49:09.000000000 +0100
+@@ -3080,6 +3080,9 @@ cMenuSetupReplay::cMenuSetupReplay(void)
    Add(new cMenuEditBoolItem(tr("Setup.Replay$Multi speed mode"), &data.MultiSpeedMode));
    Add(new cMenuEditBoolItem(tr("Setup.Replay$Show replay mode"), &data.ShowReplayMode));
    Add(new cMenuEditIntItem(tr("Setup.Replay$Resume ID"), &data.ResumeID, 0, 99));
 +  Add(new cMenuEditBoolItem(tr("Setup.Replay$Jump&Play"), &data.JumpPlay));
 +  Add(new cMenuEditBoolItem(tr("Setup.Replay$Play&Jump"), &data.PlayJump));
 +  Add(new cMenuEditBoolItem(tr("Setup.Replay$Pause at last mark"), &data.PauseLastMark));
-+  Add(new cMenuEditBoolItem(tr("Setup.Replay$Reload marks"), &data.ReloadMarks));
  }
  
  void cMenuSetupReplay::Store(void)
-@@ -4591,7 +4595,7 @@
- char *cReplayControl::title = NULL;
- 
- cReplayControl::cReplayControl(void)
--:cDvbPlayerControl(fileName)
-+:cDvbPlayerControl(fileName), marks(fileName)
- {
-   currentReplayControl = this;
-   displayReplay = NULL;
-@@ -4606,7 +4610,6 @@
-   timeSearchActive = false;
-   cRecording Recording(fileName);
-   cStatus::MsgReplaying(this, Recording.Name(), Recording.FileName(), true);
--  marks.Load(fileName, Recording.FramesPerSecond(), Recording.IsPesRecording());
-   SetTrackDescriptions(false);
- }
- 
-@@ -4866,8 +4869,10 @@
+@@ -4650,8 +4653,10 @@ void cReplayControl::MarkToggle(void)
          ShowTimed(2);
          bool Play, Forward;
          int Speed;
@@ -380,7 +353,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
          }
       marks.Save();
       }
-@@ -4880,8 +4885,17 @@
+@@ -4664,8 +4669,17 @@ void cReplayControl::MarkJump(bool Forwa
       if (GetIndex(Current, Total)) {
          cMark *m = Forward ? marks.GetNext(Current) : marks.GetPrev(Current);
          if (m) {
@@ -400,7 +373,7 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
             }
          }
       }
-@@ -4936,7 +4950,7 @@
+@@ -4720,7 +4734,7 @@ void cReplayControl::EditTest(void)
       if (!m)
          m = marks.GetNext(Current);
       if (m) {
@@ -409,30 +382,10 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
             m = marks.Next(m);
          if (m) {
             Goto(m->position - SecondsToFrames(3, FramesPerSecond()));
-@@ -4958,6 +4972,7 @@
- {
-   if (!Active())
-      return osEnd;
-+  marks.Reload();
-   if (Key == kNone)
-      marks.Update();
-   if (visible) {
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' vdr~/menu.h vdr/menu.h
---- vdr~/menu.h	2011-03-19 22:52:02.000000000 +0100
-+++ vdr/menu.h	2011-03-19 22:52:02.000000000 +0100
-@@ -254,7 +254,7 @@
- class cReplayControl : public cDvbPlayerControl {
- private:
-   cSkinDisplayReplay *displayReplay;
--  cMarks marks;
-+  cMarksReload marks;
-   bool visible, modeOnly, shown, displayFrames;
-   int lastCurrent, lastTotal;
-   bool lastPlay, lastForward;
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' vdr~/po/de_DE.po vdr/po/de_DE.po
---- vdr~/po/de_DE.po	2011-03-19 22:52:02.000000000 +0100
-+++ vdr/po/de_DE.po	2011-03-19 22:52:02.000000000 +0100
-@@ -1058,6 +1058,18 @@
+diff -Naurp vdr-1.7.17/po/de_DE.po vdr-1.7.17-jumpplay/po/de_DE.po
+--- vdr-1.7.17/po/de_DE.po	2010-10-24 16:40:27.000000000 +0200
++++ vdr-1.7.17-jumpplay/po/de_DE.po	2011-03-19 17:49:09.000000000 +0100
+@@ -1058,6 +1058,15 @@ msgstr "Zeitversetzte Aufnahme löschen"
  msgid "Replay"
  msgstr "Wiedergabe"
  
@@ -445,16 +398,13 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
 +msgid "Setup.Replay$Pause at last mark"
 +msgstr "Pause bei letzter Marke"
 +
-+msgid "Setup.Replay$Reload marks"
-+msgstr "Marken aktualisieren"
-+
  msgid "Setup.Replay$Multi speed mode"
  msgstr "Mehrstufiger Vor-/Rücklauf"
  
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' vdr~/po/fr_FR.po vdr/po/fr_FR.po
---- vdr~/po/fr_FR.po	2011-03-19 22:52:02.000000000 +0100
-+++ vdr/po/fr_FR.po	2011-03-19 22:52:02.000000000 +0100
-@@ -1064,6 +1064,18 @@
+diff -Naurp vdr-1.7.17/po/fr_FR.po vdr-1.7.17-jumpplay/po/fr_FR.po
+--- vdr-1.7.17/po/fr_FR.po	2010-10-24 16:40:28.000000000 +0200
++++ vdr-1.7.17-jumpplay/po/fr_FR.po	2011-03-19 17:49:09.000000000 +0100
+@@ -1064,6 +1064,15 @@ msgstr ""
  msgid "Replay"
  msgstr "Lecture"
  
@@ -467,87 +417,6 @@ diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' 
 +msgid "Setup.Replay$Pause at last mark"
 +msgstr "Pause après la dernière marque"
 +
-+msgid "Setup.Replay$Reload marks"
-+msgstr "Actualiser les marques"
-+
  msgid "Setup.Replay$Multi speed mode"
  msgstr "Mode multi-vitesses"
  
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' vdr~/recording.c vdr/recording.c
---- vdr~/recording.c	2011-03-19 22:52:02.000000000 +0100
-+++ vdr/recording.c	2011-03-19 22:52:02.000000000 +0100
-@@ -1404,6 +1404,52 @@
-   return NULL;
- }
- 
-+// --- cMarksReload ----------------------------------------------------------
-+
-+#define MARKS_RELOAD_MS 10000
-+
-+time_t cMarksReload::lastsavetime = 0;
-+
-+cMarksReload::cMarksReload(const char *RecordingFileName)
-+:recDir(RecordingFileName)
-+{
-+  struct stat sbuf;
-+  cRecording rec(recDir);
-+  if (Load(recDir, rec.FramesPerSecond(), rec.IsPesRecording()) &&
-+      stat(FileName(), &sbuf) == 0)
-+     lastmodtime = sbuf.st_mtime;
-+  else
-+     lastmodtime = 0;
-+  nextreload.Set(MARKS_RELOAD_MS - cTimeMs::Now() % MARKS_RELOAD_MS);
-+}
-+
-+bool cMarksReload::Reload(void)
-+{
-+  // Check the timestamp of marks.vdr in 10 seconds intervals
-+  // Independent but synchronized reloading of marks in two threads
-+  if ((Setup.ReloadMarks && nextreload.TimedOut()) ||
-+      lastsavetime > lastmodtime) {
-+     nextreload.Set(MARKS_RELOAD_MS - cTimeMs::Now() % MARKS_RELOAD_MS);
-+     struct stat sbuf;
-+     if (stat(FileName(), &sbuf) == 0 && sbuf.st_mtime != lastmodtime) {
-+        lastmodtime = sbuf.st_mtime;
-+        cRecording rec(recDir);
-+        if (Load(recDir, rec.FramesPerSecond(), rec.IsPesRecording()))
-+           return true;
-+        }
-+     }
-+  return false;
-+}
-+
-+bool cMarksReload::Save(void)
-+{
-+  bool ok = cMarks::Save();
-+  struct stat sbuf;
-+  if (ok && stat(FileName(), &sbuf) == 0)
-+     lastsavetime = lastmodtime = sbuf.st_mtime;
-+  return ok;
-+}
-+
- // --- cRecordingUserCommand -------------------------------------------------
- 
- const char *cRecordingUserCommand::command = NULL;
-diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' vdr~/recording.h vdr/recording.h
---- vdr~/recording.h	2011-03-19 22:52:02.000000000 +0100
-+++ vdr/recording.h	2011-03-19 22:52:02.000000000 +0100
-@@ -208,6 +208,18 @@
-   cMark *GetNext(int Position);
-   };
- 
-+class cMarksReload : public cMarks {
-+private:
-+  cString recDir;
-+  cTimeMs nextreload;
-+  time_t lastmodtime;
-+  static time_t lastsavetime;
-+public:
-+  cMarksReload(const char *RecordingFileName);
-+  bool Reload(void);
-+  bool Save(void);
-+  };
-+
- #define RUC_BEFORERECORDING "before"
- #define RUC_AFTERRECORDING  "after"
- #define RUC_EDITEDRECORDING "edited"
