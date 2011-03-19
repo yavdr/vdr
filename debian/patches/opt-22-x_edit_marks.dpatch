@@ -11,10 +11,10 @@
 ## DP: 'Green' and 'Yellow' act as 'Prev' and 'Next'.
 
 @DPATCH@
-diff -Naurp vdr-1.7.12-liemikuutio/menu.c vdr-1.7.12-liemikuutio-editmarks/menu.c
---- vdr-1.7.12-liemikuutio/menu.c	2010-02-01 14:42:47.000000000 +0000
-+++ vdr-1.7.12-liemikuutio-editmarks/menu.c	2010-02-01 21:18:07.000000000 +0000
-@@ -4924,10 +4924,6 @@ eOSState cReplayControl::ProcessKey(eKey
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' vdr~/menu.c vdr/menu.c
+--- vdr~/menu.c	2011-03-19 22:45:57.000000000 +0100
++++ vdr/menu.c	2011-03-19 22:50:08.000000000 +0100
+@@ -4999,10 +4999,6 @@
      case kGreen:   SkipSeconds(-60); break;
      case kYellow|k_Repeat:
      case kYellow:  SkipSeconds( 60); break;
@@ -25,7 +25,7 @@ diff -Naurp vdr-1.7.12-liemikuutio/menu.c vdr-1.7.12-liemikuutio-editmarks/menu.
      case kPrev|k_Repeat:
      case kPrev:    if (lastSkipTimeout.TimedOut()) {
                        lastSkipSeconds = REPLAYCONTROLSKIPSECONDS;
-@@ -4955,10 +4951,46 @@ eOSState cReplayControl::ProcessKey(eKey
+@@ -5030,10 +5026,46 @@
                     Stop();
                     return osEnd;
      default: {
@@ -35,7 +35,7 @@ diff -Naurp vdr-1.7.12-liemikuutio/menu.c vdr-1.7.12-liemikuutio-editmarks/menu.
 +      cMark *m;
 +
        DoShowMode = false;
-       switch (Key) {
+       switch (int(Key)) {
          // Editing:
 -        case kMarkToggle:      MarkToggle(); break;
 +        case k1|k_Repeat:
