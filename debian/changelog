@@ -2,7 +2,7 @@ vdr (1.7.17-1) UNRELEASED; urgency=low
 
   [ Thomas Günther, Tobias Grimm ]
   * Updated to the latest upstream development version release 1.7.17
-    (Closes: #573896)
+    (Closes: #573896, #621924)
   * Updated/Removed debian/patches/*
   * Setting default SVDRP port to 6419 (this was already changed by upstrem)
   * Added BIDI define to 81_Make_config.dpatch
@@ -31,7 +31,7 @@ vdr (1.7.17-1) UNRELEASED; urgency=low
   * Dropped moving of channels.conf from /etc/vdr/ to /var/lib/vdr/
   * Dropped marks reloading from jumpplay patch (Patch modified by Udo Richter)
 
- -- Tobias Grimm <etobi@debian.org>  Sat, 19 Mar 2011 21:10:15 +0100
+ -- Tobias Grimm <etobi@debian.org>  Sun, 10 Apr 2011 11:58:03 +0200
 
 vdr (1.6.0-19.1) unstable; urgency=low
 
