@@ -1,41 +1,33 @@
-vdr                       usr/bin/
+vdr                                     usr/bin/
+debian/runvdr                           usr/sbin/
 
-debian/runvdr usr/sbin/
+epg2html.pl                             usr/lib/vdr/
+svdrpsend.pl                            usr/lib/vdr/
+debian/config-loader.sh                 usr/lib/vdr/
+debian/plugin-loader.sh                 usr/lib/vdr/
+debian/commands-loader.sh               usr/lib/vdr/
+debian/vdr-groups.sh                    usr/lib/vdr/
+debian/vdr-recordingaction              usr/lib/vdr/
+debian/vdr-shutdown                     usr/lib/vdr/
+debian/vdr-shutdown-message             usr/lib/vdr/
+debian/vdr-shutdown.wrapper             usr/lib/vdr/
 
-debian/config-loader.sh   usr/lib/vdr/
-debian/plugin-loader.sh   usr/lib/vdr/
-debian/commands-loader.sh usr/lib/vdr/
-debian/vdr-groups.sh      usr/lib/vdr/
-
-epg2html.pl  usr/lib/vdr/
-svdrpsend.pl usr/lib/vdr/
-
-
-debian/order.conf etc/vdr/plugins/
-
-debian/order.commands.conf etc/vdr/command-hooks/
-debian/order.reccmds.conf  etc/vdr/command-hooks/
-
+diseqc.conf                             etc/vdr/
+keymacros.conf                          etc/vdr/
+sources.conf                            etc/vdr/
+svdrphosts.conf                         etc/vdr/
+debian/vdr.groups                       etc/vdr/
+debian/R90.custom                       etc/vdr/recording-hooks/
+debian/S90.custom                       etc/vdr/shutdown-hooks/
+debian/order.conf                       etc/vdr/plugins/
+debian/order.commands.conf              etc/vdr/command-hooks/
+debian/order.reccmds.conf               etc/vdr/command-hooks/
 debian/commands.custom.conf             etc/vdr/command-hooks/
 debian/reccmds.custom.conf              etc/vdr/command-hooks/
+
 debian/commands.update-recordings.conf  usr/share/vdr/command-hooks/
 
-diseqc.conf       etc/vdr/
-keymacros.conf    etc/vdr/
-sources.conf      etc/vdr/
-svdrphosts.conf   etc/vdr/
-debian/vdr.groups etc/vdr/
+debian/themes/*.theme                   var/lib/vdr/themes/
 
-debian/vdr-recordingaction usr/lib/vdr/
-debian/R90.custom          etc/vdr/recording-hooks/
-
-debian/themes/*.theme       var/lib/vdr/themes/
-
-debian/vdr-shutdown         usr/lib/vdr/
-debian/vdr-shutdown-message usr/lib/vdr/
-debian/vdr-shutdown.wrapper usr/lib/vdr/
-debian/S90.custom           etc/vdr/shutdown-hooks/
-
-debian/lintian/vdr usr/share/lintian/overrides/
-
+debian/lintian/vdr                      usr/share/lintian/overrides/
 locale                                  usr/share/
