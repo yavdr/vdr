@@ -101,7 +101,7 @@ stopvdr()
     if start-stop-daemon --stop --retry 30 \
         --name $(basename $DAEMON) --pidfile $PIDFILE >/dev/null
     then
-        start-stop-daemon --stop --retry 30 --oknodo --exec $VDRPRG-kbd >/dev/null
+        start-stop-daemon --stop --retry 30 --oknodo --exec $VDRPRG >/dev/null
         rm -f $PIDFILE
         clean_console
     else
