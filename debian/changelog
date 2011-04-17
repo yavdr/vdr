@@ -2,6 +2,9 @@ vdr (1.7.18-1) unstable; urgency=low
 
   * New upstream release
   * Dropped dvb-s2api-liplianin-headers dependency from vdr-dev
+  * Disabled dvbhddevice until the driver from
+    http://powarman.dyndns.org/hg/v4l-dvb-saa716x/ gets merged into the
+    kernel
 
  -- Tobias Grimm <etobi@debian.org>  Sun, 17 Apr 2011 17:39:15 +0200
 

@@ -69,6 +69,9 @@ build-stamp: configure-stamp
 	# Backup po files
 	find PLUGINS po -name "*.po" -exec test ! -f {}.backup \; -exec cp {} {}.backup \;
 
+	# disable dvbhddevice
+	-mv PLUGINS/src/dvbhddevice PLUGINS/src/_dvbhddevice
+
 	# build unoptimized vdr with debugging symbols
 	$(MAKE) all $(MAKE_OPTIONS) VDRDEBUG=yes DEB_BUILD_OPTIONS=nostrip,noopt
 	cp vdr vdr-dbg
@@ -104,6 +107,9 @@ clean-patched:
 	rm -f debian/vdr-shutdown.wrapper
 	rm -f debian/patchinfo
 	rm -f $(MANPAGES) $(TXT2MANPAGES)
+
+	# Restore dvbhddevice
+	-mv PLUGINS/src/_dvbhddevice PLUGINS/src/dvbhddevice
 
 	# Restore po files
 	find PLUGINS po -name "*.po" -exec test -f {}.backup \; -exec mv {}.backup {} \;
