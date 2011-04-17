@@ -1,7 +1,6 @@
 debian/patches/81_Make_config.dpatch:da281b9af48273bcbd19f3052ee993fd
 debian/patches/12_osdbase-maxitems.dpatch:e45d1b62f7d66c3e5d279e3561034107
 debian/patches/11_sortrecordings.dpatch:9ed4cd1e144ee59dab34d4df4aa9af51
-debian/patches/99_vdr-workaround-broken-sys-capability.dpatch:19d9edf94b745d972761cbcec9f442f2
 debian/patches/04_newplugin.dpatch:e99f8d21734a19b3eb93d9e3f11b680a
 debian/patches/16_channels.conf.terr-fix.dpatch:72595733d0b46aa4093a640708d19226
 debian/patches/06_default_svdrp_port_0.dpatch:653e14e8ab093c456f9bbd8faa5e1ff7
