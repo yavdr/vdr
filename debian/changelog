@@ -7,6 +7,8 @@ vdr (1.7.18-1) unstable; urgency=low
     kernel
   * Dropped 99_vdr-workaround-broken-sys-capability.dpatch
   * Use 3.0 source formate and bz2 tarballs
+  * Fixed spelling error in vdr.NEWS
+  * Replaced "dh_clean -k" by "dh_prep"
 
  -- Tobias Grimm <etobi@debian.org>  Sun, 17 Apr 2011 17:39:15 +0200
 

@@ -119,7 +119,7 @@ clean-patched:
 install: patchinfo build
 	dh_testdir
 	dh_testroot
-	dh_clean -k
+	dh_prep
 	dh_installdirs
 	dh_install
 	chmod +x $(CURDIR)/debian/vdr/usr/lib/vdr/vdr-*

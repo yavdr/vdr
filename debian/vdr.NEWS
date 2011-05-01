@@ -3,8 +3,8 @@ vdr (1.7.17-1) unstable; urgency=low
   * Changed Full Featured DVB card support
 
   Starting with VDR 1.7 support for full featured DVB cards (the ones with
-  built-in SDTV video output) requires to install an extra plug-in provided by
-  the vdr-plugin-dvbsddevice package.
+  built-in SDTV video output) requires one to install an extra plug-in provided
+  by the vdr-plugin-dvbsddevice package.
 
   Please also note, that proper trick speed playback with a full featured DVB
   card needs an improved av7110 firmware. Without this firmware you might
