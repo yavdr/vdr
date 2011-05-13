@@ -1,3 +1,9 @@
+vdr (1.7.18-2) unstable; urgency=low
+
+  * Added 99_gcc4.6-fix.dpatch to fix GCC 4.6 issue in skincurses plugin
+
+ -- Tobias Grimm <etobi@debian.org>  Fri, 13 May 2011 07:34:28 +0200
+
 vdr (1.7.18-1) unstable; urgency=low
 
   * New upstream release
