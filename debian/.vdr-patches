@@ -3,7 +3,6 @@ debian/patches/12_osdbase-maxitems.dpatch:e45d1b62f7d66c3e5d279e3561034107
 debian/patches/11_sortrecordings.dpatch:9ed4cd1e144ee59dab34d4df4aa9af51
 debian/patches/04_newplugin.dpatch:e99f8d21734a19b3eb93d9e3f11b680a
 debian/patches/16_channels.conf.terr-fix.dpatch:72595733d0b46aa4093a640708d19226
-debian/patches/99_gcc4.6-fix.dpatch:3afaa2745fec9c7fdd5f725e867c129e
 debian/patches/06_default_svdrp_port_0.dpatch:653e14e8ab093c456f9bbd8faa5e1ff7
 debian/patches/99_ncursesw-include.dpatch:90810d58108ff8d9afd768fec67be904
 debian/patches/82_valgrind.dpatch:503ddba49c243fff798a36a1c12bb5ae

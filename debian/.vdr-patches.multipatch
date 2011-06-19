@@ -12,7 +12,6 @@ debian/patches/opt-20_liemikuutio.dpatch:841d24ca517acd300fa9a162a072ad74
 debian/patches/opt-21_internal-cam-devices.dpatch:a883c0b09e67b679436b7df1e9807fc8
 debian/patches/opt-41-x_timer-info.dpatch:04511ae02243eb1bab94f3f45b59e574
 debian/patches/opt-24_jumpplay.dpatch:1bb4e7b87884a866ffdf97fccec1c759
-debian/patches/99_gcc4.6-fix.dpatch:3afaa2745fec9c7fdd5f725e867c129e
 debian/patches/opt-50_graphtft-liemikuutio.dpatch:f82320b9c64e17d06b5d0dbbddf50e8f
 debian/patches/opt-31-x_reelchannelscan.dpatch:f8c06ac51888248f68badcab8533c2be
 debian/patches/81_Make_config.dpatch:da281b9af48273bcbd19f3052ee993fd
