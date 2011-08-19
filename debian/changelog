@@ -1,6 +1,7 @@
 vdr (1.7.20-1) unstable; urgency=low
 
   * New upstream release
+  * Added 99_fix-recording-problem-vdr-1.7.20.dpatch
 
  -- Tobias Grimm <etobi@debian.org>  Fri, 19 Aug 2011 23:16:41 +0200
 

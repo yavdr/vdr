@@ -8,6 +8,7 @@
 82_valgrind
 
 99_ncursesw-include
+99_fix-recording-problem-vdr-1.7.20
 
 # Patch collection (replaces enAIO).
 # opt-20_liemikuutio

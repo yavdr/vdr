@@ -1,0 +1,21 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 99_fix-recording-problem-vdr-1.7.20.dpatch by Klaus Schmidinger <Klaus.Schmidinger@tvdr.de>
+##
+## DP: Fixes bug in 1.7.20 - should be dropped with >= 1.7.21 !
+
+@DPATCH@
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' vdr~/remux.c vdr/remux.c
+--- vdr~/remux.c	2011-08-19 23:24:39.000000000 +0200
++++ vdr/remux.c	2011-08-20 01:37:09.000000000 +0200
+@@ -974,8 +974,10 @@
+                                      payloadUnitOfFrame = (payloadUnitOfFrame + 1) % -framesPerPayloadUnit;
+                                      if (payloadUnitOfFrame != 0 && independentFrame)
+                                         payloadUnitOfFrame = 0;
+-                                     if (payloadUnitOfFrame)
++                                     if (payloadUnitOfFrame) {
++                                        newPayload = false;
+                                         newFrame = false;
++                                        }
+                                      }
+                                   if (framesPerPayloadUnit <= 1)
+                                      scanning = false;
