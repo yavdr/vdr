@@ -3,6 +3,7 @@ vdr (1.7.20-1) unstable; urgency=low
   * New upstream release
   * Added 99_fix-recording-problem-vdr-1.7.20.dpatch
   * Build-depend on libjpeg-dev instead of libjpeg62-dev
+  * Updated multipatch patches (Not used for Debian build)
 
  -- Tobias Grimm <etobi@debian.org>  Fri, 19 Aug 2011 23:16:41 +0200
 

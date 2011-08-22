@@ -11,10 +11,10 @@
 ## DP: This is useful if you get epg data of the channels from external sources.
 
 @DPATCH@
-diff -Naurp vdr-1.7.8/config.c vdr-1.7.8-noepg/config.c
---- vdr-1.7.8/config.c	2009-06-13 10:25:05.000000000 +0000
-+++ vdr-1.7.8-noepg/config.c	2009-06-15 21:04:42.000000000 +0000
-@@ -234,6 +234,8 @@ cSetup::cSetup(void)
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' vdr~/config.c vdr/config.c
+--- vdr~/config.c	2011-08-19 23:01:19.000000000 +0200
++++ vdr/config.c	2011-08-19 23:03:55.000000000 +0200
+@@ -329,6 +329,8 @@
    SetSystemTime = 0;
    TimeSource = 0;
    TimeTransponder = 0;
@@ -23,8 +23,8 @@ diff -Naurp vdr-1.7.8/config.c vdr-1.7.8-noepg/config.c
    MarginStart = 2;
    MarginStop = 10;
    AudioLanguages[0] = -1;
-@@ -302,9 +304,16 @@ cSetup::cSetup(void)
-   EmergencyExit = 1;
+@@ -414,10 +416,17 @@
+   MenuCmdPosition = 0;
  }
  
 +cSetup::~cSetup()
@@ -35,12 +35,13 @@ diff -Naurp vdr-1.7.8/config.c vdr-1.7.8-noepg/config.c
  cSetup& cSetup::operator= (const cSetup &s)
  {
    memcpy(&__BeginData__, &s.__BeginData__, (char *)&s.__EndData__ - (char *)&s.__BeginData__);
+   InitialChannel = s.InitialChannel;
 +  free(noEPGList);
 +  noEPGList = strdup(s.noEPGList);
    return *this;
  }
  
-@@ -421,6 +430,11 @@ bool cSetup::Parse(const char *Name, con
+@@ -534,6 +543,11 @@
    else if (!strcasecmp(Name, "SetSystemTime"))       SetSystemTime      = atoi(Value);
    else if (!strcasecmp(Name, "TimeSource"))          TimeSource         = cSource::FromString(Value);
    else if (!strcasecmp(Name, "TimeTransponder"))     TimeTransponder    = atoi(Value);
@@ -52,7 +53,7 @@ diff -Naurp vdr-1.7.8/config.c vdr-1.7.8-noepg/config.c
    else if (!strcasecmp(Name, "MarginStart"))         MarginStart        = atoi(Value);
    else if (!strcasecmp(Name, "MarginStop"))          MarginStop         = atoi(Value);
    else if (!strcasecmp(Name, "AudioLanguages"))      return ParseLanguages(Value, AudioLanguages);
-@@ -513,6 +527,8 @@ bool cSetup::Save(void)
+@@ -643,6 +657,8 @@
    Store("SetSystemTime",      SetSystemTime);
    Store("TimeSource",         cSource::ToString(TimeSource));
    Store("TimeTransponder",    TimeTransponder);
@@ -61,10 +62,10 @@ diff -Naurp vdr-1.7.8/config.c vdr-1.7.8-noepg/config.c
    Store("MarginStart",        MarginStart);
    Store("MarginStop",         MarginStop);
    StoreLanguages("AudioLanguages", AudioLanguages);
-diff -Naurp vdr-1.7.8/config.h vdr-1.7.8-noepg/config.h
---- vdr-1.7.8/config.h	2009-05-21 11:11:32.000000000 +0000
-+++ vdr-1.7.8-noepg/config.h	2009-06-15 21:02:48.000000000 +0000
-@@ -218,6 +218,7 @@ public:
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' vdr~/config.h vdr/config.h
+--- vdr~/config.h	2011-08-19 23:01:19.000000000 +0200
++++ vdr/config.h	2011-08-19 23:02:39.000000000 +0200
+@@ -236,6 +236,7 @@
    int SetSystemTime;
    int TimeSource;
    int TimeTransponder;
@@ -72,19 +73,19 @@ diff -Naurp vdr-1.7.8/config.h vdr-1.7.8-noepg/config.h
    int MarginStart, MarginStop;
    int AudioLanguages[I18N_MAX_LANGUAGES + 1];
    int DisplaySubtitles;
-@@ -274,7 +275,9 @@ public:
-   int InitialVolume;
-   int EmergencyExit;
+@@ -305,7 +306,9 @@
+   int ShowRecDate, ShowRecTime, ShowRecLength, ShowProgressBar, MenuCmdPosition;
    int __EndData__;
+   cString InitialChannel;
 +  char *noEPGList; // pointer not to be flat-copied
    cSetup(void);
 +  ~cSetup();
    cSetup& operator= (const cSetup &s);
    bool Load(const char *FileName);
    bool Save(void);
-diff -Naurp vdr-1.7.8/eit.c vdr-1.7.8-noepg/eit.c
---- vdr-1.7.8/eit.c	2009-05-15 12:34:43.000000000 +0000
-+++ vdr-1.7.8-noepg/eit.c	2009-06-15 20:43:10.000000000 +0000
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' vdr~/eit.c vdr/eit.c
+--- vdr~/eit.c	2011-08-19 23:01:19.000000000 +0200
++++ vdr/eit.c	2011-08-19 23:01:20.000000000 +0200
 @@ -24,8 +24,28 @@
  class cEIT : public SI::EIT {
  public:
@@ -114,7 +115,7 @@ diff -Naurp vdr-1.7.8/eit.c vdr-1.7.8-noepg/eit.c
  cEIT::cEIT(cSchedules *Schedules, int Source, u_char Tid, const u_char *Data, bool OnlyRunningStatus)
  :SI::EIT(Data, false)
  {
-@@ -37,6 +57,12 @@ cEIT::cEIT(cSchedules *Schedules, int So
+@@ -37,6 +57,12 @@
    if (!channel)
       return; // only collect data for known channels
  
@@ -127,10 +128,10 @@ diff -Naurp vdr-1.7.8/eit.c vdr-1.7.8-noepg/eit.c
    cSchedule *pSchedule = (cSchedule *)Schedules->GetSchedule(channel, true);
  
    bool Empty = true;
-diff -Naurp vdr-1.7.8/menu.c vdr-1.7.8-noepg/menu.c
---- vdr-1.7.8/menu.c	2009-05-21 11:10:38.000000000 +0000
-+++ vdr-1.7.8-noepg/menu.c	2009-06-15 21:06:02.000000000 +0000
-@@ -2289,6 +2289,7 @@ eOSState cMenuSetupOSD::ProcessKey(eKeys
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' vdr~/menu.c vdr/menu.c
+--- vdr~/menu.c	2011-08-19 23:01:19.000000000 +0200
++++ vdr/menu.c	2011-08-19 23:01:20.000000000 +0200
+@@ -2851,6 +2851,7 @@
  
  class cMenuSetupEPG : public cMenuSetupBase {
  private:
@@ -138,7 +139,7 @@ diff -Naurp vdr-1.7.8/menu.c vdr-1.7.8-noepg/menu.c
    int originalNumLanguages;
    int numLanguages;
    void Setup(void);
-@@ -2311,6 +2312,9 @@ void cMenuSetupEPG::Setup(void)
+@@ -2873,6 +2874,9 @@
  {
    int current = Current();
  
@@ -148,7 +149,7 @@ diff -Naurp vdr-1.7.8/menu.c vdr-1.7.8-noepg/menu.c
    Clear();
  
    Add(new cMenuEditIntItem( tr("Setup.EPG$EPG scan timeout (h)"),      &data.EPGScanTimeout));
-@@ -2319,6 +2323,7 @@ void cMenuSetupEPG::Setup(void)
+@@ -2882,6 +2886,7 @@
    Add(new cMenuEditBoolItem(tr("Setup.EPG$Set system time"),           &data.SetSystemTime));
    if (data.SetSystemTime)
       Add(new cMenuEditTranItem(tr("Setup.EPG$Use time from transponder"), &data.TimeTransponder, &data.TimeSource));

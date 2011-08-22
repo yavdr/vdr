@@ -13,9 +13,9 @@
 ## DP: This patch is needed for the rotor plugin.
 
 @DPATCH@
-diff -Naurp vdr-1.7.13/device.h vdr-1.7.13-rotor/device.h
---- vdr-1.7.13/device.h	2010-02-06 14:34:41.000000000 +0000
-+++ vdr-1.7.13-rotor/device.h	2010-02-28 18:40:19.000000000 +0000
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' vdr~/device.h vdr/device.h
+--- vdr~/device.h	2011-08-19 23:05:56.000000000 +0200
++++ vdr/device.h	2011-08-19 23:05:56.000000000 +0200
 @@ -24,6 +24,8 @@
  #include "spu.h"
  #include "thread.h"
@@ -25,7 +25,7 @@ diff -Naurp vdr-1.7.13/device.h vdr-1.7.13-rotor/device.h
  
  #define MAXDEVICES         16 // the maximum number of devices in the system
  #define MAXPIDHANDLES      64 // the maximum number of different PIDs per device
-@@ -289,6 +291,7 @@ public:
+@@ -305,6 +307,7 @@
    virtual bool HasProgramme(void);
           ///< Returns true if the device is currently showing any programme to
           ///< the user, either through replaying or live.
@@ -33,10 +33,10 @@ diff -Naurp vdr-1.7.13/device.h vdr-1.7.13-rotor/device.h
  
  // PID handle facilities
  
-diff -Naurp vdr-1.7.13/dvbdevice.c vdr-1.7.13-rotor/dvbdevice.c
---- vdr-1.7.13/dvbdevice.c	2010-02-21 17:10:35.000000000 +0000
-+++ vdr-1.7.13-rotor/dvbdevice.c	2010-02-28 18:43:41.000000000 +0000
-@@ -244,6 +244,7 @@ bool cDvbTransponderParameters::Parse(co
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' vdr~/dvbdevice.c vdr/dvbdevice.c
+--- vdr~/dvbdevice.c	2011-06-19 19:27:39.000000000 +0200
++++ vdr/dvbdevice.c	2011-08-19 23:08:31.000000000 +0200
+@@ -258,6 +258,7 @@
  class cDvbTuner : public cThread {
  private:
    enum eTunerStatus { tsIdle, tsSet, tsTuned, tsLocked };
@@ -44,20 +44,19 @@ diff -Naurp vdr-1.7.13/dvbdevice.c vdr-1.7.13-rotor/dvbdevice.c
    int device;
    int fd_frontend;
    int adapter, frontend;
-@@ -257,6 +258,7 @@ private:
+@@ -272,6 +273,7 @@
    cMutex mutex;
    cCondVar locked;
    cCondVar newSet;
 +  dvb_diseqc_master_cmd diseqc_cmd;
-   bool GetFrontendStatus(fe_status_t &Status, int TimeoutMs = 0);
+   void ClearEventQueue(void) const;
+   bool GetFrontendStatus(fe_status_t &Status) const;
    bool SetFrontend(void);
-   virtual void Action(void);
-@@ -266,11 +268,13 @@ public:
-   const cChannel *GetTransponder(void) const { return &channel; }
-   bool IsTunedTo(const cChannel *Channel) const;
-   void Set(const cChannel *Channel);
-+  bool SendDiseqcCmd(dvb_diseqc_master_cmd cmd);
+@@ -286,10 +288,12 @@
    bool Locked(int TimeoutMs = 0);
+   int GetSignalStrength(void) const;
+   int GetSignalQuality(void) const;
++  bool SendDiseqcCmd(dvb_diseqc_master_cmd cmd);
    };
  
  cDvbTuner::cDvbTuner(int Device, int Fd_Frontend, int Adapter, int Frontend, fe_delivery_system FrontendType)
@@ -66,8 +65,8 @@ diff -Naurp vdr-1.7.13/dvbdevice.c vdr-1.7.13-rotor/dvbdevice.c
    device = Device;
    fd_frontend = Fd_Frontend;
    adapter = Adapter;
-@@ -327,6 +331,17 @@ bool cDvbTuner::Locked(int TimeoutMs)
-   return tunerStatus >= tsLocked;
+@@ -475,6 +479,18 @@
+   return -1;
  }
  
 +bool cDvbTuner::SendDiseqcCmd(dvb_diseqc_master_cmd cmd)
@@ -81,11 +80,12 @@ diff -Naurp vdr-1.7.13/dvbdevice.c vdr-1.7.13-rotor/dvbdevice.c
 +  return true;
 +}
 +
- bool cDvbTuner::GetFrontendStatus(fe_status_t &Status, int TimeoutMs)
++
+ static unsigned int FrequencyToHz(unsigned int f)
  {
-   if (TimeoutMs) {
-@@ -508,6 +523,10 @@ void cDvbTuner::Action(void)
-         if (GetFrontendStatus(NewStatus, 10))
+   while (f && f < 1000000)
+@@ -647,6 +663,10 @@
+         if (GetFrontendStatus(NewStatus))
             Status = NewStatus;
          cMutexLock MutexLock(&mutex);
 +        if (SendDiseqc) {
@@ -95,7 +95,7 @@ diff -Naurp vdr-1.7.13/dvbdevice.c vdr-1.7.13-rotor/dvbdevice.c
          switch (tunerStatus) {
            case tsIdle:
                 break;
-@@ -942,6 +961,11 @@ bool cDvbDevice::HasLock(int TimeoutMs)
+@@ -1118,6 +1138,11 @@
    return dvbTuner ? dvbTuner->Locked(TimeoutMs) : false;
  }
  
@@ -107,10 +107,10 @@ diff -Naurp vdr-1.7.13/dvbdevice.c vdr-1.7.13-rotor/dvbdevice.c
  void cDvbDevice::SetTransferModeForDolbyDigital(int Mode)
  {
    setTransferModeForDolbyDigital = Mode;
-diff -Naurp vdr-1.7.13/dvbdevice.h vdr-1.7.13-rotor/dvbdevice.h
---- vdr-1.7.13/dvbdevice.h	2010-02-21 14:06:08.000000000 +0000
-+++ vdr-1.7.13-rotor/dvbdevice.h	2010-02-28 18:40:19.000000000 +0000
-@@ -146,6 +146,7 @@ protected:
+diff -urNad '--exclude=CVS' '--exclude=.svn' '--exclude=.git' '--exclude=.arch' '--exclude=.hg' '--exclude=_darcs' '--exclude=.bzr' vdr~/dvbdevice.h vdr/dvbdevice.h
+--- vdr~/dvbdevice.h	2011-06-19 19:27:39.000000000 +0200
++++ vdr/dvbdevice.h	2011-08-19 23:05:56.000000000 +0200
+@@ -149,6 +149,7 @@
    virtual bool SetChannelDevice(const cChannel *Channel, bool LiveView);
  public:
    virtual bool HasLock(int TimeoutMs = 0);
