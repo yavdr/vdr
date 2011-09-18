@@ -61,8 +61,5 @@ opt-45_yaepg
 opt-50_graphtft
 opt-50_graphtft-liemikuutio
 
-# Records into smaller files and uses hardlinks to speed up cutting
-opt-52_hard_link_cutter
-
 # Setup for AC3 transfer, QAM_256, disable primary tuner
 # opt-53_dvbsetup

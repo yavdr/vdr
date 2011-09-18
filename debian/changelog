@@ -6,6 +6,7 @@ vdr (1.7.21-1) unstable; urgency=low
   * Dropped opt-27_ttxtsubs.dpatch
   * Dropped opt-48-x_pin.dpatch
   * Dropped opt-51_cuttime.dpatch
+  * Dropped opt-52_hard_link_cutter.dpatch
 
  -- Tobias Grimm <etobi@debian.org>  Sat, 17 Sep 2011 21:34:41 +0200
 
