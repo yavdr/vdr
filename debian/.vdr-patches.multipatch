@@ -11,15 +11,13 @@ debian/patches/opt-44_rotor.dpatch:2dd7870c8fe357700ee962f68a1594c2
 debian/patches/opt-20_liemikuutio.dpatch:b1d074dc381527e29db4a5ad48c8fa07
 debian/patches/opt-21_internal-cam-devices.dpatch:7bbaad57abb1ae2995b85d9f1a1fd23f
 debian/patches/opt-41-x_timer-info.dpatch:04511ae02243eb1bab94f3f45b59e574
-debian/patches/opt-24_jumpplay.dpatch:1bb4e7b87884a866ffdf97fccec1c759
+debian/patches/opt-24_jumpplay.dpatch:f23cbe88f71917a25683b6f6c255fb2c
 debian/patches/opt-50_graphtft-liemikuutio.dpatch:f82320b9c64e17d06b5d0dbbddf50e8f
 debian/patches/opt-31-x_reelchannelscan.dpatch:f8c06ac51888248f68badcab8533c2be
 debian/patches/81_Make_config.dpatch:da281b9af48273bcbd19f3052ee993fd
 debian/patches/opt-51_cuttime.dpatch:5459582bf3c6d95895d7e0ca18b52213
-debian/patches/opt-48-x_pin.dpatch:f123bc131bb9986fec6143bb288a3c32
 debian/patches/opt-37-x_menuorg.dpatch:9fb02cc8bd848add50b3866b6f476644
 debian/patches/opt-45_yaepg.dpatch:77fdabd83bdf4187d7040faaf1c758c7
-debian/patches/opt-27_ttxtsubs.dpatch:a2c25063a61bfd0fbe2c50510fca5ba2
 debian/patches/99_ncursesw-include.dpatch:90810d58108ff8d9afd768fec67be904
 debian/patches/opt-39_noepg.dpatch:9f154a51a570bce2189056ea85b5ad91
 debian/patches/04_newplugin.dpatch:e99f8d21734a19b3eb93d9e3f11b680a

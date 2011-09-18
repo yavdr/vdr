@@ -4,6 +4,7 @@ vdr (1.7.21-1) unstable; urgency=low
   * Upgraded opt-20_liemikuutio.dpatch to version 1.31
   * Updated opt-24_jumpplay.dpatch
   * Dropped opt-27_ttxtsubs.dpatch
+  * Dropped opt-48-x_pin.dpatch
 
  -- Tobias Grimm <etobi@debian.org>  Sat, 17 Sep 2011 21:34:41 +0200
 
