@@ -23,9 +23,6 @@ opt-22-x_edit_marks
 # The Jump patch allows automatic jumping over cutting marks.
 opt-24_jumpplay
 
-# Patch needed for the ttxtsubs plugin.
-opt-27_ttxtsubs
-
 # Speed up zapping channels.
 # opt-29_syncearly
 

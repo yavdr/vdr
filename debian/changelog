@@ -1,6 +1,9 @@
 vdr (1.7.21-1) unstable; urgency=low
 
   * Dropped 99_fix-recording-problem-vdr-1.7.20.dpatch
+  * Upgraded opt-20_liemikuutio.dpatch to version 1.31
+  * Updated opt-24_jumpplay.dpatch
+  * Dropped opt-27_ttxtsubs.dpatch
 
  -- Tobias Grimm <etobi@debian.org>  Sat, 17 Sep 2011 21:34:41 +0200
 

@@ -8,7 +8,7 @@ debian/patches/06_default_svdrp_port_0.dpatch:653e14e8ab093c456f9bbd8faa5e1ff7
 debian/patches/82_valgrind.dpatch:503ddba49c243fff798a36a1c12bb5ae
 debian/patches/opt-42-x_MainMenuHooks.dpatch:1c4c782b5c88c4f0408890a5f50b217b
 debian/patches/opt-44_rotor.dpatch:2dd7870c8fe357700ee962f68a1594c2
-debian/patches/opt-20_liemikuutio.dpatch:291e0466e4ec074b7d675a06940bbbe6
+debian/patches/opt-20_liemikuutio.dpatch:b1d074dc381527e29db4a5ad48c8fa07
 debian/patches/opt-21_internal-cam-devices.dpatch:7bbaad57abb1ae2995b85d9f1a1fd23f
 debian/patches/opt-41-x_timer-info.dpatch:04511ae02243eb1bab94f3f45b59e574
 debian/patches/opt-24_jumpplay.dpatch:1bb4e7b87884a866ffdf97fccec1c759
