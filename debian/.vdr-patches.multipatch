@@ -15,7 +15,6 @@ debian/patches/opt-24_jumpplay.dpatch:f23cbe88f71917a25683b6f6c255fb2c
 debian/patches/opt-50_graphtft-liemikuutio.dpatch:f82320b9c64e17d06b5d0dbbddf50e8f
 debian/patches/opt-31-x_reelchannelscan.dpatch:f8c06ac51888248f68badcab8533c2be
 debian/patches/81_Make_config.dpatch:da281b9af48273bcbd19f3052ee993fd
-debian/patches/opt-51_cuttime.dpatch:5459582bf3c6d95895d7e0ca18b52213
 debian/patches/opt-37-x_menuorg.dpatch:9fb02cc8bd848add50b3866b6f476644
 debian/patches/opt-45_yaepg.dpatch:77fdabd83bdf4187d7040faaf1c758c7
 debian/patches/99_ncursesw-include.dpatch:90810d58108ff8d9afd768fec67be904
