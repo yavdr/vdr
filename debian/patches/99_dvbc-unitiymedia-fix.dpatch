@@ -1,0 +1,23 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 99_dvbc-unitiymedia-fix.dpatch by Zabrimus
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Patch for dvbc (unitymedia germany)
+## DP: See: http://linuxtv.org/pipermail/vdr/2011-October/025347.html
+
+@DPATCH@
+diff -Naur vdr-1.6.0.orig/libsi/si.c vdr-1.6.0/libsi/si.c
+--- vdr-1.6.0.orig/libsi/si.c	2008-03-05 18:00:55.000000000 +0100
++++ vdr-1.6.0/libsi/si.c	2011-10-20 23:29:31.895846505 +0200
+@@ -206,6 +206,11 @@
+          array[i]=0;
+    } else if (length != d->getLastDescriptorNumber()+1)
+       return; //avoid crash in case of misuse
++
++   if (length < d->getDescriptorNumber()+1) {
++  	return;
++   }
++
+    array[d->getDescriptorNumber()]=d;
+ }
+ 

@@ -9,8 +9,9 @@ vdr (1.7.21-1) unstable; urgency=low
   * Dropped opt-52_hard_link_cutter.dpatch
   * New ABI version for 1.7.21
   * chown +r on /proc/av7110_ir and /proc/budget_ci_ir
+  * Added 99_dvbc-unitiymedia-fix.dpatch
 
- -- Tobias Grimm <etobi@debian.org>  Sat, 17 Sep 2011 21:34:41 +0200
+ -- Tobias Grimm <etobi@debian.org>  Wed, 26 Oct 2011 00:10:58 +0200
 
 vdr (1.7.20-1) unstable; urgency=low
 

@@ -1,6 +1,7 @@
 debian/patches/opt-43-x_recordshowfree.dpatch:66152f345b03259d28e89135cda42310
 debian/patches/12_osdbase-maxitems.dpatch:e45d1b62f7d66c3e5d279e3561034107
 debian/patches/11_sortrecordings.dpatch:9ed4cd1e144ee59dab34d4df4aa9af51
+debian/patches/opt-31-x_reelchannelscan.dpatch:f8c06ac51888248f68badcab8533c2be
 debian/patches/opt-50_graphtft.dpatch:f77f3d81b37e89c448dbb15c9e4f475d
 debian/patches/16_channels.conf.terr-fix.dpatch:72595733d0b46aa4093a640708d19226
 debian/patches/06_default_svdrp_port_0.dpatch:653e14e8ab093c456f9bbd8faa5e1ff7
@@ -12,7 +13,7 @@ debian/patches/opt-21_internal-cam-devices.dpatch:7bbaad57abb1ae2995b85d9f1a1fd2
 debian/patches/opt-41-x_timer-info.dpatch:04511ae02243eb1bab94f3f45b59e574
 debian/patches/opt-24_jumpplay.dpatch:f23cbe88f71917a25683b6f6c255fb2c
 debian/patches/opt-50_graphtft-liemikuutio.dpatch:f82320b9c64e17d06b5d0dbbddf50e8f
-debian/patches/opt-31-x_reelchannelscan.dpatch:f8c06ac51888248f68badcab8533c2be
+debian/patches/99_dvbc-unitiymedia-fix.dpatch:cbfee0d9a95c619ecc77f4249efd5c84
 debian/patches/81_Make_config.dpatch:da281b9af48273bcbd19f3052ee993fd
 debian/patches/opt-37-x_menuorg.dpatch:9fb02cc8bd848add50b3866b6f476644
 debian/patches/opt-45_yaepg.dpatch:77fdabd83bdf4187d7040faaf1c758c7
