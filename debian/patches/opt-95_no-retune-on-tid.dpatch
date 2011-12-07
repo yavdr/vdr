@@ -1,0 +1,19 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## opt-95_no-retune-on-tid.dpatch by Holger Schvestka <hotzenplotz5@gmx.de>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad vdr-1.7.16~/channels.c vdr-1.7.16/channels.c
+--- vdr-1.7.16~/channels.c	2010-06-05 15:33:57.000000000 +0200
++++ vdr-1.7.16/channels.c	2011-01-25 17:54:30.607497987 +0100
+@@ -298,7 +298,7 @@
+ void cChannel::SetPids(int Vpid, int Ppid, int Vtype, int *Apids, int *Atypes, char ALangs[][MAXLANGCODE2], int *Dpids, int *Dtypes, char DLangs[][MAXLANGCODE2], int *Spids, char SLangs[][MAXLANGCODE2], int Tpid)
+ {
+   int mod = CHANNELMOD_NONE;
+-  if (vpid != Vpid || ppid != Ppid || vtype != Vtype || tpid != Tpid)
++  if (vpid != Vpid || ppid != Ppid || vtype != Vtype)
+      mod |= CHANNELMOD_PIDS;
+   int m = IntArraysDiffer(apids, Apids, alangs, ALangs) | IntArraysDiffer(atypes, Atypes) | IntArraysDiffer(dpids, Dpids, dlangs, DLangs) | IntArraysDiffer(dtypes, Dtypes) | IntArraysDiffer(spids, Spids, slangs, SLangs);
+   if (m & STRDIFF)

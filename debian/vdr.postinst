@@ -1,0 +1,78 @@
+#!/bin/sh
+
+# Peter Siering <ps@ctmagazin.de>, 10/2/2003
+
+ACTION=$1
+
+# Upgrade <= 1.2.6-26 to a more FHS-conform directory structure
+#
+
+if [ "$ACTION" = "configure" ] ; then
+    # Fix channels.conf when updating from 1.5.14 to 1.5.15
+    if dpkg --compare-versions "$2" ge "1.5.14" ; then
+        if dpkg --compare-versions "$2" lt "1.5.15" ; then
+            if [ -e /var/lib/vdr/channels.conf ]; then
+                cp /var/lib/vdr/channels.conf /var/lib/vdr/channels.conf.1.5.14
+                sed -i 's/M2O0S0//' /var/lib/vdr/channels.conf
+            fi
+        fi
+    fi
+
+    [ ! -d /var/lib/video.00 ] && mkdir /var/lib/video.00
+
+    # copy example channels.conf files into config dir
+    if [ ! -e /var/lib/vdr/channels.conf ]; then
+        cp /usr/share/doc/vdr/examples/channels.conf* /var/lib/vdr/
+        gunzip /var/lib/vdr/channels.conf*.gz
+    fi
+
+    # ensure that user and group 'vdr' exist
+    USER=vdr
+    GROUP=vdr
+    if ! getent group | grep -q "^$GROUP:" ; then
+        echo -n "Adding group $GROUP.."
+        addgroup --quiet --gid 666 --system $GROUP
+        echo "..done"
+    fi
+    if ! getent passwd | grep -q "^$USER:"; then
+        echo -n "Adding user $USER.."
+        adduser --system --uid 666 --home /var/lib/vdr --shell /bin/false \
+          --gecos "VDR user" --no-create-home \
+          --disabled-login --disabled-password \
+          --ingroup $GROUP \
+          $USER
+        echo "...done"
+    fi
+
+    # put vdr in group video so that it can access the DVB device nodes
+    adduser $USER video > /dev/null || true
+
+    # ensure that vdr's config and recording files are correctly owned
+    [ -e /var/lib/video ] && chown -R $USER:$GROUP /var/lib/video/
+    [ -e /var/lib/video.00 ] && chown -R $USER:$GROUP /var/lib/video.00/
+    [ -e /var/lib/video.01 ] && chown -R $USER:$GROUP /var/lib/video.01/
+    if [ -e /var/lib/vdr ] ; then
+        chown -R $USER:$GROUP /var/lib/vdr
+        chown $USER:$GROUP /var/lib/vdr/* > /dev/null 2>&1 || true
+    fi
+    if [ -e /var/cache/vdr ] ; then
+        chown $USER:$GROUP /var/cache/vdr
+        chown $USER:$GROUP /var/cache/vdr/* > /dev/null 2>&1|| true
+    fi
+
+    # make /usr/lib/vdr/vdr-shutdown.wrapper setuid/setgid (owner root:vdr, mode 6750)
+    if [ -e /usr/lib/vdr/vdr-shutdown.wrapper ] ; then
+        chown root:$GROUP /usr/lib/vdr/vdr-shutdown.wrapper && \
+        chmod a=,u+srwx,g+srx /usr/lib/vdr/vdr-shutdown.wrapper
+    fi
+
+    # make /usr/lib/vdr/ctvdrwrapper setuid/setgid
+    if [ -e /usr/lib/vdr/ctvdrwrapper ] ; then
+        chown root:$GROUP /usr/lib/vdr/ctvdrwrapper && \
+        chmod a=,u+srwx,g+srx /usr/lib/vdr/ctvdrwrapper
+    fi
+fi
+
+#DEBHELPER#
+
+exit 0

@@ -1,0 +1,27 @@
+.\" Man page for runvdr
+
+.TH runvdr 8
+.SH NAME
+runvdr \- starts VDR and reloads the DVB modules in case of errors
+.SH DESCRIPTION
+.B runvdr
+is called by the init-script of vdr. It acts as a watchdog for vdr and will 
+reload the dvb-modules and vdr, if vdr exits with an exitcode different from 0.
+
+.B runvdr
+will call /usr/bin/vdr and will pass all commandline-options directly to 
+/usr/bin/vdr.
+
+.B runvdr
+needs to be called by root in order to work correct, because it will try to 
+unload/load kernel-modules!
+
+.SH AUTHOR
+This man-page has been written by Thomas Schmidt <thomas@thsnet.de>
+.PP
+Permission is granted to copy, distribute and/or modify this document under
+the terms of the GNU General Public License, Version 2 any
+later version published by the Free Software Foundation.
+.PP
+On Debian systems, the complete text of the GNU General Public
+License can be found in /usr/share/common\-licenses/GPL.

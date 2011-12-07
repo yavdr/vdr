@@ -1,0 +1,83 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+
+## opt-35_setup-show-valid.dpatch by ravemax at vdrportal.de
+##
+## downloaded from http://vdrportal.de/board/thread.php?threadid=25984
+## original file: setup_option-show_valid_input.patch.bz2
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Show if there is a valid setup value left or right with < and >.
+
+@DPATCH@
+diff -ur vdr_orig/menuitems.c vdr_patched/menuitems.c
+--- vdr_orig/menuitems.c	2004-12-05 17:59:12.452421104 +0100
++++ vdr_patched/menuitems.c	2004-12-05 18:01:54.726751656 +0100
+@@ -31,12 +31,18 @@
+   free(value);
+ }
+ 
+-void cMenuEditItem::SetValue(const char *Value)
++void cMenuEditItem::SetValue(const char *Value, bool HasPre, bool HasSucc)
+ {
+   free(value);
+   value = strdup(Value);
+   char *buffer = NULL;
+-  asprintf(&buffer, "%s:\t%s", name, value);
++  const char* fmt;
++  if (HasPre)
++    fmt = HasSucc ? "%s:\t<%s>" : "%s\t<%s";
++  else
++    fmt = HasSucc ? "%s\t%s>" : "%s\t%s";
++
++  asprintf(&buffer, fmt, name, value);
+   SetText(buffer, false);
+   cStatus::MsgOsdCurrentItem(buffer);
+ }
+@@ -56,7 +62,7 @@
+ {
+   char buf[16];
+   snprintf(buf, sizeof(buf), "%d", *value);
+-  SetValue(buf);
++  SetValue(buf, (*value > min), (*value < max));
+ }
+ 
+ eOSState cMenuEditIntItem::ProcessKey(eKeys Key)
+@@ -111,7 +117,7 @@
+ {
+   char buf[16];
+   snprintf(buf, sizeof(buf), "%s", *value ? trueString : falseString);
+-  SetValue(buf);
++  SetValue(buf, *value, !*value);
+ }
+ 
+ // --- cMenuEditBitItem ------------------------------------------------------
+@@ -459,7 +465,7 @@
+ 
+ void cMenuEditStraItem::Set(void)
+ {
+-  SetValue(strings[*value]);
++  SetValue(strings[*value], (*value > min), (*value < max));
+ }
+ 
+ // --- cMenuEditChanItem -----------------------------------------------------
+@@ -475,7 +481,7 @@
+   char buf[255];
+   cChannel *channel = Channels.GetByNumber(*value);
+   snprintf(buf, sizeof(buf), "%d %s", *value, channel ? channel->Name() : "");
+-  SetValue(buf);
++  SetValue(buf, (*value > 1), (*value < Channels.MaxNumber()));
+ }
+ 
+ eOSState cMenuEditChanItem::ProcessKey(eKeys Key)
+diff -ur vdr_orig/menuitems.h vdr_patched/menuitems.h
+--- vdr_orig/menuitems.h	2004-12-05 17:59:24.719556216 +0100
++++ vdr_patched/menuitems.h	2004-12-05 18:04:29.681195000 +0100
+@@ -21,7 +21,7 @@
+ public:
+   cMenuEditItem(const char *Name);
+   ~cMenuEditItem();
+-  void SetValue(const char *Value);
++  void cMenuEditItem::SetValue(const char *Value, bool HasPre=false, bool HasSucc=false);
+   };
+ 
+ class cMenuEditIntItem : public cMenuEditItem {

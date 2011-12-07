@@ -1,0 +1,82 @@
+#!/bin/sh
+
+detect_plugin_name()
+{
+    local PATTERN='.*\/\(.*\)-\([0-9][0-9a-zA-Z+.~-]*\)$'
+    if pwd | grep -q -E ".*\/.*-[0-9][0-9a-zA-Z+.~-]*$" ; then
+        PLUGIN=`pwd | sed "s/$PATTERN/\1/"`
+        VERSION=`pwd | sed "s/$PATTERN/\2/"`
+    else
+        echo "debianize-vdrplugin expects the upstream sources to be extracted in a"
+        echo "directory named:  <PLUGIN-NAME>-<VERSION>"
+        echo 
+        echo "e.g.: coolplugin-0.0.1"
+        echo 
+        echo "The upsteam tarball should be named: vdr-<PLUGIN-NAME>-<VERSION>.tar.gz"
+        echo 
+        echo "e.g.: vdr-coolplugin-0.0.1.tar.gz"
+        echo 
+        exit 1
+    fi
+}
+
+create_orig_tarball()
+{
+    local tarball
+
+    ORIGTARBALL="../vdr-plugin-$PLUGIN"_"$VERSION.orig.tar.gz"
+    
+    if [ -e $ORIGTARBALL ] ; then
+        return
+    fi
+    
+    for tarball in `find ../ -name "*$PLUGIN-$VERSION.t*gz"`; do
+        ln -sf `basename $tarball` $ORIGTARBALL
+        return
+    done
+      
+    for tarball in `find ../ -name "*$PLUGIN-$VERSION.t*bz2"`; do
+        /bin/bzip2 -cd $tarball | /bin/gzip --best > $ORIGTARBALL
+        return
+    done
+}
+
+check_dh_make()
+{
+    if [ ! -x /usr/bin/dh_make ] ; then
+        echo "If you want to use this script, please install the package dh-make!"
+        exit 1
+    fi
+}
+
+replace_vdr_version()
+{
+    VDRVERSION=`dpkg -s vdr-dev | awk '/Version/ { print $2 }'`
+    perl -pi -e "s/#VDRVERSION#/$VDRVERSION/g" debian/control
+}
+
+replace_plugin_name()
+{
+    perl -pi -e "s/#PLUGIN#/$PLUGIN/g" debian/install
+    perl -pi -e "s/#PLUGIN#/$PLUGIN/g" debian/links.ex
+}
+
+#
+# main()
+#
+
+check_dh_make
+detect_plugin_name
+create_orig_tarball
+
+dh_make="/usr/bin/dh_make -t /usr/share/vdr-dev/plugin-template -b -p vdr-plugin-$PLUGIN"
+if [ ! -e $ORIGTARBALL ] ; then
+    dh_make="$dh_make -r"
+fi
+
+$dh_make
+
+if [ "$?" -eq "0" ]; then
+    replace_vdr_version
+    replace_plugin_name
+fi

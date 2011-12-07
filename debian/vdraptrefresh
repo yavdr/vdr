@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# This script helps to automate a repository change.
+# It just reinstalls all plugins that have been installed 
+# after changing sources.list to point to a new repository.
+# After calling apt-get update, you can call this script
+# to refresh vdr and any plugins
+#
+if [ "$#" != "0" ] && [ "$1" != "--dry-run" ]; then
+    echo "just knows --dry-run or nothing"
+    exit 1
+fi
+(apt-get clean; apt-get $1 install --reinstall vdr ; apt-get $1 install --reinstall `(export COLUMNS=512; dpkg -l | tee /tmp/test.lst | grep "ii  vdr-plugin" | cut -d" " -f3)`)
+/etc/init.d/vdr restart

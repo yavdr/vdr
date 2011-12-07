@@ -1,0 +1,21 @@
+#!/bin/sh
+
+set -e
+
+# Peter Siering <ps@ctmagazin.de>, 10/2/2003
+
+ACTION=$1
+OLDVERS=$2
+
+if dpkg --compare-versions "$OLDVERS" le-nl "1.2.3-1" ; then
+   echo "Updating the installed VDR $OLDVERS is not possible."
+   exit 1
+fi
+
+#DEBHELPER#
+
+# give vdr a chance to seddle down, otherwise the updated
+# version will not find any DVB-device
+sleep 2
+
+exit 0

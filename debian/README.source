@@ -1,0 +1,7 @@
+This package uses the dpatch system to save and apply patches to the
+upstream source code of the software that is packaged. For details
+about how to use dpatch read
+
+   /usr/share/doc/dpatch/README.source.gz
+
+from the dpatch package.

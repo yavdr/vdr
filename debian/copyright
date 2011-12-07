@@ -1,0 +1,59 @@
+Upstream Homepage:
+    http://www.tvdr.de/
+
+Upstream Author: 
+    Klaus Schmidinger <Klaus.Schmidinger@tvdr.de> and others
+
+Patch Authors:
+    ttxtsubs  - Ragnar Sundblad <ragge@nada.kth.se>
+                http://www.nada.kth.se/~ragge/vdr/ttxtsubs/
+
+    jumpplay  -  Torsten Kunkel <vdr@tkunkel.de> (initial version)
+                 Thomas Günther <tom@toms-cafe.de> (current version)
+
+Theme Authors:
+    Blue LCARS - (debian/themes/sttng-blue.theme) from Sascha Volkenandt
+                 <sascha@akv-soft.de> was downloaded from 
+                 http://www.magoa.net/sttng-blue.theme
+
+    Cool       - (debian/themes/sttng-cool.theme) from 
+                 clocker@vdrportal.de, downloaded from 
+                 http://vdrportal.de/board/thread.php?postid=260715#post260715
+
+Debian Maintainers:
+    Tobias Grimm <etobi@debian.org>
+    Thomas Günther <tom@toms-cafe.de>
+    Thomas Schmidt <tschmidt@debian.org>
+
+Copyright:
+    (C) 2000 - 2010 Klaus Schmidinger
+    (C) 2001 - 2002 Andreas Schultz (SPU decoder for DVB devices)
+    (C) 2003        Marcel Wiesweg, Rolf Hakenes (libsi)
+
+Copyright (Debian packaging):
+    (C) 2001 - 2002 Eduard Bloch
+    (C) 2003 - 2004 Andreas Müller
+    (C) 2002 - 2010 Tobias Grimm, Thomas Günther, Thomas Schmidt
+
+License:
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 
+    02110-1301, USA.
+
+    The complete text of the GNU General Public License can be found
+    in /usr/share/common-licenses/GPL-2 on most Debian systems.
+
+License (Debian packaging):
+    The Debian packaging is licensed under the GPL, version 2 or any
+    later version, see /usr/share/common-licenses/GPL-2.

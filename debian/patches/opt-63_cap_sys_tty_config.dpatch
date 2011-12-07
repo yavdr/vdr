@@ -1,0 +1,19 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## opt-63_cap_sys_tty_config.dpatch by  <root@localhost>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad vdr-1.7.16~/vdr.c vdr-1.7.16/vdr.c
+--- vdr-1.7.16~/vdr.c	2010-11-01 16:27:07.000000000 +0100
++++ vdr-1.7.16/vdr.c	2010-11-01 16:28:22.000000000 +0100
+@@ -119,7 +119,7 @@
+ static bool DropCaps(void)
+ {
+   // drop all capabilities except selected ones
+-  cap_t caps = cap_from_text("= cap_sys_nice,cap_sys_time=ep");
++  cap_t caps = cap_from_text("= cap_sys_nice,cap_sys_time,cap_sys_tty_config=ep");
+   if (!caps) {
+      fprintf(stderr, "vdr: cap_from_text failed: %s\n", strerror(errno));
+      return false;

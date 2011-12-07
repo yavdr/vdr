@@ -1,0 +1,15 @@
+Source: #PACKAGE#
+Section: video
+Priority: extra
+Maintainer: #USERNAME# <#EMAIL#>
+Build-Depends: #BUILD_DEPS#, vdr-dev (>= #VDRVERSION#), gettext
+Standards-Version: #POLICY#
+Vcs-Svn: svn://svn.debian.org/pkg-vdr-dvb/vdr/#PACKAGE#/trunk/
+Vcs-Browser: http://svn.debian.org/wsvn/pkg-vdr-dvb/vdr/#PACKAGE#/trunk/
+Homepage: <url://example.com>
+
+Package: #PACKAGE#
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${vdr:Depends}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>

@@ -1,0 +1,206 @@
+#!/usr/bin/make -f
+# Sample debian/rules that uses debhelper.
+# GNU copyright 1997 to 1999 by Joey Hess.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -g
+endif
+ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
+	INSTALL_PROGRAM += -s
+endif
+
+# To use dpatch uncomment the following line and set Build-Depends to dpatch
+DPATCH=yes
+
+ifdef DPATCH
+include /usr/share/dpatch/dpatch.make
+else
+patch:
+patch-stamp:
+unpatch:
+endif
+
+TXT2MANPAGES = debian/vdr-dbg.1
+MANPAGES = debian/vdrdbg-buildpackage.1 debian/debugvdr.1 debian/vdrleaktest.1
+
+MAKE_OPTIONS = REMOTE=LIRC CONFDIR=/var/lib/vdr LOCDIR=/usr/share/locale \
+               VIDEODIR=/var/lib/video.00 PLUGINLIBDIR=/usr/lib/vdr/plugins
+
+$(MANPAGES): %.1: %
+	sh $< -h | \
+	  eval "`cat $< | grep "^### txt2man" | sed "s/### //"`" >$@
+
+$(TXT2MANPAGES): %.1: %.1.txt
+	cat $< | grep -v "^###" | \
+	  eval "`cat $< | grep "^### txt2man" | sed "s/### //"`" >$@
+
+OOLIST := debian/patches/00list
+ABIVERSION := debian/abi-version
+ifdef PATCHVARIANT
+    OOLIST := $(OOLIST).$(PATCHVARIANT)
+    ABIVERSION := $(ABIVERSION).$(PATCHVARIANT)
+    PATCHCHECKOPTION := -p $(PATCHVARIANT)
+endif
+
+prepare-00list:
+	python debian/patchcheck.py -c $(PATCHCHECKOPTION)
+	cmp -s $(OOLIST) debian/patches/00list || \
+	  cp -b --suffix=.save $(OOLIST) debian/patches/00list
+
+restore-00list:
+	[ ! -e debian/patches/00list.save ] || \
+	  mv debian/patches/00list.save debian/patches/00list
+
+accept-patches:
+	python debian/patchcheck.py -u $(PATCHCHECKOPTION)
+
+configure: configure-stamp
+configure-stamp: prepare-00list patch-stamp
+	dh_testdir
+	touch configure-stamp
+
+build: build-stamp $(MANPAGES) $(TXT2MANPAGES)
+build-stamp: configure-stamp
+	dh_testdir
+
+	# Backup po files
+	find PLUGINS po -name "*.po" -exec test ! -f {}.backup \; -exec cp {} {}.backup \;
+
+	# disable dvbhddevice
+	-mv PLUGINS/src/dvbhddevice PLUGINS/src/_dvbhddevice
+
+	# build unoptimized vdr with debugging symbols
+	$(MAKE) all $(MAKE_OPTIONS) VDRDEBUG=yes DEB_BUILD_OPTIONS=nostrip,noopt
+	cp vdr vdr-dbg
+	$(MAKE) -o .dependencies clean $(MAKE_OPTIONS)
+
+	# build "productive" vdr
+	$(MAKE) all $(MAKE_OPTIONS)
+
+	# plugins
+	mkdir -p PLUGINS/lib
+	$(MAKE) plugins $(MAKE_OPTIONS)
+
+	cp newplugin vdr-newplugin
+
+	gcc -o debian/vdr-shutdown.wrapper debian/vdr-shutdown-wrapper.c
+	gcc -o debian/ctvdrwrapper debian/ctvdrwrapper.c
+	
+	touch build-stamp
+
+patchinfo:
+	sh debian/extract-patchinfo >debian/patchinfo
+
+clean: clean-patched unpatch restore-00list
+clean-patched:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+	$(MAKE) -o .dependencies clean-plugins $(MAKE_OPTIONS)
+	$(MAKE) -o .dependencies clean $(MAKE_OPTIONS)
+	rm -f vdr-dbg
+	rm -rf PLUGINS/lib
+	rm -f vdr-newplugin
+	rm -f debian/vdr-shutdown.wrapper
+	rm -f debian/ctvdrwrapper
+	rm -f debian/patchinfo
+	rm -f $(MANPAGES) $(TXT2MANPAGES)
+
+	# Restore dvbhddevice
+	-mv PLUGINS/src/_dvbhddevice PLUGINS/src/dvbhddevice
+
+	# Restore po files
+	find PLUGINS po -name "*.po" -exec test -f {}.backup \; -exec mv {}.backup {} \;
+
+	dh_clean
+
+install: patchinfo build
+	dh_testdir
+	dh_testroot
+	dh_prep
+	dh_installdirs
+	dh_install
+	chmod +x $(CURDIR)/debian/vdr/usr/lib/vdr/vdr-*
+	for example in hello osddemo pictures servicedemo skincurses status svdrpdemo; do \
+	    install -D PLUGINS/src/$$example/README $(CURDIR)/debian/vdr-plugin-examples/usr/share/doc/vdr-plugin-examples/README.$$example; \
+	done
+	echo -n "vdr:Provides=" >> debian/vdr.substvars
+	cat $(ABIVERSION) >> debian/vdr.substvars
+	install -m644 $(ABIVERSION) $(CURDIR)/debian/vdr-dev/usr/share/vdr-dev/abi-version
+ifdef PATCHVARIANT
+	mkdir -p $(CURDIR)/debian/vdr/usr/share/doc/vdr
+	mkdir -p $(CURDIR)/debian/vdr-dev/usr/share/doc/vdr-dev
+	grep ^opt- $(OOLIST) >$(CURDIR)/debian/vdr/usr/share/doc/vdr/optional-patches.txt
+	cp $(CURDIR)/debian/vdr/usr/share/doc/vdr/optional-patches.txt \
+	  $(CURDIR)/debian/vdr-dev/usr/share/doc/vdr-dev/optional-patches.txt
+endif
+
+
+# Build architecture-independent files here.
+binary-indep: build install
+	dh_testdir -i
+	dh_testroot -i
+#	dh_installdebconf -i
+	dh_installdocs -i
+	dh_installexamples -i
+#	dh_installmenu -i
+#	dh_installlogrotate -i
+#	dh_installemacsen -i
+#	dh_installpam -i
+#	dh_installmime -i
+#	dh_installinit -i
+#	dh_installcron -i
+	dh_installman -i
+#	dh_installinfo -i
+#	dh_undocumented -i
+	dh_installchangelogs -i HISTORY
+	dh_link -i
+	dh_strip -i
+	dh_compress -i
+	dh_fixperms -i
+#	dh_makeshlibs -i
+	dh_installdeb -i
+	dh_perl -i
+	dh_shlibdeps -i
+	dh_gencontrol -i
+	dh_md5sums -i
+	dh_builddeb -i
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir -a
+	dh_testroot -a
+	dh_installdebconf -a
+	dh_installdocs -a -Nvdr-dbg
+	dh_installexamples -a
+	dh_installmenu -a
+#	dh_installlogrotate -a
+#	dh_installemacsen -a
+#	dh_installpam -a
+#	dh_installmime -a
+	dh_installinit -a
+#	dh_installcron -a
+	dh_installman -a
+#	dh_installinfo -a
+#	dh_undocumented -a
+	dh_installchangelogs -pvdr HISTORY
+	dh_installchangelogs -pvdr-plugin-dvbsddevice PLUGINS/src/dvbsddevice/HISTORY
+	dh_installchangelogs -pvdr-plugin-examples
+	dh_link -a
+	dh_strip -a -Xvdr-dbg
+	dh_compress -a
+	dh_fixperms -a
+#	dh_makeshlibs -a
+	dh_installdeb -a
+	dh_perl -a
+	dh_shlibdeps -a
+	dh_gencontrol -a
+	dh_md5sums -a
+	dh_builddeb -a
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure \
+        clean-patched patch unpatch

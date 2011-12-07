@@ -1,0 +1,16 @@
+#!/bin/sh
+
+echo "CPU:"
+top -bci -n 1 | awk '/Cpu\(s\):.*/ { print 100-$8 "% - User " $2 " - System " $4 ;}'
+echo
+echo "Memory:"
+top -bci -n 1 | awk '/Mem:.*/ { print $2/1024 " MB Ram - " $4/1024 " MB Belegt" ;}'
+echo
+echo "Swap:"
+top -bci -n 1 | awk '/Swap:.*/ { print $2/1024 " MB Swap - " $4/1024 " MB Belegt" ;}'
+echo
+echo "Disk Space:"
+df -hl | awk '/dev/ {printf("%s : %s von %s frei\n", $1, $4, $2) }'
+echo
+echo "Tasks:"
+top -bci -n 1 | awk '/Tasks:.*/ { print $2 " - Running " $4 " - Sleep " $6 " - Stopped " $8  ;}'

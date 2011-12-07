@@ -1,0 +1,24 @@
+etc/vdr/command-hooks/commands.custom.conf   usr/share/vdr/command-hooks/commands.custom.conf
+etc/vdr/command-hooks/reccmds.custom.conf    usr/share/vdr/command-hooks/reccmds.custom.conf
+
+var/cache/vdr/commands.conf  var/lib/vdr/commands.conf
+var/cache/vdr/reccmds.conf   var/lib/vdr/reccmds.conf
+
+etc/vdr/recording-hooks/R90.custom        usr/share/vdr/recording-hooks/R90.custom
+etc/vdr/shutdown-hooks/S90.custom         usr/share/vdr/shutdown-hooks/S90.custom
+
+etc/vdr/diseqc.conf      var/lib/vdr/diseqc.conf
+etc/vdr/keymacros.conf   var/lib/vdr/keymacros.conf
+etc/vdr/sources.conf     var/lib/vdr/sources.conf
+etc/vdr/svdrphosts.conf  var/lib/vdr/svdrphosts.conf
+
+var/lib/video.00  var/lib/video
+
+var/lib/vdr/setup.conf       etc/vdr/setup.conf
+var/lib/vdr/remote.conf      etc/vdr/remote.conf
+var/lib/vdr/channels.conf    etc/vdr/channels.conf
+etc/default/vdr              etc/vdr/vdr.default
+
+etc/vdr/vdr.groups    usr/share/vdr/groups.d/vdr.groups
+
+usr/lib/vdr/svdrpsend.pl    usr/bin/svdrpsend

@@ -1,0 +1,100 @@
+vdr (1.7.17-1) unstable; urgency=low
+
+  * Changed Full Featured DVB card support
+
+  Starting with VDR 1.7 support for full featured DVB cards (the ones with
+  built-in SDTV video output) requires one to install an extra plug-in provided
+  by the vdr-plugin-dvbsddevice package.
+
+  Please also note, that proper trick speed playback with a full featured DVB
+  card needs an improved av7110 firmware. Without this firmware you might
+  experience problems like jumping backwards when stopping fast-forward playback.
+  The improved firmware is provided by Oliver Endriss and can be download here:
+
+  http://www.escape-edv.de/endriss/firmware/
+
+  * Dropped vdr-* scripts
+
+  The vdr-daemon, vdr-lirc and vdr-rcu wrapper scripts as well as the vdr-kbd
+  binary have been removed from the package. Please use /use/bin/vdr with the
+  options "--no-kbd", "--lirc" and "--rcu" instead.
+
+ -- Tobias Grimm <etobi@debian.org>  Sat, 01 Jan 2011 16:24:50 +0100
+
+vdr (1.4.7-1) experimental; urgency=low
+
+  The script /usr/lib/vdr/vdr-groups.sh may now be used by plugins to
+  manage the group memberships of the user 'vdr'. See README.Debian
+  for details on how to use this script.
+  
+  If you manually need to add the user 'vdr' to a group, you should
+  add the group name to /etc/vdr/vdr-groups. This way the vdr-groups.sh
+  script used by plugin installation/deinstallation procedures does
+  not try to remove vdr from this group.
+
+ -- Tobias Grimm <tg@e-tobi.net>  Sun,  6 May 2007 20:43:44 +0200
+
+vdr (1.2.6-9) experimental; urgency=low
+
+  This release adds a patch which allows us to have just one binary-
+  package for all four control-methods, so we do not need the 
+  packages vdr-daemon, vdr-kbd, vdr-lirc and vdr-rcu anymore. 
+  You can run vdr with the control-method you want by calling 
+  /usr/bin/vdr-{daemon,kbd,lirc,rcu} or by using 
+  
+  update-alternatives --config vdr
+
+  and setting it to the desired control-method. (lirc is default)
+  After this a call of /usr/bin/vdr will always use the control-
+  method you selected with update-alternatives.
+
+ -- Thomas Schmidt <tschmidt@debian.org>  Sun, 27 Feb 2005 00:44:05 +0100
+ 
+vdr (1.2.6-6) unstable; urgency=low
+
+  The most important change in this release is that vdr from now on
+  will run under the username vdr, not as root. This is due to some
+  security problems when vdr runs as root. The video-directory and 
+  configfiles will be changed at installation, so they are owned by 
+  the user and group vdr.
+
+  The second thing is that the automatic shutdown of vdr is now disabled
+  by default, you can enable it again by changing ENABLE_SHUTDOWN to 1 
+  in /etc/default/vdr.
+  
+  In this release we also changed the default VIDEO_DIR from 
+  /var/lib/video to /var/lib/video.00, to make adding extra harddisks 
+  for vdr very easy by just creating /var/lib/video.0{1,2,3,...} and 
+  mounting the drive(s) there. In existing installations we will simply 
+  create a symlink /var/lib/video.00 which points to /var/lib/video. In 
+  new installations /var/lib/video will be a symlink which points to 
+  /var/lib/video.00. (These changes will only be asked for when you 
+  selected yes in the debconf-question to create the video-directory!)
+
+ -- Thomas Schmidt <tschmidt@debian.org>  Fri, 14 Jan 2005 12:17:51 +0100
+
+vdr (1.2.6-4) unstable; urgency=low
+
+  This is the first release from the VDR and DVB Packaging Team
+  <pkg-vdr-dvb-devel@lists.alioth.debian.org>
+  Many thanks to Tobias Grimm and Thomas Günther for the various improvements
+  of the package.
+
+  In this Release, we changed the path of the conf-files to /var/lib/vdr,
+  static conf-files will still be under /etc/vdr, and symlinked to
+  /var/lib/vdr. 
+  If you already have non-static files (channels.conf, remote.conf, 
+  setup.conf and timers.conf), these files will be moved by the 
+  postinst-script to /var/lib/vdr.
+
+  The most important change in this release is the new init-system of vdr,
+  which was taken from c't-vdr, a woody-based distribution, optimized for vdr.
+    - Plugins are no longer loaded via /etc/default/vdr. Instead of this,
+      every installed plugin will be loaded automatically. The order of the
+      plugins can be configured via /etc/vdr/plugins/order.conf.
+    - The commands.conf and the reccmds.conf files will be auto-generated 
+      by the init-script for better integration of vdr-addons.
+      If you already have a commands.conf or reccmds.conf, you should move it
+      to /etc/vdr/command-hooks/{commands|reccmds}.custom.conf .
+
+ -- Thomas Schmidt <tschmidt@debian.org>  Sat, 29 May 2004 19:43:49 +0200

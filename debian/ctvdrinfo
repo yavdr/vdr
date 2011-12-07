@@ -1,0 +1,94 @@
+#!/bin/bash
+
+export COLUMNS=512
+LOG=/tmp/vdrinfo.log
+
+. /usr/lib/vdr/config-loader.sh
+
+vdr_package_version=`dpkg -s vdr | grep "Version:" | sed "s/.*Version: \(.*\)/\1/"`
+api_version=`eval "vdr -V -L/usr/bin/vdr 2>/dev/null | sed 's/.*[(/]\(.*\)).*/\1/'"`
+kernelversion=`uname -r`
+
+# find installed plugins
+plugins=(`find ${PLUGIN_DIR} -maxdepth 1 \
+               -name "${PLUGIN_PREFIX}*.so.${api_version}" | \
+          xargs -r dpkg -S 2>&1 | \
+          sed "s/^dpkg:/'':/" | \
+          sed "s/:.*${PLUGIN_PREFIX}\([^\.]\+\)\.so\.${version}.*$/:\1/" | \
+          sort`)
+packages=(`echo ${plugins[@]} | sed 's/:[^ ]*//g'`)
+plugins=( `echo ${plugins[@]} | sed 's/[^ ]*://g'`)
+
+# extract version numbers
+eval "versions=($(LANG=en;dpkg -s ${packages[@]} 2>&1 | awk -F ':' '\
+    /^Package: /                         {p=$2} \
+    /^Package.*is not installed/         {print "\"\""} \
+    (/Version: / || /^$/) && p!=""       {print $2;p=""}'))"
+
+# load plugin order
+if [ -r "$PLUGIN_CFG_DIR/order.conf" ]; then
+    plugin_order=(`cat $PLUGIN_CFG_DIR/order.conf | sed "s/#.*$//"`)
+fi
+
+echo "**************************************" | tee $LOG
+echo "*        c't VDR Übersicht           *" | tee -a $LOG
+echo "**************************************" | tee -a $LOG
+echo | tee -a $LOG
+echo "VDR   : $vdr_package_version" | tee -a $LOG
+echo "Kernel: $kernelversion" | tee -a $LOG
+echo "ABI   :`dpkg -s vdr | awk -F'[:,]' '/vdr-abi/ {print $2}'`"
+echo | tee -a $LOG
+
+if [ -e /usr/share/doc/vdr/optional-patches.txt ] ; then
+    echo "Patches:" | tee -a $LOG
+    echo "--------------------------------------" | tee -a $LOG
+    cat /usr/share/doc/vdr/optional-patches.txt | tee -a $LOG
+    echo | tee -a $LOG
+fi
+
+echo "Plugins:" | tee -a $LOG
+echo "( N = Native Plugin       )" | tee -a $LOG
+echo "( D = Debian Plugin       )" | tee -a $LOG
+echo "( - = Deaktiviert         )" | tee -a $LOG
+echo "--------------------------------------" | tee -a $LOG
+
+for (( i=0 ; i<${#plugins[@]} ; i++ )); do
+    mark="D"
+    package="${packages[$i]}"
+    version="${versions[$i]}"
+    plugin="${plugins[$i]}"
+    if [ ! "$version" ]; then
+        mark="N"
+        version="n/a"
+    else
+        for p in ${plugin_order[@]} ; do
+            if [ "${p}" = "-${plugin}" ]; then
+                mark="-"
+                break
+            fi
+            if [ "${p}" = "${plugin}" ]; then
+                break
+            fi
+        done
+    fi
+    if [ ! "$package" -o "$package" = "''" ]; then
+        package="no package"
+    fi
+    echo "${mark} ${plugin}" | tee -a $LOG
+    echo "  Package: $package" | tee -a $LOG
+    echo "  Version: ${version}" | tee -a $LOG
+done
+
+echo | tee -a $LOG
+echo "Addon­Packages:" | tee -a $LOG
+echo "--------------------------------------" | tee -a $LOG
+
+dpkg -l "vdr-*" | \
+    grep -v "vdr-\(plugin-\|dev\|dbg\|kbd\|lirc\|daemon\|rcu\)" | \
+    awk '/ii/ {printf ("%s (%s)\n", $2, $3)}' | tee -a $LOG
+
+echo
+echo "......................................"
+echo "Eine Kopie dieser Ausgaben wurde"
+echo "erzeugt in: $LOG"
+echo "......................................"

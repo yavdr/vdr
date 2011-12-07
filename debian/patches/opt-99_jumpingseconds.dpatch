@@ -1,0 +1,78 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## opt-98_jumpingseconds.dpatch.dpatch by  <root@CKtwo.fritz.box>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+
+diff -u --recursive --new-file vdr-1.7.21-old/config.c vdr-1.7.21-new/config.c
+--- vdr-1.7.21-old/config.c	2011-09-12 20:33:08.016229975 +0200
++++ vdr-1.7.21-new/config.c	2011-09-12 20:45:56.806229907 +0200
+@@ -414,6 +414,8 @@
+   InitialVolume = -1;
+   ChannelsWrap = 0;
+   EmergencyExit = 1;
++  JumpSeconds = 60;
++  JumpSecondsSlow = 10;
+ //ML
+   VerboseLNBlog = 0;
+   for (int i = 0; i < MAXDEVICES; i++) CardUsesLnbNr[i] = i + 1;
+@@ -643,6 +645,8 @@
+ #endif /*USE_LIVEBUFFER*/
+   else if (!strcasecmp(Name, "ChannelsWrap"))        ChannelsWrap       = atoi(Value);
+   else if (!strcasecmp(Name, "EmergencyExit"))       EmergencyExit      = atoi(Value);
++  else if (!strcasecmp(Name, "JumpSeconds"))         JumpSeconds        = atoi(Value);
++  else if (!strcasecmp(Name, "JumpSecondsSlow"))     JumpSecondsSlow    = atoi(Value);
+   else
+ 
+ //ML
+@@ -770,6 +774,8 @@
+   Store("VolumeLinearize",    VolumeLinearize);
+   Store("ChannelsWrap",       ChannelsWrap);
+   Store("EmergencyExit",      EmergencyExit);
++  Store("JumpSeconds",        JumpSeconds);
++  Store("JumpSecondsSlow",    JumpSecondsSlow);
+ #ifdef USE_LIVEBUFFER
+   Store("LiveBufferSize",     LiveBufferSize);
+ #endif  /* LIVEBUFFER */
+diff -u --recursive --new-file vdr-1.7.21-old/config.h vdr-1.7.21-new/config.h
+--- vdr-1.7.21-old/config.h	2011-09-12 20:33:08.016229975 +0200
++++ vdr-1.7.21-new/config.h	2011-09-12 20:38:10.436229949 +0200
+@@ -314,6 +314,8 @@
+   int InitialVolume;
+   int ChannelsWrap;
+   int EmergencyExit;
++  int JumpSeconds;
++  int JumpSecondsSlow;
+ #ifdef USE_LIVEBUFFER
+   int LiveBufferSize;
+   int LiveBufferMaxFileSize;
+diff -u --recursive --new-file vdr-1.7.21-old/menu.c vdr-1.7.21-new/menu.c
+--- vdr-1.7.21-old/menu.c	2011-09-12 20:33:08.016229975 +0200
++++ vdr-1.7.21-new/menu.c	2011-09-12 20:38:10.436229949 +0200
+@@ -3515,6 +3515,8 @@
+   Add(new cMenuEditBoolItem(tr("Setup.Replay$Play&Jump"), &data.PlayJump));
+   Add(new cMenuEditBoolItem(tr("Setup.Replay$Pause at last mark"), &data.PauseLastMark));
+   Add(new cMenuEditBoolItem(tr("Setup.Replay$Reload marks"), &data.ReloadMarks));
++  Add(new cMenuEditIntItem(tr("Setup.Replay$Jump Seconds"), &data.JumpSeconds));
++  Add(new cMenuEditIntItem(tr("Setup.Replay$Jump Seconds Slow"), &data.JumpSecondsSlow));
+ }
+ 
+ void cMenuSetupReplay::Store(void)
+@@ -5588,9 +5590,13 @@
+     case kFastFwd:
+     case kRight:   Forward(); break;
+     case kGreen|k_Repeat:
+-    case kGreen:   SkipSeconds(-60); break;
++    case kGreen:   SkipSeconds(-Setup.JumpSeconds); break;
++    case k1|k_Repeat:
++    case k1:       SkipSeconds(-Setup.JumpSecondsSlow); break;
+     case kYellow|k_Repeat:
+-    case kYellow:  SkipSeconds( 60); break;
++    case kYellow:  SkipSeconds(Setup.JumpSeconds); break;
++    case k3|k_Repeat:
++    case k3:       SkipSeconds(Setup.JumpSecondsSlow); break;
+ #ifdef USE_LIVEBUFFER
+     case kRed:     if(cRecordControls::GetLiveIndex(fileName)) {
+ 

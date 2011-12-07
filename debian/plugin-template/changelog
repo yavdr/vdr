@@ -1,0 +1,12 @@
+#PACKAGE# (#VERSION#-1) unstable; urgency=low
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+  
+  Important:
+  
+  If you intend to make this plugin available to others, please create an
+  ITP-bug (see http://www.debian.org/devel/wnpp ) and contact the
+  Debian VDR packaging team: pkg-vdr-dvb-devel@lists.alioth.debian.org
+
+ -- #USERNAME# <#EMAIL#>  #DATE#
+

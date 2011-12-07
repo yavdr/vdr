@@ -1,0 +1,8 @@
+PLUGINS/lib/libvdr-hello.so.*           usr/lib/vdr/plugins/
+PLUGINS/lib/libvdr-osddemo.so.*         usr/lib/vdr/plugins/
+PLUGINS/lib/libvdr-svccli.so.*          usr/lib/vdr/plugins/
+PLUGINS/lib/libvdr-svcsvr.so.*          usr/lib/vdr/plugins/
+PLUGINS/lib/libvdr-skincurses.so.*      usr/lib/vdr/plugins/
+PLUGINS/lib/libvdr-status.so.*          usr/lib/vdr/plugins/
+PLUGINS/lib/libvdr-svdrpdemo.so.*       usr/lib/vdr/plugins/
+PLUGINS/lib/libvdr-pictures.so.*        usr/lib/vdr/plugins/

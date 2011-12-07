@@ -1,0 +1,298 @@
+vdr for Debian
+--------------
+
+Comments to the Debian version:
+
+ - You need a DVB card and a driver using the "Linux DVB API"
+   (http://www.linuxtv.org/developer/dvbapi.xml). The standard VDR 
+   (without special plugins) requires a DVB-card with an integrated 
+   mpeg-decoder, a so called Full-Featured card. (For example the 
+   Hauppauge Nexus, or a TechnoTrend FullFeatured 1.x)
+ - all the small scripts and tools distributed with the package are located in
+   /usr/lib/vdr/. You may use and modify them for you own purposes.
+ - if you want to use the vdr-initscript, edit /etc/default/vdr and change
+   ENABLED=0 to ENABLED=1, and the other options in this file
+ - video-dir is moved to /var/lib/video see #234429
+ - cfg-dir was moved to /var/lib/vdr, to be FHS-compliant
+ - The selection of your favourite vdr-binary (vdr-daemon, vdr-kbd, vdr-lirc or 
+   vdr-rcu) is now handled via update-alternatives, so if you have more than 
+   one of these packages installed, and are not happy with the default 
+   priorities, you can select the binary via "update-alternatives --config vdr"
+
+ -- Thomas Schmidt <tschmidt@debian.org>,  Tue, 28 Dec 2004 14:22:21 +0100
+
+
+Additional configuration options
+-------------------------------
+
+The following options can be configured in /etc/default/vdr.
+
+KEYB_TTY="<CONSOLE>"
+
+    Default: "" (No console input)
+
+    Console for controlling VDR by keyboard (e.g. /dev/tty8). On startup VDR
+    will automatically switch to this console.
+
+KEYB_TTY_SWITCH=<0|1>
+
+    Default: 0
+
+    Set this to 1, to make VDR switch to the console specified in KEYB_TTY
+    on startup.
+
+PLUGIN_CHECK_STARTABLE="<yes|no>"
+
+    Default: "yes"
+
+    Before starting VDR with the plugins, the loadability of the plugin
+    libraries will be checked with "vdr -V -P plugin". This will catch
+    some binary incompatibilities and problems with the plugins
+    initialization code. Set this to "no" to load the plugins without
+    any testing.
+
+SHUTDOWNCMD="<COMMAND>"
+
+    Default: "/sbin/shutdown -h now"
+
+    VDR executes <COMMAND> when the power-off-key of the remote is pressed after
+    processing all shutdown hook scripts. Shutdown hooks may override this
+    command. See section "Shutdown-Hooks" below. SHUTDOWNCMD will be executed
+    detached in background.
+
+SVDRP_PORT=<PORT>
+
+    Default: 2001
+
+    Default port for SVDRP (Simple Video Disk Recorder Protocol), the telnet
+    like interface to control VDR.
+
+USER=<USERNAME>
+
+    Default: vdr
+
+    Username under which vdr will run. All plugins and commands invoked by VDR
+    will be executed with the rights of this user.
+
+LIRC=<lirc_device>
+
+    Default: /dev/lircd
+
+    Allows to change the LIRC device or disable LIRC alltogether by
+    setting it to /dev/null which might be required if you use a
+    different frontend, like XBMC or xineliboutput.
+
+VDR_CHARSET_OVERRIDE=<CHARSET>
+
+    Default: not set
+
+    Workaround for broadcasters not correctly implementing the standard.
+    According to "ETSI EN 300 468" the default character set is ISO-6937. But
+    unfortunately some broadcasters actually use ISO-8859-9, but fail to
+    correctly announce that. If you set VDR_CHARSET_OVERRIDE=ISO-8859-9, then VDR
+    uses ISO-8859-9 as default.
+
+VDR_LANG=<LANG>
+
+    Default: read from LANG or LC_ALL in /etc/default/locale or /etc/environment,
+             falling back to C, if no locale is specified
+
+    Locale which is used when running vdr.
+
+VFAT=<0|1>
+
+    Default: 1
+
+    This corresponds to VDR's --vfat option. If videos are stored on a VFAT file
+    system or a SAMBA share, VFAT should be set to 1. With VFAT=1, the encoding
+    and length of file names will be tweaked, so that it can be correctly stored
+    on VFAT file systems.
+
+VIDEO_DIR="<VIDEODIR>"
+
+    Default: "/var/lib/video.00"
+
+    The video directory where vdr recordings will be stored.  
+
+ -- Tobias Grimm <tg@e-tobi.net>,  Sat, 03 Jun 2006 19:00:00 +0100
+
+
+Automatic Loading of Plugins
+----------------------------
+
+When starting vdr with "/etc/init.d/vdr start", for each plugin found in 
+/usr/lib/vdr/plugins the appropriate command line argument -P<plugin_name>
+will be created automatically. 
+
+If a file /etc/vdr/plugins/plugin.<plugin_name>.conf exists, it will be
+parsed for command line arguments for the specified plugin. This file may
+contain comments prefixed by a "#" and the command line arguments may also be
+distributed across several lines.
+
+ -- Tobias Grimm <tg@e-tobi.net>,  Sun, 23 May 2004 18:00:00 +0100
+
+
+Command-Hooks
+-------------
+
+VDR has the ability, to start external commands using the OSD menu. There are
+two types of external commands - normal commands and recording commands. Normal
+commands are shown under VDR's main menu entry "commands" while, recording
+commands are accessible only in VDR's recordings menu. While normal commands are
+executed without any parameters, recording commands will receive the directory
+of the selected recording as the first command line argument.
+
+In order to allow other packages (Addons) to install their own commands, the
+command files passed to vdr in /etc/init.d/vdr are generated out of the files
+commands.<descriptor>.conf and reccmds.<descriptor>.conf found in
+/usr/share/vdr/command-hooks/. <descriptor> normally should be the name of
+the package, that wants to add these commands to VDR. The order of the 
+commands can be defined in the files order.commands.conf and order.reccmds.conf
+in /etc/vdr/command-hooks/.
+
+If the author of a package wants the user to be able to customize the commands
+added to vdr, the command file should be installed to /etc/vdr/command-hooks/
+and only symlinked to /usr/share/vdr/command-hooks/.
+
+For a description of the command file syntax, refer to commands.conf and
+reccmds.conf in the vdr documentation.
+
+Commands added by the user, should go to commands.custom.conf and
+reccmds.custom.conf in /etc/vdr/command-hooks/. These files contain also some
+examples.
+
+ -- Tobias Grimm <tg@e-tobi.net>,  Sun, 23 May 2004 18:00:00 +0100
+
+
+Recording-Hooks
+---------------
+
+VDR can execute an external command before a recording starts, after a
+recording ends and after a recording has been edited.
+In order to allow other packages to specify their own recording actions,
+all files in /usr/share/vdr/recording-hooks are executed one after another.
+If a file is not an executable or a link to an executable, it is executed as
+a shell script.
+
+Recording hooks are called in their alphabetical order and should follow this
+naming scheme: 
+
+R<XX>.<identifier>
+
+Where <XX> is a two digit number, that mainly specifies the execution order 
+and <identifier> is a unique descriptor.
+
+Two parameters are passed to each recording hook:
+
+Parameter 1 can have the values "before", "after" and "edited", depending
+on whether the recording hook is called before the recording starts,
+after the recording ends or after the recording has been edited.
+
+Parameter 2 is the directory of the recording. Be aware, that this directory 
+doesn't exist before the recording starts.
+
+If the author of a package wants the user to be able to customize a recording
+hook, it should be installed to /etc/vdr/recording-hooks/ and only symlinked
+to /usr/share/vdr/recording-hooks/.
+
+Custom user commands associated with the vdr package, can be added by the user
+to /etc/vdr/recording-hooks/R90.custom.
+
+ -- Tobias Grimm <tg@e-tobi.net>,  Sun, 23 May 2004 19:00:00 +0100
+
+
+Shutdown-Hooks
+---------------
+
+If you press the power key on your remote control, VDR executes a script 
+provided by the command line option -s. By default, this script will
+execute all files in /usr/share/vdr/shutdown-hooks/ in their alphabetical order. 
+If a file in there is not executable, it is treated as a shell script. These
+so called "shutdown hooks" should follow this naming scheme:
+
+S<XX>.<identifier>
+
+Where <XX> is a two digit number, that mainly specifies the execution order 
+and <identifier> is a unique descriptor.
+
+All shutdown hooks will be passed the same parameters as the main shutdown
+script. I.e. the first parameter is the start time of the next timer. Please
+refer to the vdr documentation for the other parameters.
+
+After all shutdown hooks have been processed, VDR will be terminated and the
+machine will be shut down.
+
+A shutdown hook may abort the shutdown process by exiting with an errorlevel
+unequal to 0. To provide the user with an OSD-message about the reason for
+aborting the shutdown, the shutdown hook may write an abort message to stdout
+like this:
+
+ABORT_MESSAGE=<message to display>
+
+If the shutdown should only be deferred (e.g. because some background process,
+is still active), the shutdown hook may write to stdout:
+
+TRY_AGAIN=<minutes to wait before next shutdown request>
+
+In this case, no further shutdown hooks will be processed and the shutdown will
+be invoked in TRY_AGAIN minutes again.
+
+To overwrite the command defined in /etc/default/vdr that will be executed to
+shutdown the machine after all shutdown hooks have been processed, a shutdown
+hook may write to stdout:
+
+SHUTDOWNCMD=<new shutdown command>
+
+
+Group memberships
+-----------------
+
+A few plugins require that the user vdr is member in additional system groups 
+like audio or cdrom. To be a little bit more flexible, we have designed a 
+mechanism which can be used by plugins to specify additional group memberships.
+Plugins can add a file /usr/share/vdr/groups.d/<plugin-name>.groups and call 
+/usr/lib/vdr/vdr-groups.sh in postinst and prerm. vdr-groups.sh will then take
+care of adding/removing vdr to/from the groups listed in the specified
+<plugin-name>.groups file. vdr will be removed from a group only, if no other
+plugin requires this group membership.
+
+In postinst a plugin should call:
+
+    /bin/sh /usr/lib/vdr/vdr-groups.sh --add vdr-plugin-foo
+    
+and in prerm:
+
+    /bin/sh /usr/lib/vdr/vdr-groups.sh --remove vdr-plugin-foo
+
+If you manually add vdr to a group, you must add the group to
+/etc/vdr/vdr.groups. If you don't do so, vdr may be removed from this group when
+uninstalling a plugin.
+
+ -- Thomas Schmidt <tschmidt@debian.org>,  Tue, 01 May 2007 14:12:15 +0200
+
+
+Optional Patches
+----------------
+
+A lot of VDR enthusiasts have improved VDR by creating patches that fix
+existing problems or add new functionality. Some of these patches may not work
+for everyone, so we decided to make them optional. This means, that these
+patches are only included as dpatch files in the vdr source package, NOT in
+the binary packages. They are named opt-<nn>_<patch name>, where <nn> is a
+two-digit-number and <patch name> a unique identifier. To enable a patch, just
+uncomment it in debian/patches/00list and recompile vdr.
+
+Most of these optional patches modify the interfaces used by the plugins. This
+means, that the plugins become binary incompatible. If you activate/deactivate
+patches in the vdr package, all plugins must be recompiled with the new vdr-dev
+package! There is only one exception from this rule - patches named 
+opt-<nn>-x_<patch name> do not affect the plugin interfaces and can therefore 
+be enabled or disabled without the need to recompile the plugins.
+
+Keep in mind, that if you enable any optional patches, you can't use apt-get
+anymore on the official Debian repositories to update existing vdr or plugin
+packages or install additional plugins. You always have to compile the plugins
+yourself! The optional patches are mainly intended for people who would like to
+create their own customized vdr distribution.
+
+ -- Tobias Grimm <tg@e-tobi.net>,  Thu, 3 Jun 2004 02:20:00 +0100

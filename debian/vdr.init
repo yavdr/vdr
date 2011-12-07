@@ -1,0 +1,147 @@
+#! /bin/bash -p
+#
+# vdr start-stop script
+#
+### BEGIN INIT INFO
+# Provides:          vdr
+# Required-Start:    $remote_fs $network $syslog
+# Required-Stop:     $remote_fs $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Starts the Linux Video Disk Recorder (VDR)
+# Description:       Starts the Linux Video Disk Recorder (VDR),
+#                    if it is enabled in /etc/default/vdr.
+### END INIT INFO
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+NAME=vdr
+DESC="Linux Video Disk Recorder"
+
+DAEMON=/usr/sbin/runvdr
+PIDFILE=/var/run/runvdr.pid
+VDRPRG=/usr/bin/vdr
+
+test -x $DAEMON || exit 0
+test -x $VDRPRG || exit 0
+
+. /usr/lib/vdr/config-loader.sh
+
+# Set shutdown command
+test "$ENABLE_SHUTDOWN" = "1" && VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown.wrapper" \
+                              || VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown-message"
+
+. /usr/lib/vdr/plugin-loader.sh
+. /usr/lib/vdr/commands-loader.sh
+
+
+clean_console()
+{
+    if [ "$KEYB_TTY" != "" ]; then
+        tput -Tlinux clear > $KEYB_TTY
+    fi
+}
+
+configure_console_input()
+{
+    if [ "$KEYB_TTY" != "" ]; then
+        clean_console
+        echo -e "This tty is currently mapped to VDR, keypresses aren't echoed.\r" > $KEYB_TTY
+        echo -n "For a login prompt switch to another console." > $KEYB_TTY
+        REDIRECT="< $KEYB_TTY"
+        if [ "$KEYB_TTY_SWITCH" = "1" ]; then
+            chvt `echo "$KEYB_TTY" | sed "s/\/dev\/tty//"`
+        fi
+    fi
+}
+
+get_status()
+{
+    if start-stop-daemon --start --startas $DAEMON --test \
+        --name $(basename $DAEMON) --pidfile $PIDFILE >/dev/null
+    then
+        echo " - is not running."
+        exit 3
+    else
+        echo " - is running."
+        exit 0
+    fi
+}
+
+startvdr()
+{
+    if [ "$ENABLED" != "0" ] ; then
+        # only start vdr if there is no other instance running
+        if start-stop-daemon --start --startas $DAEMON --test \
+            --name $(basename $DAEMON) --pidfile $PIDFILE >/dev/null
+        then
+            getplugins
+            mergecommands "commands"
+            mergecommands "reccmds"
+            configure_console_input
+
+            if [ "$VFAT" == "1" ]; then
+                OPTIONS="--vfat $OPTIONS"
+            fi
+
+            if [ -n "$LIRC" ]; then
+                LIRC_OPT="--lirc=$LIRC"
+            else
+                LIRC_OPT="--lirc"
+            fi
+
+            start-stop-daemon --start --quiet --startas $DAEMON --background \
+                --name $(basename $DAEMON) --pidfile $PIDFILE --make-pidfile -- \
+                -v $VIDEO_DIR -c $CFG_DIR -L $PLUGIN_DIR -r $REC_CMD \
+                -s $VDRSHUTDOWN -E $EPG_FILE -u $USER -g /tmp \
+                --port $SVDRP_PORT $LIRC_OPT $PLUGINS $OPTIONS $REDIRECT
+        else
+            echo -n " - seems to be running already"
+        fi
+    else
+        echo -n " - aborted (to enable the daemon, edit /etc/default/vdr)"
+    fi
+}
+
+stopvdr()
+{
+    if start-stop-daemon --stop --retry 30 \
+        --name $(basename $DAEMON) --pidfile $PIDFILE >/dev/null
+    then
+        start-stop-daemon --stop --retry 30 --oknodo --exec $VDRPRG >/dev/null
+        rm -f $PIDFILE
+        clean_console
+    else
+        echo -n " - seems not to be running"
+    fi
+}
+
+case "$1" in
+    start)
+        echo -n "Starting $DESC: $NAME"
+        startvdr
+        echo "."
+        ;;
+    stop)
+        echo -n "Stopping $DESC: $NAME"
+        stopvdr
+        echo "."
+        ;;
+    restart|force-reload)
+        echo -n "Restarting $DESC: $NAME"
+        stopvdr
+        sleep 4
+        startvdr
+        echo "."
+        ;;
+    status)
+        echo -n "Getting status of $DESC: $NAME"
+        get_status
+        ;;
+    *)
+        N=/etc/init.d/$NAME
+        echo "Usage: $N {start|stop|restart|force-reload}" >&2
+        exit 1
+        ;;
+esac
+
+exit 0

@@ -1,0 +1,20 @@
+#!/bin/sh /usr/share/dpatch/dpatch-run
+
+## XX_patchtest-patch-error
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Patch to check patchtest against patch error
+
+@DPATCH@
+diff -Nur vdr.orig/vdr.c vdr/vdr.c
+--- vdr.orig/vdr.c	2004-03-12 21:37:17.000000000 +0100
++++ vdr/vdr.c	2004-03-13 14:22:01.000000000 +0100
+@@ -79,6 +79,8 @@
+ 
+ int main(int argc, char *argv[])
+ ***PATCH-BUG***
++  RaiseCompilerError();
++  
+   // Save terminal settings:
+ 
+   struct termios savedTm;

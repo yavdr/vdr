@@ -1,0 +1,5 @@
+vdr-dev: script-not-executable ./usr/share/vdr-dev/plugin-template/postinst.ex
+vdr-dev: script-not-executable ./usr/share/vdr-dev/plugin-template/postrm.ex
+vdr-dev: script-not-executable ./usr/share/vdr-dev/plugin-template/preinst.ex
+vdr-dev: script-not-executable ./usr/share/vdr-dev/plugin-template/prerm.ex
+vdr-dev: script-not-executable ./usr/share/vdr-dev/plugin-template/rules

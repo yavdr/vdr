@@ -1,0 +1,20 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## opt-50_graphtft-liemikuutio.dpatch by Jörg Wendel (Horchi)
+## from vdr-graphtft svn repository (20090728.2153):
+## https://vdr-graphtft.svn.sourceforge.net/svnroot/vdr-graphtft
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Patch required for the GraphTFT plugin with liemikuutio patch.
+
+@DPATCH@
+diff -ruN vdr-1.5.18-liemikuutio-1.19-plain/menu.c vdr-1.5.18-liemikuutio-1.19-graphtft/menu.c
+--- vdr-1.5.18-liemikuutio-1.19-plain/menu.c	2008-03-17 18:29:09.000000000 +0100
++++ vdr-1.5.18-liemikuutio-1.19-graphtft/menu.c	2008-03-17 18:27:23.000000000 +0100
+@@ -1960,6 +1960,7 @@
+ public:
+   cMenuRenameRecording(cRecording *Recording);
+   virtual eOSState ProcessKey(eKeys Key);
++  virtual const char* MenuKind() { return "MenuRenameRecording"; }
+ };
+ 
+ cMenuRenameRecording::cMenuRenameRecording(cRecording *Recording)
