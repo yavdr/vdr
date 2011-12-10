@@ -1,6 +1,7 @@
 vdr (1.7.22-1) unstable; urgency=low
 
   * New upstream release
+  * Dropped 99_dvbc-unitiymedia-fix.dpatch - fixed upstream
 
  -- Tobias Grimm <etobi@debian.org>  Sat, 10 Dec 2011 21:51:31 +0100
 
