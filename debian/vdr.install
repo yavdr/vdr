@@ -1,7 +1,7 @@
 vdr                                     usr/bin/
 debian/runvdr                           usr/sbin/
 
-epg2html.pl                             usr/lib/vdr/
+epg2html                                usr/lib/vdr/
 svdrpsend.pl                            usr/lib/vdr/
 debian/config-loader.sh                 usr/lib/vdr/
 debian/plugin-loader.sh                 usr/lib/vdr/
