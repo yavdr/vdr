@@ -1,15 +1,11 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
+Description: Removes Ch 14 fom example channels.conf.terr, because the entry is
+ invalid (reported as Ubuntu Bug #45721)
+Author: Thomas Schmidt <tschmidt@debian.org>
 
-## 16_channels.conf.terr-fix.dpatch by Thomas Schmidt <tschmidt@debian.org>
-##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: Removes Ch 14 fom example channels.conf.terr, because the entry is 
-## DP: invalid (reported as Ubuntu Bug #45721)
-
-@DPATCH@
-diff -urNad vdr-1.4.1~/channels.conf.terr vdr-1.4.1/channels.conf.terr
---- vdr-1.4.1~/channels.conf.terr	2005-01-16 16:54:57.000000000 +0100
-+++ vdr-1.4.1/channels.conf.terr	2006-08-13 15:19:13.000000000 +0200
+Index: vdr/channels.conf.terr
+===================================================================
+--- vdr.orig/channels.conf.terr	2011-12-10 22:22:04.000000000 +0100
++++ vdr/channels.conf.terr	2011-12-11 01:49:01.000000000 +0100
 @@ -9,7 +9,6 @@
  bid-up.tv (TV):561833:I0C23D0M64B8T2G32Y0:T:27500:6273:6274:0:0:14272:0:0:0
  CBBC (TV):505833:I0C34D0M16B8T2G32Y0:T:27500:620:621,622:0:0:4671:0:0:0

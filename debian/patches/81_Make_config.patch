@@ -1,12 +1,10 @@
-#! /bin/sh /usr/share/dpatch/dpatch-run
-## 81_Make_config.dpatch
-##
-## All lines beginning with `## DP:' are a description of the patch.
-## DP: Add Make.config to compile debug versions.
+Description: Add Make.config to compile debug versions.
+Author: Tobias Grimm <vdr@e-tobi.net>
 
-@DPATCH@
---- vdr-1.7.16/Make.config  1970-01-01 00:00:00.000000000 +0000
-+++ vdr-1.7.16/Make.config
+Index: vdr/Make.config
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ vdr/Make.config	2011-12-11 01:49:05.000000000 +0100
 @@ -0,0 +1,30 @@
 +#
 +# The following compiler settings are required for Debian builds and will be
