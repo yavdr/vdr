@@ -39,8 +39,10 @@ configure-stamp: check-patches
 	dh_testdir
 	touch configure-stamp
 
-build: build-stamp $(MANPAGES) $(TXT2MANPAGES)
-build-stamp: configure-stamp
+build: build-arch build-indep
+
+build-arch: build-arch-stamp $(MANPAGES) $(TXT2MANPAGES)
+build-arch-stamp: configure-stamp
 	dh_testdir
 
 	# Backup po files
@@ -65,7 +67,11 @@ build-stamp: configure-stamp
 
 	gcc -o debian/vdr-shutdown.wrapper debian/vdr-shutdown-wrapper.c
 
-	touch build-stamp
+	touch $@
+
+build-indep: build-indep-stamp
+build-indep-stamp: configure-stamp
+	touch $@
 
 patchinfo:
 	sh debian/extract-patchinfo >debian/patchinfo
