@@ -8,6 +8,7 @@ vdr (1.7.22-1) unstable; urgency=low
     anymore! To build VDR with a different set of patches, grab the
     appropriate branch from the Git.
   * Added build-arch, build-indep targets
+  * Added installation of the dvbhddevice plugin
 
  -- Tobias Grimm <etobi@debian.org>  Sat, 10 Dec 2011 21:51:31 +0100
 
