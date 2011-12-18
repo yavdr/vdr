@@ -20,7 +20,7 @@ vdr (1.7.22-0yavdr0~oneiric) oneiric; urgency=medium
   * Dropped extensions patch
   * Updated commands.ctvdr.conf to new upstream format
 
- -- Holger Schvestka <email address hidden>   Sun, 18 Dec 2011 12:49:04 +0200
+ -- Holger Schvestka <email address hidden>  Sun, 18 Dec 2011 12:49:04 +0200
 
 vdr (1.7.21-4yavdr0~oneiric) oneiric; urgency=medium
 
@@ -28,13 +28,13 @@ vdr (1.7.21-4yavdr0~oneiric) oneiric; urgency=medium
   * added updated opt-27_ttxtsubs.dpatch again
   * added 99_dvbc-unitiymedia-fix.dpatch
 
- -- Holger Schvestka <email address hidden>   Sun, 16 Oct 2011 14:49:04 +0200
+ -- Holger Schvestka <email address hidden>  Sun, 16 Oct 2011 14:49:04 +0200
 
 vdr (1.7.21-3yavdr0~oneiric) oneiric; urgency=medium
 
   * added sortrec.patch http://firefly.vdr-developer.org/patches/
 
- -- Holger Schvestka <email address hidden>   Sun, 16 Oct 2011 14:49:04 +0200
+ -- Holger Schvestka <email address hidden>  Sun, 16 Oct 2011 14:49:04 +0200
 
 vdr (1.7.21-2yavdr0~oneiric) oneiric; urgency=medium
 
