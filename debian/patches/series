@@ -1,0 +1,65 @@
+04_newplugin.patch
+06_default_svdrp_port_0.patch
+11_sortrecordings.patch
+12_osdbase-maxitems.patch
+16_channels.conf.terr-fix.patch
+
+81_Make_config.patch
+82_valgrind.patch
+
+99_ncursesw-include.patch
+
+# Patch collection (replaces enAIO).
+opt-20_liemikuutio.patch
+
+# Allows to tune to non-FTA channels provided by internal devices, 
+# like streamdev
+opt-21_internal-cam-devices.patch
+
+# Easy editing of cutting marks
+# (Requires opt-20_liemikuutio!)
+opt-22-x_edit_marks.patch
+
+# The Jump patch allows automatic jumping over cutting marks.
+opt-24_jumpplay.patch
+
+# Patch needed for the ttxtsubs plugin.
+opt-27_ttxtsubs.patch
+
+# Speed up zapping channels.
+# opt-29_syncearly.patch
+
+# Patch that shows if there is a valid setup value left or right with < and >.
+# opt-35_setup-show-valid.patch
+
+# Patch needed for the menuorg plugin.
+opt-37-x_menuorg.patch
+
+# Patch that suppresses double EPG entries.
+opt-38_disableDoubleEpgEntrys.patch
+
+# Patch to disable normal epg update for specified channels.
+opt-39_noepg.patch
+
+# Patch to show an info, if it is possible to record an event in the timer-info.
+opt-41-x_timer-info.patch
+
+# Patch to allow plugins to replace the VDR mainmenus
+opt-42-x_MainMenuHooks.patch
+
+# Shows remaining recording capacity in recordings menu.
+# (Requires opt-41-x_timer-info !)
+opt-43-x_recordshowfree.patch
+
+# Patch needed for the rotor plugin.
+opt-44_rotor.patch
+
+# Patch needed for the yaepg plugin.
+opt-45_yaepg.patch
+
+# Patch required for the GraphTFT plugin
+opt-50_graphtft.patch
+opt-50_graphtft-liemikuutio.patch
+
+# Setup for AC3 transfer, QAM_256, disable primary tuner
+# opt-53_dvbsetup.patch

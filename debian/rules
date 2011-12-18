@@ -12,17 +12,6 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	INSTALL_PROGRAM += -s
 endif
 
-# To use dpatch uncomment the following line and set Build-Depends to dpatch
-DPATCH=yes
-
-ifdef DPATCH
-include /usr/share/dpatch/dpatch.make
-else
-patch:
-patch-stamp:
-unpatch:
-endif
-
 TXT2MANPAGES = debian/vdr-dbg.1
 MANPAGES = debian/vdrdbg-buildpackage.1 debian/debugvdr.1 debian/vdrleaktest.1
 
@@ -37,40 +26,27 @@ $(TXT2MANPAGES): %.1: %.1.txt
 	cat $< | grep -v "^###" | \
 	  eval "`cat $< | grep "^### txt2man" | sed "s/### //"`" >$@
 
-OOLIST := debian/patches/00list
 ABIVERSION := debian/abi-version
-ifdef PATCHVARIANT
-    OOLIST := $(OOLIST).$(PATCHVARIANT)
-    ABIVERSION := $(ABIVERSION).$(PATCHVARIANT)
-    PATCHCHECKOPTION := -p $(PATCHVARIANT)
-endif
 
-prepare-00list:
+check-patches:
 	python debian/patchcheck.py -c $(PATCHCHECKOPTION)
-	cmp -s $(OOLIST) debian/patches/00list || \
-	  cp -b --suffix=.save $(OOLIST) debian/patches/00list
-
-restore-00list:
-	[ ! -e debian/patches/00list.save ] || \
-	  mv debian/patches/00list.save debian/patches/00list
 
 accept-patches:
 	python debian/patchcheck.py -u $(PATCHCHECKOPTION)
 
 configure: configure-stamp
-configure-stamp: prepare-00list patch-stamp
+configure-stamp: check-patches
 	dh_testdir
 	touch configure-stamp
 
-build: build-stamp $(MANPAGES) $(TXT2MANPAGES)
-build-stamp: configure-stamp
+build: build-arch build-indep
+
+build-arch: build-arch-stamp $(MANPAGES) $(TXT2MANPAGES)
+build-arch-stamp: configure-stamp
 	dh_testdir
 
 	# Backup po files
 	find PLUGINS po -name "*.po" -exec test ! -f {}.backup \; -exec cp {} {}.backup \;
-
-	# disable dvbhddevice
-	-mv PLUGINS/src/dvbhddevice PLUGINS/src/_dvbhddevice
 
 	# build unoptimized vdr with debugging symbols
 	$(MAKE) all $(MAKE_OPTIONS) VDRDEBUG=yes DEB_BUILD_OPTIONS=nostrip,noopt
@@ -89,28 +65,29 @@ build-stamp: configure-stamp
 	gcc -o debian/vdr-shutdown.wrapper debian/vdr-shutdown-wrapper.c
 	gcc -o debian/ctvdrwrapper debian/ctvdrwrapper.c
 	
-	touch build-stamp
+	touch $@
+
+build-indep: build-indep-stamp
+build-indep-stamp: configure-stamp
+	touch $@
 
 patchinfo:
 	sh debian/extract-patchinfo >debian/patchinfo
 
-clean: clean-patched unpatch restore-00list
-clean-patched:
+clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
 	$(MAKE) -o .dependencies clean-plugins $(MAKE_OPTIONS)
 	$(MAKE) -o .dependencies clean $(MAKE_OPTIONS)
 	rm -f vdr-dbg
+	rm -f vdr
 	rm -rf PLUGINS/lib
 	rm -f vdr-newplugin
 	rm -f debian/vdr-shutdown.wrapper
 	rm -f debian/ctvdrwrapper
 	rm -f debian/patchinfo
 	rm -f $(MANPAGES) $(TXT2MANPAGES)
-
-	# Restore dvbhddevice
-	-mv PLUGINS/src/_dvbhddevice PLUGINS/src/dvbhddevice
 
 	# Restore po files
 	find PLUGINS po -name "*.po" -exec test -f {}.backup \; -exec mv {}.backup {} \;
@@ -130,14 +107,6 @@ install: patchinfo build
 	echo -n "vdr:Provides=" >> debian/vdr.substvars
 	cat $(ABIVERSION) >> debian/vdr.substvars
 	install -m644 $(ABIVERSION) $(CURDIR)/debian/vdr-dev/usr/share/vdr-dev/abi-version
-ifdef PATCHVARIANT
-	mkdir -p $(CURDIR)/debian/vdr/usr/share/doc/vdr
-	mkdir -p $(CURDIR)/debian/vdr-dev/usr/share/doc/vdr-dev
-	grep ^opt- $(OOLIST) >$(CURDIR)/debian/vdr/usr/share/doc/vdr/optional-patches.txt
-	cp $(CURDIR)/debian/vdr/usr/share/doc/vdr/optional-patches.txt \
-	  $(CURDIR)/debian/vdr-dev/usr/share/doc/vdr-dev/optional-patches.txt
-endif
-
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -188,6 +157,7 @@ binary-arch: build install
 #	dh_undocumented -a
 	dh_installchangelogs -pvdr HISTORY
 	dh_installchangelogs -pvdr-plugin-dvbsddevice PLUGINS/src/dvbsddevice/HISTORY
+	dh_installchangelogs -pvdr-plugin-dvbhddevice PLUGINS/src/dvbhddevice/HISTORY
 	dh_installchangelogs -pvdr-plugin-examples
 	dh_link -a
 	dh_strip -a -Xvdr-dbg
@@ -202,5 +172,4 @@ binary-arch: build install
 	dh_builddeb -a
 
 binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install configure \
-        clean-patched patch unpatch
+.PHONY: build clean binary-indep binary-arch binary install configure

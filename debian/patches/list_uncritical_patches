@@ -2,7 +2,7 @@
 
 # find all patches that don't modify any header files
 
-patches=`find ./ -name "*.dpatch"`
+patches=`find ./ -name "*.patch"`
 
 for patch in $patches ; do
     grep -q -e "^---.*\.h" $patch
