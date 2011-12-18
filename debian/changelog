@@ -1,3 +1,27 @@
+vdr (1.7.22-0yavdr0~oneiric) oneiric; urgency=medium
+  
+  [Tobi]
+  * New upstream release
+  * Dropped 99_dvbc-unitiymedia-fix.dpatch - fixed upstream
+  * Dropped multipatch patches - these are available in the etobi-branch
+    of the Git repository
+  * Updated opt-39_noepg.dpatch and opt-44_rotor.dpatch
+  * Upgraded opt-20_liemikuutio.dpatch to version 1.33
+  * Dropped dpatch and use quilt for the patches - no PATCHVARIANT support
+    anymore! To build VDR with a different set of patches, grab the
+    appropriate branch from the Git.
+  * Dropped reelchannelscan patch
+  * Added build-arch, build-indep targets
+  * Added installation of the dvbhddevice plugin
+  * chown +r on /proc/av7110_ir and /proc/budget_ci_ir
+  * Standards-Version: 3.9.2
+  * Use 3.0 source formate and bz2 tarballs
+  * Reordered debian/vdr.install
+  * Dropped extensions patch
+  * Updated commands.ctvdr.conf to new upstream format
+
+ -- Holger Schvestka <email address hidden>   Sun, 18 Dec 2011 12:49:04 +0200
+
 vdr (1.7.21-4yavdr0~oneiric) oneiric; urgency=medium
 
   * added eventdetails_v3.patch

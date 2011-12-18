@@ -22,6 +22,7 @@ set_permissions()
         for FILE in av7110_ir budget_ci_ir; do
             if [ -e "/proc/$FILE" ]; then
                 chown $USER.$GROUP /proc/$FILE
+                chmod +r /proc/$FILE
             fi
         done
     fi
