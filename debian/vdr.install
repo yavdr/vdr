@@ -14,6 +14,7 @@ debian/vdr-shutdown.wrapper             usr/lib/vdr/
 
 diseqc.conf                             etc/vdr/
 keymacros.conf                          etc/vdr/
+scr.conf                                etc/vdr/
 sources.conf                            etc/vdr/
 svdrphosts.conf                         etc/vdr/
 debian/vdr.groups                       etc/vdr/
