@@ -23,8 +23,9 @@ vdr (1.7.22-0yavdr0~oneiric) oneiric; urgency=medium
   * Added opt-54_x_pin.patch
   * Added opt-55_wareagleicon.patch
   * install scr.conf -> etc/vdr/ (unicable)
+  * Added opt-56_eventdetails_v3.patch
 
- -- Holger Schvestka <email address hidden>  Wed, 21 Dec 2011 15:49:04 +0200
+ -- Holger Schvestka <email address hidden>  Wed, 21 Dec 2011 16:49:04 +0200
 
 vdr (1.7.21-4yavdr0~oneiric) oneiric; urgency=medium
 
