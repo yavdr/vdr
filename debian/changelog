@@ -20,8 +20,9 @@ vdr (1.7.22-0yavdr0~oneiric) oneiric; urgency=medium
   * Dropped extensions patch
   * Updated commands.ctvdr.conf to new upstream format
   * Added opt-52_hard_link_cutter.patch
+  * Added opt-54_x_pin.patch
 
- -- Holger Schvestka <email address hidden>  Wed, 21 Dec 2011 11:29:04 +0200
+ -- Holger Schvestka <email address hidden>  Wed, 21 Dec 2011 15:49:04 +0200
 
 vdr (1.7.21-4yavdr0~oneiric) oneiric; urgency=medium
 
