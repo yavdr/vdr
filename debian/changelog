@@ -26,6 +26,7 @@ vdr (1.7.22-0yavdr0~oneiric) oneiric; urgency=medium
   * Added opt-56_eventdetails_v3.patch
   * Added opt-57_vdr-remote_instant_recordings.patch
   * Added opt-58_dvbplayer-no-busy.patch
+  * Added opt-59_hd-timeshift-wait.patch
 
  -- Holger Schvestka <email address hidden>  Wed, 21 Dec 2011 17:33:04 +0200
 
