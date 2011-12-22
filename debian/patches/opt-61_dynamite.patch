@@ -2,9 +2,9 @@ Description: Patch for VDR
 Author: Lars Hanisch <dvb@flensrocker.de>
 Origin: https://github.com/flensrocker/vdr-plugin-dynamite
 
-diff -urNad -x .git vdr-1.7.22-orig//ci.h vdr-1.7.22-dynamite//ci.h
---- vdr-1.7.22-orig//ci.h	2011-12-22 00:43:04.833687113 +0100
-+++ vdr-1.7.22-dynamite//ci.h	2011-12-22 00:45:10.186308712 +0100
+diff -urNad vdr-1.7.22-orig/ci.h vdr-1.7.22-dynamite/ci.h
+--- vdr-1.7.22-orig/ci.h	2011-12-22 15:44:28.000000000 +0100
++++ vdr-1.7.22-dynamite/ci.h	2011-12-22 16:29:49.508120156 +0100
 @@ -115,6 +115,8 @@
         ///< The derived class must call Cancel(3) in its destructor.
    virtual bool Ready(void);
@@ -14,9 +14,9 @@ diff -urNad -x .git vdr-1.7.22-orig//ci.h vdr-1.7.22-dynamite//ci.h
    };
  
  class cTPDU;
-diff -urNad -x .git vdr-1.7.22-orig//device.c vdr-1.7.22-dynamite//device.c
---- vdr-1.7.22-orig//device.c	2011-12-22 00:44:42.654172188 +0100
-+++ vdr-1.7.22-dynamite//device.c	2011-12-22 00:45:10.186308712 +0100
+diff -urNad vdr-1.7.22-orig/device.c vdr-1.7.22-dynamite/device.c
+--- vdr-1.7.22-orig/device.c	2011-12-22 16:28:33.000000000 +0100
++++ vdr-1.7.22-dynamite/device.c	2011-12-22 16:29:49.508120156 +0100
 @@ -77,12 +77,22 @@
  cDevice *cDevice::primaryDevice = NULL;
  cDevice *cDevice::avoidDevice = NULL;
@@ -150,7 +150,7 @@ diff -urNad -x .git vdr-1.7.22-orig//device.c vdr-1.7.22-dynamite//device.c
    if (sectionHandler)
       sectionHandler->Detach(Filter);
  }
-@@ -769,6 +823,7 @@
+@@ -762,6 +816,7 @@
          sectionHandler->SetStatus(false);
          sectionHandler->SetChannel(NULL);
          }
@@ -158,7 +158,7 @@ diff -urNad -x .git vdr-1.7.22-orig//device.c vdr-1.7.22-dynamite//device.c
       // Tell the camSlot about the channel switch and add all PIDs of this
       // channel to it, for possible later decryption:
       if (camSlot)
-@@ -815,19 +870,27 @@
+@@ -808,19 +863,27 @@
  {
    if (!cTransferControl::ReceiverDevice()) {
       cChannel *Channel = Channels.GetByNumber(CurrentChannel());
@@ -187,7 +187,7 @@ diff -urNad -x .git vdr-1.7.22-orig//device.c vdr-1.7.22-dynamite//device.c
    if (Seconds >= 0)
       occupiedTimeout = time(NULL) + min(Seconds, MAXOCCUPIEDTIMEOUT);
  }
-@@ -1200,7 +1263,10 @@
+@@ -1193,7 +1256,10 @@
  
  bool cDevice::AttachPlayer(cPlayer *Player)
  {
@@ -198,7 +198,7 @@ diff -urNad -x .git vdr-1.7.22-orig//device.c vdr-1.7.22-dynamite//device.c
       if (player)
          Detach(player);
       DELETENULL(liveSubtitle);
-@@ -1219,6 +1285,8 @@
+@@ -1212,6 +1278,8 @@
  
  void cDevice::Detach(cPlayer *Player)
  {
@@ -207,7 +207,7 @@ diff -urNad -x .git vdr-1.7.22-orig//device.c vdr-1.7.22-dynamite//device.c
    if (Player && player == Player) {
       cPlayer *p = player;
       player = NULL; // avoids recursive calls to Detach()
-@@ -1238,6 +1306,8 @@
+@@ -1231,6 +1299,8 @@
  
  void cDevice::StopReplay(void)
  {
@@ -216,7 +216,7 @@ diff -urNad -x .git vdr-1.7.22-orig//device.c vdr-1.7.22-dynamite//device.c
    if (player) {
       Detach(player);
       if (IsPrimaryDevice())
-@@ -1539,6 +1609,8 @@
+@@ -1532,6 +1602,8 @@
  
  int cDevice::Priority(void) const
  {
@@ -225,7 +225,7 @@ diff -urNad -x .git vdr-1.7.22-orig//device.c vdr-1.7.22-dynamite//device.c
    int priority = IsPrimaryDevice() ? Setup.PrimaryLimit - 1 : DEFAULTPRIORITY;
    cMutexLock MutexLock(&mutexReceiver);
    for (int i = 0; i < MAXRECEIVERS; i++) {
-@@ -1555,6 +1627,8 @@
+@@ -1548,6 +1620,8 @@
  
  bool cDevice::Receiving(bool CheckAny) const
  {
@@ -234,7 +234,7 @@ diff -urNad -x .git vdr-1.7.22-orig//device.c vdr-1.7.22-dynamite//device.c
    cMutexLock MutexLock(&mutexReceiver);
    for (int i = 0; i < MAXRECEIVERS; i++) {
        if (receiver[i] && (CheckAny || receiver[i]->priority >= 0)) // cReceiver with priority < 0 doesn't count
-@@ -1635,10 +1709,13 @@
+@@ -1628,10 +1702,13 @@
  
  bool cDevice::AttachReceiver(cReceiver *Receiver)
  {
@@ -248,7 +248,7 @@ diff -urNad -x .git vdr-1.7.22-orig//device.c vdr-1.7.22-dynamite//device.c
  // activate the following line if you need it - actually the driver should be fixed!
  //#define WAIT_FOR_TUNER_LOCK
  #ifdef WAIT_FOR_TUNER_LOCK
-@@ -1677,6 +1754,8 @@
+@@ -1670,6 +1747,8 @@
  
  void cDevice::Detach(cReceiver *Receiver)
  {
@@ -257,7 +257,7 @@ diff -urNad -x .git vdr-1.7.22-orig//device.c vdr-1.7.22-dynamite//device.c
    if (!Receiver || Receiver->device != this)
       return;
    bool receiversLeft = false;
-@@ -1702,6 +1781,8 @@
+@@ -1695,6 +1774,8 @@
  
  void cDevice::DetachAll(int Pid)
  {
@@ -266,7 +266,7 @@ diff -urNad -x .git vdr-1.7.22-orig//device.c vdr-1.7.22-dynamite//device.c
    if (Pid) {
       cMutexLock MutexLock(&mutexReceiver);
       for (int i = 0; i < MAXRECEIVERS; i++) {
-@@ -1714,6 +1795,8 @@
+@@ -1707,6 +1788,8 @@
  
  void cDevice::DetachAllReceivers(void)
  {
@@ -275,7 +275,7 @@ diff -urNad -x .git vdr-1.7.22-orig//device.c vdr-1.7.22-dynamite//device.c
    cMutexLock MutexLock(&mutexReceiver);
    for (int i = 0; i < MAXRECEIVERS; i++)
        Detach(receiver[i]);
-@@ -1785,3 +1868,25 @@
+@@ -1778,3 +1861,25 @@
       }
    return NULL;
  }
@@ -301,9 +301,9 @@ diff -urNad -x .git vdr-1.7.22-orig//device.c vdr-1.7.22-dynamite//device.c
 +{
 +  DynamicDeviceProbes.Del(this, false);
 +}
-diff -urNad -x .git vdr-1.7.22-orig//device.h vdr-1.7.22-dynamite//device.h
---- vdr-1.7.22-orig//device.h	2011-12-22 00:44:42.654172188 +0100
-+++ vdr-1.7.22-dynamite//device.h	2011-12-22 00:45:10.186308712 +0100
+diff -urNad vdr-1.7.22-orig/device.h vdr-1.7.22-dynamite/device.h
+--- vdr-1.7.22-orig/device.h	2011-12-22 16:28:33.000000000 +0100
++++ vdr-1.7.22-dynamite/device.h	2011-12-22 16:29:49.508120156 +0100
 @@ -170,7 +170,6 @@
    static int nextCardIndex;
    int cardIndex;
@@ -429,9 +429,9 @@ diff -urNad -x .git vdr-1.7.22-orig//device.h vdr-1.7.22-dynamite//device.h
 +extern cList<cDynamicDeviceProbe> DynamicDeviceProbes;
 +  
  #endif //__DEVICE_H
-diff -urNad -x .git vdr-1.7.22-orig//dvbci.c vdr-1.7.22-dynamite//dvbci.c
---- vdr-1.7.22-orig//dvbci.c	2011-12-22 00:43:04.845687172 +0100
-+++ vdr-1.7.22-dynamite//dvbci.c	2011-12-22 00:45:10.186308712 +0100
+diff -urNad vdr-1.7.22-orig/dvbci.c vdr-1.7.22-dynamite/dvbci.c
+--- vdr-1.7.22-orig/dvbci.c	2011-12-22 15:44:29.000000000 +0100
++++ vdr-1.7.22-dynamite/dvbci.c	2011-12-22 16:29:49.508120156 +0100
 @@ -10,15 +10,18 @@
  #include "dvbci.h"
  #include <linux/dvb/ca.h>
@@ -538,9 +538,9 @@ diff -urNad -x .git vdr-1.7.22-orig//dvbci.c vdr-1.7.22-dynamite//dvbci.c
 +     return new cDvbCiAdapter(Device, Fd, Adapter, Frontend);
    return NULL;
  }
-diff -urNad -x .git vdr-1.7.22-orig//dvbci.h vdr-1.7.22-dynamite//dvbci.h
---- vdr-1.7.22-orig//dvbci.h	2011-12-22 00:43:04.845687172 +0100
-+++ vdr-1.7.22-dynamite//dvbci.h	2011-12-22 00:45:10.186308712 +0100
+diff -urNad vdr-1.7.22-orig/dvbci.h vdr-1.7.22-dynamite/dvbci.h
+--- vdr-1.7.22-orig/dvbci.h	2011-12-22 15:44:29.000000000 +0100
++++ vdr-1.7.22-dynamite/dvbci.h	2011-12-22 16:29:49.508120156 +0100
 @@ -16,16 +16,24 @@
  private:
    cDevice *device;
@@ -568,9 +568,9 @@ diff -urNad -x .git vdr-1.7.22-orig//dvbci.h vdr-1.7.22-dynamite//dvbci.h
    };
  
  #endif //__DVBCI_H
-diff -urNad -x .git vdr-1.7.22-orig//dvbdevice.c vdr-1.7.22-dynamite//dvbdevice.c
---- vdr-1.7.22-orig//dvbdevice.c	2011-12-22 00:44:42.530171574 +0100
-+++ vdr-1.7.22-dynamite//dvbdevice.c	2011-12-22 00:46:01.317808000 +0100
+diff -urNad vdr-1.7.22-orig/dvbdevice.c vdr-1.7.22-dynamite/dvbdevice.c
+--- vdr-1.7.22-orig/dvbdevice.c	2011-12-22 16:28:32.000000000 +0100
++++ vdr-1.7.22-dynamite/dvbdevice.c	2011-12-22 16:29:49.508120156 +0100
 @@ -282,12 +282,16 @@
    bool bondedMaster;
    bool bondedMasterFailed;
@@ -807,9 +807,9 @@ diff -urNad -x .git vdr-1.7.22-orig//dvbdevice.c vdr-1.7.22-dynamite//dvbdevice.
  }
  
  int cDvbDevice::NumProvidedSystems(void) const
-diff -urNad -x .git vdr-1.7.22-orig//dvbdevice.h vdr-1.7.22-dynamite//dvbdevice.h
---- vdr-1.7.22-orig//dvbdevice.h	2011-12-22 00:44:42.530171574 +0100
-+++ vdr-1.7.22-dynamite//dvbdevice.h	2011-12-22 00:45:10.190308724 +0100
+diff -urNad vdr-1.7.22-orig/dvbdevice.h vdr-1.7.22-dynamite/dvbdevice.h
+--- vdr-1.7.22-orig/dvbdevice.h	2011-12-22 16:28:32.000000000 +0100
++++ vdr-1.7.22-dynamite/dvbdevice.h	2011-12-22 16:29:49.518120156 +0100
 @@ -102,7 +102,7 @@
  /// The cDvbDevice implements a DVB device which can be accessed through the Linux DVB driver API.
  
