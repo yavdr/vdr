@@ -1,6 +1,6 @@
 diff -urNad vdr-1.7.22-orig/config.c vdr-1.7.22-wareagleicon/config.c
---- vdr-1.7.22-orig/config.c	2011-12-21 16:20:03.000000000 +0100
-+++ vdr-1.7.22-wareagleicon/config.c	2011-12-21 16:21:28.686883766 +0100
+--- vdr-1.7.22-orig/config.c	2011-12-22 15:10:26.000000000 +0100
++++ vdr-1.7.22-wareagleicon/config.c	2011-12-22 15:13:01.578119995 +0100
 @@ -376,6 +376,7 @@
    strcpy(OSDLanguage, ""); // default is taken from environment
    strcpy(OSDSkin, "sttng");
@@ -9,7 +9,7 @@ diff -urNad vdr-1.7.22-orig/config.c vdr-1.7.22-wareagleicon/config.c
    PrimaryDVB = 1;
    ShowInfoOnChSwitch = 1;
    TimeoutRequChInfo = 1;
-@@ -589,6 +590,7 @@
+@@ -587,6 +588,7 @@
    if      (!strcasecmp(Name, "OSDLanguage"))       { strn0cpy(OSDLanguage, Value, sizeof(OSDLanguage)); I18nSetLocale(OSDLanguage); }
    else if (!strcasecmp(Name, "OSDSkin"))             Utf8Strn0Cpy(OSDSkin, Value, MaxSkinName);
    else if (!strcasecmp(Name, "OSDTheme"))            Utf8Strn0Cpy(OSDTheme, Value, MaxThemeName);
@@ -17,7 +17,7 @@ diff -urNad vdr-1.7.22-orig/config.c vdr-1.7.22-wareagleicon/config.c
    else if (!strcasecmp(Name, "PrimaryDVB"))          PrimaryDVB         = atoi(Value);
    else if (!strcasecmp(Name, "ShowInfoOnChSwitch"))  ShowInfoOnChSwitch = atoi(Value);
    else if (!strcasecmp(Name, "TimeoutRequChInfo"))   TimeoutRequChInfo  = atoi(Value);
-@@ -701,6 +703,7 @@
+@@ -697,6 +699,7 @@
    Store("OSDLanguage",        OSDLanguage);
    Store("OSDSkin",            OSDSkin);
    Store("OSDTheme",           OSDTheme);
@@ -26,9 +26,9 @@ diff -urNad vdr-1.7.22-orig/config.c vdr-1.7.22-wareagleicon/config.c
    Store("ShowInfoOnChSwitch", ShowInfoOnChSwitch);
    Store("TimeoutRequChInfo",  TimeoutRequChInfo);
 diff -urNad vdr-1.7.22-orig/config.h vdr-1.7.22-wareagleicon/config.h
---- vdr-1.7.22-orig/config.h	2011-12-21 16:20:03.000000000 +0100
-+++ vdr-1.7.22-wareagleicon/config.h	2011-12-21 16:21:28.686883766 +0100
-@@ -241,6 +241,7 @@
+--- vdr-1.7.22-orig/config.h	2011-12-22 15:10:26.000000000 +0100
++++ vdr-1.7.22-wareagleicon/config.h	2011-12-22 15:13:01.578119995 +0100
+@@ -243,6 +243,7 @@
    char OSDLanguage[I18N_MAX_LOCALE_LEN];
    char OSDSkin[MaxSkinName];
    char OSDTheme[MaxThemeName];
@@ -38,7 +38,7 @@ diff -urNad vdr-1.7.22-orig/config.h vdr-1.7.22-wareagleicon/config.h
    int TimeoutRequChInfo;
 diff -urNad vdr-1.7.22-orig/iconpatch.c vdr-1.7.22-wareagleicon/iconpatch.c
 --- vdr-1.7.22-orig/iconpatch.c	1970-01-01 01:00:00.000000000 +0100
-+++ vdr-1.7.22-wareagleicon/iconpatch.c	2011-12-21 16:21:28.686883766 +0100
++++ vdr-1.7.22-wareagleicon/iconpatch.c	2011-12-22 15:13:01.578119995 +0100
 @@ -0,0 +1,28 @@
 +
 +#include "iconpatch.h"
@@ -70,7 +70,7 @@ diff -urNad vdr-1.7.22-orig/iconpatch.c vdr-1.7.22-wareagleicon/iconpatch.c
 +}
 diff -urNad vdr-1.7.22-orig/iconpatch.h vdr-1.7.22-wareagleicon/iconpatch.h
 --- vdr-1.7.22-orig/iconpatch.h	1970-01-01 01:00:00.000000000 +0100
-+++ vdr-1.7.22-wareagleicon/iconpatch.h	2011-12-21 16:21:28.686883766 +0100
++++ vdr-1.7.22-wareagleicon/iconpatch.h	2011-12-22 15:13:01.578119995 +0100
 @@ -0,0 +1,72 @@
 +/*
 + * iconpatch.h: Information of iconpatch
@@ -145,8 +145,8 @@ diff -urNad vdr-1.7.22-orig/iconpatch.h vdr-1.7.22-wareagleicon/iconpatch.h
 +
 +
 diff -urNad vdr-1.7.22-orig/Makefile vdr-1.7.22-wareagleicon/Makefile
---- vdr-1.7.22-orig/Makefile	2011-12-21 16:20:02.000000000 +0100
-+++ vdr-1.7.22-wareagleicon/Makefile	2011-12-21 16:21:28.686883766 +0100
+--- vdr-1.7.22-orig/Makefile	2011-12-22 15:10:26.000000000 +0100
++++ vdr-1.7.22-wareagleicon/Makefile	2011-12-22 15:13:01.578119995 +0100
 @@ -49,6 +49,8 @@
  
  OBJS += vdrttxtsubshooks.o
@@ -157,8 +157,8 @@ diff -urNad vdr-1.7.22-orig/Makefile vdr-1.7.22-wareagleicon/Makefile
  DEFINES += -DREMOTE_KBD
  endif
 diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-wareagleicon/menu.c
---- vdr-1.7.22-orig/menu.c	2011-12-21 16:20:03.000000000 +0100
-+++ vdr-1.7.22-wareagleicon/menu.c	2011-12-21 16:21:28.696883766 +0100
+--- vdr-1.7.22-orig/menu.c	2011-12-22 15:10:26.000000000 +0100
++++ vdr-1.7.22-wareagleicon/menu.c	2011-12-22 15:13:01.588119995 +0100
 @@ -8,6 +8,7 @@
   */
  
@@ -183,7 +183,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-wareagleicon/menu.c
       else
          buffer = cString::sprintf("%d\t%s", channel->Number(), channel->Name());
       }
-@@ -1078,9 +1088,9 @@
+@@ -1068,9 +1078,9 @@
       File = timer->File();
    cCharSetConv csc("ISO-8859-1", cCharSetConv::SystemCharacterTable());
    char diskStatusString[2] = { diskStatus, 0 };
@@ -196,7 +196,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-wareagleicon/menu.c
                      timer->Channel()->Number(),
                      *name,
                      *name && **name ? " " : "",
-@@ -1467,7 +1477,12 @@
+@@ -1457,7 +1467,12 @@
    return r;
  }
  
@@ -210,7 +210,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-wareagleicon/menu.c
  
  bool cMenuScheduleItem::Update(bool Force)
  {
-@@ -1476,17 +1491,17 @@
+@@ -1466,17 +1481,17 @@
    Timers.GetMatch(event, &timerMatch);
    if (Force || timerMatch != OldTimerMatch) {
       cString buffer;
@@ -234,7 +234,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-wareagleicon/menu.c
       SetText(buffer);
       result = true;
       }
-@@ -2929,6 +2944,7 @@
+@@ -2913,6 +2928,7 @@
    Add(new cMenuEditStraItem(tr("Setup.OSD$Skin"),                   &skinIndex, numSkins, skinDescriptions));
    if (themes.NumThemes())
    Add(new cMenuEditStraItem(tr("Setup.OSD$Theme"),                  &themeIndex, themes.NumThemes(), themes.Descriptions()));
@@ -243,8 +243,8 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-wareagleicon/menu.c
    Add(new cMenuEditPrcItem( tr("Setup.OSD$Top (%)"),                &data.OSDTopP, 0.0, 0.5));
    Add(new cMenuEditPrcItem( tr("Setup.OSD$Width (%)"),              &data.OSDWidthP, 0.5, 1.0));
 diff -urNad vdr-1.7.22-orig/recording.c vdr-1.7.22-wareagleicon/recording.c
---- vdr-1.7.22-orig/recording.c	2011-12-21 16:20:03.000000000 +0100
-+++ vdr-1.7.22-wareagleicon/recording.c	2011-12-21 16:21:28.696883766 +0100
+--- vdr-1.7.22-orig/recording.c	2011-12-22 15:10:26.000000000 +0100
++++ vdr-1.7.22-wareagleicon/recording.c	2011-12-22 15:13:01.588119995 +0100
 @@ -8,6 +8,7 @@
   */
  
