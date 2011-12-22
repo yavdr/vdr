@@ -45,7 +45,8 @@ opt-39_noepg.patch
 opt-41-x_timer-info.patch
 
 # Patch to allow plugins to replace the VDR mainmenus
-opt-42-x_MainMenuHooks.patch
+#opt-42-x_MainMenuHooks.patch
+opt-42-x_MainMenuHooks-v1.0.1.patch
 
 # Shows remaining recording capacity in recordings menu.
 # (Requires opt-41-x_timer-info !)

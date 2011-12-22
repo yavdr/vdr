@@ -28,6 +28,7 @@ vdr (1.7.22-0yavdr0~oneiric) oneiric; urgency=medium
   * Added opt-58_dvbplayer-no-busy.patch
   * Added opt-59_hd-timeshift-wait.patch
   * Added opt-60-livebuffer12-rmm.patch
+  * Updated opt-42-x_MainMenuHooks.patch -> v.1.0.1
 
  -- Holger Schvestka <email address hidden>  Wed, 21 Dec 2011 17:33:04 +0200
 
