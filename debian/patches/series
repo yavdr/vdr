@@ -62,7 +62,7 @@ opt-45_yaepg.patch
 opt-50_graphtft.patch
 opt-50_graphtft-liemikuutio.patch
 
-opt-52_hard_link_cutter.patch
+#opt-52_hard_link_cutter.patch
 
 # Setup for AC3 transfer, QAM_256, disable primary tuner
 # opt-53_dvbsetup.patch
