@@ -73,3 +73,4 @@ opt-57_vdr-remote_instant_recordings.patch
 opt-58_dvbplayer-no-busy.patch
 opt-59_hd-timeshift-wait.patch
 opt-60-livebuffer12-rmm.patch
+opt-61_dynamite.patch
