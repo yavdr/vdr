@@ -67,7 +67,7 @@ opt-52_hard_link_cutter.patch
 # Setup for AC3 transfer, QAM_256, disable primary tuner
 # opt-53_dvbsetup.patch
 
-opt-54_x_pin.patch
+#opt-54_x_pin.patch
 opt-55_wareagleicon.patch
 opt-56_eventdetails_v3.patch
 opt-57_vdr-remote_instant_recordings.patch
