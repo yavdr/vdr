@@ -32,6 +32,7 @@ vdr (1.7.22-0yavdr0~oneiric) oneiric; urgency=medium
   * Added opt-61_dynamite.patch
   * Added opt-62_hard_link_cutter.patch
   * Added opt-99_vdr-hotfixes.patch
+  * Added opt-63_naludump.patch
   * Removed sortrec.patch
 
  -- Holger Schvestka <email address hidden>  Fri, 23 Dec 2011 14:30:04 +0200
