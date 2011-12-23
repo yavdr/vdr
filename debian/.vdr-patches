@@ -1,5 +1,6 @@
 debian/patches/opt-20_liemikuutio.patch:d261a4492fd8b350149c595c9d72e908
 debian/patches/16_channels.conf.terr-fix.patch:933f8daa6bb6d26c711d0ae987a2b03e
+debian/patches/opt-64_dvbt2-support.patch:3fef157652db9fab7ff65069d15b64be
 debian/patches/opt-55_wareagleicon.patch:cb4f92e2aad59c904073763b71038862
 debian/patches/04_newplugin.patch:5877f4f62dab4f3d437d4eef7cae3ac0
 debian/patches/opt-43-x_recordshowfree.patch:e215d4b880638dd97deb138a36abc9e1
@@ -13,6 +14,7 @@ debian/patches/opt-24_jumpplay.patch:d2f8209e7c1bc6631c03ec88acdf9628
 debian/patches/opt-56_eventdetails_v3.patch:bb21cd46d8353bdebb49f2c06e7f50cc
 debian/patches/opt-38_disableDoubleEpgEntrys.patch:c6448660aa4326ef6151b5a913e2b9cd
 debian/patches/opt-58_dvbplayer-no-busy.patch:9ab55e05836d603575bb4e6a7b629cac
+debian/patches/opt-62_hard_link_cutter.patch:8d4e748935e9dec213ceecd75951bb51
 debian/patches/opt-59_hd-timeshift-wait.patch:0692479fb16b98e43f1ed496b105fb44
 debian/patches/opt-57_vdr-remote_instant_recordings.patch:b25f81f9252a452641b38f60a26e6842
 debian/patches/99_ncursesw-include.patch:9bafeb768f7921015a5bab5e47786950
@@ -23,9 +25,11 @@ debian/patches/opt-22-x_edit_marks.patch:5c6b433d3816e2081c3ae937be54b534
 debian/patches/opt-39_noepg.patch:dac5d60f94ef09a9c497999cb8acd199
 debian/patches/opt-44_rotor.patch:755854c8f2e048902b582f9343919ee1
 debian/patches/opt-42-x_MainMenuHooks-v1.0.1.patch:f726f294847d7ec3690f3f30c625ac74
+debian/patches/opt-65_pin.patch:7e35b55cef04b3bc55b1fa8418d42d9e
 debian/patches/12_osdbase-maxitems.patch:f6fc7c5a100f8e891280195b3e1d69ba
 debian/patches/opt-60-livebuffer12-rmm.patch:b4cdb006da926087dff7a32ff6edeef5
 debian/patches/opt-50_graphtft-liemikuutio.patch:a5a3ead7091ddd35fab0b6925ffefcab
+debian/patches/opt-63_naludump.patch:0d0b97786e333ced17a67f5f977864ba
 debian/patches/opt-45_yaepg.patch:e8b772b5a17269778f6fc6c4bea5ef79
 debian/patches/06_default_svdrp_port_0.patch:4835f681f185991262a3160146f43f2f
 debian/patches/81_Make_config.patch:76dc4a78d1da16e3e524e41587d0c90d
