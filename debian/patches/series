@@ -81,4 +81,5 @@ opt-99_vdr-hotfixes.patch
 opt-62_hard_link_cutter.patch
 opt-63_naludump.patch
 opt-64_dvbt2-support.patch
+opt-65_pin.patch
 
