@@ -75,7 +75,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-pin/menu.c
 +  // > PIN PATCH
 +  cOsdItem* item = Get(Current());
 +
-+  if (item && item->Text() && state != osContinue && state != osUnknown && state != osBack)
++  if (item && item->Text() && State != osContinue && State != osUnknown && State != osBack)
 +     if (cStatus::MsgMenuItemProtected(item->Text()))
 +        return osContinue;
 +  // PIN PATCH <
