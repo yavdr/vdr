@@ -25,7 +25,7 @@ debian/patches/opt-22-x_edit_marks.patch:5c6b433d3816e2081c3ae937be54b534
 debian/patches/opt-39_noepg.patch:dac5d60f94ef09a9c497999cb8acd199
 debian/patches/opt-44_rotor.patch:755854c8f2e048902b582f9343919ee1
 debian/patches/opt-42-x_MainMenuHooks-v1.0.1.patch:f726f294847d7ec3690f3f30c625ac74
-debian/patches/opt-65_pin.patch:7e35b55cef04b3bc55b1fa8418d42d9e
+debian/patches/opt-65_pin.patch:535fd12e391cce25f32b064c7bdbbdc5
 debian/patches/12_osdbase-maxitems.patch:f6fc7c5a100f8e891280195b3e1d69ba
 debian/patches/opt-60-livebuffer12-rmm.patch:b4cdb006da926087dff7a32ff6edeef5
 debian/patches/opt-50_graphtft-liemikuutio.patch:a5a3ead7091ddd35fab0b6925ffefcab
