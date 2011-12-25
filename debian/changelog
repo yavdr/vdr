@@ -1,4 +1,4 @@
-vdr (1.7.22-1yavdr0~precise) precise; urgency=medium
+vdr (1.7.22-1yavdr1~precise) precise; urgency=medium
   
   [Tobi]
   * New upstream release
@@ -12,7 +12,6 @@ vdr (1.7.22-1yavdr0~precise) precise; urgency=medium
     appropriate branch from the Git.
   * Dropped reelchannelscan patch
   * Added build-arch, build-indep targets
-  * Added installation of the dvbhddevice plugin
   * chown +r on /proc/av7110_ir and /proc/budget_ci_ir
   * Standards-Version: 3.9.2
   * Use 3.0 source formate and bz2 tarballs
