@@ -10,6 +10,7 @@ debian/patches/opt-37-x_menuorg.patch:b3be1b7511f090ea72b57ce96f9ebec6
 debian/patches/opt-21_internal-cam-devices.patch:3f3a00b67bdaf671fe3155d0f9c72ad1
 debian/patches/11_sortrecordings.patch:3e3a2f988cb7db03f8f56a44012a65f4
 debian/patches/opt-41-x_timer-info.patch:24767586707d76f36e33021d3e662508
+debian/patches/xprmtl-01_externalci.patch:2343229af1651df24144da83514dd90c
 debian/patches/opt-24_jumpplay.patch:d2f8209e7c1bc6631c03ec88acdf9628
 debian/patches/opt-56_eventdetails_v3.patch:bb21cd46d8353bdebb49f2c06e7f50cc
 debian/patches/opt-38_disableDoubleEpgEntrys.patch:c6448660aa4326ef6151b5a913e2b9cd
@@ -19,7 +20,7 @@ debian/patches/opt-59_hd-timeshift-wait.patch:0692479fb16b98e43f1ed496b105fb44
 debian/patches/opt-57_vdr-remote_instant_recordings.patch:b25f81f9252a452641b38f60a26e6842
 debian/patches/99_ncursesw-include.patch:9bafeb768f7921015a5bab5e47786950
 debian/patches/82_valgrind.patch:60ad50e72eabb0861d096d1002fddca7
-debian/patches/opt-61_dynamite.patch:d47269345bc8339076f8142257867f37
+debian/patches/opt-61_dynamite.patch:fbdfcb7c46e04fc6b38da938aa37f169
 debian/patches/opt-99_vdr-hotfixes.patch:eb4947880169f33ef66518a293ab5ff9
 debian/patches/opt-22-x_edit_marks.patch:5c6b433d3816e2081c3ae937be54b534
 debian/patches/opt-39_noepg.patch:dac5d60f94ef09a9c497999cb8acd199
