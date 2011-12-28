@@ -2,9 +2,19 @@ Description: Patch for VDR
 Author: Lars Hanisch <dvb@flensrocker.de>
 Origin: https://github.com/flensrocker/vdr-plugin-dynamite
 
-diff -urNad vdr-1.7.22-orig/ci.h vdr-1.7.22-dynamite/ci.h
---- vdr-1.7.22-orig/ci.h	2011-12-22 15:44:28.000000000 +0100
-+++ vdr-1.7.22-dynamite/ci.h	2011-12-22 16:29:49.508120156 +0100
+--- a/ci.c
++++ b/ci.c
+@@ -1571,6 +1571,8 @@
+ 
+ cCamSlot::~cCamSlot()
+ {
++  if (ciAdapter && ciAdapter->assignedDevice)
++     ciAdapter->assignedDevice->SetCamSlot(NULL);
+   CamSlots.Del(this, false);
+   DeleteAllConnections();
+ }
+--- a/ci.h
++++ b/ci.h
 @@ -115,6 +115,8 @@
         ///< The derived class must call Cancel(3) in its destructor.
    virtual bool Ready(void);
@@ -14,9 +24,8 @@ diff -urNad vdr-1.7.22-orig/ci.h vdr-1.7.22-dynamite/ci.h
    };
  
  class cTPDU;
-diff -urNad vdr-1.7.22-orig/device.c vdr-1.7.22-dynamite/device.c
---- vdr-1.7.22-orig/device.c	2011-12-22 16:28:33.000000000 +0100
-+++ vdr-1.7.22-dynamite/device.c	2011-12-22 16:29:49.508120156 +0100
+--- a/device.c
++++ b/device.c
 @@ -77,12 +77,22 @@
  cDevice *cDevice::primaryDevice = NULL;
  cDevice *cDevice::avoidDevice = NULL;
@@ -27,12 +36,13 @@ diff -urNad vdr-1.7.22-orig/device.c vdr-1.7.22-dynamite/device.c
 + 
 +cDevice::cDevice(cDevice *ParentDevice)
  :patPmtParser(true)
+-{
+-  cardIndex = nextCardIndex++;
+-  dsyslog("new device number %d", CardIndex() + 1);
 +,isIdle(false)
 +,parentDevice(ParentDevice)
 +,subDevice(NULL)
- {
--  cardIndex = nextCardIndex++;
--  dsyslog("new device number %d", CardIndex() + 1);
++{
 +  if (!ParentDevice)
 +     parentDevice = nextParentDevice;
 +  cDevice::nextParentDevice = NULL;
@@ -301,9 +311,8 @@ diff -urNad vdr-1.7.22-orig/device.c vdr-1.7.22-dynamite/device.c
 +{
 +  DynamicDeviceProbes.Del(this, false);
 +}
-diff -urNad vdr-1.7.22-orig/device.h vdr-1.7.22-dynamite/device.h
---- vdr-1.7.22-orig/device.h	2011-12-22 16:28:33.000000000 +0100
-+++ vdr-1.7.22-dynamite/device.h	2011-12-22 16:29:49.508120156 +0100
+--- a/device.h
++++ b/device.h
 @@ -170,7 +170,6 @@
    static int nextCardIndex;
    int cardIndex;
@@ -429,9 +438,8 @@ diff -urNad vdr-1.7.22-orig/device.h vdr-1.7.22-dynamite/device.h
 +extern cList<cDynamicDeviceProbe> DynamicDeviceProbes;
 +  
  #endif //__DEVICE_H
-diff -urNad vdr-1.7.22-orig/dvbci.c vdr-1.7.22-dynamite/dvbci.c
---- vdr-1.7.22-orig/dvbci.c	2011-12-22 15:44:29.000000000 +0100
-+++ vdr-1.7.22-dynamite/dvbci.c	2011-12-22 16:29:49.508120156 +0100
+--- a/dvbci.c
++++ b/dvbci.c
 @@ -10,15 +10,18 @@
  #include "dvbci.h"
  #include <linux/dvb/ca.h>
@@ -538,9 +546,8 @@ diff -urNad vdr-1.7.22-orig/dvbci.c vdr-1.7.22-dynamite/dvbci.c
 +     return new cDvbCiAdapter(Device, Fd, Adapter, Frontend);
    return NULL;
  }
-diff -urNad vdr-1.7.22-orig/dvbci.h vdr-1.7.22-dynamite/dvbci.h
---- vdr-1.7.22-orig/dvbci.h	2011-12-22 15:44:29.000000000 +0100
-+++ vdr-1.7.22-dynamite/dvbci.h	2011-12-22 16:29:49.508120156 +0100
+--- a/dvbci.h
++++ b/dvbci.h
 @@ -16,16 +16,24 @@
  private:
    cDevice *device;
@@ -568,9 +575,8 @@ diff -urNad vdr-1.7.22-orig/dvbci.h vdr-1.7.22-dynamite/dvbci.h
    };
  
  #endif //__DVBCI_H
-diff -urNad vdr-1.7.22-orig/dvbdevice.c vdr-1.7.22-dynamite/dvbdevice.c
---- vdr-1.7.22-orig/dvbdevice.c	2011-12-22 16:28:32.000000000 +0100
-+++ vdr-1.7.22-dynamite/dvbdevice.c	2011-12-22 16:29:49.508120156 +0100
+--- a/dvbdevice.c
++++ b/dvbdevice.c
 @@ -282,12 +282,16 @@
    bool bondedMaster;
    bool bondedMasterFailed;
@@ -807,9 +813,8 @@ diff -urNad vdr-1.7.22-orig/dvbdevice.c vdr-1.7.22-dynamite/dvbdevice.c
  }
  
  int cDvbDevice::NumProvidedSystems(void) const
-diff -urNad vdr-1.7.22-orig/dvbdevice.h vdr-1.7.22-dynamite/dvbdevice.h
---- vdr-1.7.22-orig/dvbdevice.h	2011-12-22 16:28:32.000000000 +0100
-+++ vdr-1.7.22-dynamite/dvbdevice.h	2011-12-22 16:29:49.518120156 +0100
+--- a/dvbdevice.h
++++ b/dvbdevice.h
 @@ -102,7 +102,7 @@
  /// The cDvbDevice implements a DVB device which can be accessed through the Linux DVB driver API.
  
