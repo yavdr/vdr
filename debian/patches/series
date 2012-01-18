@@ -78,7 +78,6 @@ opt-61_dynamite.patch
 
 opt-62_hard_link_cutter.patch
 opt-63_naludump.patch
-opt-64_dvbt2-support.patch
 opt-65_pin.patch
 
 xprmtl-01_externalci.patch
