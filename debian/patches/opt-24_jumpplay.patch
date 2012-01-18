@@ -162,16 +162,16 @@ Origin: http://toms-cafe.de/vdr/download/vdr-jumpplay-1.0-1.7.6.diff
    Store("CurrentDolby",       CurrentDolby);
 --- a/config.h
 +++ b/config.h
-@@ -36,6 +36,8 @@
- // plugins to work with newer versions of the core VDR as long as no
- // VDR header files have changed.
+@@ -38,6 +38,8 @@
+ 
+ #define LIEMIKUUTIO  133
  
 +#define JUMPPLAYVERSNUM 100
 +
  #define MAXPRIORITY 99
  #define MAXLIFETIME 99
  
-@@ -304,6 +306,9 @@
+@@ -306,6 +308,9 @@
    int ShowReplayMode;
    int ShowRemainingTime;
    int ResumeID;
@@ -322,7 +322,7 @@ Origin: http://toms-cafe.de/vdr/download/vdr-jumpplay-1.0-1.7.6.diff
  
 --- a/menu.c
 +++ b/menu.c
-@@ -3116,6 +3116,9 @@
+@@ -3298,6 +3298,9 @@
    Add(new cMenuEditBoolItem(tr("Setup.Replay$Show replay mode"), &data.ShowReplayMode));
    Add(new cMenuEditBoolItem(tr("Setup.Replay$Show remaining time"), &data.ShowRemainingTime));
    Add(new cMenuEditIntItem(tr("Setup.Replay$Resume ID"), &data.ResumeID, 0, 99));
@@ -332,7 +332,7 @@ Origin: http://toms-cafe.de/vdr/download/vdr-jumpplay-1.0-1.7.6.diff
  }
  
  void cMenuSetupReplay::Store(void)
-@@ -4691,8 +4694,10 @@
+@@ -4900,8 +4903,10 @@
          ShowTimed(2);
          bool Play, Forward;
          int Speed;
@@ -344,7 +344,7 @@ Origin: http://toms-cafe.de/vdr/download/vdr-jumpplay-1.0-1.7.6.diff
          }
       marks.Save();
       }
-@@ -4705,8 +4710,17 @@
+@@ -4914,8 +4919,17 @@
       if (GetIndex(Current, Total)) {
          cMark *m = Forward ? marks.GetNext(Current) : marks.GetPrev(Current);
          if (m) {
@@ -364,7 +364,7 @@ Origin: http://toms-cafe.de/vdr/download/vdr-jumpplay-1.0-1.7.6.diff
             }
          }
       }
-@@ -4762,7 +4776,7 @@
+@@ -4971,7 +4985,7 @@
       if (!m)
          m = marks.GetNext(Current);
       if (m) {
