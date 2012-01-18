@@ -21,5 +21,3 @@ var/lib/vdr/channels.conf    etc/vdr/channels.conf
 etc/default/vdr              etc/vdr/vdr.default
 
 etc/vdr/vdr.groups    usr/share/vdr/groups.d/vdr.groups
-
-usr/lib/vdr/svdrpsend.pl    usr/bin/svdrpsend

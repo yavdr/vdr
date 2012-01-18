@@ -11,7 +11,7 @@
 SHUTDOWN_HOOKS_DIR=/usr/share/vdr/shutdown-hooks/
 
 log="logger -t vdr-shutdown"
-svdrpsend="/usr/lib/vdr/svdrpsend.pl"
+svdrpsend="/usr/bin/svdrpsend"
 
 osdmsg()
 {
