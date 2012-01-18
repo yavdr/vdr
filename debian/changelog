@@ -1,3 +1,11 @@
+vdr (1.7.23-0yavdr0~precise) precise; urgency=medium
+
+  * New upstream release
+  [yaVDR]
+  * Dropped opt-99_vdr-hotfixes.patch
+
+ -- Holger Schvestka <email address hidden>  Wed, 18 Jan 2012 22:20:04 +0200
+
 vdr (1.7.22-1yavdr2~precise) precise; urgency=medium
 
   * Added xprmtl-01_externalci.patch
