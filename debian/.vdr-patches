@@ -1,7 +1,6 @@
 debian/patches/opt-20_liemikuutio.patch:d261a4492fd8b350149c595c9d72e908
 debian/patches/16_channels.conf.terr-fix.patch:933f8daa6bb6d26c711d0ae987a2b03e
-debian/patches/opt-64_dvbt2-support.patch:3fef157652db9fab7ff65069d15b64be
-debian/patches/opt-55_wareagleicon.patch:cb4f92e2aad59c904073763b71038862
+debian/patches/opt-55_wareagleicon.patch:0d55f7457de0ec0390148d2daacd9244
 debian/patches/04_newplugin.patch:5877f4f62dab4f3d437d4eef7cae3ac0
 debian/patches/opt-43-x_recordshowfree.patch:e215d4b880638dd97deb138a36abc9e1
 debian/patches/opt-27_ttxtsubs.patch:60e955b2733f9dc914254141750751fa
@@ -10,7 +9,7 @@ debian/patches/opt-37-x_menuorg.patch:b3be1b7511f090ea72b57ce96f9ebec6
 debian/patches/opt-21_internal-cam-devices.patch:3f3a00b67bdaf671fe3155d0f9c72ad1
 debian/patches/11_sortrecordings.patch:3e3a2f988cb7db03f8f56a44012a65f4
 debian/patches/opt-41-x_timer-info.patch:24767586707d76f36e33021d3e662508
-debian/patches/xprmtl-01_externalci.patch:12d49a37f3529393e17435ba1cb84b8d
+debian/patches/xprmtl-01_externalci.patch:cb18749679be6c374743e32fedb88c16
 debian/patches/opt-24_jumpplay.patch:d2f8209e7c1bc6631c03ec88acdf9628
 debian/patches/opt-56_eventdetails_v3.patch:bb21cd46d8353bdebb49f2c06e7f50cc
 debian/patches/opt-38_disableDoubleEpgEntrys.patch:c6448660aa4326ef6151b5a913e2b9cd
@@ -20,11 +19,10 @@ debian/patches/opt-59_hd-timeshift-wait.patch:0692479fb16b98e43f1ed496b105fb44
 debian/patches/opt-57_vdr-remote_instant_recordings.patch:b25f81f9252a452641b38f60a26e6842
 debian/patches/99_ncursesw-include.patch:9bafeb768f7921015a5bab5e47786950
 debian/patches/82_valgrind.patch:60ad50e72eabb0861d096d1002fddca7
-debian/patches/opt-61_dynamite.patch:fbdfcb7c46e04fc6b38da938aa37f169
-debian/patches/opt-99_vdr-hotfixes.patch:eb4947880169f33ef66518a293ab5ff9
+debian/patches/opt-61_dynamite.patch:5d1ec96f5b0a45aeab5b30ad3602a72c
 debian/patches/opt-22-x_edit_marks.patch:5c6b433d3816e2081c3ae937be54b534
 debian/patches/opt-39_noepg.patch:dac5d60f94ef09a9c497999cb8acd199
-debian/patches/opt-44_rotor.patch:755854c8f2e048902b582f9343919ee1
+debian/patches/opt-44_rotor.patch:736d6f1142cbb28f3f7b7383626fa673
 debian/patches/opt-42-x_MainMenuHooks-v1.0.1.patch:f726f294847d7ec3690f3f30c625ac74
 debian/patches/opt-65_pin.patch:caaf528ebe52e7a840baad6422825267
 debian/patches/12_osdbase-maxitems.patch:f6fc7c5a100f8e891280195b3e1d69ba
