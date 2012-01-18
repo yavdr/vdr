@@ -1,6 +1,6 @@
 #!/bin/sh
 
-svdrpsend="/usr/lib/vdr/svdrpsend.pl"
+svdrpsend="/usr/bin/svdrpsend"
 log="logger -t vdr-shutdown"
 
 MESSAGE="Shutdown deactivated (see /etc/default/vdr)"
