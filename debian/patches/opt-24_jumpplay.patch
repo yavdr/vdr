@@ -5,11 +5,9 @@ Description: Play after jump to next mark. Automatically jump over commercial br
 Author: Torsten Kunkel <vdr@tkunkel.de>, Thomas Günther <tom@toms-cafe.de>
 Origin: http://toms-cafe.de/vdr/download/vdr-jumpplay-1.0-1.7.6.diff
 
-Index: vdr/MANUAL
-===================================================================
---- vdr.orig/MANUAL	2011-12-10 22:22:04.000000000 +0100
-+++ vdr/MANUAL	2011-12-11 02:29:23.000000000 +0100
-@@ -862,6 +862,25 @@
+--- a/MANUAL
++++ b/MANUAL
+@@ -866,6 +866,25 @@
                           0 resulting in a file named 'resume', and any other
                           value resulting in 'resume.n'.
  
@@ -35,10 +33,8 @@ Index: vdr/MANUAL
    Miscellaneous:
  
    Min. event timeout = 30
-Index: vdr/README.jumpplay
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ vdr/README.jumpplay	2011-12-11 02:29:23.000000000 +0100
+--- /dev/null
++++ b/README.jumpplay
 @@ -0,0 +1,92 @@
 +JumpPlay patch for VDR
 +----------------------
@@ -132,13 +128,11 @@ Index: vdr/README.jumpplay
 +    Play&Jump:
 +      - set resume position to 0 if replay stops at the first mark
 +    Added French language texts (thanks to Michaël Nival)
-Index: vdr/config.c
-===================================================================
---- vdr.orig/config.c	2011-12-10 22:22:04.000000000 +0100
-+++ vdr/config.c	2011-12-11 02:29:23.000000000 +0100
+--- a/config.c
++++ b/config.c
 @@ -455,6 +455,9 @@
-   MultiSpeedMode = 0;
    ShowReplayMode = 0;
+   ShowRemainingTime = 0;
    ResumeID = 0;
 +  JumpPlay = 0;
 +  PlayJump = 0;
@@ -146,9 +140,9 @@ Index: vdr/config.c
    CurrentChannel = -1;
    CurrentVolume = MAXVOLUME;
    CurrentDolby = 0;
-@@ -649,6 +652,9 @@
-   else if (!strcasecmp(Name, "MultiSpeedMode"))      MultiSpeedMode     = atoi(Value);
+@@ -650,6 +653,9 @@
    else if (!strcasecmp(Name, "ShowReplayMode"))      ShowReplayMode     = atoi(Value);
+   else if (!strcasecmp(Name, "ShowRemainingTime"))   ShowRemainingTime  = atoi(Value);
    else if (!strcasecmp(Name, "ResumeID"))            ResumeID           = atoi(Value);
 +  else if (!strcasecmp(Name, "JumpPlay"))            JumpPlay           = atoi(Value);
 +  else if (!strcasecmp(Name, "PlayJump"))            PlayJump           = atoi(Value);
@@ -156,9 +150,9 @@ Index: vdr/config.c
    else if (!strcasecmp(Name, "CurrentChannel"))      CurrentChannel     = atoi(Value);
    else if (!strcasecmp(Name, "CurrentVolume"))       CurrentVolume      = atoi(Value);
    else if (!strcasecmp(Name, "CurrentDolby"))        CurrentDolby       = atoi(Value);
-@@ -746,6 +752,9 @@
-   Store("MultiSpeedMode",     MultiSpeedMode);
+@@ -748,6 +754,9 @@
    Store("ShowReplayMode",     ShowReplayMode);
+   Store("ShowRemainingTime",  ShowRemainingTime);
    Store("ResumeID",           ResumeID);
 +  Store("JumpPlay",           JumpPlay);
 +  Store("PlayJump",           PlayJump);
@@ -166,22 +160,20 @@ Index: vdr/config.c
    Store("CurrentChannel",     CurrentChannel);
    Store("CurrentVolume",      CurrentVolume);
    Store("CurrentDolby",       CurrentDolby);
-Index: vdr/config.h
-===================================================================
---- vdr.orig/config.h	2011-12-11 02:29:03.000000000 +0100
-+++ vdr/config.h	2011-12-11 02:29:23.000000000 +0100
-@@ -38,6 +38,8 @@
- 
- #define LIEMIKUUTIO  133
+--- a/config.h
++++ b/config.h
+@@ -36,6 +36,8 @@
+ // plugins to work with newer versions of the core VDR as long as no
+ // VDR header files have changed.
  
 +#define JUMPPLAYVERSNUM 100
 +
  #define MAXPRIORITY 99
  #define MAXLIFETIME 99
  
-@@ -305,6 +307,9 @@
-   int MultiSpeedMode;
+@@ -304,6 +306,9 @@
    int ShowReplayMode;
+   int ShowRemainingTime;
    int ResumeID;
 +  int JumpPlay;
 +  int PlayJump;
@@ -189,10 +181,8 @@ Index: vdr/config.h
    int CurrentChannel;
    int CurrentVolume;
    int CurrentDolby;
-Index: vdr/dvbplayer.c
-===================================================================
---- vdr.orig/dvbplayer.c	2011-12-10 22:22:04.000000000 +0100
-+++ vdr/dvbplayer.c	2011-12-11 02:29:23.000000000 +0100
+--- a/dvbplayer.c
++++ b/dvbplayer.c
 @@ -204,6 +204,7 @@
    cNonBlockingFileReader *nonBlockingFileReader;
    cRingBufferFrame *ringBuffer;
@@ -330,13 +320,11 @@ Index: vdr/dvbplayer.c
  
            // Handle hitting begin/end of recording:
  
-Index: vdr/menu.c
-===================================================================
---- vdr.orig/menu.c	2011-12-11 02:29:15.000000000 +0100
-+++ vdr/menu.c	2011-12-11 02:29:23.000000000 +0100
-@@ -3297,6 +3297,9 @@
-   Add(new cMenuEditBoolItem(tr("Setup.Replay$Multi speed mode"), &data.MultiSpeedMode));
+--- a/menu.c
++++ b/menu.c
+@@ -3116,6 +3116,9 @@
    Add(new cMenuEditBoolItem(tr("Setup.Replay$Show replay mode"), &data.ShowReplayMode));
+   Add(new cMenuEditBoolItem(tr("Setup.Replay$Show remaining time"), &data.ShowRemainingTime));
    Add(new cMenuEditIntItem(tr("Setup.Replay$Resume ID"), &data.ResumeID, 0, 99));
 +  Add(new cMenuEditBoolItem(tr("Setup.Replay$Jump&Play"), &data.JumpPlay));
 +  Add(new cMenuEditBoolItem(tr("Setup.Replay$Play&Jump"), &data.PlayJump));
@@ -344,7 +332,7 @@ Index: vdr/menu.c
  }
  
  void cMenuSetupReplay::Store(void)
-@@ -4896,8 +4899,10 @@
+@@ -4691,8 +4694,10 @@
          ShowTimed(2);
          bool Play, Forward;
          int Speed;
@@ -356,7 +344,7 @@ Index: vdr/menu.c
          }
       marks.Save();
       }
-@@ -4910,8 +4915,17 @@
+@@ -4705,8 +4710,17 @@
       if (GetIndex(Current, Total)) {
          cMark *m = Forward ? marks.GetNext(Current) : marks.GetPrev(Current);
          if (m) {
@@ -376,7 +364,7 @@ Index: vdr/menu.c
             }
          }
       }
-@@ -4967,7 +4981,7 @@
+@@ -4762,7 +4776,7 @@
       if (!m)
          m = marks.GetNext(Current);
       if (m) {
@@ -385,11 +373,9 @@ Index: vdr/menu.c
             m = marks.Next(m);
          if (m) {
             Goto(m->Position() - SecondsToFrames(3, FramesPerSecond()));
-Index: vdr/po/de_DE.po
-===================================================================
---- vdr.orig/po/de_DE.po	2011-12-11 02:29:03.000000000 +0100
-+++ vdr/po/de_DE.po	2011-12-11 02:29:23.000000000 +0100
-@@ -1071,6 +1071,15 @@
+--- a/po/de_DE.po
++++ b/po/de_DE.po
+@@ -1074,6 +1074,15 @@
  msgid "Replay"
  msgstr "Wiedergabe"
  
@@ -405,11 +391,9 @@ Index: vdr/po/de_DE.po
  msgid "Setup.Replay$Multi speed mode"
  msgstr "Mehrstufiger Vor-/Rücklauf"
  
-Index: vdr/po/fr_FR.po
-===================================================================
---- vdr.orig/po/fr_FR.po	2011-12-11 02:29:03.000000000 +0100
-+++ vdr/po/fr_FR.po	2011-12-11 02:29:23.000000000 +0100
-@@ -1077,6 +1077,15 @@
+--- a/po/fr_FR.po
++++ b/po/fr_FR.po
+@@ -1080,6 +1080,15 @@
  msgid "Replay"
  msgstr "Lecture"
  
