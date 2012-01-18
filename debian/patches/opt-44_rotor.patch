@@ -2,10 +2,8 @@ Description: This patch is needed for the rotor plugin.
 Author: Thomas Bergwinkl <Bergwinkl.Thomas@vr-web.de>
 Origin: extracted from the rotor plugin 0.1.4-vdr1.5
 
-Index: vdr/device.h
-===================================================================
---- vdr.orig/device.h	2011-12-11 02:29:26.000000000 +0100
-+++ vdr/device.h	2011-12-11 02:29:53.000000000 +0100
+--- a/device.h
++++ b/device.h
 @@ -24,6 +24,8 @@
  #include "spu.h"
  #include "thread.h"
@@ -23,11 +21,9 @@ Index: vdr/device.h
  
  // PID handle facilities
  
-Index: vdr/dvbdevice.c
-===================================================================
---- vdr.orig/dvbdevice.c	2011-12-10 21:59:26.000000000 +0100
-+++ vdr/dvbdevice.c	2011-12-11 02:29:53.000000000 +0100
-@@ -261,6 +261,7 @@
+--- a/dvbdevice.c
++++ b/dvbdevice.c
+@@ -285,6 +285,7 @@
  private:
    static cMutex bondMutex;
    enum eTunerStatus { tsIdle, tsSet, tsTuned, tsLocked };
@@ -35,7 +31,7 @@ Index: vdr/dvbdevice.c
    const cDvbDevice *device;
    int fd_frontend;
    int adapter, frontend;
-@@ -276,6 +277,7 @@
+@@ -300,6 +301,7 @@
    cMutex mutex;
    cCondVar locked;
    cCondVar newSet;
@@ -43,7 +39,7 @@ Index: vdr/dvbdevice.c
    cDvbTuner *bondedTuner;
    bool bondedMaster;
    bool bondedMasterFailed;
-@@ -300,12 +302,14 @@
+@@ -325,12 +327,14 @@
    bool Locked(int TimeoutMs = 0);
    int GetSignalStrength(void) const;
    int GetSignalQuality(void) const;
@@ -52,13 +48,13 @@ Index: vdr/dvbdevice.c
  
  cMutex cDvbTuner::bondMutex;
  
- cDvbTuner::cDvbTuner(const cDvbDevice *Device, int Fd_Frontend, int Adapter, int Frontend, fe_delivery_system FrontendType)
+ cDvbTuner::cDvbTuner(const cDvbDevice *Device, int Fd_Frontend, int Adapter, int Frontend)
  {
 +  SendDiseqc=false;
    device = Device;
    fd_frontend = Fd_Frontend;
    adapter = Adapter;
-@@ -625,6 +629,18 @@
+@@ -644,6 +648,18 @@
    return -1;
  }
  
@@ -77,7 +73,7 @@ Index: vdr/dvbdevice.c
  static unsigned int FrequencyToHz(unsigned int f)
  {
    while (f && f < 1000000)
-@@ -813,6 +829,10 @@
+@@ -857,6 +873,10 @@
          if (GetFrontendStatus(NewStatus))
             Status = NewStatus;
          cMutexLock MutexLock(&mutex);
@@ -88,7 +84,7 @@ Index: vdr/dvbdevice.c
          switch (tunerStatus) {
            case tsIdle:
                 break;
-@@ -1415,6 +1435,11 @@
+@@ -1509,6 +1529,11 @@
    return dvbTuner ? dvbTuner->Locked(TimeoutMs) : false;
  }
  
@@ -100,11 +96,9 @@ Index: vdr/dvbdevice.c
  void cDvbDevice::SetTransferModeForDolbyDigital(int Mode)
  {
    setTransferModeForDolbyDigital = Mode;
-Index: vdr/dvbdevice.h
-===================================================================
---- vdr.orig/dvbdevice.h	2011-12-10 21:59:26.000000000 +0100
-+++ vdr/dvbdevice.h	2011-12-11 02:29:53.000000000 +0100
-@@ -181,6 +181,7 @@
+--- a/dvbdevice.h
++++ b/dvbdevice.h
+@@ -190,6 +190,7 @@
    virtual bool SetChannelDevice(const cChannel *Channel, bool LiveView);
  public:
    virtual bool HasLock(int TimeoutMs = 0);
