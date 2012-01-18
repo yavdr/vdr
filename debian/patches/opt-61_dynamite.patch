@@ -690,7 +690,7 @@ Origin: https://github.com/flensrocker/vdr-plugin-dynamite
          cMutexLock MutexLock(&mutex);
          if (SendDiseqc) {
             CHECK(ioctl(fd_frontend, FE_DISEQC_SEND_MASTER_CMD, &diseqc_cmd));
-@@ -950,6 +966,42 @@
+@@ -950,6 +966,40 @@
          }
  }
  
@@ -712,8 +712,6 @@ Origin: https://github.com/flensrocker/vdr-plugin-dynamite
 +  fd_frontend = cDvbDevice::DvbOpen(DEV_DVB_FRONTEND, adapter, frontend, O_RDWR | O_NONBLOCK);
 +  if (fd_frontend < 0)
 +     return false;
-+  if (frontendType == SYS_DVBS || frontendType == SYS_DVBS2)
-+     ResetToneAndVoltage(); // must explicitly turn on LNB power
 +  isIdle = false;
 +  return true;
 +}
@@ -733,7 +731,7 @@ Origin: https://github.com/flensrocker/vdr-plugin-dynamite
  // --- cDvbSourceParam -------------------------------------------------------
  
  class cDvbSourceParam : public cSourceParam {
-@@ -1035,7 +1087,8 @@
+@@ -1035,7 +1085,8 @@
    NULL
    };
  
@@ -743,7 +741,7 @@ Origin: https://github.com/flensrocker/vdr-plugin-dynamite
  {
    adapter = Adapter;
    frontend = Frontend;
-@@ -1054,7 +1107,7 @@
+@@ -1054,7 +1105,7 @@
  
    fd_ca = DvbOpen(DEV_DVB_CA, adapter, frontend, O_RDWR);
    if (fd_ca >= 0)
@@ -752,7 +750,7 @@ Origin: https://github.com/flensrocker/vdr-plugin-dynamite
  
    // The DVR device (will be opened and closed as needed):
  
-@@ -1247,7 +1300,11 @@
+@@ -1247,7 +1298,11 @@
           if (d >= 0) {
              int ErrorDevice = 0;
              if (cDevice *Device1 = cDevice::GetDevice(i)) {
@@ -764,7 +762,7 @@ Origin: https://github.com/flensrocker/vdr-plugin-dynamite
                    if (cDvbDevice *DvbDevice1 = dynamic_cast<cDvbDevice *>(Device1)) {
                       if (cDvbDevice *DvbDevice2 = dynamic_cast<cDvbDevice *>(Device2)) {
                          if (!DvbDevice1->Bond(DvbDevice2))
-@@ -1281,7 +1338,10 @@
+@@ -1281,7 +1336,10 @@
  void cDvbDevice::UnBondDevices(void)
  {
    for (int i = 0; i < cDevice::NumDevices(); i++) {
@@ -776,7 +774,7 @@ Origin: https://github.com/flensrocker/vdr-plugin-dynamite
           d->UnBond();
        }
  }
-@@ -1335,6 +1395,26 @@
+@@ -1335,6 +1393,26 @@
    return true;
  }
  
@@ -803,7 +801,7 @@ Origin: https://github.com/flensrocker/vdr-plugin-dynamite
  bool cDvbDevice::HasCi(void)
  {
    return ciAdapter;
-@@ -1503,7 +1583,7 @@
+@@ -1503,7 +1581,7 @@
  
  bool cDvbDevice::ProvidesEIT(void) const
  {
