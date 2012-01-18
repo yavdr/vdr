@@ -39,11 +39,13 @@ Origin: extracted from the rotor plugin 0.1.4-vdr1.5
    cDvbTuner *bondedTuner;
    bool bondedMaster;
    bool bondedMasterFailed;
-@@ -325,12 +327,14 @@
+@@ -325,12 +327,16 @@
    bool Locked(int TimeoutMs = 0);
    int GetSignalStrength(void) const;
    int GetSignalQuality(void) const;
 +  bool SendDiseqcCmd(dvb_diseqc_master_cmd cmd);
++private:
++  int GetCurrentDeliverySystem(void);
    };
  
  cMutex cDvbTuner::bondMutex;
@@ -54,11 +56,11 @@ Origin: extracted from the rotor plugin 0.1.4-vdr1.5
    device = Device;
    fd_frontend = Fd_Frontend;
    adapter = Adapter;
-@@ -644,6 +648,35 @@
+@@ -644,6 +650,35 @@
    return -1;
  }
  
-+static int GetCurrentDeliverySystem(int Fd_Frontend)
++int cDvbTuner::GetCurrentDeliverySystem()
 +{
 +  dtv_property Frontend[1];
 +  memset(&Frontend, 0, sizeof(Frontend));
@@ -67,7 +69,7 @@ Origin: extracted from the rotor plugin 0.1.4-vdr1.5
 +  CmdSeq.props = Frontend;
 +  Frontend[0].cmd = DTV_DELIVERY_SYSTEM;
 +  Frontend[0].u.data = 0;
-+  if (ioctl(Fd_Frontend, FE_GET_PROPERTY, &CmdSeq) < 0) {
++  if (ioctl(fd_frontend, FE_GET_PROPERTY, &CmdSeq) < 0) {
 +     esyslog("ERROR: frontend %d/%d: %m", adapter, frontend);
 +     return SYS_UNDEFINED;
 +     }
@@ -90,7 +92,7 @@ Origin: extracted from the rotor plugin 0.1.4-vdr1.5
  static unsigned int FrequencyToHz(unsigned int f)
  {
    while (f && f < 1000000)
-@@ -857,6 +890,10 @@
+@@ -857,6 +892,10 @@
          if (GetFrontendStatus(NewStatus))
             Status = NewStatus;
          cMutexLock MutexLock(&mutex);
@@ -101,7 +103,7 @@ Origin: extracted from the rotor plugin 0.1.4-vdr1.5
          switch (tunerStatus) {
            case tsIdle:
                 break;
-@@ -1509,6 +1546,11 @@
+@@ -1509,6 +1548,11 @@
    return dvbTuner ? dvbTuner->Locked(TimeoutMs) : false;
  }
  
