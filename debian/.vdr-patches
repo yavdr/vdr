@@ -22,7 +22,7 @@ debian/patches/82_valgrind.patch:60ad50e72eabb0861d096d1002fddca7
 debian/patches/opt-61_dynamite.patch:98dbad679b00eb1fbcc20b05908a2d5a
 debian/patches/opt-22-x_edit_marks.patch:c71227e860ba91414d39248d8852a8c1
 debian/patches/opt-39_noepg.patch:dac5d60f94ef09a9c497999cb8acd199
-debian/patches/opt-44_rotor.patch:4b0cf71df64a3edef0119ac5583d2e06
+debian/patches/opt-44_rotor.patch:b8361e8f849b8fcbf6bce47257df9103
 debian/patches/opt-42-x_MainMenuHooks-v1.0.1.patch:f726f294847d7ec3690f3f30c625ac74
 debian/patches/opt-65_pin.patch:caaf528ebe52e7a840baad6422825267
 debian/patches/12_osdbase-maxitems.patch:f6fc7c5a100f8e891280195b3e1d69ba

@@ -79,7 +79,7 @@ Origin: extracted from the rotor plugin 0.1.4-vdr1.5
 +bool cDvbTuner::SendDiseqcCmd(dvb_diseqc_master_cmd cmd)
 +{
 +  cMutexLock MutexLock(&mutex);
-+  int frontendType = GetCurrentDeliverySystem(fd_frontend);
++  int frontendType = GetCurrentDeliverySystem();
 +  if ((frontendType != SYS_DVBS && frontendType != SYS_DVBS2) || SendDiseqc)
 +    return false;
 +  diseqc_cmd=cmd;
