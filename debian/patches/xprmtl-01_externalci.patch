@@ -193,7 +193,7 @@
  #endif //__DVBCI_H
 --- a/dvbdevice.c
 +++ b/dvbdevice.c
-@@ -1081,9 +1081,8 @@
+@@ -1086,9 +1086,8 @@
  
    // Common Interface:
  
@@ -205,7 +205,7 @@
  
    // The DVR device (will be opened and closed as needed):
  
-@@ -1573,8 +1572,12 @@
+@@ -1623,8 +1622,12 @@
  {
    CloseDvr();
    fd_dvr = DvbOpen(DEV_DVB_DVR, adapter, frontend, O_RDONLY | O_NONBLOCK, true);
@@ -222,16 +222,16 @@
  
 --- a/dvbdevice.h
 +++ b/dvbdevice.h
-@@ -125,7 +125,7 @@
-   dvb_frontend_info frontendInfo;
-   int numProvidedSystems;
-   fe_delivery_system frontendType;
+@@ -126,7 +126,7 @@
+   int deliverySystems[MAXDELIVERYSYSTEMS];
+   int numDeliverySystems;
+   int numModulations;
 -  int fd_dvr, fd_ca;
 +  int fd_dvr;
    static cMutex bondMutex;
    cDvbDevice *bondedDevice;
    mutable bool needsDetachBondedReceivers;
-@@ -220,7 +220,7 @@
+@@ -225,7 +225,7 @@
  // Receiver facilities
  
  private:
