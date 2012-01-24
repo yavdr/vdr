@@ -2,7 +2,12 @@ vdr (1.7.23-1) unstable; urgency=low
 
   * New upstream release
 
- -- Tobias Grimm <etobi@debian.org>  Sun, 15 Jan 2012 20:50:20 +0100
+  [Darren Salt]
+  * 17_epg_channel_name_width.patch
+    Show more of the channel names in the EPG now/next listings.
+    Without this, I see 'BBC ON', BBC TW', 'ITV1', 'Channe', 'Channe' etc.
+
+ -- Tobias Grimm <etobi@debian.org>  Tue, 24 Jan 2012 22:17:29 +0000
 
 vdr (1.7.22-1) unstable; urgency=low
 
