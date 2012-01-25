@@ -28,6 +28,14 @@ $(TXT2MANPAGES): %.1: %.1.txt
 
 ABIVERSION := debian/abi-version
 
+# taken from the qemu package
+# Support multiple makes at once
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+NJOBS := $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+else
+NJOBS := 1
+endif
+
 check-patches:
 	python debian/patchcheck.py -c $(PATCHCHECKOPTION)
 
@@ -49,16 +57,16 @@ build-arch-stamp: configure-stamp
 	find PLUGINS po -name "*.po" -exec test ! -f {}.backup \; -exec cp {} {}.backup \;
 
 	# build unoptimized vdr with debugging symbols
-	$(MAKE) all $(MAKE_OPTIONS) VDRDEBUG=yes DEB_BUILD_OPTIONS=nostrip,noopt
+	$(MAKE) -j$(NJOBS) all $(MAKE_OPTIONS) VDRDEBUG=yes DEB_BUILD_OPTIONS=nostrip,noopt
 	cp vdr vdr-dbg
 	$(MAKE) -o .dependencies clean $(MAKE_OPTIONS)
 
 	# build "productive" vdr
-	$(MAKE) all $(MAKE_OPTIONS)
+	$(MAKE) -j$(NJOBS) all $(MAKE_OPTIONS)
 
 	# plugins
 	mkdir -p PLUGINS/lib
-	$(MAKE) plugins $(MAKE_OPTIONS)
+	$(MAKE) -j$(NJOBS) plugins $(MAKE_OPTIONS)
 
 	cp newplugin vdr-newplugin
 
@@ -77,8 +85,7 @@ clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
-	$(MAKE) -o .dependencies clean-plugins $(MAKE_OPTIONS)
-	$(MAKE) -o .dependencies clean $(MAKE_OPTIONS)
+	$(MAKE) -o .dependencies clean-plugins clean $(MAKE_OPTIONS)
 	rm -f vdr-dbg
 	rm -f vdr
 	rm -rf PLUGINS/lib
