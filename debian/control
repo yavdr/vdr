@@ -33,7 +33,7 @@ Description: Video Disk Recorder for DVB cards
 
 Package: vdr-dev
 Architecture: all
-Depends: ${misc:Depends}, debhelper, linux-libc-dev (>= 2.6.29)
+Depends: ${misc:Depends}, debhelper, linux-libc-dev (>= 3.0)
 Suggests: dh-make
 Description: Video Disk Recorder for DVB cards
  Video Disk Recorder (VDR) is a digital sat-receiver program using
