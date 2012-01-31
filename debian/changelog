@@ -3,6 +3,8 @@ vdr (1.7.23-0yavdr0~precise) precise; urgency=medium
   [Tobi]
   * Enabled parallel build.
   * New upstream release
+  * Build-depend on linux-libc-dev (>= 3.0) (DVB driver API >= 5.3 required
+    now, which was introduced in Linux 3.0-rc!)  
   [yaVDR]
   * Dropped opt-99_vdr-hotfixes.patch
 
