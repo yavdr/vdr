@@ -1,6 +1,7 @@
 vdr (1.7.24-1) unstable; urgency=low
 
   * New upstream release
+  * Added 01-upstream-fix.patch - a minor patch from Klaus Schmidinger
 
  -- Tobias Grimm <etobi@debian.org>  Sun, 19 Feb 2012 17:21:08 +0100
 
