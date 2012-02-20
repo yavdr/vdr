@@ -1,10 +1,10 @@
 Description: Patch collection - see HISTORY-liemikuutio for details.
 Author: Rolf Ahrenberg <Rolf.Ahrenberg AT sci.fi>
-Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.22-liemikuutio-1.33.patch.gz
+Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.24-liemikuutio-1.33.patch.gz
 
-diff -Nru vdr-1.7.22-vanilla/config.h vdr-1.7.22-liemikuutio/config.h
---- vdr-1.7.22-vanilla/config.h	2011-12-04 18:37:58.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/config.h	2011-12-04 18:39:13.000000000 +0200
+diff -Nru vdr-1.7.24-vanilla/config.h vdr-1.7.24-liemikuutio/config.h
+--- vdr-1.7.24-vanilla/config.h	2012-02-19 16:28:19.000000000 +0200
++++ vdr-1.7.24-liemikuutio/config.h	2012-02-19 16:29:52.000000000 +0200
 @@ -36,6 +36,8 @@
  // plugins to work with newer versions of the core VDR as long as no
  // VDR header files have changed.
@@ -14,10 +14,10 @@ diff -Nru vdr-1.7.22-vanilla/config.h vdr-1.7.22-liemikuutio/config.h
  #define MAXPRIORITY 99
  #define MAXLIFETIME 99
  
-diff -Nru vdr-1.7.22-vanilla/device.c vdr-1.7.22-liemikuutio/device.c
---- vdr-1.7.22-vanilla/device.c	2011-12-04 18:37:58.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/device.c	2011-12-04 18:39:13.000000000 +0200
-@@ -1041,7 +1041,8 @@
+diff -Nru vdr-1.7.24-vanilla/device.c vdr-1.7.24-liemikuutio/device.c
+--- vdr-1.7.24-vanilla/device.c	2012-02-19 16:28:19.000000000 +0200
++++ vdr-1.7.24-liemikuutio/device.c	2012-02-19 16:29:52.000000000 +0200
+@@ -1049,7 +1049,8 @@
       int LanguagePreference = INT_MAX; // higher than the maximum possible value
       for (int i = ttSubtitleFirst; i <= ttSubtitleLast; i++) {
           const tTrackId *TrackId = GetTrack(eTrackType(i));
@@ -27,9 +27,9 @@ diff -Nru vdr-1.7.22-vanilla/device.c vdr-1.7.22-liemikuutio/device.c
              PreferredTrack = eTrackType(i);
           }
       // Make sure we're set to an available subtitle track:
-diff -Nru vdr-1.7.22-vanilla/filetransfer.c vdr-1.7.22-liemikuutio/filetransfer.c
---- vdr-1.7.22-vanilla/filetransfer.c	1970-01-01 02:00:00.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/filetransfer.c	2011-12-04 18:39:13.000000000 +0200
+diff -Nru vdr-1.7.24-vanilla/filetransfer.c vdr-1.7.24-liemikuutio/filetransfer.c
+--- vdr-1.7.24-vanilla/filetransfer.c	1970-01-01 02:00:00.000000000 +0200
++++ vdr-1.7.24-liemikuutio/filetransfer.c	2012-02-19 16:29:52.000000000 +0200
 @@ -0,0 +1,294 @@
 +/*
 + * filetransfer.c: The video file transfer facilities
@@ -325,9 +325,9 @@ diff -Nru vdr-1.7.22-vanilla/filetransfer.c vdr-1.7.22-liemikuutio/filetransfer.
 +  ended = false;
 +  return result;
 +}
-diff -Nru vdr-1.7.22-vanilla/filetransfer.h vdr-1.7.22-liemikuutio/filetransfer.h
---- vdr-1.7.22-vanilla/filetransfer.h	1970-01-01 02:00:00.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/filetransfer.h	2011-12-04 18:39:13.000000000 +0200
+diff -Nru vdr-1.7.24-vanilla/filetransfer.h vdr-1.7.24-liemikuutio/filetransfer.h
+--- vdr-1.7.24-vanilla/filetransfer.h	1970-01-01 02:00:00.000000000 +0200
++++ vdr-1.7.24-liemikuutio/filetransfer.h	2012-02-19 16:29:52.000000000 +0200
 @@ -0,0 +1,33 @@
 +/*
 + * filetransfer.h: The video file transfer facilities
@@ -362,9 +362,9 @@ diff -Nru vdr-1.7.22-vanilla/filetransfer.h vdr-1.7.22-liemikuutio/filetransfer.
 +  };
 +
 +#endif //__FILETRANSFER_H
-diff -Nru vdr-1.7.22-vanilla/HISTORY-liemikuutio vdr-1.7.22-liemikuutio/HISTORY-liemikuutio
---- vdr-1.7.22-vanilla/HISTORY-liemikuutio	1970-01-01 02:00:00.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/HISTORY-liemikuutio	2011-12-04 18:39:13.000000000 +0200
+diff -Nru vdr-1.7.24-vanilla/HISTORY-liemikuutio vdr-1.7.24-liemikuutio/HISTORY-liemikuutio
+--- vdr-1.7.24-vanilla/HISTORY-liemikuutio	1970-01-01 02:00:00.000000000 +0200
++++ vdr-1.7.24-liemikuutio/HISTORY-liemikuutio	2012-02-19 16:29:52.000000000 +0200
 @@ -0,0 +1,160 @@
 +-----------------------------------
 +Liemikuutio for Video Disc Recorder
@@ -526,9 +526,9 @@ diff -Nru vdr-1.7.22-vanilla/HISTORY-liemikuutio vdr-1.7.22-liemikuutio/HISTORY-
 +2011-11-16: Version 1.33
 +
 +- Updated the filetransfer patch.
-diff -Nru vdr-1.7.22-vanilla/Makefile vdr-1.7.22-liemikuutio/Makefile
---- vdr-1.7.22-vanilla/Makefile	2011-12-04 18:37:58.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/Makefile	2011-12-04 18:39:13.000000000 +0200
+diff -Nru vdr-1.7.24-vanilla/Makefile vdr-1.7.24-liemikuutio/Makefile
+--- vdr-1.7.24-vanilla/Makefile	2012-02-19 16:28:19.000000000 +0200
++++ vdr-1.7.24-liemikuutio/Makefile	2012-02-19 16:29:52.000000000 +0200
 @@ -41,8 +41,8 @@
  SILIB    = $(LSIDIR)/libsi.a
  
@@ -540,9 +540,9 @@ diff -Nru vdr-1.7.22-vanilla/Makefile vdr-1.7.22-liemikuutio/Makefile
         receiver.o recorder.o recording.o remote.o remux.o ringbuffer.o sdt.o sections.o shutdown.o\
         skinclassic.o skins.o skinsttng.o sourceparams.o sources.o spu.o status.o svdrp.o themes.o thread.o\
         timers.o tools.o transfer.o vdr.o videodir.o
-diff -Nru vdr-1.7.22-vanilla/menu.c vdr-1.7.22-liemikuutio/menu.c
---- vdr-1.7.22-vanilla/menu.c	2011-12-04 18:37:58.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/menu.c	2011-12-04 18:39:13.000000000 +0200
+diff -Nru vdr-1.7.24-vanilla/menu.c vdr-1.7.24-liemikuutio/menu.c
+--- vdr-1.7.24-vanilla/menu.c	2012-02-19 16:28:19.000000000 +0200
++++ vdr-1.7.24-liemikuutio/menu.c	2012-02-19 16:29:52.000000000 +0200
 @@ -18,6 +18,7 @@
  #include "config.h"
  #include "cutter.h"
@@ -725,7 +725,7 @@ diff -Nru vdr-1.7.22-vanilla/menu.c vdr-1.7.22-liemikuutio/menu.c
  // --- cMenuRecordings -------------------------------------------------------
  
  cMenuRecordings::cMenuRecordings(const char *Base, int Level, bool OpenSubMenus)
-@@ -2434,6 +2602,19 @@
+@@ -2444,6 +2612,19 @@
    return osContinue;
  }
  
@@ -745,7 +745,7 @@ diff -Nru vdr-1.7.22-vanilla/menu.c vdr-1.7.22-liemikuutio/menu.c
  eOSState cMenuRecordings::ProcessKey(eKeys Key)
  {
    bool HadSubMenu = HasSubMenu();
-@@ -2448,6 +2629,7 @@
+@@ -2458,6 +2639,7 @@
         case kYellow: return Delete();
         case kInfo:
         case kBlue:   return Info();
@@ -753,7 +753,7 @@ diff -Nru vdr-1.7.22-vanilla/menu.c vdr-1.7.22-liemikuutio/menu.c
         case k1...k9: return Commands(Key);
         case kNone:   if (Recordings.StateChanged(recordingsState))
                          Set(true);
-@@ -3308,6 +3490,7 @@
+@@ -3319,6 +3501,7 @@
    replaying = false;
    stopReplayItem = NULL;
    cancelEditingItem = NULL;
@@ -761,7 +761,7 @@ diff -Nru vdr-1.7.22-vanilla/menu.c vdr-1.7.22-liemikuutio/menu.c
    stopRecordingItem = NULL;
    recordControlsState = 0;
    Set();
-@@ -3409,6 +3592,19 @@
+@@ -3420,6 +3603,19 @@
       result = true;
       }
  
@@ -781,7 +781,7 @@ diff -Nru vdr-1.7.22-vanilla/menu.c vdr-1.7.22-liemikuutio/menu.c
    // Record control:
    if (cRecordControls::StateChanged(recordControlsState)) {
       while (stopRecordingItem) {
-@@ -3457,6 +3653,12 @@
+@@ -3468,6 +3664,12 @@
                            return osEnd;
                            }
                         break;
@@ -794,7 +794,7 @@ diff -Nru vdr-1.7.22-vanilla/menu.c vdr-1.7.22-liemikuutio/menu.c
      case osPlugin:     {
                           cMenuPluginItem *item = (cMenuPluginItem *)Get(Current());
                           if (item) {
-@@ -4410,6 +4612,10 @@
+@@ -4418,6 +4620,10 @@
  
  // --- cReplayControl --------------------------------------------------------
  
@@ -805,7 +805,7 @@ diff -Nru vdr-1.7.22-vanilla/menu.c vdr-1.7.22-liemikuutio/menu.c
  cReplayControl *cReplayControl::currentReplayControl = NULL;
  char *cReplayControl::fileName = NULL;
  char *cReplayControl::title = NULL;
-@@ -4423,6 +4629,9 @@
+@@ -4431,6 +4637,9 @@
    lastCurrent = lastTotal = -1;
    lastPlay = lastForward = false;
    lastSpeed = -2; // an invalid value
@@ -815,7 +815,7 @@ diff -Nru vdr-1.7.22-vanilla/menu.c vdr-1.7.22-liemikuutio/menu.c
    timeoutShow = 0;
    timeSearchActive = false;
    cRecording Recording(fileName);
-@@ -4821,6 +5030,32 @@
+@@ -4832,6 +5041,32 @@
      case kGreen:   SkipSeconds(-60); break;
      case kYellow|k_Repeat:
      case kYellow:  SkipSeconds( 60); break;
@@ -848,7 +848,7 @@ diff -Nru vdr-1.7.22-vanilla/menu.c vdr-1.7.22-liemikuutio/menu.c
      case kStop:
      case kBlue:    Hide();
                     Stop();
-@@ -4830,12 +5065,8 @@
+@@ -4841,12 +5076,8 @@
        switch (int(Key)) {
          // Editing:
          case kMarkToggle:      MarkToggle(); break;
@@ -861,9 +861,9 @@ diff -Nru vdr-1.7.22-vanilla/menu.c vdr-1.7.22-liemikuutio/menu.c
          case kMarkJumpForward|k_Repeat:
          case kMarkJumpForward: MarkJump(true); break;
          case kMarkMoveBack|k_Repeat:
-diff -Nru vdr-1.7.22-vanilla/menu.h vdr-1.7.22-liemikuutio/menu.h
---- vdr-1.7.22-vanilla/menu.h	2011-12-04 18:37:58.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/menu.h	2011-12-04 18:39:13.000000000 +0200
+diff -Nru vdr-1.7.24-vanilla/menu.h vdr-1.7.24-liemikuutio/menu.h
+--- vdr-1.7.24-vanilla/menu.h	2012-02-19 16:28:19.000000000 +0200
++++ vdr-1.7.24-liemikuutio/menu.h	2012-02-19 16:29:52.000000000 +0200
 @@ -100,6 +100,7 @@
    bool replaying;
    cOsdItem *stopReplayItem;
@@ -890,9 +890,9 @@ diff -Nru vdr-1.7.22-vanilla/menu.h vdr-1.7.22-liemikuutio/menu.h
    time_t timeoutShow;
    bool timeSearchActive, timeSearchHide;
    int timeSearchTime, timeSearchPos;
-diff -Nru vdr-1.7.22-vanilla/osdbase.c vdr-1.7.22-liemikuutio/osdbase.c
---- vdr-1.7.22-vanilla/osdbase.c	2011-12-04 18:37:58.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/osdbase.c	2011-12-04 18:39:13.000000000 +0200
+diff -Nru vdr-1.7.24-vanilla/osdbase.c vdr-1.7.24-liemikuutio/osdbase.c
+--- vdr-1.7.24-vanilla/osdbase.c	2012-02-19 16:28:19.000000000 +0200
++++ vdr-1.7.24-liemikuutio/osdbase.c	2012-02-19 16:29:52.000000000 +0200
 @@ -77,6 +77,7 @@
  {
    isMenu = true;
@@ -985,9 +985,9 @@ diff -Nru vdr-1.7.22-vanilla/osdbase.c vdr-1.7.22-liemikuutio/osdbase.c
      case kUp|k_Repeat:
      case kUp:   CursorUp();   break;
      case kDown|k_Repeat:
-diff -Nru vdr-1.7.22-vanilla/osdbase.h vdr-1.7.22-liemikuutio/osdbase.h
---- vdr-1.7.22-vanilla/osdbase.h	2011-12-04 18:37:58.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/osdbase.h	2011-12-04 18:39:13.000000000 +0200
+diff -Nru vdr-1.7.24-vanilla/osdbase.h vdr-1.7.24-liemikuutio/osdbase.h
+--- vdr-1.7.24-vanilla/osdbase.h	2012-02-19 16:28:19.000000000 +0200
++++ vdr-1.7.24-liemikuutio/osdbase.h	2012-02-19 16:29:52.000000000 +0200
 @@ -30,6 +30,7 @@
                  osStopRecord,
                  osStopReplay,
@@ -1005,10 +1005,10 @@ diff -Nru vdr-1.7.22-vanilla/osdbase.h vdr-1.7.22-liemikuutio/osdbase.h
  protected:
    void SetDisplayMenu(void);
    cSkinDisplayMenu *DisplayMenu(void) { return displayMenu; }
-diff -Nru vdr-1.7.22-vanilla/po/de_DE.po vdr-1.7.22-liemikuutio/po/de_DE.po
---- vdr-1.7.22-vanilla/po/de_DE.po	2011-12-04 18:37:58.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/po/de_DE.po	2011-12-04 18:39:13.000000000 +0200
-@@ -1329,3 +1329,67 @@
+diff -Nru vdr-1.7.24-vanilla/po/de_DE.po vdr-1.7.24-liemikuutio/po/de_DE.po
+--- vdr-1.7.24-vanilla/po/de_DE.po	2012-02-19 16:28:19.000000000 +0200
++++ vdr-1.7.24-liemikuutio/po/de_DE.po	2012-02-19 16:29:52.000000000 +0200
+@@ -1338,3 +1338,67 @@
  #, c-format
  msgid "VDR will shut down in %s minutes"
  msgstr "VDR wird in %s Minuten ausschalten"
@@ -1076,10 +1076,10 @@ diff -Nru vdr-1.7.22-vanilla/po/de_DE.po vdr-1.7.22-liemikuutio/po/de_DE.po
 +
 +msgid "File transfer finished"
 +msgstr ""
-diff -Nru vdr-1.7.22-vanilla/po/et_EE.po vdr-1.7.22-liemikuutio/po/et_EE.po
---- vdr-1.7.22-vanilla/po/et_EE.po	2011-12-04 18:37:58.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/po/et_EE.po	2011-12-04 18:39:13.000000000 +0200
-@@ -1329,3 +1329,67 @@
+diff -Nru vdr-1.7.24-vanilla/po/et_EE.po vdr-1.7.24-liemikuutio/po/et_EE.po
+--- vdr-1.7.24-vanilla/po/et_EE.po	2012-02-19 16:28:19.000000000 +0200
++++ vdr-1.7.24-liemikuutio/po/et_EE.po	2012-02-19 16:29:52.000000000 +0200
+@@ -1338,3 +1338,67 @@
  #, c-format
  msgid "VDR will shut down in %s minutes"
  msgstr "VDR lülitub välja %s minuti pärast"
@@ -1147,10 +1147,10 @@ diff -Nru vdr-1.7.22-vanilla/po/et_EE.po vdr-1.7.22-liemikuutio/po/et_EE.po
 +
 +msgid "File transfer finished"
 +msgstr ""
-diff -Nru vdr-1.7.22-vanilla/po/fi_FI.po vdr-1.7.22-liemikuutio/po/fi_FI.po
---- vdr-1.7.22-vanilla/po/fi_FI.po	2011-12-04 18:37:58.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/po/fi_FI.po	2011-12-04 18:39:13.000000000 +0200
-@@ -1332,3 +1332,67 @@
+diff -Nru vdr-1.7.24-vanilla/po/fi_FI.po vdr-1.7.24-liemikuutio/po/fi_FI.po
+--- vdr-1.7.24-vanilla/po/fi_FI.po	2012-02-19 16:28:19.000000000 +0200
++++ vdr-1.7.24-liemikuutio/po/fi_FI.po	2012-02-19 16:29:52.000000000 +0200
+@@ -1341,3 +1341,67 @@
  #, c-format
  msgid "VDR will shut down in %s minutes"
  msgstr "VDR sammuu %s minuutin kuluttua"
@@ -1218,10 +1218,10 @@ diff -Nru vdr-1.7.22-vanilla/po/fi_FI.po vdr-1.7.22-liemikuutio/po/fi_FI.po
 +
 +msgid "File transfer finished"
 +msgstr "Tiedoston siirto valmis"
-diff -Nru vdr-1.7.22-vanilla/po/fr_FR.po vdr-1.7.22-liemikuutio/po/fr_FR.po
---- vdr-1.7.22-vanilla/po/fr_FR.po	2011-12-04 18:37:58.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/po/fr_FR.po	2011-12-04 18:39:13.000000000 +0200
-@@ -1335,3 +1335,67 @@
+diff -Nru vdr-1.7.24-vanilla/po/fr_FR.po vdr-1.7.24-liemikuutio/po/fr_FR.po
+--- vdr-1.7.24-vanilla/po/fr_FR.po	2012-02-19 16:28:19.000000000 +0200
++++ vdr-1.7.24-liemikuutio/po/fr_FR.po	2012-02-19 16:29:52.000000000 +0200
+@@ -1344,3 +1344,67 @@
  #, c-format
  msgid "VDR will shut down in %s minutes"
  msgstr "VDR s'arrêtera dans %s minutes"
@@ -1289,10 +1289,10 @@ diff -Nru vdr-1.7.22-vanilla/po/fr_FR.po vdr-1.7.22-liemikuutio/po/fr_FR.po
 +
 +msgid "File transfer finished"
 +msgstr ""
-diff -Nru vdr-1.7.22-vanilla/po/ru_RU.po vdr-1.7.22-liemikuutio/po/ru_RU.po
---- vdr-1.7.22-vanilla/po/ru_RU.po	2011-12-04 18:37:58.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/po/ru_RU.po	2011-12-04 18:39:13.000000000 +0200
-@@ -1330,3 +1330,67 @@
+diff -Nru vdr-1.7.24-vanilla/po/ru_RU.po vdr-1.7.24-liemikuutio/po/ru_RU.po
+--- vdr-1.7.24-vanilla/po/ru_RU.po	2012-02-19 16:28:19.000000000 +0200
++++ vdr-1.7.24-liemikuutio/po/ru_RU.po	2012-02-19 16:29:52.000000000 +0200
+@@ -1339,3 +1339,67 @@
  #, c-format
  msgid "VDR will shut down in %s minutes"
  msgstr "VDR ÒëÚÛîçØâáï çÕàÕ× %s ÜØÝãâ"
@@ -1360,10 +1360,10 @@ diff -Nru vdr-1.7.22-vanilla/po/ru_RU.po vdr-1.7.22-liemikuutio/po/ru_RU.po
 +
 +msgid "File transfer finished"
 +msgstr ""
-diff -Nru vdr-1.7.22-vanilla/recording.c vdr-1.7.22-liemikuutio/recording.c
---- vdr-1.7.22-vanilla/recording.c	2011-12-04 18:37:58.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/recording.c	2011-12-04 18:39:13.000000000 +0200
-@@ -1208,7 +1208,7 @@
+diff -Nru vdr-1.7.24-vanilla/recording.c vdr-1.7.24-liemikuutio/recording.c
+--- vdr-1.7.24-vanilla/recording.c	2012-02-19 16:28:19.000000000 +0200
++++ vdr-1.7.24-liemikuutio/recording.c	2012-02-19 16:29:52.000000000 +0200
+@@ -1205,7 +1205,7 @@
       }
  }
  
@@ -1372,18 +1372,18 @@ diff -Nru vdr-1.7.22-vanilla/recording.c vdr-1.7.22-liemikuutio/recording.c
  {
    LOCK_THREAD;
    cRecording *recording = GetByName(FileName);
-@@ -1216,7 +1216,7 @@
+@@ -1213,7 +1213,7 @@
       cThreadLock DeletedRecordingsLock(&DeletedRecordings);
       Del(recording, false);
       char *ext = strrchr(recording->fileName, '.');
 -     if (ext) {
 +     if (ext && RemoveRecording) {
          strncpy(ext, DELEXT, strlen(ext));
-         recording->fileSizeMB = DirSizeMB(recording->FileName());
-         recording->deleted = time(NULL);
-diff -Nru vdr-1.7.22-vanilla/recording.h vdr-1.7.22-liemikuutio/recording.h
---- vdr-1.7.22-vanilla/recording.h	2011-12-04 18:37:58.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/recording.h	2011-12-04 18:39:13.000000000 +0200
+         if (access(recording->FileName(), F_OK) == 0) {
+            recording->fileSizeMB = DirSizeMB(recording->FileName());
+diff -Nru vdr-1.7.24-vanilla/recording.h vdr-1.7.24-liemikuutio/recording.h
+--- vdr-1.7.24-vanilla/recording.h	2012-02-19 16:28:19.000000000 +0200
++++ vdr-1.7.24-liemikuutio/recording.h	2012-02-19 16:29:52.000000000 +0200
 @@ -188,7 +188,7 @@
    void ResetResume(const char *ResumeFileName = NULL);
    cRecording *GetByName(const char *FileName);
@@ -1393,9 +1393,9 @@ diff -Nru vdr-1.7.22-vanilla/recording.h vdr-1.7.22-liemikuutio/recording.h
    void UpdateByName(const char *FileName);
    int TotalFileSizeMB(void); ///< Only for deleted recordings!
    };
-diff -Nru vdr-1.7.22-vanilla/shutdown.c vdr-1.7.22-liemikuutio/shutdown.c
---- vdr-1.7.22-vanilla/shutdown.c	2011-12-04 18:37:58.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/shutdown.c	2011-12-04 18:39:13.000000000 +0200
+diff -Nru vdr-1.7.24-vanilla/shutdown.c vdr-1.7.24-liemikuutio/shutdown.c
+--- vdr-1.7.24-vanilla/shutdown.c	2012-02-19 16:28:19.000000000 +0200
++++ vdr-1.7.24-liemikuutio/shutdown.c	2012-02-19 16:29:52.000000000 +0200
 @@ -17,6 +17,7 @@
  #include "channels.h"
  #include "config.h"
@@ -1426,9 +1426,9 @@ diff -Nru vdr-1.7.22-vanilla/shutdown.c vdr-1.7.22-liemikuutio/shutdown.c
  
    cTimer *timer = Timers.GetNextActiveTimer();
    time_t Next  = timer ? timer->StartTime() : 0;
-diff -Nru vdr-1.7.22-vanilla/svdrp.c vdr-1.7.22-liemikuutio/svdrp.c
---- vdr-1.7.22-vanilla/svdrp.c	2011-12-04 18:37:58.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/svdrp.c	2011-12-04 18:39:13.000000000 +0200
+diff -Nru vdr-1.7.24-vanilla/svdrp.c vdr-1.7.24-liemikuutio/svdrp.c
+--- vdr-1.7.24-vanilla/svdrp.c	2012-02-19 16:28:19.000000000 +0200
++++ vdr-1.7.24-liemikuutio/svdrp.c	2012-02-19 16:32:12.000000000 +0200
 @@ -31,6 +31,7 @@
  #include "cutter.h"
  #include "device.h"
@@ -1458,10 +1458,10 @@ diff -Nru vdr-1.7.22-vanilla/svdrp.c vdr-1.7.22-liemikuutio/svdrp.c
 +  "    moved, an LSTR command must have been executed in order to retrieve\n"
 +  "    the recording numbers. The numbers don't change during subsequent MOVR\n"
 +  "    commands.",
-   "MOVT <number> <to>\n"
-   "    Move a timer to a new position.",
    "NEWC <settings>\n"
-@@ -605,6 +616,32 @@
+   "    Create a new channel. Settings must be in the same format as returned\n"
+   "    by the LSTC command.",
+@@ -607,6 +618,32 @@
       }
  }
  
@@ -1494,7 +1494,7 @@ diff -Nru vdr-1.7.22-vanilla/svdrp.c vdr-1.7.22-liemikuutio/svdrp.c
  void cSVDRP::CmdDELC(const char *Option)
  {
    if (*Option) {
-@@ -1279,6 +1316,32 @@
+@@ -1285,6 +1322,32 @@
       Reply(501, "Missing channel number");
  }
  
@@ -1524,9 +1524,9 @@ diff -Nru vdr-1.7.22-vanilla/svdrp.c vdr-1.7.22-liemikuutio/svdrp.c
 +     Reply(501, "Invalid Option \"%s\"", Option);
 +}
 +
- void cSVDRP::CmdMOVT(const char *Option)
+ void cSVDRP::CmdNEWC(const char *Option)
  {
-   //TODO combine this with menu action
+   if (*Option) {
 @@ -1613,6 +1676,7 @@
    s = skipspace(s);
    if      (CMD("CHAN"))  CmdCHAN(s);
@@ -1540,12 +1540,12 @@ diff -Nru vdr-1.7.22-vanilla/svdrp.c vdr-1.7.22-liemikuutio/svdrp.c
    else if (CMD("MODT"))  CmdMODT(s);
    else if (CMD("MOVC"))  CmdMOVC(s);
 +  else if (CMD("MOVR"))  CmdMOVR(s);
-   else if (CMD("MOVT"))  CmdMOVT(s);
    else if (CMD("NEWC"))  CmdNEWC(s);
    else if (CMD("NEWT"))  CmdNEWT(s);
-diff -Nru vdr-1.7.22-vanilla/svdrp.h vdr-1.7.22-liemikuutio/svdrp.h
---- vdr-1.7.22-vanilla/svdrp.h	2011-12-04 18:37:58.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/svdrp.h	2011-12-04 18:39:13.000000000 +0200
+   else if (CMD("NEXT"))  CmdNEXT(s);
+diff -Nru vdr-1.7.24-vanilla/svdrp.h vdr-1.7.24-liemikuutio/svdrp.h
+--- vdr-1.7.24-vanilla/svdrp.h	2012-02-19 16:28:19.000000000 +0200
++++ vdr-1.7.24-liemikuutio/svdrp.h	2012-02-19 16:30:34.000000000 +0200
 @@ -56,6 +56,7 @@
    void PrintHelpTopics(const char **hp);
    void CmdCHAN(const char *Option);
@@ -1559,12 +1559,12 @@ diff -Nru vdr-1.7.22-vanilla/svdrp.h vdr-1.7.22-liemikuutio/svdrp.h
    void CmdMODT(const char *Option);
    void CmdMOVC(const char *Option);
 +  void CmdMOVR(const char *Option);
-   void CmdMOVT(const char *Option);
    void CmdNEWC(const char *Option);
    void CmdNEWT(const char *Option);
-diff -Nru vdr-1.7.22-vanilla/vdr.c vdr-1.7.22-liemikuutio/vdr.c
---- vdr-1.7.22-vanilla/vdr.c	2011-12-04 18:37:58.000000000 +0200
-+++ vdr-1.7.22-liemikuutio/vdr.c	2011-12-04 18:39:13.000000000 +0200
+   void CmdNEXT(const char *Option);
+diff -Nru vdr-1.7.24-vanilla/vdr.c vdr-1.7.24-liemikuutio/vdr.c
+--- vdr-1.7.24-vanilla/vdr.c	2012-02-19 16:28:19.000000000 +0200
++++ vdr-1.7.24-liemikuutio/vdr.c	2012-02-19 16:29:52.000000000 +0200
 @@ -45,6 +45,7 @@
  #include "dvbdevice.h"
  #include "eitscan.h"
