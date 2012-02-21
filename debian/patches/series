@@ -12,6 +12,9 @@
 # Patch collection (replaces enAIO).
 opt-20_liemikuutio.patch
 
+# hotfix vdr-1.7.24
+vdr-1.7.24-dvbplayer-revert.patch
+
 # Allows to tune to non-FTA channels provided by internal devices, 
 # like streamdev
 opt-21_internal-cam-devices.patch
