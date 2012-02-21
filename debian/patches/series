@@ -13,6 +13,7 @@
 opt-20_liemikuutio.patch
 
 # hotfix vdr-1.7.24
+vdr-1.7.24-hotfix-1.patch
 vdr-1.7.24-dvbplayer-revert.patch
 
 # Allows to tune to non-FTA channels provided by internal devices, 
