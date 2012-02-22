@@ -9,6 +9,7 @@ etc/vdr/shutdown-hooks/S90.custom         usr/share/vdr/shutdown-hooks/S90.custo
 
 etc/vdr/diseqc.conf      var/lib/vdr/diseqc.conf
 etc/vdr/keymacros.conf   var/lib/vdr/keymacros.conf
+etc/vdr/scr.conf         var/lib/vdr/scr.conf
 etc/vdr/sources.conf     var/lib/vdr/sources.conf
 etc/vdr/svdrphosts.conf  var/lib/vdr/svdrphosts.conf
 
