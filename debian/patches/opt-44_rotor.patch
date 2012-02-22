@@ -2,8 +2,9 @@ Description: This patch is needed for the rotor plugin.
 Author: Thomas Bergwinkl <Bergwinkl.Thomas@vr-web.de>
 Origin: extracted from the rotor plugin 0.1.4-vdr1.5
 
---- a/device.h
-+++ b/device.h
+diff -urNad vdr-1.7.24-orig/device.h vdr-1.7.24/device.h
+--- vdr-1.7.24-orig/device.h	2012-02-22 10:19:33.294432916 +0100
++++ vdr-1.7.24/device.h	2012-02-22 10:22:30.174432876 +0100
 @@ -24,6 +24,8 @@
  #include "spu.h"
  #include "thread.h"
@@ -21,8 +22,9 @@ Origin: extracted from the rotor plugin 0.1.4-vdr1.5
  
  // PID handle facilities
  
---- a/dvbdevice.c
-+++ b/dvbdevice.c
+diff -urNad vdr-1.7.24-orig/dvbdevice.c vdr-1.7.24/dvbdevice.c
+--- vdr-1.7.24-orig/dvbdevice.c	2012-02-20 14:35:49.000000000 +0100
++++ vdr-1.7.24/dvbdevice.c	2012-02-22 10:24:25.944432850 +0100
 @@ -285,6 +285,7 @@
  private:
    static cMutex bondMutex;
@@ -56,7 +58,7 @@ Origin: extracted from the rotor plugin 0.1.4-vdr1.5
    device = Device;
    fd_frontend = Fd_Frontend;
    adapter = Adapter;
-@@ -644,6 +650,35 @@
+@@ -646,6 +652,35 @@
    return -1;
  }
  
@@ -92,7 +94,7 @@ Origin: extracted from the rotor plugin 0.1.4-vdr1.5
  static unsigned int FrequencyToHz(unsigned int f)
  {
    while (f && f < 1000000)
-@@ -857,6 +892,10 @@
+@@ -859,6 +894,10 @@
          if (GetFrontendStatus(NewStatus))
             Status = NewStatus;
          cMutexLock MutexLock(&mutex);
@@ -100,10 +102,10 @@ Origin: extracted from the rotor plugin 0.1.4-vdr1.5
 +           CHECK(ioctl(fd_frontend, FE_DISEQC_SEND_MASTER_CMD, &diseqc_cmd));
 +           SendDiseqc=false;
 +           }
+         int WaitTime = 1000;
          switch (tunerStatus) {
            case tsIdle:
-                break;
-@@ -1509,6 +1548,11 @@
+@@ -1531,6 +1570,11 @@
    return dvbTuner ? dvbTuner->Locked(TimeoutMs) : false;
  }
  
@@ -115,9 +117,10 @@ Origin: extracted from the rotor plugin 0.1.4-vdr1.5
  void cDvbDevice::SetTransferModeForDolbyDigital(int Mode)
  {
    setTransferModeForDolbyDigital = Mode;
---- a/dvbdevice.h
-+++ b/dvbdevice.h
-@@ -190,6 +190,7 @@
+diff -urNad vdr-1.7.24-orig/dvbdevice.h vdr-1.7.24/dvbdevice.h
+--- vdr-1.7.24-orig/dvbdevice.h	2012-02-20 14:35:49.000000000 +0100
++++ vdr-1.7.24/dvbdevice.h	2012-02-22 10:22:30.174432876 +0100
+@@ -191,6 +191,7 @@
    virtual bool SetChannelDevice(const cChannel *Channel, bool LiveView);
  public:
    virtual bool HasLock(int TimeoutMs = 0);
