@@ -1,11 +1,12 @@
---- dvbplayer.c 2012/02/19 10:48:02     2.23
-+++ dvbplayer.c 2012/02/19 14:21:22
+diff -urNad vdr-1.7.24-orig/dvbplayer.c vdr-1.7.24/dvbplayer.c
+--- vdr-1.7.24-orig/dvbplayer.c	2012-02-20 14:35:49.000000000 +0100
++++ vdr-1.7.24/dvbplayer.c	2012-02-22 09:56:04.054433232 +0100
 @@ -291,6 +291,8 @@
-       delete index;
-       index = NULL;
-       }
+      delete index;
+      index = NULL;
+      }
 +  else if (PauseLive)
 +     framesPerSecond = cRecording(FileName).FramesPerSecond(); // the fps rate might have changed from the default
-  }
-
-  cDvbPlayer::~cDvbPlayer()
+ }
+ 
+ cDvbPlayer::~cDvbPlayer()
