@@ -1,2 +1,2 @@
 libvdr-#PLUGIN#.so.*    usr/lib/vdr/plugins/
-debian/tmp/usr/share/locale
+locale                  usr/share/

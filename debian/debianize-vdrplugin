@@ -25,18 +25,13 @@ create_orig_tarball()
     local tarball
 
     ORIGTARBALL="../vdr-plugin-$PLUGIN"_"$VERSION.orig.tar.gz"
-    
+
     if [ -e $ORIGTARBALL ] ; then
         return
     fi
-    
-    for tarball in `find ../ -name "*$PLUGIN-$VERSION.t*gz"`; do
+
+    for tarball in `find ../ -regex ".*$PLUGIN-$VERSION.t.*\(gz\|bz2\)"`; do
         ln -sf `basename $tarball` $ORIGTARBALL
-        return
-    done
-      
-    for tarball in `find ../ -name "*$PLUGIN-$VERSION.t*bz2"`; do
-        /bin/bzip2 -cd $tarball | /bin/gzip --best > $ORIGTARBALL
         return
     done
 }
@@ -69,9 +64,9 @@ check_dh_make
 detect_plugin_name
 create_orig_tarball
 
-dh_make="/usr/bin/dh_make -t /usr/share/vdr-dev/plugin-template -b -p vdr-plugin-$PLUGIN"
+dh_make="/usr/bin/dh_make -d -s -t /usr/share/vdr-dev/plugin-template -p vdr-plugin-$PLUGIN"
 if [ ! -e $ORIGTARBALL ] ; then
-    dh_make="$dh_make -r"
+    dh_make="$dh_make -n"
 fi
 
 $dh_make
@@ -79,4 +74,9 @@ $dh_make
 if [ "$?" -eq "0" ]; then
     replace_vdr_version
     replace_plugin_name
+fi
+
+if [ ! -d debian/source ]; then
+  mkdir debian/source
+  echo "3.0 (quilt)" >debian/source/format
 fi
