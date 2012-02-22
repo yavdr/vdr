@@ -191,10 +191,10 @@ Origin: http://toms-cafe.de/vdr/download/vdr-jumpplay-1.0-1.7.6.diff
    cFileName *fileName;
    cIndexFile *index;
    cUnbufferedFile *replayFile;
-@@ -282,6 +283,7 @@
-      delete index;
-      index = NULL;
+@@ -286,6 +287,7 @@
       }
+   else if (PauseLive)
+      framesPerSecond = cRecording(FileName).FramesPerSecond(); // the fps rate might have changed from the default
 +  marks.Load(FileName, framesPerSecond, isPesRecording);
  }
  
