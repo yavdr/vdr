@@ -57,7 +57,7 @@ opt-42-x_MainMenuHooks-v1.0.1.patch
 opt-43-x_recordshowfree.patch
 
 # Patch needed for the rotor plugin.
-opt-44_rotor.patch
+#opt-44_rotor.patch
 
 # Patch needed for the yaepg plugin.
 opt-45_yaepg.patch
@@ -74,8 +74,8 @@ opt-50_graphtft-liemikuutio.patch
 opt-55_wareagleicon.patch
 opt-56_eventdetails_v3.patch
 opt-57_vdr-remote_instant_recordings.patch
-opt-58_dvbplayer-no-busy.patch
-opt-59_hd-timeshift-wait.patch
+#opt-58_dvbplayer-no-busy.patch
+#opt-59_hd-timeshift-wait.patch
 opt-60-livebuffer12-rmm.patch
 opt-61_dynamite.patch
 
