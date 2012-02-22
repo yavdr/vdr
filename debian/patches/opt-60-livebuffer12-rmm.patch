@@ -174,6 +174,8 @@ diff -urNad vdr-1.7.24-orig/dvbplayer.c vdr-1.7.24/dvbplayer.c
       delete index;
       index = NULL;
       }
+   else if (PauseLive)
+      framesPerSecond = cRecording(FileName).FramesPerSecond(); // the fps rate might have changed from the default
 +#ifdef USE_LIVEBUFFER
 +  readIndex = Resume();
 +  if (readIndex >= 0) {
@@ -182,8 +184,6 @@ diff -urNad vdr-1.7.24-orig/dvbplayer.c vdr-1.7.24/dvbplayer.c
 +  } else
 +     replayFile = fileName->Open();
 +#endif /*USE_LIVEBUFFER*/
-   else if (PauseLive)
-      framesPerSecond = cRecording(FileName).FramesPerSecond(); // the fps rate might have changed from the default
  }
 @@ -294,7 +322,11 @@
    Save();
