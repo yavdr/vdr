@@ -2,9 +2,9 @@ Description: Patch for VDR
 Author: reel <reel@vdr-portal> 
 Origin: http://www.vdr-portal.de/board17-developer/board25-patches/p961465-livebuffer-patch-f%C3%BCr-vdr-1-7-16-aus-rmm-svn/
 
-diff -urNad vdr-1.7.22-orig/config.c vdr-1.7.22-livebuffer/config.c
---- vdr-1.7.22-orig/config.c	2011-12-22 16:03:48.000000000 +0100
-+++ vdr-1.7.22-livebuffer/config.c	2011-12-22 16:05:17.648120104 +0100
+diff -urNad vdr-1.7.24-orig/config.c vdr-1.7.24/config.c
+--- vdr-1.7.24-orig/config.c	2012-02-22 10:30:57.514432763 +0100
++++ vdr-1.7.24/config.c	2012-02-22 10:32:54.814432737 +0100
 @@ -474,6 +474,10 @@
    InitialVolume = -1;
    ChannelsWrap = 0;
@@ -16,7 +16,7 @@ diff -urNad vdr-1.7.22-orig/config.c vdr-1.7.22-livebuffer/config.c
  }
  
  cSetup::~cSetup()
-@@ -687,6 +691,10 @@
+@@ -688,6 +692,10 @@
    else if (!strcasecmp(Name, "InitialChannel"))      InitialChannel     = Value;
    else if (!strcasecmp(Name, "InitialVolume"))       InitialVolume      = atoi(Value);
    else if (!strcasecmp(Name, "DeviceBondings"))      DeviceBondings     = Value;
@@ -27,7 +27,7 @@ diff -urNad vdr-1.7.22-orig/config.c vdr-1.7.22-livebuffer/config.c
    else if (!strcasecmp(Name, "ChannelsWrap"))        ChannelsWrap       = atoi(Value);
    else if (!strcasecmp(Name, "EmergencyExit"))       EmergencyExit      = atoi(Value);
    else
-@@ -797,6 +805,9 @@
+@@ -799,6 +807,9 @@
    Store("DeviceBondings",     DeviceBondings);
    Store("ChannelsWrap",       ChannelsWrap);
    Store("EmergencyExit",      EmergencyExit);
@@ -37,10 +37,10 @@ diff -urNad vdr-1.7.22-orig/config.c vdr-1.7.22-livebuffer/config.c
  
    Sort();
  
-diff -urNad vdr-1.7.22-orig/config.h vdr-1.7.22-livebuffer/config.h
---- vdr-1.7.22-orig/config.h	2011-12-22 16:03:48.000000000 +0100
-+++ vdr-1.7.22-livebuffer/config.h	2011-12-22 16:05:17.648120104 +0100
-@@ -329,6 +329,10 @@
+diff -urNad vdr-1.7.24-orig/config.h vdr-1.7.24/config.h
+--- vdr-1.7.24-orig/config.h	2012-02-22 10:30:57.564432763 +0100
++++ vdr-1.7.24/config.h	2012-02-22 10:32:54.814432737 +0100
+@@ -330,6 +330,10 @@
    int InitialVolume;
    int ChannelsWrap;
    int EmergencyExit;
@@ -51,9 +51,9 @@ diff -urNad vdr-1.7.22-orig/config.h vdr-1.7.22-livebuffer/config.h
    int __EndData__;
    cString InitialChannel;
    cString DeviceBondings;
-diff -urNad vdr-1.7.22-orig/device.c vdr-1.7.22-livebuffer/device.c
---- vdr-1.7.22-orig/device.c	2011-12-22 16:03:48.000000000 +0100
-+++ vdr-1.7.22-livebuffer/device.c	2011-12-22 16:05:17.648120104 +0100
+diff -urNad vdr-1.7.24-orig/device.c vdr-1.7.24/device.c
+--- vdr-1.7.24-orig/device.c	2012-02-22 10:30:57.064432763 +0100
++++ vdr-1.7.24/device.c	2012-02-22 10:32:54.814432737 +0100
 @@ -19,6 +19,10 @@
  #include "status.h"
  #include "transfer.h"
@@ -65,7 +65,7 @@ diff -urNad vdr-1.7.22-orig/device.c vdr-1.7.22-livebuffer/device.c
  
  // --- cLiveSubtitle ---------------------------------------------------------
  
-@@ -667,6 +671,14 @@
+@@ -675,6 +679,14 @@
                                return false;
          case scrNoTransfer:   Skins.Message(mtError, tr("Can't start Transfer Mode!"));
                                return false;
@@ -80,7 +80,7 @@ diff -urNad vdr-1.7.22-orig/device.c vdr-1.7.22-livebuffer/device.c
          case scrFailed:       break; // loop will retry
          default:              esyslog("ERROR: invalid return value from SetChannel");
          }
-@@ -724,8 +736,17 @@
+@@ -732,8 +744,17 @@
  
    if (NeedsTransferMode) {
       if (Device && CanReplay()) {
@@ -98,9 +98,9 @@ diff -urNad vdr-1.7.22-orig/device.c vdr-1.7.22-livebuffer/device.c
             cControl::Launch(new cTransferControl(Device, Channel));
          else
             Result = scrNoTransfer;
-diff -urNad vdr-1.7.22-orig/device.h vdr-1.7.22-livebuffer/device.h
---- vdr-1.7.22-orig/device.h	2011-12-22 16:03:48.000000000 +0100
-+++ vdr-1.7.22-livebuffer/device.h	2011-12-22 16:05:17.658120104 +0100
+diff -urNad vdr-1.7.24-orig/device.h vdr-1.7.24/device.h
+--- vdr-1.7.24-orig/device.h	2012-02-22 10:30:57.404432763 +0100
++++ vdr-1.7.24/device.h	2012-02-22 10:32:54.824432737 +0100
 @@ -34,7 +34,11 @@
  #define VOLUMEDELTA         5 // used to increase/decrease the volume
  #define MAXOCCUPIEDTIMEOUT 99 // max. time (in seconds) a device may be occupied
@@ -113,9 +113,9 @@ diff -urNad vdr-1.7.22-orig/device.h vdr-1.7.22-livebuffer/device.h
  
  enum ePlayMode { pmNone,           // audio/video from decoder
                   pmAudioVideo,     // audio/video from player
-diff -urNad vdr-1.7.22-orig/dvbplayer.c vdr-1.7.22-livebuffer/dvbplayer.c
---- vdr-1.7.22-orig/dvbplayer.c	2011-12-22 16:03:48.000000000 +0100
-+++ vdr-1.7.22-livebuffer/dvbplayer.c	2011-12-22 16:05:17.658120104 +0100
+diff -urNad vdr-1.7.24-orig/dvbplayer.c vdr-1.7.24/dvbplayer.c
+--- vdr-1.7.24-orig/dvbplayer.c	2012-02-22 10:30:57.024432763 +0100
++++ vdr-1.7.24/dvbplayer.c	2012-02-22 10:50:19.554432503 +0100
 @@ -15,6 +15,9 @@
  #include "ringbuffer.h"
  #include "thread.h"
@@ -149,7 +149,7 @@ diff -urNad vdr-1.7.22-orig/dvbplayer.c vdr-1.7.22-livebuffer/dvbplayer.c
    cUnbufferedFile *replayFile;
    double framesPerSecond;
    bool isPesRecording;
-@@ -271,18 +282,35 @@
+@@ -273,18 +284,35 @@
    dropFrame = NULL;
    isyslog("replay %s", FileName);
    fileName = new cFileName(FileName, false, false, isPesRecording);
@@ -166,7 +166,7 @@ diff -urNad vdr-1.7.22-orig/dvbplayer.c vdr-1.7.22-livebuffer/dvbplayer.c
 +  if(!index)
 +     index = indexFile = new cIndexFile(FileName, false, isPesRecording);
 +#else
-   index = new cIndexFile(FileName, false, isPesRecording);
+   index = new cIndexFile(FileName, false, isPesRecording, pauseLive);
 +#endif /*USE_LIVEBUFFER*/
    if (!index)
       esyslog("ERROR: can't allocate index");
@@ -182,10 +182,10 @@ diff -urNad vdr-1.7.22-orig/dvbplayer.c vdr-1.7.22-livebuffer/dvbplayer.c
 +  } else
 +     replayFile = fileName->Open();
 +#endif /*USE_LIVEBUFFER*/
-   marks.Load(FileName, framesPerSecond, isPesRecording);
+   else if (PauseLive)
+      framesPerSecond = cRecording(FileName).FramesPerSecond(); // the fps rate might have changed from the default
  }
- 
-@@ -291,7 +319,11 @@
+@@ -294,7 +322,11 @@
    Save();
    Detach();
    delete readFrame; // might not have been stored in the buffer in Action()
@@ -197,7 +197,7 @@ diff -urNad vdr-1.7.22-orig/dvbplayer.c vdr-1.7.22-livebuffer/dvbplayer.c
    delete fileName;
    delete ringBuffer;
  }
-@@ -395,9 +427,11 @@
+@@ -399,9 +431,11 @@
    bool cutIn = false;
    int total = -1;
  
@@ -209,7 +209,7 @@ diff -urNad vdr-1.7.22-orig/dvbplayer.c vdr-1.7.22-livebuffer/dvbplayer.c
  
    if (Setup.PlayJump && readIndex <= 0 && marks.First() && index) {
       int Index = marks.First()->position;
-@@ -457,6 +491,10 @@
+@@ -463,6 +497,10 @@
                           if (NewIndex <= 0 && readIndex > 0)
                              NewIndex = 1; // make sure the very first frame is delivered
                           NewIndex = index->GetNextIFrame(NewIndex, playDir == pdForward, &FileNumber, &FileOffset, &Length, TimeShiftMode);
@@ -220,7 +220,7 @@ diff -urNad vdr-1.7.22-orig/dvbplayer.c vdr-1.7.22-livebuffer/dvbplayer.c
                           if (NewIndex < 0 && TimeShiftMode && playDir == pdForward)
                              SwitchToPlayFrame = Index;
                           Index = NewIndex;
-@@ -513,6 +551,15 @@
+@@ -519,6 +557,15 @@
                           total = index->Last();
                        if (index->Get(readIndex + 1, &FileNumber, &FileOffset, &readIndependent, &Length) && NextFile(FileNumber, FileOffset))
                           readIndex++;
@@ -236,7 +236,7 @@ diff -urNad vdr-1.7.22-orig/dvbplayer.c vdr-1.7.22-livebuffer/dvbplayer.c
                        else
                           eof = true;
                        }
-@@ -658,7 +705,11 @@
+@@ -664,7 +711,11 @@
               else if (Index <= 0 || SwitchToPlayFrame && Index >= SwitchToPlayFrame)
                  SwitchToPlay = true;
               if (SwitchToPlay) {
@@ -248,9 +248,9 @@ diff -urNad vdr-1.7.22-orig/dvbplayer.c vdr-1.7.22-livebuffer/dvbplayer.c
                     Empty();
                  DevicePlay();
                  playMode = pmPlay;
-diff -urNad vdr-1.7.22-orig/livebuffer.c vdr-1.7.22-livebuffer/livebuffer.c
---- vdr-1.7.22-orig/livebuffer.c	1970-01-01 01:00:00.000000000 +0100
-+++ vdr-1.7.22-livebuffer/livebuffer.c	2011-12-22 16:05:17.658120104 +0100
+diff -urNad vdr-1.7.24-orig/livebuffer.c vdr-1.7.24/livebuffer.c
+--- vdr-1.7.24-orig/livebuffer.c	1970-01-01 01:00:00.000000000 +0100
++++ vdr-1.7.24/livebuffer.c	2012-02-22 10:32:54.824432737 +0100
 @@ -0,0 +1,403 @@
 +#ifdef USE_LIVEBUFFER
 +#include "livebuffer.h"
@@ -655,9 +655,9 @@ diff -urNad vdr-1.7.22-orig/livebuffer.c vdr-1.7.22-livebuffer/livebuffer.c
 +
 +#endif /*VDRVERSNUM*/
 +#endif /*USE_LIVEBUFFER*/
-diff -urNad vdr-1.7.22-orig/livebuffer.h vdr-1.7.22-livebuffer/livebuffer.h
---- vdr-1.7.22-orig/livebuffer.h	1970-01-01 01:00:00.000000000 +0100
-+++ vdr-1.7.22-livebuffer/livebuffer.h	2011-12-22 16:05:17.658120104 +0100
+diff -urNad vdr-1.7.24-orig/livebuffer.h vdr-1.7.24/livebuffer.h
+--- vdr-1.7.24-orig/livebuffer.h	1970-01-01 01:00:00.000000000 +0100
++++ vdr-1.7.24/livebuffer.h	2012-02-22 10:32:54.824432737 +0100
 @@ -0,0 +1,47 @@
 +#ifndef LIVEBUFFER_H
 +#define LIVEBUFFER_H
@@ -706,18 +706,18 @@ diff -urNad vdr-1.7.22-orig/livebuffer.h vdr-1.7.22-livebuffer/livebuffer.h
 +#endif /*VDRVERSNUM*/
 +#endif /*USE_LIVEBUFFER*/
 +#endif /*LIVEBUFFER_H*/
-diff -urNad vdr-1.7.22-orig/Make.config vdr-1.7.22-livebuffer/Make.config
---- vdr-1.7.22-orig/Make.config	2011-12-22 16:03:47.000000000 +0100
-+++ vdr-1.7.22-livebuffer/Make.config	2011-12-22 16:05:17.658120104 +0100
+diff -urNad vdr-1.7.24-orig/Make.config vdr-1.7.24/Make.config
+--- vdr-1.7.24-orig/Make.config	2012-02-22 10:30:56.734432763 +0100
++++ vdr-1.7.24/Make.config	2012-02-22 10:32:54.824432737 +0100
 @@ -28,3 +28,5 @@
  endif
  
  BIDI = 1
 +USE_LIVEBUFFER = 1
 +DEFINES += -DUSE_LIVEBUFFER
-diff -urNad vdr-1.7.22-orig/Makefile vdr-1.7.22-livebuffer/Makefile
---- vdr-1.7.22-orig/Makefile	2011-12-22 16:03:48.000000000 +0100
-+++ vdr-1.7.22-livebuffer/Makefile	2011-12-22 16:05:17.658120104 +0100
+diff -urNad vdr-1.7.24-orig/Makefile vdr-1.7.24/Makefile
+--- vdr-1.7.24-orig/Makefile	2012-02-22 10:30:57.514432763 +0100
++++ vdr-1.7.24/Makefile	2012-02-22 10:32:54.824432737 +0100
 @@ -66,6 +66,11 @@
  LIBS += $(shell pkg-config --libs fribidi)
  endif
@@ -730,10 +730,10 @@ diff -urNad vdr-1.7.22-orig/Makefile vdr-1.7.22-livebuffer/Makefile
  LIRC_DEVICE ?= /var/run/lirc/lircd
  RCU_DEVICE  ?= /dev/ttyS1
  
-diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
---- vdr-1.7.22-orig/menu.c	2011-12-22 16:03:48.000000000 +0100
-+++ vdr-1.7.22-livebuffer/menu.c	2011-12-22 16:05:17.668120104 +0100
-@@ -3456,7 +3456,11 @@
+diff -urNad vdr-1.7.24-orig/menu.c vdr-1.7.24/menu.c
+--- vdr-1.7.24-orig/menu.c	2012-02-22 10:30:57.574432763 +0100
++++ vdr-1.7.24/menu.c	2012-02-22 10:32:54.834432737 +0100
+@@ -3466,7 +3466,11 @@
  
  class cMenuSetupRecord : public cMenuSetupBase {
  private:
@@ -746,7 +746,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
    const char *delTimeshiftRecTexts[3];
  public:
    cMenuSetupRecord(void);
-@@ -3467,6 +3471,9 @@
+@@ -3477,6 +3481,9 @@
    pauseKeyHandlingTexts[0] = tr("do not pause live video");
    pauseKeyHandlingTexts[1] = tr("confirm pause live video");
    pauseKeyHandlingTexts[2] = tr("pause live video");
@@ -756,7 +756,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
    delTimeshiftRecTexts[0] = tr("no");
    delTimeshiftRecTexts[1] = tr("confirm");
    delTimeshiftRecTexts[2] = tr("yes");
-@@ -3476,7 +3483,12 @@
+@@ -3486,7 +3493,12 @@
    Add(new cMenuEditIntItem( tr("Setup.Recording$Primary limit"),             &data.PrimaryLimit, 0, MAXPRIORITY));
    Add(new cMenuEditIntItem( tr("Setup.Recording$Default priority"),          &data.DefaultPriority, 0, MAXPRIORITY));
    Add(new cMenuEditIntItem( tr("Setup.Recording$Default lifetime (d)"),      &data.DefaultLifetime, 0, MAXLIFETIME));
@@ -770,7 +770,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
    Add(new cMenuEditIntItem( tr("Setup.Recording$Pause priority"),            &data.PausePriority, 0, MAXPRIORITY));
    Add(new cMenuEditIntItem( tr("Setup.Recording$Pause lifetime (d)"),        &data.PauseLifetime, 0, MAXLIFETIME));
    Add(new cMenuEditBoolItem(tr("Setup.Recording$Use episode name"),          &data.UseSubtitle));
-@@ -4678,7 +4690,11 @@
+@@ -4689,7 +4701,11 @@
    isyslog("record %s", fileName);
    if (MakeDirs(fileName, true)) {
       const cChannel *ch = timer->Channel();
@@ -782,7 +782,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
       if (device->AttachReceiver(recorder)) {
          Recording.WriteInfo();
          cStatus::MsgRecording(device, Recording.Name(), Recording.FileName(), true);
-@@ -4763,6 +4779,10 @@
+@@ -4774,6 +4790,10 @@
  cRecordControl *cRecordControls::RecordControls[MAXRECORDCONTROLS] = { NULL };
  int cRecordControls::state = 0;
  
@@ -793,7 +793,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
  bool cRecordControls::Start(cTimer *Timer, bool Pause)
  {
    if (!Timer) {
-@@ -4878,8 +4898,31 @@
+@@ -4889,8 +4909,31 @@
        }
  }
  
@@ -825,7 +825,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
    Skins.Message(mtStatus, tr("Pausing live video..."));
    cReplayControl::SetRecording(NULL, NULL); // make sure the new cRecordControl will set cReplayControl::LastReplayed()
    if (Start(NULL, true)) {
-@@ -4896,6 +4939,54 @@
+@@ -4904,6 +4947,54 @@
    return false;
  }
  
@@ -880,7 +880,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
  const char *cRecordControls::GetInstantId(const char *LastInstantId)
  {
    for (int i = 0; i < MAXRECORDCONTROLS; i++) {
-@@ -5101,21 +5192,30 @@
+@@ -5109,21 +5200,30 @@
  
  void cReplayControl::ShowMode(void)
  {
@@ -913,7 +913,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
          displayReplay->SetMode(Play, Forward, Speed);
          lastPlay = Play;
          lastForward = Forward;
-@@ -5129,6 +5229,45 @@
+@@ -5137,6 +5237,45 @@
    int Current, Total;
  
    if (GetIndex(Current, Total) && Total > 0) {
@@ -959,7 +959,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
       if (!visible) {
          displayReplay = Skins.Current()->DisplayReplay(modeOnly);
          displayReplay->SetMarks(&marks);
-@@ -5230,6 +5369,9 @@
+@@ -5241,6 +5380,9 @@
  
  void cReplayControl::TimeSearch(void)
  {
@@ -969,7 +969,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
    timeSearchTime = timeSearchPos = 0;
    timeSearchHide = false;
    if (modeOnly)
-@@ -5248,6 +5390,9 @@
+@@ -5259,6 +5401,9 @@
  
  void cReplayControl::MarkToggle(void)
  {
@@ -979,7 +979,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
    int Current, Total;
    if (GetIndex(Current, Total, true)) {
       cMark *m = marks.Get(Current);
-@@ -5270,6 +5415,9 @@
+@@ -5281,6 +5426,9 @@
  
  void cReplayControl::MarkJump(bool Forward)
  {
@@ -989,7 +989,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
    if (marks.Count()) {
       int Current, Total;
       if (GetIndex(Current, Total)) {
-@@ -5293,6 +5441,9 @@
+@@ -5304,6 +5452,9 @@
  
  void cReplayControl::MarkMove(bool Forward)
  {
@@ -999,7 +999,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
    int Current, Total;
    if (GetIndex(Current, Total)) {
       cMark *m = marks.Get(Current);
-@@ -5317,6 +5468,9 @@
+@@ -5328,6 +5479,9 @@
  
  void cReplayControl::EditCut(void)
  {
@@ -1009,7 +1009,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
    if (fileName) {
       Hide();
       if (!cCutter::Active()) {
-@@ -5335,6 +5489,9 @@
+@@ -5346,6 +5500,9 @@
  
  void cReplayControl::EditTest(void)
  {
@@ -1019,7 +1019,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
    int Current, Total;
    if (GetIndex(Current, Total)) {
       cMark *m = marks.Get(Current);
-@@ -5366,7 +5523,14 @@
+@@ -5377,7 +5534,14 @@
    if (Key == kNone)
       marks.Update();
    if (visible) {
@@ -1034,7 +1034,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
          Hide();
          ShowMode();
          timeoutShow = 0;
-@@ -5383,12 +5547,34 @@
+@@ -5394,12 +5558,34 @@
       return osContinue;
       }
    bool DoShowMode = true;
@@ -1069,7 +1069,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
      case kFastRew|k_Release:
      case kLeft|k_Release:
                     if (Setup.MultiSpeedMode) break;
-@@ -5399,11 +5585,67 @@
+@@ -5410,11 +5596,67 @@
                     if (Setup.MultiSpeedMode) break;
      case kFastFwd:
      case kRight:   Forward(); break;
@@ -1138,7 +1138,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
      case kPrev|k_Repeat:
      case kPrev:    if (lastSkipTimeout.TimedOut()) {
                        lastSkipSeconds = REPLAYCONTROLSKIPSECONDS;
-@@ -5430,6 +5672,8 @@
+@@ -5441,6 +5683,8 @@
      case kBlue:    Hide();
                     Stop();
                     return osEnd;
@@ -1147,7 +1147,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
      default: {
        bool play, forward;
        int speed;
-@@ -5492,7 +5736,20 @@
+@@ -5503,7 +5747,20 @@
                             else
                                Show();
                             break;
@@ -1169,9 +1169,9 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-livebuffer/menu.c
                                cRecordControl* rc = cRecordControls::GetRecordControl(fileName);
                                return rc && rc->InstantId() ? osEnd : osRecordings;
                                }
-diff -urNad vdr-1.7.22-orig/menu.h vdr-1.7.22-livebuffer/menu.h
---- vdr-1.7.22-orig/menu.h	2011-12-22 16:03:48.000000000 +0100
-+++ vdr-1.7.22-livebuffer/menu.h	2011-12-22 16:05:17.668120104 +0100
+diff -urNad vdr-1.7.24-orig/menu.h vdr-1.7.24/menu.h
+--- vdr-1.7.24-orig/menu.h	2012-02-22 10:30:57.444432763 +0100
++++ vdr-1.7.24/menu.h	2012-02-22 10:32:54.834432737 +0100
 @@ -18,6 +18,12 @@
  #include "menuitems.h"
  #include "recorder.h"
@@ -1219,9 +1219,9 @@ diff -urNad vdr-1.7.22-orig/menu.h vdr-1.7.22-livebuffer/menu.h
    };
  
  class cReplayControl : public cDvbPlayerControl {
-diff -urNad vdr-1.7.22-orig/osdbase.h vdr-1.7.22-livebuffer/osdbase.h
---- vdr-1.7.22-orig/osdbase.h	2011-12-22 16:03:48.000000000 +0100
-+++ vdr-1.7.22-livebuffer/osdbase.h	2011-12-22 16:05:17.668120104 +0100
+diff -urNad vdr-1.7.24-orig/osdbase.h vdr-1.7.24/osdbase.h
+--- vdr-1.7.24-orig/osdbase.h	2012-02-22 10:30:57.444432763 +0100
++++ vdr-1.7.24/osdbase.h	2012-02-22 10:32:54.834432737 +0100
 @@ -34,6 +34,9 @@
                  osSwitchDvb,
                  osBack,
@@ -1232,9 +1232,9 @@ diff -urNad vdr-1.7.22-orig/osdbase.h vdr-1.7.22-livebuffer/osdbase.h
                  os_User, // the following values can be used locally
                  osUser1,
                  osUser2,
-diff -urNad vdr-1.7.22-orig/player.c vdr-1.7.22-livebuffer/player.c
---- vdr-1.7.22-orig/player.c	2011-12-22 15:44:29.000000000 +0100
-+++ vdr-1.7.22-livebuffer/player.c	2011-12-22 16:05:17.668120104 +0100
+diff -urNad vdr-1.7.24-orig/player.c vdr-1.7.24/player.c
+--- vdr-1.7.24-orig/player.c	2012-01-18 22:24:07.000000000 +0100
++++ vdr-1.7.24/player.c	2012-02-22 10:32:54.834432737 +0100
 @@ -10,6 +10,11 @@
  #include "player.h"
  #include "i18n.h"
@@ -1260,9 +1260,9 @@ diff -urNad vdr-1.7.22-orig/player.c vdr-1.7.22-livebuffer/player.c
    cMutexLock MutexLock(&mutex);
    cControl *c = control; // keeps control from pointing to uninitialized memory
    control = Control;
-diff -urNad vdr-1.7.22-orig/po/de_DE.po vdr-1.7.22-livebuffer/po/de_DE.po
---- vdr-1.7.22-orig/po/de_DE.po	2011-12-22 16:03:48.000000000 +0100
-+++ vdr-1.7.22-livebuffer/po/de_DE.po	2011-12-22 16:05:17.668120104 +0100
+diff -urNad vdr-1.7.24-orig/po/de_DE.po vdr-1.7.24/po/de_DE.po
+--- vdr-1.7.24-orig/po/de_DE.po	2012-02-22 10:30:57.194432763 +0100
++++ vdr-1.7.24/po/de_DE.po	2012-02-22 10:32:54.834432737 +0100
 @@ -25,6 +25,9 @@
  msgid "Can't start Transfer Mode!"
  msgstr "Transfer-Mode kann nicht gestartet werden!"
@@ -1273,9 +1273,9 @@ diff -urNad vdr-1.7.22-orig/po/de_DE.po vdr-1.7.22-livebuffer/po/de_DE.po
  msgid "off"
  msgstr "aus"
  
-diff -urNad vdr-1.7.22-orig/recorder.c vdr-1.7.22-livebuffer/recorder.c
---- vdr-1.7.22-orig/recorder.c	2011-12-22 15:44:29.000000000 +0100
-+++ vdr-1.7.22-livebuffer/recorder.c	2011-12-22 16:05:17.668120104 +0100
+diff -urNad vdr-1.7.24-orig/recorder.c vdr-1.7.24/recorder.c
+--- vdr-1.7.24-orig/recorder.c	2012-01-18 22:24:07.000000000 +0100
++++ vdr-1.7.24/recorder.c	2012-02-22 10:32:54.834432737 +0100
 @@ -24,6 +24,9 @@
  cRecorder::cRecorder(const char *FileName, const cChannel *Channel, int Priority)
  :cReceiver(Channel, Priority)
@@ -1308,9 +1308,9 @@ diff -urNad vdr-1.7.22-orig/recorder.c vdr-1.7.22-livebuffer/recorder.c
             esyslog("ERROR: video data stream broken");
             ShutdownHandler.RequestEmergencyExit();
             t = time(NULL);
-diff -urNad vdr-1.7.22-orig/recorder.h vdr-1.7.22-livebuffer/recorder.h
---- vdr-1.7.22-orig/recorder.h	2011-12-22 15:44:29.000000000 +0100
-+++ vdr-1.7.22-livebuffer/recorder.h	2011-12-22 16:05:17.668120104 +0100
+diff -urNad vdr-1.7.24-orig/recorder.h vdr-1.7.24/recorder.h
+--- vdr-1.7.24-orig/recorder.h	2012-01-18 22:24:07.000000000 +0100
++++ vdr-1.7.24/recorder.h	2012-02-22 10:32:54.834432737 +0100
 @@ -17,18 +17,33 @@
  #include "thread.h"
  
@@ -1345,9 +1345,9 @@ diff -urNad vdr-1.7.22-orig/recorder.h vdr-1.7.22-livebuffer/recorder.h
  protected:
    virtual void Activate(bool On);
    virtual void Receive(uchar *Data, int Length);
-diff -urNad vdr-1.7.22-orig/recording.h vdr-1.7.22-livebuffer/recording.h
---- vdr-1.7.22-orig/recording.h	2011-12-22 16:03:48.000000000 +0100
-+++ vdr-1.7.22-livebuffer/recording.h	2011-12-22 16:05:17.668120104 +0100
+diff -urNad vdr-1.7.24-orig/recording.h vdr-1.7.24/recording.h
+--- vdr-1.7.24-orig/recording.h	2012-02-22 10:30:57.444432763 +0100
++++ vdr-1.7.24/recording.h	2012-02-22 10:32:54.834432737 +0100
 @@ -265,7 +265,26 @@
  struct tIndexTs;
  class cIndexFileGenerator;
@@ -1375,9 +1375,9 @@ diff -urNad vdr-1.7.22-orig/recording.h vdr-1.7.22-livebuffer/recording.h
  private:
    int f;
    cString fileName;
-diff -urNad vdr-1.7.22-orig/timers.c vdr-1.7.22-livebuffer/timers.c
---- vdr-1.7.22-orig/timers.c	2011-12-22 15:44:29.000000000 +0100
-+++ vdr-1.7.22-livebuffer/timers.c	2011-12-22 16:05:17.678120104 +0100
+diff -urNad vdr-1.7.24-orig/timers.c vdr-1.7.24/timers.c
+--- vdr-1.7.24-orig/timers.c	2012-01-18 22:24:07.000000000 +0100
++++ vdr-1.7.24/timers.c	2012-02-22 10:32:54.844432737 +0100
 @@ -25,7 +25,11 @@
  
  // --- cTimer ----------------------------------------------------------------
@@ -1402,9 +1402,9 @@ diff -urNad vdr-1.7.22-orig/timers.c vdr-1.7.22-livebuffer/timers.c
    struct tm tm_r;
    struct tm *now = localtime_r(&t, &tm_r);
    day = SetTime(t, 0);
-diff -urNad vdr-1.7.22-orig/timers.h vdr-1.7.22-livebuffer/timers.h
---- vdr-1.7.22-orig/timers.h	2011-12-22 15:44:29.000000000 +0100
-+++ vdr-1.7.22-livebuffer/timers.h	2011-12-22 16:05:17.678120104 +0100
+diff -urNad vdr-1.7.24-orig/timers.h vdr-1.7.24/timers.h
+--- vdr-1.7.24-orig/timers.h	2012-01-18 22:24:07.000000000 +0100
++++ vdr-1.7.24/timers.h	2012-02-22 10:32:54.844432737 +0100
 @@ -43,7 +43,11 @@
    char *aux;
    const cEvent *event;
@@ -1417,9 +1417,9 @@ diff -urNad vdr-1.7.22-orig/timers.h vdr-1.7.22-livebuffer/timers.h
    cTimer(const cEvent *Event);
    cTimer(const cTimer &Timer);
    virtual ~cTimer();
-diff -urNad vdr-1.7.22-orig/vdr.c vdr-1.7.22-livebuffer/vdr.c
---- vdr-1.7.22-orig/vdr.c	2011-12-22 16:03:48.000000000 +0100
-+++ vdr-1.7.22-livebuffer/vdr.c	2011-12-22 16:05:17.678120104 +0100
+diff -urNad vdr-1.7.24-orig/vdr.c vdr-1.7.24/vdr.c
+--- vdr-1.7.24-orig/vdr.c	2012-02-22 10:30:56.854432763 +0100
++++ vdr-1.7.24/vdr.c	2012-02-22 10:32:54.844432737 +0100
 @@ -219,6 +219,9 @@
  
    static struct option long_options[] = {
@@ -1461,7 +1461,7 @@ diff -urNad vdr-1.7.22-orig/vdr.c vdr-1.7.22-livebuffer/vdr.c
                 "  -c DIR,   --config=DIR   read config files from DIR (default: %s)\n"
                 "  -d,       --daemon       run in daemon mode\n"
                 "  -D NUM,   --device=NUM   use only the given DVB device (NUM = 0, 1, 2...)\n"
-@@ -597,9 +613,12 @@
+@@ -598,9 +614,12 @@
  
    if (!PluginManager.LoadPlugins(true))
       EXIT(2);
@@ -1475,7 +1475,7 @@ diff -urNad vdr-1.7.22-orig/vdr.c vdr-1.7.22-livebuffer/vdr.c
    if (!ConfigDirectory)
       ConfigDirectory = DEFAULTCONFDIR;
  
-@@ -1102,6 +1121,15 @@
+@@ -1103,6 +1122,15 @@
                    cDisplaySubtitleTracks::Process(key);
                 key = kNone;
                 break;
@@ -1520,9 +1520,9 @@ diff -urNad vdr-1.7.22-orig/vdr.c vdr-1.7.22-livebuffer/vdr.c
               default:       ;
               }
             }
-diff -urNad vdr-1.7.22-orig/videodir.c vdr-1.7.22-livebuffer/videodir.c
---- vdr-1.7.22-orig/videodir.c	2011-12-22 15:44:29.000000000 +0100
-+++ vdr-1.7.22-livebuffer/videodir.c	2011-12-22 16:05:17.678120104 +0100
+diff -urNad vdr-1.7.24-orig/videodir.c vdr-1.7.24/videodir.c
+--- vdr-1.7.24-orig/videodir.c	2012-01-18 22:24:07.000000000 +0100
++++ vdr-1.7.24/videodir.c	2012-02-22 10:32:54.844432737 +0100
 @@ -20,6 +20,9 @@
  #include "tools.h"
  
@@ -1566,9 +1566,9 @@ diff -urNad vdr-1.7.22-orig/videodir.c vdr-1.7.22-livebuffer/videodir.c
          // Find the directory with the most free space:
          int MaxFree = Dir.FreeMB();
          while (Dir.Next()) {
-diff -urNad vdr-1.7.22-orig/videodir.h vdr-1.7.22-livebuffer/videodir.h
---- vdr-1.7.22-orig/videodir.h	2011-12-22 15:44:29.000000000 +0100
-+++ vdr-1.7.22-livebuffer/videodir.h	2011-12-22 16:05:17.678120104 +0100
+diff -urNad vdr-1.7.24-orig/videodir.h vdr-1.7.24/videodir.h
+--- vdr-1.7.24-orig/videodir.h	2012-01-18 22:24:07.000000000 +0100
++++ vdr-1.7.24/videodir.h	2012-02-22 10:32:54.844432737 +0100
 @@ -14,6 +14,9 @@
  #include "tools.h"
  
