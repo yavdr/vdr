@@ -1,10 +1,11 @@
 debian/patches/12_osdbase-maxitems.patch:f6fc7c5a100f8e891280195b3e1d69ba
-debian/patches/16_channels.conf.terr-fix.patch:933f8daa6bb6d26c711d0ae987a2b03e
+debian/patches/02-upstream-fix2.patch:9b7bb807c19b7488162b6a711ef35b64
 debian/patches/17_epg_channel_name_width.patch:12180ba935fa7834f818fcae9e0ed182
 debian/patches/04_newplugin.patch:5877f4f62dab4f3d437d4eef7cae3ac0
 debian/patches/99_ncursesw-include.patch:9bafeb768f7921015a5bab5e47786950
-debian/patches/01-upstream-fix.patch:9cefd2996f9778b03e67c36c225612f1
 debian/patches/82_valgrind.patch:60ad50e72eabb0861d096d1002fddca7
 debian/patches/06_default_svdrp_port_0.patch:4835f681f185991262a3160146f43f2f
+debian/patches/16_channels.conf.terr-fix.patch:933f8daa6bb6d26c711d0ae987a2b03e
+debian/patches/01-upstream-fix1.patch:7f69cdde1298149977bf70310d31a9f0
 debian/patches/11_sortrecordings.patch:3e3a2f988cb7db03f8f56a44012a65f4
 debian/patches/81_Make_config.patch:76dc4a78d1da16e3e524e41587d0c90d

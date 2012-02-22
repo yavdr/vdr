@@ -1,5 +1,8 @@
---- dvbplayer.c 2012/02/19 10:48:02     2.23
-+++ dvbplayer.c 2012/02/19 14:21:22
+Description: Minor fix released shortly after the upstream release
+Author: Klaus Schmidinger <Klaus.Schmidinger@tvdr.de>
+
+--- vdr.orig/dvbplayer.c 2012/02/19 10:48:02     2.23
++++ vdr/dvbplayer.c 2012/02/19 14:21:22
 @@ -291,6 +291,8 @@
       delete index;
       index = NULL;

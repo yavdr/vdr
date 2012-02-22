@@ -1,4 +1,5 @@
-01-upstream-fix.patch
+01-upstream-fix1.patch
+02-upstream-fix2.patch
 04_newplugin.patch
 06_default_svdrp_port_0.patch
 11_sortrecordings.patch
