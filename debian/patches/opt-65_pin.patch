@@ -2,9 +2,10 @@ Description: Pin-Patch for VDR-Pin-Plugin
 Author: Jörg Wendel <horchi@vdr-portal>       
 Origin: http://www.jwendel.de/vdr/
 
---- a/device.c
-+++ b/device.c
-@@ -752,6 +752,7 @@
+diff -urNad vdr-1.7.24-orig/device.c vdr-1.7.24/device.c
+--- vdr-1.7.24-orig/device.c	2012-02-23 07:38:23.571157482 +0100
++++ vdr-1.7.24/device.c	2012-02-23 07:40:00.401157484 +0100
+@@ -748,6 +748,7 @@
       cChannel *channel;
       while ((channel = Channels.GetByNumber(n, Direction)) != NULL) {
             // try only channels which are currently available
@@ -12,7 +13,7 @@ Origin: http://www.jwendel.de/vdr/
             if (GetDevice(channel, 0, true))
                break;
             n = channel->Number() + Direction;
-@@ -773,6 +774,12 @@
+@@ -769,6 +770,12 @@
  
  eSetChannelResult cDevice::SetChannel(const cChannel *Channel, bool LiveView)
  {
@@ -25,8 +26,9 @@ Origin: http://www.jwendel.de/vdr/
    if (LiveView) {
       StopReplay();
       DELETENULL(liveSubtitle);
---- a/menu.c
-+++ b/menu.c
+diff -urNad vdr-1.7.24-orig/menu.c vdr-1.7.24/menu.c
+--- vdr-1.7.24-orig/menu.c	2012-02-23 07:38:23.651157482 +0100
++++ vdr-1.7.24/menu.c	2012-02-23 07:40:00.411157484 +0100
 @@ -934,6 +934,16 @@
       Add(new cMenuEditBitItem( tr("VPS"),          &data.flags, tfVps));
       Add(new cMenuEditIntItem( tr("Priority"),     &data.priority, 0, MAXPRIORITY));
@@ -66,7 +68,7 @@ Origin: http://www.jwendel.de/vdr/
       if (ri->IsDirectory())
          Open();
       else {
-@@ -3793,28 +3809,32 @@
+@@ -3792,28 +3808,32 @@
  
    // Basic menu items:
  
@@ -104,7 +106,7 @@ Origin: http://www.jwendel.de/vdr/
       Add(new cOsdItem(hk(tr("Commands")),  osCommands));
  
    }
-@@ -3906,6 +3926,14 @@
+@@ -3905,6 +3925,14 @@
    HadSubMenu |= HasSubMenu();
  
    cOsdObject *menu = NULL;
@@ -119,7 +121,7 @@ Origin: http://www.jwendel.de/vdr/
    switch (state) {
      case osSchedule:
          if (!cPluginManager::CallFirstService("MainMenuHooksPatch-v1.0::osSchedule", &menu))
-@@ -3957,6 +3985,7 @@
+@@ -3956,6 +3984,7 @@
                           if (item) {
                              cPlugin *p = cPluginManager::GetPlugin(item->PluginIndex());
                              if (p) {
@@ -127,7 +129,7 @@ Origin: http://www.jwendel.de/vdr/
                                 cOsdObject *menu = p->MainMenuAction();
                                 if (menu) {
                                    if (menu->IsMenu())
-@@ -3968,6 +3997,7 @@
+@@ -3967,6 +3996,7 @@
                                    }
                                 }
                              }
@@ -135,7 +137,7 @@ Origin: http://www.jwendel.de/vdr/
                           state = osEnd;
                         }
                         break;
-@@ -4179,6 +4209,8 @@
+@@ -4178,6 +4208,8 @@
             Channel = Direction > 0 ? Channels.Next(Channel) : Channels.Prev(Channel);
             if (!Channel && Setup.ChannelsWrap)
                Channel = Direction > 0 ? Channels.First() : Channels.Last();
@@ -144,7 +146,7 @@ Origin: http://www.jwendel.de/vdr/
             if (Channel && !Channel->GroupSep() && cDevice::GetDevice(Channel, 0, true))
                return Channel;
             }
-@@ -4866,6 +4898,7 @@
+@@ -4857,6 +4889,7 @@
             for (int i = 0; i < MAXRECORDCONTROLS; i++) {
                 if (!RecordControls[i]) {
                    RecordControls[i] = new cRecordControl(device, Timer, Pause);
@@ -152,8 +154,9 @@ Origin: http://www.jwendel.de/vdr/
                    return RecordControls[i]->Process(time(NULL));
                    }
                 }
---- a/osd.c
-+++ b/osd.c
+diff -urNad vdr-1.7.24-orig/osd.c vdr-1.7.24/osd.c
+--- vdr-1.7.24-orig/osd.c	2012-02-23 07:38:23.371157482 +0100
++++ vdr-1.7.24/osd.c	2012-02-23 07:40:00.411157484 +0100
 @@ -1601,6 +1601,7 @@
  int cOsd::osdHeight = 0;
  cVector<cOsd *> cOsd::Osds;
@@ -162,8 +165,9 @@ Origin: http://www.jwendel.de/vdr/
  
  cOsd::cOsd(int Left, int Top, uint Level)
  {
---- a/osd.h
-+++ b/osd.h
+diff -urNad vdr-1.7.24-orig/osd.h vdr-1.7.24/osd.h
+--- vdr-1.7.24-orig/osd.h	2012-02-23 07:38:23.371157482 +0100
++++ vdr-1.7.24/osd.h	2012-02-23 07:40:00.411157484 +0100
 @@ -922,6 +922,7 @@
         ///<        delete pm;
         ///<        }
@@ -172,8 +176,9 @@ Origin: http://www.jwendel.de/vdr/
    };
  
  #define MAXOSDIMAGES 64
---- a/status.c
-+++ b/status.c
+diff -urNad vdr-1.7.24-orig/status.c vdr-1.7.24/status.c
+--- vdr-1.7.24-orig/status.c	2012-02-23 07:38:23.411157482 +0100
++++ vdr-1.7.24/status.c	2012-02-23 07:40:00.411157484 +0100
 @@ -153,3 +153,55 @@
    for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
       sm->OsdEventItem(Event, Text, Index, Count);
@@ -230,8 +235,9 @@ Origin: http://www.jwendel.de/vdr/
 +         return true;
 +      return false;
 +}
---- a/status.h
-+++ b/status.h
+diff -urNad vdr-1.7.24-orig/status.h vdr-1.7.24/status.h
+--- vdr-1.7.24-orig/status.h	2012-02-23 07:38:23.411157482 +0100
++++ vdr-1.7.24/status.h	2012-02-23 07:40:00.411157484 +0100
 @@ -14,6 +14,7 @@
  #include "device.h"
  #include "player.h"
@@ -278,9 +284,10 @@ Origin: http://www.jwendel.de/vdr/
    };
  
  #endif //__STATUS_H
---- a/timers.c
-+++ b/timers.c
-@@ -55,6 +55,7 @@
+diff -urNad vdr-1.7.24-orig/timers.c vdr-1.7.24/timers.c
+--- vdr-1.7.24-orig/timers.c	2012-01-18 22:24:07.000000000 +0100
++++ vdr-1.7.24/timers.c	2012-02-23 07:40:00.411157484 +0100
+@@ -47,6 +47,7 @@
       stop -= 2400;
    priority = Pause ? Setup.PausePriority : Setup.DefaultPriority;
    lifetime = Pause ? Setup.PauseLifetime : Setup.DefaultLifetime;
@@ -288,7 +295,7 @@ Origin: http://www.jwendel.de/vdr/
    *file = 0;
    aux = NULL;
    event = NULL;
-@@ -94,6 +95,7 @@
+@@ -86,6 +87,7 @@
       stop -= 2400;
    priority = Setup.DefaultPriority;
    lifetime = Setup.DefaultLifetime;
@@ -296,7 +303,7 @@ Origin: http://www.jwendel.de/vdr/
    *file = 0;
    const char *Title = Event->Title();
    if (!isempty(Title))
-@@ -105,6 +107,7 @@
+@@ -97,6 +99,7 @@
       }
    aux = NULL;
    event = NULL; // let SetEvent() be called to get a log message
@@ -304,7 +311,7 @@ Origin: http://www.jwendel.de/vdr/
  }
  
  cTimer::cTimer(const cTimer &Timer)
-@@ -140,6 +143,7 @@
+@@ -132,6 +135,7 @@
       stop         = Timer.stop;
       priority     = Timer.priority;
       lifetime     = Timer.lifetime;
@@ -312,7 +319,7 @@ Origin: http://www.jwendel.de/vdr/
       strncpy(file, Timer.file, sizeof(file));
       free(aux);
       aux = Timer.aux ? strdup(Timer.aux) : NULL;
-@@ -334,6 +338,7 @@
+@@ -326,6 +330,7 @@
          result = false;
          }
       }
@@ -320,7 +327,7 @@ Origin: http://www.jwendel.de/vdr/
    free(channelbuffer);
    free(daybuffer);
    free(filebuffer);
-@@ -653,6 +658,33 @@
+@@ -645,6 +650,33 @@
    Matches(); // refresh start and end time
  }
  
@@ -354,8 +361,9 @@ Origin: http://www.jwendel.de/vdr/
  // --- cTimers ---------------------------------------------------------------
  
  cTimers Timers;
---- a/timers.h
-+++ b/timers.h
+diff -urNad vdr-1.7.24-orig/timers.h vdr-1.7.24/timers.h
+--- vdr-1.7.24-orig/timers.h	2012-01-18 22:24:07.000000000 +0100
++++ vdr-1.7.24/timers.h	2012-02-23 07:40:00.421157484 +0100
 @@ -38,6 +38,7 @@
    int start;
    int stop;
@@ -364,7 +372,7 @@ Origin: http://www.jwendel.de/vdr/
    int lifetime;
    mutable char file[MaxFileName];
    char *aux;
-@@ -63,6 +64,7 @@
+@@ -59,6 +60,7 @@
    int Start(void) const { return start; }
    int Stop(void) const { return stop; }
    int Priority(void) const { return priority; }
@@ -372,7 +380,7 @@ Origin: http://www.jwendel.de/vdr/
    int Lifetime(void) const { return lifetime; }
    const char *File(void) const { return file; }
    time_t FirstDay(void) const { return weekdays ? day : 0; }
-@@ -93,6 +95,7 @@
+@@ -89,6 +91,7 @@
    void SetPriority(int Priority);
    void SetDeferred(int Seconds);
    void SetFlags(uint Flags);
@@ -380,9 +388,10 @@ Origin: http://www.jwendel.de/vdr/
    void ClrFlags(uint Flags);
    void InvFlags(uint Flags);
    bool HasFlags(uint Flags) const;
---- a/vdr.c
-+++ b/vdr.c
-@@ -981,6 +981,7 @@
+diff -urNad vdr-1.7.24-orig/vdr.c vdr-1.7.24/vdr.c
+--- vdr-1.7.24-orig/vdr.c	2012-02-23 07:38:22.821157482 +0100
++++ vdr-1.7.24/vdr.c	2012-02-23 07:40:00.421157484 +0100
+@@ -963,6 +963,7 @@
          cOsdObject *Interact = Menu ? Menu : cControl::Control();
          eKeys key = Interface->GetKey(!Interact || !Interact->NeedsFastResponse());
          if (ISREALKEY(key)) {
@@ -390,7 +399,7 @@ Origin: http://www.jwendel.de/vdr/
             EITScanner.Activity();
             // Cancel shutdown countdown:
             if (ShutdownHandler.countdown)
-@@ -1053,10 +1054,12 @@
+@@ -1035,10 +1036,12 @@
                       cControl::Control()->Hide();
                    cPlugin *plugin = cPluginManager::GetPlugin(PluginName);
                    if (plugin) {
@@ -403,7 +412,7 @@ Origin: http://www.jwendel.de/vdr/
                    else
                       esyslog("ERROR: unknown plugin '%s'", PluginName);
                    }
-@@ -1301,9 +1304,11 @@
+@@ -1251,9 +1254,11 @@
               // Instant resume of the last viewed recording:
               case kPlay:
                    if (cReplayControl::LastReplayed()) {
