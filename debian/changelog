@@ -1,6 +1,7 @@
-vdr (1.7.24-0yavdr0~precise) precise; urgency=medium
+vdr (1.7.24-1yavdr1~precise) precise; urgency=medium
   
   * New upstream release
+  * Disabled Livebuffer-patch
 
  -- Holger Schvestka <email address hidden>  Mon, 20 Feb 2012 15:20:04 +0200
 
