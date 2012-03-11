@@ -2,11 +2,11 @@ Description: Shows remaining recording capacity in recordings menu.
  (Requires timer-info patch)
 Author: Walter Koch <koch@u32.de>
 
-Index: vdr/menu.c
+Index: vdr-1.7.26/menu.c
 ===================================================================
---- vdr.orig/menu.c	2011-12-11 02:29:47.000000000 +0100
-+++ vdr/menu.c	2011-12-11 02:29:50.000000000 +0100
-@@ -2589,6 +2589,19 @@
+--- vdr-1.7.26.orig/menu.c	2012-03-11 21:47:00.072013037 +0100
++++ vdr-1.7.26/menu.c	2012-03-11 21:47:00.102013037 +0100
+@@ -2590,6 +2590,19 @@
           }
        }
    free(LastItemText);
