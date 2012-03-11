@@ -3,6 +3,7 @@ vdr (1.7.26-1) unstable; urgency=low
   * New upstream release
   * Dropped Added 01-upstream-fix1.patch
   * Dropped Added 02-upstream-fix2.patch
+  * Standards-Version: 3.9.3
 
  -- Tobias Grimm <etobi@debian.org>  Sun, 11 Mar 2012 10:37:07 +0100
 
