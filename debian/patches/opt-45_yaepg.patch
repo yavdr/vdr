@@ -2,10 +2,10 @@ Description: This patch is needed for the yaepg plugin.
 Author: bball950@yahoo.com
 Origin: http://www.hoochvdr.info/yaepg/vdr-1.3.19-core-yaepg.diff
 
-Index: vdr/PLUGINS/src/dvbsddevice/dvbsdffosd.c
+Index: vdr-1.7.26/PLUGINS/src/dvbsddevice/dvbsdffosd.c
 ===================================================================
---- vdr.orig/PLUGINS/src/dvbsddevice/dvbsdffosd.c	2011-12-10 21:50:59.000000000 +0100
-+++ vdr/PLUGINS/src/dvbsddevice/dvbsdffosd.c	2011-12-11 02:29:56.000000000 +0100
+--- vdr-1.7.26.orig/PLUGINS/src/dvbsddevice/dvbsdffosd.c	2012-01-18 22:24:07.000000000 +0100
++++ vdr-1.7.26/PLUGINS/src/dvbsddevice/dvbsdffosd.c	2012-03-11 21:52:12.952013048 +0100
 @@ -77,6 +77,10 @@
              Cmd(OSD_SetWindow, 0, i + 1);
              Cmd(OSD_Close);
@@ -40,11 +40,11 @@ Index: vdr/PLUGINS/src/dvbsddevice/dvbsdffosd.c
       shown = true;
       }
  }
-Index: vdr/device.h
+Index: vdr-1.7.26/device.h
 ===================================================================
---- vdr.orig/device.h	2011-12-11 02:29:53.000000000 +0100
-+++ vdr/device.h	2011-12-11 02:29:56.000000000 +0100
-@@ -293,12 +293,12 @@
+--- vdr-1.7.26.orig/device.h	2012-03-11 21:50:58.372013045 +0100
++++ vdr-1.7.26/device.h	2012-03-11 21:52:12.952013048 +0100
+@@ -297,12 +297,12 @@
           ///< Direction (only the sign of Direction is evaluated, positive values
           ///< switch to higher channel numbers).
  private:
@@ -59,11 +59,11 @@ Index: vdr/device.h
    static int CurrentChannel(void) { return primaryDevice ? currentChannel : 0; }
           ///< Returns the number of the current channel on the primary device.
    static void SetCurrentChannel(const cChannel *Channel) { currentChannel = Channel ? Channel->Number() : 0; }
-Index: vdr/osd.c
+Index: vdr-1.7.26/osd.c
 ===================================================================
---- vdr.orig/osd.c	2011-12-10 21:50:59.000000000 +0100
-+++ vdr/osd.c	2011-12-11 02:29:56.000000000 +0100
-@@ -1622,6 +1622,7 @@
+--- vdr-1.7.26.orig/osd.c	2012-03-11 14:16:19.000000000 +0100
++++ vdr-1.7.26/osd.c	2012-03-11 21:52:12.952013048 +0100
+@@ -1626,6 +1626,7 @@
           }
        }
    Osds.Append(this);
@@ -71,10 +71,10 @@ Index: vdr/osd.c
  }
  
  cOsd::~cOsd()
-Index: vdr/osd.h
+Index: vdr-1.7.26/osd.h
 ===================================================================
---- vdr.orig/osd.h	2011-12-10 21:59:26.000000000 +0100
-+++ vdr/osd.h	2011-12-11 02:29:56.000000000 +0100
+--- vdr-1.7.26.orig/osd.h	2012-01-18 22:24:07.000000000 +0100
++++ vdr-1.7.26/osd.h	2012-03-11 21:52:12.952013048 +0100
 @@ -921,6 +921,7 @@
         ///<        MyOsdDrawPixmap(Left() + pm->ViewPort().X(), Top() + pm->ViewPort().Y(), pm->Data(), w, h, h * d);
         ///<        delete pm;
