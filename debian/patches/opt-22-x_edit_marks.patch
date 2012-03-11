@@ -4,9 +4,11 @@ Description: Patch adds keys '1', '3' in replay mode to move marks by +/-5secs.
 Author: FrankJepsen at vdrportal.de
 Origin: http://vdrportal.de/board/thread.php?postid=718583#post718583
 
---- a/menu.c
-+++ b/menu.c
-@@ -5034,10 +5034,6 @@
+Index: vdr-1.7.26/menu.c
+===================================================================
+--- vdr-1.7.26.orig/menu.c	2012-03-11 20:49:53.192012917 +0100
++++ vdr-1.7.26/menu.c	2012-03-11 20:49:53.242012917 +0100
+@@ -5044,10 +5044,6 @@
      case kGreen:   SkipSeconds(-60); break;
      case kYellow|k_Repeat:
      case kYellow:  SkipSeconds( 60); break;
@@ -17,7 +19,7 @@ Origin: http://vdrportal.de/board/thread.php?postid=718583#post718583
      case kPrev|k_Repeat:
      case kPrev:    if (lastSkipTimeout.TimedOut()) {
                        lastSkipSeconds = REPLAYCONTROLSKIPSECONDS;
-@@ -5065,10 +5061,46 @@
+@@ -5075,10 +5071,46 @@
                     Stop();
                     return osEnd;
      default: {
