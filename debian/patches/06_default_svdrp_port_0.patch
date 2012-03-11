@@ -7,12 +7,12 @@ Index: vdr/vdr.c
 ===================================================================
 --- vdr.orig/vdr.c	2011-12-10 22:22:04.000000000 +0100
 +++ vdr/vdr.c	2011-12-11 01:48:50.000000000 +0100
-@@ -177,7 +177,7 @@
+@@ -176,7 +176,7 @@
  
    // Command line options:
  
--#define DEFAULTSVDRPPORT 6419
-+#define DEFAULTSVDRPPORT 0
+-#define DEFAULTSVDRPPORT 0
++#define DEFAULTSVDRPPORT 6419
  #define DEFAULTWATCHDOG     0 // seconds
  #define DEFAULTCONFDIR CONFDIR
  #define DEFAULTPLUGINDIR PLUGINDIR
