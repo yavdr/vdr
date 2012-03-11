@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: menuitems.c 2.10 2011/08/12 13:19:40 kls Exp $
+ * $Id: menuitems.c 2.12 2012/03/08 13:22:22 kls Exp $
  */
 
 #include "menuitems.h"
@@ -26,6 +26,7 @@ const char *FileNameChars = trNOOP("FileNameChars$ abcdefghijklmnopqrstuvwxyz012
 cMenuEditItem::cMenuEditItem(const char *Name)
 {
   name = strdup(Name ? Name : "???");
+  SetHelp(NULL);
 }
 
 cMenuEditItem::~cMenuEditItem()
@@ -38,6 +39,27 @@ void cMenuEditItem::SetValue(const char *Value)
   cString buffer = cString::sprintf("%s:\t%s", name, Value);
   SetText(buffer);
   cStatus::MsgOsdCurrentItem(buffer);
+}
+
+void cMenuEditItem::SetHelp(const char *Red, const char *Green, const char *Yellow, const char *Blue)
+{
+  // strings are NOT copied - must be constants!!!
+  helpRed    = Red;
+  helpGreen  = Green;
+  helpYellow = Yellow;
+  helpBlue   = Blue;
+  helpDisplayed = false;
+}
+
+bool cMenuEditItem::DisplayHelp(void)
+{
+  bool HasHelp = helpRed || helpGreen || helpYellow || helpBlue;
+  if (HasHelp && !helpDisplayed) {
+     cSkinDisplay::Current()->SetButtons(helpRed, helpGreen, helpYellow, helpBlue);
+     cStatus::MsgOsdHelpKeys(helpRed, helpGreen, helpYellow, helpBlue);
+     helpDisplayed = true;
+     }
+  return HasHelp;
 }
 
 // --- cMenuEditIntItem ------------------------------------------------------
@@ -382,9 +404,9 @@ void cMenuEditStrItem::LeaveEditMode(bool SaveValue)
 void cMenuEditStrItem::SetHelpKeys(void)
 {
   if (InEditMode())
-     cSkinDisplay::Current()->SetButtons(tr("Button$ABC/abc"), insert ? tr("Button$Overwrite") : tr("Button$Insert"), tr("Button$Delete"));
+     SetHelp(tr("Button$ABC/abc"), insert ? tr("Button$Overwrite") : tr("Button$Insert"), tr("Button$Delete"));
   else
-     cSkinDisplay::Current()->SetButtons(NULL);
+     SetHelp(NULL);
 }
 
 uint *cMenuEditStrItem::IsAllowed(uint c)
@@ -864,6 +886,24 @@ void cMenuEditDateItem::Set(void)
   SetValue(buf);
 }
 
+void cMenuEditDateItem::ToggleRepeating(void)
+{
+  if (weekdays) {
+     if (*weekdays) {
+        *value = cTimer::SetTime(oldvalue ? oldvalue : time(NULL), 0);
+        oldvalue = 0;
+        *weekdays = 0;
+        }
+     else {
+        *weekdays = days[cTimer::GetWDay(*value)];
+        dayindex = FindDayIndex(*weekdays);
+        oldvalue = *value;
+        *value = 0;
+        }
+     Set();
+     }
+}
+
 eOSState cMenuEditDateItem::ProcessKey(eKeys Key)
 {
   eOSState state = cMenuEditItem::ProcessKey(Key);
@@ -915,17 +955,8 @@ eOSState cMenuEditDateItem::ProcessKey(eKeys Key)
      else if (weekdays) {
         if (Key == k0) {
            // Toggle between weekdays and single day:
-           if (*weekdays) {
-              *value = cTimer::SetTime(oldvalue ? oldvalue : now, 0);
-              oldvalue = 0;
-              *weekdays = 0;
-              }
-           else {
-              *weekdays = days[cTimer::GetWDay(*value)];
-              dayindex = FindDayIndex(*weekdays);
-              oldvalue = *value;
-              *value = 0;
-              }
+           ToggleRepeating();
+           return osContinue; // ToggleRepeating) has already called Set()
            }
         else if (k1 <= Key && Key <= k7) {
            // Toggle individual weekdays:

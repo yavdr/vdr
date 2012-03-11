@@ -1,21 +1,57 @@
 /*
- * rcu.c: RCU remote control
+ * rcu.c: A plugin for the Video Disk Recorder
  *
- * See the main source file 'vdr.c' for copyright information and
- * how to reach the author.
+ * See the README file for copyright information and how to reach the author.
  *
- * $Id: rcu.c 2.0 2007/08/24 13:15:48 kls Exp $
+ * $Id: rcu.c 1.2 2012/03/07 14:22:44 kls Exp $
  */
 
-#include "rcu.h"
+#include <getopt.h>
 #include <netinet/in.h>
 #include <termios.h>
 #include <unistd.h>
-#include "tools.h"
+#include <vdr/plugin.h>
+#include <vdr/remote.h>
+#include <vdr/status.h>
+#include <vdr/thread.h>
+#include <vdr/tools.h>
+
+static const char *VERSION        = "0.0.2";
+static const char *DESCRIPTION    = "Remote Control Unit";
 
 #define REPEATLIMIT      150 // ms
 #define REPEATDELAY      350 // ms
 #define HANDSHAKETIMEOUT  20 // ms
+#define DEFAULTDEVICE    "/dev/ttyS1"
+
+class cRcuRemote : public cRemote, private cThread, private cStatus {
+private:
+  enum { modeH = 'h', modeB = 'b', modeS = 's' };
+  int f;
+  unsigned char dp, code, mode;
+  int number;
+  unsigned int data;
+  bool receivedCommand;
+  bool SendCommand(unsigned char Cmd);
+  int ReceiveByte(int TimeoutMs = 0);
+  bool SendByteHandshake(unsigned char c);
+  bool SendByte(unsigned char c);
+  bool SendData(unsigned int n);
+  void SetCode(unsigned char Code);
+  void SetMode(unsigned char Mode);
+  void SetNumber(int n, bool Hex = false);
+  void SetPoints(unsigned char Dp, bool On);
+  void SetString(const char *s);
+  bool DetectCode(unsigned char *Code);
+  virtual void Action(void);
+  virtual void ChannelSwitch(const cDevice *Device, int ChannelNumber, bool LiveView);
+  virtual void Recording(const cDevice *Device, const char *Name, const char *FileName, bool On);
+public:
+  cRcuRemote(const char *DeviceName);
+  virtual ~cRcuRemote();
+  virtual bool Ready(void);
+  virtual bool Initialize(void);
+  };
 
 cRcuRemote::cRcuRemote(const char *DeviceName)
 :cRemote("RCU")
@@ -317,9 +353,9 @@ bool cRcuRemote::DetectCode(unsigned char *Code)
   return false;
 }
 
-void cRcuRemote::ChannelSwitch(const cDevice *Device, int ChannelNumber)
+void cRcuRemote::ChannelSwitch(const cDevice *Device, int ChannelNumber, bool LiveView)
 {
-  if (ChannelNumber && Device->IsPrimaryDevice())
+  if (ChannelNumber && LiveView)
      SetNumber(cDevice::CurrentChannel());
 }
 
@@ -327,3 +363,58 @@ void cRcuRemote::Recording(const cDevice *Device, const char *Name, const char *
 {
   SetPoints(1 << Device->DeviceNumber(), Device->Receiving());
 }
+
+class cPluginRcu : public cPlugin {
+private:
+  // Add any member variables or functions you may need here.
+  const char *device;
+public:
+  cPluginRcu(void);
+  virtual const char *Version(void) { return VERSION; }
+  virtual const char *Description(void) { return DESCRIPTION; }
+  virtual const char *CommandLineHelp(void);
+  virtual bool ProcessArgs(int argc, char *argv[]);
+  virtual bool Start(void);
+  };
+
+cPluginRcu::cPluginRcu(void)
+{
+  // Initialize any member variables here.
+  // DON'T DO ANYTHING ELSE THAT MAY HAVE SIDE EFFECTS, REQUIRE GLOBAL
+  // VDR OBJECTS TO EXIST OR PRODUCE ANY OUTPUT!
+  device = DEFAULTDEVICE;
+}
+
+const char *cPluginRcu::CommandLineHelp(void)
+{
+  // Return a string that describes all known command line options.
+  return "  -d DEV,   --device=DEV   set the device to use (default is " DEFAULTDEVICE ")\n";
+}
+
+bool cPluginRcu::ProcessArgs(int argc, char *argv[])
+{
+  // Implement command line argument processing here if applicable.
+  static struct option long_options[] = {
+       { "dev",      required_argument, NULL, 'd' },
+       { NULL,       no_argument,       NULL,  0  }
+     };
+
+  int c;
+  while ((c = getopt_long(argc, argv, "d:", long_options, NULL)) != -1) {
+        switch (c) {
+          case 'd': device = optarg;
+                    break;
+          default:  return false;
+          }
+        }
+  return true;
+}
+
+bool cPluginRcu::Start(void)
+{
+  // Start any background activities the plugin shall perform.
+  new cRcuRemote(device);
+  return true;
+}
+
+VDRPLUGINCREATOR(cPluginRcu); // Don't touch this!

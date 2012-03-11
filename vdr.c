@@ -22,7 +22,7 @@
  *
  * The project's page is at http://www.tvdr.de
  *
- * $Id: vdr.c 2.29 2012/02/19 11:37:35 kls Exp $
+ * $Id: vdr.c 2.34 2012/03/09 09:55:15 kls Exp $
  */
 
 #include <getopt.h>
@@ -53,7 +53,6 @@
 #include "menu.h"
 #include "osdbase.h"
 #include "plugin.h"
-#include "rcu.h"
 #include "recording.h"
 #include "shutdown.h"
 #include "skinclassic.h"
@@ -201,14 +200,11 @@ int main(int argc, char *argv[])
 
   bool UseKbd = true;
   const char *LircDevice = NULL;
-  const char *RcuDevice = NULL;
 #if !defined(REMOTE_KBD)
   UseKbd = false;
 #endif
 #if defined(REMOTE_LIRC)
   LircDevice = LIRC_DEVICE;
-#elif defined(REMOTE_RCU)
-  RcuDevice = RCU_DEVICE;
 #endif
 #if defined(VDR_USER)
   VdrUser = VDR_USER;
@@ -236,7 +232,6 @@ int main(int argc, char *argv[])
       { "no-kbd",   no_argument,       NULL, 'n' | 0x100 },
       { "plugin",   required_argument, NULL, 'P' },
       { "port",     required_argument, NULL, 'p' },
-      { "rcu",      optional_argument, NULL, 'r' | 0x100 },
       { "record",   required_argument, NULL, 'r' },
       { "shutdown", required_argument, NULL, 's' },
       { "split",    no_argument,       NULL, 's' | 0x100 },
@@ -350,9 +345,6 @@ int main(int argc, char *argv[])
                     break;
           case 'P': PluginManager.AddPlugin(optarg);
                     break;
-          case 'r' | 0x100:
-                    RcuDevice = optarg ? : RCU_DEVICE;
-                    break;
           case 'r': cRecordingUserCommand::SetCommand(optarg);
                     break;
           case 's': ShutdownHandler.SetShutdownCommand(optarg);
@@ -455,8 +447,6 @@ int main(int argc, char *argv[])
                "  -p PORT,  --port=PORT    use PORT for SVDRP (default: %d)\n"
                "                           0 turns off SVDRP\n"
                "  -P OPT,   --plugin=OPT   load a plugin defined by the given options\n"
-               "            --rcu[=PATH]   use a remote control device, attached to PATH\n"
-               "                           (default: %s)\n"
                "  -r CMD,   --record=CMD   call CMD before and after a recording\n"
                "  -s CMD,   --shutdown=CMD call CMD to shutdown the computer\n"
                "            --split        split edited files at the editing marks (only\n"
@@ -479,7 +469,6 @@ int main(int argc, char *argv[])
                LIRC_DEVICE,
                LOCDIR,
                DEFAULTSVDRPPORT,
-               RCU_DEVICE,
                VideoDirectory,
                DEFAULTWATCHDOG
                );
@@ -688,8 +677,8 @@ int main(int argc, char *argv[])
 
   // Default skins:
 
-  new cSkinClassic;
   new cSkinSTTNG;
+  new cSkinClassic;
   Skins.SetCurrent(Setup.OSDSkin);
   cThemes::Load(Skins.Current()->Name(), Setup.OSDTheme, Skins.Current()->Theme());
   CurrentSkin = Skins.Current();
@@ -707,8 +696,6 @@ int main(int argc, char *argv[])
      }
 
   // Remote Controls:
-  if (RcuDevice)
-     new cRcuRemote(RcuDevice);
   if (LircDevice)
      new cLircRemote(LircDevice);
   if (!DaemonMode && HasStdin && UseKbd)
@@ -774,10 +761,14 @@ int main(int argc, char *argv[])
            static time_t lastTime = 0;
            if ((!Menu || CheckHasProgramme) && Now - lastTime > MINCHANNELWAIT) { // !Menu to avoid interfering with the CAM if a CAM menu is open
               cChannel *Channel = Channels.GetByNumber(cDevice::CurrentChannel());
-              if (Channel && (Channel->Vpid() || Channel->Apid(0))) {
-                 if (!Channels.SwitchTo(cDevice::CurrentChannel()) // try to switch to the original channel...
-                     && !(LastTimerChannel > 0 && Channels.SwitchTo(LastTimerChannel))) // ...or the one used by the last timer...
+              if (Channel && (Channel->Vpid() || Channel->Apid(0) || Channel->Dpid(0))) {
+                 if (cDevice::GetDeviceForTransponder(Channel, LIVEPRIORITY) && Channels.SwitchTo(Channel->Number())) // try to switch to the original channel...
                     ;
+                 else if (LastTimerChannel > 0) {
+                    Channel = Channels.GetByNumber(LastTimerChannel);
+                    if (Channel && cDevice::GetDeviceForTransponder(Channel, LIVEPRIORITY) && Channels.SwitchTo(LastTimerChannel)) // ...or the one used by the last timer
+                       ;
+                    }
                  }
               lastTime = Now; // don't do this too often
               LastTimerChannel = -1;
@@ -891,31 +882,12 @@ int main(int argc, char *argv[])
                      }
                   if (NeedsTransponder || InVpsMargin) {
                      // Find a device that provides the required transponder:
-                     cDevice *Device = NULL;
-                     bool DeviceAvailable = false;
-                     for (int i = 0; i < cDevice::NumDevices(); i++) {
-                         cDevice *d = cDevice::GetDevice(i);
-                         if (d && d->ProvidesTransponder(Timer->Channel())) {
-                            if (d->IsTunedToTransponder(Timer->Channel())) {
-                               // if any device is tuned to the transponder, we're done
-                               Device = d;
-                               break;
-                               }
-                            if (d->MaySwitchTransponder(Timer->Channel())) {
-                               DeviceAvailable = true; // avoids using the actual device below
-                               Device = d;
-                               }
-                            else if (!d->Occupied() && !Device && InVpsMargin && !d->Receiving() && d->ProvidesTransponderExclusively(Timer->Channel()))
-                               Device = d; // use this one only if no other with less impact can be found
-                            }
-                         }
-                     if (!Device && InVpsMargin && !DeviceAvailable) {
-                        cDevice *d = cDevice::ActualDevice();
-                        if (!d->Receiving() && d->ProvidesTransponder(Timer->Channel()) && !d->Occupied())
-                           Device = d; // use the actual device as a last resort
-                        }
+                     cDevice *Device = cDevice::GetDeviceForTransponder(Timer->Channel(), MINPRIORITY);
+                     if (!Device && InVpsMargin)
+                        Device = cDevice::GetDeviceForTransponder(Timer->Channel(), LIVEPRIORITY);
                      // Switch the device to the transponder:
                      if (Device) {
+                        bool HadProgramme = cDevice::PrimaryDevice()->HasProgramme();
                         if (!Device->IsTunedToTransponder(Timer->Channel())) {
                            if (Device == cDevice::ActualDevice() && !Device->IsPrimaryDevice())
                               cDevice::PrimaryDevice()->StopReplay(); // stop transfer mode
@@ -923,13 +895,8 @@ int main(int argc, char *argv[])
                            if (Device->SwitchChannel(Timer->Channel(), false))
                               Device->SetOccupied(TIMERDEVICETIMEOUT);
                            }
-                        if (cDevice::PrimaryDevice()->HasDecoder() && !cDevice::PrimaryDevice()->HasProgramme()) {
-                           // the previous SwitchChannel() has switched away the current live channel
-                           cDevice::SetAvoidDevice(Device);
-                           if (!Channels.SwitchTo(cDevice::CurrentChannel())) // try to switch to the original channel on a different device...
-                              Channels.SwitchTo(Timer->Channel()->Number()); // ...or avoid toggling between old channel and black screen
-                           Skins.Message(mtInfo, tr("Upcoming recording!"));
-                           }
+                        if (cDevice::PrimaryDevice()->HasDecoder() && HadProgramme && !cDevice::PrimaryDevice()->HasProgramme())
+                           Skins.Message(mtInfo, tr("Upcoming recording!")); // the previous SwitchChannel() has switched away the current live channel
                         }
                      }
                   }
@@ -1333,6 +1300,7 @@ Exit:
      Setup.Save();
      }
   cDevice::Shutdown();
+  EpgHandlers.Clear();
   PluginManager.Shutdown(true);
   cSchedules::Cleanup(true);
   ReportEpgBugFixStats();
