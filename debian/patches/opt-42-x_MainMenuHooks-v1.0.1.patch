@@ -71,24 +71,28 @@ think you need to modify the patch, we'd encourage you to contact the
 authors first or at least use a service id which differs in more than
 just the version number.
 
-diff -urNad vdr-1.7.22-orig/config.h vdr-1.7.22-mainmenuhooks/config.h
---- vdr-1.7.22-orig/config.h	2011-12-22 14:56:35.000000000 +0100
-+++ vdr-1.7.22-mainmenuhooks/config.h	2011-12-22 14:58:01.978119964 +0100
-@@ -40,6 +40,10 @@
+Index: vdr-1.7.26/config.h
+===================================================================
+--- vdr-1.7.26.orig/config.h	2012-03-11 21:39:18.000000000 +0100
++++ vdr-1.7.26/config.h	2012-03-11 21:40:31.112013023 +0100
+@@ -39,7 +39,11 @@
+ #define LIEMIKUUTIO  134
  
  #define JUMPPLAYVERSNUM 100
- 
+- 
++
 +// The MainMenuHook Patch's version number:
 +#define MAINMENUHOOKSVERSION "1.0.1"
 +#define MAINMENUHOOKSVERSNUM 10001  // Version * 10000 + Major * 100 + Minor
 +
- #define MAXPRIORITY 99
- #define MAXLIFETIME 99
- 
-diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-mainmenuhooks/menu.c
---- vdr-1.7.22-orig/menu.c	2011-12-22 14:56:35.000000000 +0100
-+++ vdr-1.7.22-mainmenuhooks/menu.c	2011-12-22 14:58:01.968119964 +0100
-@@ -3640,15 +3640,31 @@
+ #define MAXPRIORITY       99
+ #define MINPRIORITY       (-MAXPRIORITY)
+ #define LIVEPRIORITY      0                  // priority used when selecting a device for live viewing
+Index: vdr-1.7.26/menu.c
+===================================================================
+--- vdr-1.7.26.orig/menu.c	2012-03-11 21:39:19.000000000 +0100
++++ vdr-1.7.26/menu.c	2012-03-11 21:39:26.412013021 +0100
+@@ -3642,15 +3642,31 @@
  
    // Initial submenus:
  
@@ -126,7 +130,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-mainmenuhooks/menu.c
  }
  
  cOsdObject *cMenuMain::PluginOsdObject(void)
-@@ -3801,13 +3817,34 @@
+@@ -3803,13 +3819,34 @@
    eOSState state = cOsdMenu::ProcessKey(Key);
    HadSubMenu |= HasSubMenu();
  
@@ -167,7 +171,7 @@ diff -urNad vdr-1.7.22-orig/menu.c vdr-1.7.22-mainmenuhooks/menu.c
      case osStopRecord: if (Interface->Confirm(tr("Stop recording?"))) {
                            cOsdItem *item = Get(Current());
                            if (item) {
-@@ -3900,6 +3937,12 @@
+@@ -3902,6 +3939,12 @@
                 default:      break;
                 }
      }
