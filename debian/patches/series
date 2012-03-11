@@ -42,9 +42,6 @@ opt-37-x_menuorg.patch
 # Patch that suppresses double EPG entries.
 opt-38_disableDoubleEpgEntrys.patch
 
-# Patch to disable normal epg update for specified channels.
-opt-39_noepg.patch
-
 # Patch to show an info, if it is possible to record an event in the timer-info.
 opt-41-x_timer-info.patch
 
