@@ -14,7 +14,7 @@ opt-20_liemikuutio.patch
 
 # Allows to tune to non-FTA channels provided by internal devices, 
 # like streamdev
-opt-21_internal-cam-devices.patch
+#opt-21_internal-cam-devices.patch
 
 # Easy editing of cutting marks
 # (Requires opt-20_liemikuutio!)
