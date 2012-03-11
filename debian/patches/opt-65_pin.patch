@@ -2,20 +2,13 @@ Description: Pin-Patch for VDR-Pin-Plugin
 Author: Jörg Wendel <horchi@vdr-portal>       
 Origin: http://www.jwendel.de/vdr/
 
-diff -urNad vdr-1.7.24-orig/device.c vdr-1.7.24/device.c
---- vdr-1.7.24-orig/device.c	2012-02-23 07:38:23.571157482 +0100
-+++ vdr-1.7.24/device.c	2012-02-23 07:40:00.401157484 +0100
-@@ -748,6 +748,7 @@
-      cChannel *channel;
-      while ((channel = Channels.GetByNumber(n, Direction)) != NULL) {
-            // try only channels which are currently available
-+           if (!cStatus::MsgChannelProtected(0, channel))      // PIN PATCH
-            if (GetDevice(channel, 0, true))
-               break;
-            n = channel->Number() + Direction;
-@@ -769,6 +770,12 @@
+Index: vdr-1.7.26/device.c
+===================================================================
+--- vdr-1.7.26.orig/device.c	2012-03-11 22:27:52.000000000 +0100
++++ vdr-1.7.26/device.c	2012-03-11 22:40:48.262013150 +0100
+@@ -727,6 +727,12 @@
  
- eSetChannelResult cDevice::SetChannel(const cChannel *Channel, bool LiveView)
+ bool cDevice::SwitchChannel(const cChannel *Channel, bool LiveView)
  {
 +  // I hope 'LiveView = false' indicates a channel switch for recording, // PIN PATCH
 +  // I really don't know, but it works ...                               // PIN PATCH
@@ -24,11 +17,20 @@ diff -urNad vdr-1.7.24-orig/device.c vdr-1.7.24/device.c
 +     return scrNotAvailable;                                             // PIN PATCH
 +
    if (LiveView) {
-      StopReplay();
-      DELETENULL(liveSubtitle);
-diff -urNad vdr-1.7.24-orig/menu.c vdr-1.7.24/menu.c
---- vdr-1.7.24-orig/menu.c	2012-02-23 07:38:23.651157482 +0100
-+++ vdr-1.7.24/menu.c	2012-02-23 07:40:00.411157484 +0100
+      isyslog("switching to channel %d", Channel->Number());
+      cControl::Shutdown(); // prevents old channel from being shown too long if GetDevice() takes longer
+@@ -757,6 +763,7 @@
+      cChannel *channel;
+      while ((channel = Channels.GetByNumber(n, Direction)) != NULL) {
+            // try only channels which are currently available
++           if (!cStatus::MsgChannelProtected(0, channel))      // PIN PATCH
+            if (GetDevice(channel, LIVEPRIORITY, true, true))
+               break;
+            n = channel->Number() + Direction;
+Index: vdr-1.7.26/menu.c
+===================================================================
+--- vdr-1.7.26.orig/menu.c	2012-03-11 22:36:46.000000000 +0100
++++ vdr-1.7.26/menu.c	2012-03-11 22:42:36.852013154 +0100
 @@ -934,6 +934,16 @@
       Add(new cMenuEditBitItem( tr("VPS"),          &data.flags, tfVps));
       Add(new cMenuEditIntItem( tr("Priority"),     &data.priority, 0, MAXPRIORITY));
@@ -36,9 +38,9 @@ diff -urNad vdr-1.7.24-orig/menu.c vdr-1.7.24/menu.c
 +
 +     // PIN PATCH
 +     if (cOsd::pinValid || !data.fskProtection) Add(new cMenuEditBoolItem(tr("Childlock"),&data.fskProtection));
-+     else { 
++     else {
 +        char* buf = 0;
-+        asprintf(&buf, "%s\t%s", tr("Childlock"), data.fskProtection ? tr("yes") : tr("no")); 
++        asprintf(&buf, "%s\t%s", tr("Childlock"), data.fskProtection ? tr("yes") : tr("no"));
 +        Add(new cOsdItem(buf));
 +        free(buf);
 +        }
@@ -46,7 +48,7 @@ diff -urNad vdr-1.7.24-orig/menu.c vdr-1.7.24/menu.c
       Add(file = new cMenuEditStrItem( tr("File"),   data.file, sizeof(data.file)));
       SetFirstDayItem();
       }
-@@ -2624,7 +2634,10 @@
+@@ -2625,7 +2635,10 @@
    for (cRecording *recording = Recordings.First(); recording; recording = Recordings.Next(recording)) {
        if (!base || (strstr(recording->Name(), base) == recording->Name() && recording->Name()[strlen(base)] == FOLDERDELIMCHAR)) {
           cMenuRecordingItem *Item = new cMenuRecordingItem(recording, level);
@@ -58,7 +60,7 @@ diff -urNad vdr-1.7.24-orig/menu.c vdr-1.7.24/menu.c
              Add(Item);
              LastItem = Item;
              free(LastItemText);
-@@ -2687,6 +2700,9 @@
+@@ -2688,6 +2701,9 @@
  {
    cMenuRecordingItem *ri = (cMenuRecordingItem *)Get(Current());
    if (ri) {
@@ -68,7 +70,7 @@ diff -urNad vdr-1.7.24-orig/menu.c vdr-1.7.24/menu.c
       if (ri->IsDirectory())
          Open();
       else {
-@@ -3792,28 +3808,32 @@
+@@ -3783,28 +3799,32 @@
  
    // Basic menu items:
  
@@ -106,7 +108,7 @@ diff -urNad vdr-1.7.24-orig/menu.c vdr-1.7.24/menu.c
       Add(new cOsdItem(hk(tr("Commands")),  osCommands));
  
    }
-@@ -3905,6 +3925,14 @@
+@@ -3896,6 +3916,14 @@
    HadSubMenu |= HasSubMenu();
  
    cOsdObject *menu = NULL;
@@ -121,7 +123,7 @@ diff -urNad vdr-1.7.24-orig/menu.c vdr-1.7.24/menu.c
    switch (state) {
      case osSchedule:
          if (!cPluginManager::CallFirstService("MainMenuHooksPatch-v1.0::osSchedule", &menu))
-@@ -3956,6 +3984,7 @@
+@@ -3947,6 +3975,7 @@
                           if (item) {
                              cPlugin *p = cPluginManager::GetPlugin(item->PluginIndex());
                              if (p) {
@@ -129,7 +131,7 @@ diff -urNad vdr-1.7.24-orig/menu.c vdr-1.7.24/menu.c
                                 cOsdObject *menu = p->MainMenuAction();
                                 if (menu) {
                                    if (menu->IsMenu())
-@@ -3967,6 +3996,7 @@
+@@ -3958,6 +3987,7 @@
                                    }
                                 }
                              }
@@ -137,16 +139,16 @@ diff -urNad vdr-1.7.24-orig/menu.c vdr-1.7.24/menu.c
                           state = osEnd;
                         }
                         break;
-@@ -4178,6 +4208,8 @@
+@@ -4169,6 +4199,8 @@
             Channel = Direction > 0 ? Channels.Next(Channel) : Channels.Prev(Channel);
             if (!Channel && Setup.ChannelsWrap)
                Channel = Direction > 0 ? Channels.First() : Channels.Last();
 +
 +           if (!cStatus::MsgChannelProtected(0, Channel))                   // PIN PATCH
-            if (Channel && !Channel->GroupSep() && cDevice::GetDevice(Channel, 0, true))
+            if (Channel && !Channel->GroupSep() && cDevice::GetDevice(Channel, LIVEPRIORITY, true, true))
                return Channel;
             }
-@@ -4857,6 +4889,7 @@
+@@ -4848,6 +4880,7 @@
             for (int i = 0; i < MAXRECORDCONTROLS; i++) {
                 if (!RecordControls[i]) {
                    RecordControls[i] = new cRecordControl(device, Timer, Pause);
@@ -154,10 +156,11 @@ diff -urNad vdr-1.7.24-orig/menu.c vdr-1.7.24/menu.c
                    return RecordControls[i]->Process(time(NULL));
                    }
                 }
-diff -urNad vdr-1.7.24-orig/osd.c vdr-1.7.24/osd.c
---- vdr-1.7.24-orig/osd.c	2012-02-23 07:38:23.371157482 +0100
-+++ vdr-1.7.24/osd.c	2012-02-23 07:40:00.411157484 +0100
-@@ -1601,6 +1601,7 @@
+Index: vdr-1.7.26/osd.c
+===================================================================
+--- vdr-1.7.26.orig/osd.c	2012-03-11 22:27:52.000000000 +0100
++++ vdr-1.7.26/osd.c	2012-03-11 22:38:58.152013146 +0100
+@@ -1605,6 +1605,7 @@
  int cOsd::osdHeight = 0;
  cVector<cOsd *> cOsd::Osds;
  cMutex cOsd::mutex;
@@ -165,9 +168,10 @@ diff -urNad vdr-1.7.24-orig/osd.c vdr-1.7.24/osd.c
  
  cOsd::cOsd(int Left, int Top, uint Level)
  {
-diff -urNad vdr-1.7.24-orig/osd.h vdr-1.7.24/osd.h
---- vdr-1.7.24-orig/osd.h	2012-02-23 07:38:23.371157482 +0100
-+++ vdr-1.7.24/osd.h	2012-02-23 07:40:00.411157484 +0100
+Index: vdr-1.7.26/osd.h
+===================================================================
+--- vdr-1.7.26.orig/osd.h	2012-03-11 22:27:52.000000000 +0100
++++ vdr-1.7.26/osd.h	2012-03-11 22:38:58.152013146 +0100
 @@ -922,6 +922,7 @@
         ///<        delete pm;
         ///<        }
@@ -176,9 +180,10 @@ diff -urNad vdr-1.7.24-orig/osd.h vdr-1.7.24/osd.h
    };
  
  #define MAXOSDIMAGES 64
-diff -urNad vdr-1.7.24-orig/status.c vdr-1.7.24/status.c
---- vdr-1.7.24-orig/status.c	2012-02-23 07:38:23.411157482 +0100
-+++ vdr-1.7.24/status.c	2012-02-23 07:40:00.411157484 +0100
+Index: vdr-1.7.26/status.c
+===================================================================
+--- vdr-1.7.26.orig/status.c	2012-03-11 22:27:52.000000000 +0100
++++ vdr-1.7.26/status.c	2012-03-11 22:42:19.922013152 +0100
 @@ -153,3 +153,55 @@
    for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
       sm->OsdEventItem(Event, Text, Index, Count);
@@ -193,7 +198,7 @@ diff -urNad vdr-1.7.24-orig/status.c vdr-1.7.24/status.c
 +  return false;
 +}
 +
-+bool cStatus::MsgReplayProtected(const cRecording* Recording, const char* Name, 
++bool cStatus::MsgReplayProtected(const cRecording* Recording, const char* Name,
 +                                 const char* Base, bool isDirectory, int menuView)    // PIN PATCH
 +{
 +  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
@@ -235,9 +240,10 @@ diff -urNad vdr-1.7.24-orig/status.c vdr-1.7.24/status.c
 +         return true;
 +      return false;
 +}
-diff -urNad vdr-1.7.24-orig/status.h vdr-1.7.24/status.h
---- vdr-1.7.24-orig/status.h	2012-02-23 07:38:23.411157482 +0100
-+++ vdr-1.7.24/status.h	2012-02-23 07:40:00.411157484 +0100
+Index: vdr-1.7.26/status.h
+===================================================================
+--- vdr-1.7.26.orig/status.h	2012-03-11 22:27:52.000000000 +0100
++++ vdr-1.7.26/status.h	2012-03-11 22:42:04.892013152 +0100
 @@ -14,6 +14,7 @@
  #include "device.h"
  #include "player.h"
@@ -246,14 +252,14 @@ diff -urNad vdr-1.7.24-orig/status.h vdr-1.7.24/status.h
  
  enum eTimerChange { tcMod, tcAdd, tcDel };
  
-@@ -90,6 +91,22 @@
+@@ -91,6 +92,22 @@
                 // report menu destruvtion
    virtual void OsdEventItem(const cEvent* Event, const char *Text, int Index, int Count) {}
                 // The OSD displays the given single line Event as menu item at Index.
 +  virtual bool ChannelProtected(const cDevice *Device, const cChannel* Channel)  { return false; }         // PIN PATCH
 +               // Checks if a channel is protected.
-+  virtual bool ReplayProtected(const cRecording* Recording, const char* Name, 
-+                               const char* Base, bool isDirectory, int menuView = false) { return false; } // PIN PATCH 
++  virtual bool ReplayProtected(const cRecording* Recording, const char* Name,
++                               const char* Base, bool isDirectory, int menuView = false) { return false; } // PIN PATCH
 +               // Checks if a recording is protected.
 +  virtual void RecordingFile(const char* FileName) {}                                                      // PIN PATCH
 +               // The given DVB device has started recording to FileName. FileName is the name of the
@@ -269,12 +275,12 @@ diff -urNad vdr-1.7.24-orig/status.h vdr-1.7.24/status.h
  
  public:
    cStatus(void);
-@@ -117,6 +134,14 @@
+@@ -118,6 +135,14 @@
    static void MsgOsdMenuDisplay(const char* kind);
    static void MsgOsdMenuDestroy();
    static void MsgOsdEventItem(const cEvent* Event, const char *Text, int Index, int Count);
 +  static bool MsgChannelProtected(const cDevice* Device, const cChannel* Channel);                 // PIN PATCH
-+  static bool MsgReplayProtected(const cRecording* Recording, const char* Name, 
++  static bool MsgReplayProtected(const cRecording* Recording, const char* Name,
 +                                 const char* Base, bool isDirectory, int menuView = false);        // PIN PATCH
 +  static void MsgRecordingFile(const char* FileName);                                              // PIN PATCH
 +  static void MsgTimerCreation(cTimer* Timer, const cEvent *Event);                                // PIN PATCH
@@ -284,9 +290,10 @@ diff -urNad vdr-1.7.24-orig/status.h vdr-1.7.24/status.h
    };
  
  #endif //__STATUS_H
-diff -urNad vdr-1.7.24-orig/timers.c vdr-1.7.24/timers.c
---- vdr-1.7.24-orig/timers.c	2012-01-18 22:24:07.000000000 +0100
-+++ vdr-1.7.24/timers.c	2012-02-23 07:40:00.411157484 +0100
+Index: vdr-1.7.26/timers.c
+===================================================================
+--- vdr-1.7.26.orig/timers.c	2012-03-11 14:16:19.000000000 +0100
++++ vdr-1.7.26/timers.c	2012-03-11 22:38:58.162013146 +0100
 @@ -47,6 +47,7 @@
       stop -= 2400;
    priority = Pause ? Setup.PausePriority : Setup.DefaultPriority;
@@ -327,7 +334,7 @@ diff -urNad vdr-1.7.24-orig/timers.c vdr-1.7.24/timers.c
    free(channelbuffer);
    free(daybuffer);
    free(filebuffer);
-@@ -645,6 +650,33 @@
+@@ -681,6 +686,33 @@
    Matches(); // refresh start and end time
  }
  
@@ -361,9 +368,10 @@ diff -urNad vdr-1.7.24-orig/timers.c vdr-1.7.24/timers.c
  // --- cTimers ---------------------------------------------------------------
  
  cTimers Timers;
-diff -urNad vdr-1.7.24-orig/timers.h vdr-1.7.24/timers.h
---- vdr-1.7.24-orig/timers.h	2012-01-18 22:24:07.000000000 +0100
-+++ vdr-1.7.24/timers.h	2012-02-23 07:40:00.421157484 +0100
+Index: vdr-1.7.26/timers.h
+===================================================================
+--- vdr-1.7.26.orig/timers.h	2012-03-11 14:16:19.000000000 +0100
++++ vdr-1.7.26/timers.h	2012-03-11 22:38:58.162013146 +0100
 @@ -38,6 +38,7 @@
    int start;
    int stop;
@@ -380,18 +388,19 @@ diff -urNad vdr-1.7.24-orig/timers.h vdr-1.7.24/timers.h
    int Lifetime(void) const { return lifetime; }
    const char *File(void) const { return file; }
    time_t FirstDay(void) const { return weekdays ? day : 0; }
-@@ -89,6 +91,7 @@
-   void SetPriority(int Priority);
+@@ -95,6 +97,7 @@
+   void SetAux(const char *Aux);
    void SetDeferred(int Seconds);
    void SetFlags(uint Flags);
 +  void SetFskProtection(int aFlag);                                // PIN PATCH
    void ClrFlags(uint Flags);
    void InvFlags(uint Flags);
    bool HasFlags(uint Flags) const;
-diff -urNad vdr-1.7.24-orig/vdr.c vdr-1.7.24/vdr.c
---- vdr-1.7.24-orig/vdr.c	2012-02-23 07:38:22.821157482 +0100
-+++ vdr-1.7.24/vdr.c	2012-02-23 07:40:00.421157484 +0100
-@@ -963,6 +963,7 @@
+Index: vdr-1.7.26/vdr.c
+===================================================================
+--- vdr-1.7.26.orig/vdr.c	2012-03-11 22:27:52.000000000 +0100
++++ vdr-1.7.26/vdr.c	2012-03-11 22:38:58.162013146 +0100
+@@ -930,6 +930,7 @@
          cOsdObject *Interact = Menu ? Menu : cControl::Control();
          eKeys key = Interface->GetKey(!Interact || !Interact->NeedsFastResponse());
          if (ISREALKEY(key)) {
@@ -399,7 +408,7 @@ diff -urNad vdr-1.7.24-orig/vdr.c vdr-1.7.24/vdr.c
             EITScanner.Activity();
             // Cancel shutdown countdown:
             if (ShutdownHandler.countdown)
-@@ -1035,10 +1036,12 @@
+@@ -1002,10 +1003,12 @@
                       cControl::Control()->Hide();
                    cPlugin *plugin = cPluginManager::GetPlugin(PluginName);
                    if (plugin) {
@@ -412,7 +421,7 @@ diff -urNad vdr-1.7.24-orig/vdr.c vdr-1.7.24/vdr.c
                    else
                       esyslog("ERROR: unknown plugin '%s'", PluginName);
                    }
-@@ -1251,9 +1254,11 @@
+@@ -1218,9 +1221,11 @@
               // Instant resume of the last viewed recording:
               case kPlay:
                    if (cReplayControl::LastReplayed()) {
