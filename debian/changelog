@@ -7,6 +7,7 @@ vdr (1.7.26-1yavdr1~precise) precise; urgency=medium
   * Dropped opt-39_noepg.patch
   * Temporarily disabled opt-38_disableDoubleEpgEntrys.patch
   * Temporarily disabled opt-56_eventdetails_v3.patch
+  * Temporarily disabled opt-21_internal-cam-devices.patch
   * Removed vdr-1.7.24-dvbplayer-revert.patch
   * Removed vdr-1.7.24-hotfix-1.patch
 
