@@ -12,10 +12,6 @@
 # Patch collection (replaces enAIO).
 opt-20_liemikuutio.patch
 
-# hotfix vdr-1.7.24
-vdr-1.7.24-hotfix-1.patch
-vdr-1.7.24-dvbplayer-revert.patch
-
 # Allows to tune to non-FTA channels provided by internal devices, 
 # like streamdev
 opt-21_internal-cam-devices.patch
@@ -40,7 +36,7 @@ opt-27_ttxtsubs.patch
 opt-37-x_menuorg.patch
 
 # Patch that suppresses double EPG entries.
-opt-38_disableDoubleEpgEntrys.patch
+#opt-38_disableDoubleEpgEntrys.patch
 
 # Patch to show an info, if it is possible to record an event in the timer-info.
 opt-41-x_timer-info.patch
@@ -63,13 +59,11 @@ opt-45_yaepg.patch
 opt-50_graphtft.patch
 opt-50_graphtft-liemikuutio.patch
 
-
 # Setup for AC3 transfer, QAM_256, disable primary tuner
 # opt-53_dvbsetup.patch
 
-#opt-54_x_pin.patch
 opt-55_wareagleicon.patch
-opt-56_eventdetails_v3.patch
+#opt-56_eventdetails_v3.patch
 opt-57_vdr-remote_instant_recordings.patch
 #opt-58_dvbplayer-no-busy.patch
 #opt-59_hd-timeshift-wait.patch
