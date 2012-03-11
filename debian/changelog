@@ -1,3 +1,12 @@
+vdr (1.7.26-1yavdr1~precise) precise; urgency=medium
+  
+  * New upstream release
+  [Tobi]
+  * Updated debianize-vdrplugin to use the debhelper V7 format
+  * Dropped opt-39_noepg.patch
+
+ -- Holger Schvestka <email address hidden>  Sun, 11 Mar 2012 15:05:04 +0200
+
 vdr (1.7.24-1yavdr1~precise) precise; urgency=medium
   
   * New upstream release
