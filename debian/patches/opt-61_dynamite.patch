@@ -245,7 +245,7 @@ Index: vdr-1.7.26/device.c
  bool cDevice::Receiving(bool Dummy) const
  {
 +  if (parentDevice)
-+     return parentDevice->Receiving(CheckAny);
++     return parentDevice->Receiving(Dummy);
    cMutexLock MutexLock(&mutexReceiver);
    for (int i = 0; i < MAXRECEIVERS; i++) {
        if (receiver[i])
