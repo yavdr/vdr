@@ -68,6 +68,12 @@ Description: Plugin that adds support for full featured DVB cards to VDR
  output device for the "Full Featured" DVB cards based on the
  TechnoTrend/Fujitsu-Siemens design.
 
+Package: vdr-plugin-epgtableid0
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, vdr (= ${binary:Version})
+Description: VDR-Plugin
+ VDR-Plugin
+
 Package: vdr-plugin-examples
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, vdr (= ${binary:Version})
