@@ -11,6 +11,7 @@ debian/patches/11_sortrecordings.patch:3e3a2f988cb7db03f8f56a44012a65f4
 debian/patches/opt-41-x_timer-info.patch:251533f3d08d90c7324d49efabc2414a
 debian/patches/xprmtl-01_externalci.patch:8647c6a3ef42174a3851307d18b0fdbd
 debian/patches/opt-24_jumpplay.patch:c38e31b09902bbd1671149dc35150b89
+debian/patches/opt-56_eventdetails_v3.patch:bb21cd46d8353bdebb49f2c06e7f50cc
 debian/patches/opt-62_hard_link_cutter.patch:0ffe3a2c78af1f3b96fe992b06594119
 debian/patches/opt-57_vdr-remote_instant_recordings.patch:bc69e4bb09d5b56067955486d51d7fee
 debian/patches/99_ncursesw-include.patch:9bafeb768f7921015a5bab5e47786950
