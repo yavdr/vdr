@@ -6,6 +6,7 @@ debian/patches/opt-43-x_recordshowfree.patch:9413db9ac9cef5116cc71ffae8fd8dbd
 debian/patches/opt-27_ttxtsubs.patch:0c8293acd989e2c0186b35a250ee14eb
 debian/patches/opt-50_graphtft.patch:50d5741e6a01571f53ed528d2509124d
 debian/patches/opt-37-x_menuorg.patch:ae474947c28d40e84994698de8f35681
+debian/patches/opt-21_internal-cam-devices.patch:27cf54572291434a51e7f3a1c90ce1fd
 debian/patches/11_sortrecordings.patch:3e3a2f988cb7db03f8f56a44012a65f4
 debian/patches/opt-41-x_timer-info.patch:251533f3d08d90c7324d49efabc2414a
 debian/patches/xprmtl-01_externalci.patch:8647c6a3ef42174a3851307d18b0fdbd
