@@ -2,9 +2,10 @@ Description: Patch for vdr-plugin-restfulapi
 Author: Michael Eiler <eiler.mike@gmail.com>      
 Origin: https://github.com/yavdr/vdr-plugin-restfulapi
 
-diff -urNad vdr-1.7.22-orig/epg.c vdr-1.7.22-eventdetails/epg.c
---- vdr-1.7.22-orig/epg.c	2011-12-21 16:25:15.000000000 +0100
-+++ vdr-1.7.22-eventdetails/epg.c	2011-12-21 16:45:29.636883817 +0100
+Index: vdr-1.7.26/epg.c
+===================================================================
+--- vdr-1.7.26.orig/epg.c	2012-03-11 14:16:19.000000000 +0100
++++ vdr-1.7.26/epg.c	2012-03-14 22:32:16.251015656 +0100
 @@ -428,6 +428,21 @@
    return buf;
  }
@@ -58,11 +59,12 @@ diff -urNad vdr-1.7.22-orig/epg.c vdr-1.7.22-eventdetails/epg.c
                         break;
               case 'e': if (Event && !Event->Title())
                            Event->SetTitle(tr("No title"));
-diff -urNad vdr-1.7.22-orig/epg.h vdr-1.7.22-eventdetails/epg.h
---- vdr-1.7.22-orig/epg.h	2011-12-21 16:25:15.000000000 +0100
-+++ vdr-1.7.22-eventdetails/epg.h	2011-12-21 16:45:29.636883817 +0100
-@@ -16,6 +16,8 @@
- #include "channels.h"
+Index: vdr-1.7.26/epg.h
+===================================================================
+--- vdr-1.7.26.orig/epg.h	2012-03-11 14:16:19.000000000 +0100
++++ vdr-1.7.26/epg.h	2012-03-14 22:32:16.251015656 +0100
+@@ -17,6 +17,8 @@
+ #include "libsi/section.h"
  #include "thread.h"
  #include "tools.h"
 +#include <string>
@@ -70,7 +72,7 @@ diff -urNad vdr-1.7.22-orig/epg.h vdr-1.7.22-eventdetails/epg.h
  
  #define MAXEPGBUGFIXLEVEL 3
  
-@@ -63,6 +65,12 @@
+@@ -64,6 +66,12 @@
                                                                   // In case of an audio stream the 'type' check actually just distinguishes between "normal" and "Dolby Digital"
    };
  
@@ -83,7 +85,7 @@ diff -urNad vdr-1.7.22-orig/epg.h vdr-1.7.22-eventdetails/epg.h
  class cSchedule;
  
  typedef u_int32_t tEventID;
-@@ -86,6 +94,7 @@
+@@ -87,6 +95,7 @@
    int duration;            // Duration of this event in seconds
    time_t vps;              // Video Programming Service timestamp (VPS, aka "Programme Identification Label", PIL)
    time_t seen;             // When this event was last seen in the data stream
@@ -91,7 +93,7 @@ diff -urNad vdr-1.7.22-orig/epg.h vdr-1.7.22-eventdetails/epg.h
  public:
    cEvent(tEventID EventID);
    ~cEvent();
-@@ -116,6 +125,7 @@
+@@ -117,6 +126,7 @@
    cString GetTimeString(void) const;
    cString GetEndTimeString(void) const;
    cString GetVpsString(void) const;
@@ -99,7 +101,7 @@ diff -urNad vdr-1.7.22-orig/epg.h vdr-1.7.22-eventdetails/epg.h
    void SetEventID(tEventID EventID);
    void SetTableID(uchar TableID);
    void SetVersion(uchar Version);
-@@ -130,6 +140,9 @@
+@@ -131,6 +141,9 @@
    void SetDuration(int Duration);
    void SetVps(time_t Vps);
    void SetSeen(void);

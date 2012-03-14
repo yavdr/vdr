@@ -4,9 +4,9 @@ Origin: http://www.jwendel.de/vdr/
 
 Index: vdr-1.7.26/device.c
 ===================================================================
---- vdr-1.7.26.orig/device.c	2012-03-13 17:15:44.660951995 +0100
-+++ vdr-1.7.26/device.c	2012-03-13 17:15:44.790951995 +0100
-@@ -727,6 +727,12 @@
+--- vdr-1.7.26.orig/device.c	2012-03-14 22:32:16.291015656 +0100
++++ vdr-1.7.26/device.c	2012-03-14 22:32:16.391015656 +0100
+@@ -730,6 +730,12 @@
  
  bool cDevice::SwitchChannel(const cChannel *Channel, bool LiveView)
  {
@@ -19,7 +19,7 @@ Index: vdr-1.7.26/device.c
    if (LiveView) {
       isyslog("switching to channel %d", Channel->Number());
       cControl::Shutdown(); // prevents old channel from being shown too long if GetDevice() takes longer
-@@ -757,6 +763,7 @@
+@@ -760,6 +766,7 @@
       cChannel *channel;
       while ((channel = Channels.GetByNumber(n, Direction)) != NULL) {
             // try only channels which are currently available
@@ -29,8 +29,8 @@ Index: vdr-1.7.26/device.c
             n = channel->Number() + Direction;
 Index: vdr-1.7.26/menu.c
 ===================================================================
---- vdr-1.7.26.orig/menu.c	2012-03-13 17:15:44.750951995 +0100
-+++ vdr-1.7.26/menu.c	2012-03-13 17:15:44.800951995 +0100
+--- vdr-1.7.26.orig/menu.c	2012-03-14 22:32:16.371015656 +0100
++++ vdr-1.7.26/menu.c	2012-03-14 22:32:16.391015656 +0100
 @@ -934,6 +934,16 @@
       Add(new cMenuEditBitItem( tr("VPS"),          &data.flags, tfVps));
       Add(new cMenuEditIntItem( tr("Priority"),     &data.priority, 0, MAXPRIORITY));
@@ -158,8 +158,8 @@ Index: vdr-1.7.26/menu.c
                 }
 Index: vdr-1.7.26/osd.c
 ===================================================================
---- vdr-1.7.26.orig/osd.c	2012-03-13 17:15:44.480951995 +0100
-+++ vdr-1.7.26/osd.c	2012-03-13 17:15:44.800951995 +0100
+--- vdr-1.7.26.orig/osd.c	2012-03-14 22:32:16.101015656 +0100
++++ vdr-1.7.26/osd.c	2012-03-14 22:32:16.401015656 +0100
 @@ -1605,6 +1605,7 @@
  int cOsd::osdHeight = 0;
  cVector<cOsd *> cOsd::Osds;
@@ -170,8 +170,8 @@ Index: vdr-1.7.26/osd.c
  {
 Index: vdr-1.7.26/osd.h
 ===================================================================
---- vdr-1.7.26.orig/osd.h	2012-03-13 17:15:44.480951995 +0100
-+++ vdr-1.7.26/osd.h	2012-03-13 17:15:44.800951995 +0100
+--- vdr-1.7.26.orig/osd.h	2012-03-14 22:32:16.101015656 +0100
++++ vdr-1.7.26/osd.h	2012-03-14 22:32:16.401015656 +0100
 @@ -922,6 +922,7 @@
         ///<        delete pm;
         ///<        }
@@ -182,8 +182,8 @@ Index: vdr-1.7.26/osd.h
  #define MAXOSDIMAGES 64
 Index: vdr-1.7.26/status.c
 ===================================================================
---- vdr-1.7.26.orig/status.c	2012-03-13 17:15:44.520951995 +0100
-+++ vdr-1.7.26/status.c	2012-03-13 17:15:44.800951995 +0100
+--- vdr-1.7.26.orig/status.c	2012-03-14 22:32:16.141015656 +0100
++++ vdr-1.7.26/status.c	2012-03-14 22:32:16.401015656 +0100
 @@ -153,3 +153,55 @@
    for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
       sm->OsdEventItem(Event, Text, Index, Count);
@@ -242,8 +242,8 @@ Index: vdr-1.7.26/status.c
 +}
 Index: vdr-1.7.26/status.h
 ===================================================================
---- vdr-1.7.26.orig/status.h	2012-03-13 17:15:44.520951995 +0100
-+++ vdr-1.7.26/status.h	2012-03-13 17:15:44.800951995 +0100
+--- vdr-1.7.26.orig/status.h	2012-03-14 22:32:16.141015656 +0100
++++ vdr-1.7.26/status.h	2012-03-14 22:32:16.401015656 +0100
 @@ -14,6 +14,7 @@
  #include "device.h"
  #include "player.h"
@@ -292,8 +292,8 @@ Index: vdr-1.7.26/status.h
  #endif //__STATUS_H
 Index: vdr-1.7.26/timers.c
 ===================================================================
---- vdr-1.7.26.orig/timers.c	2012-03-13 17:08:13.000000000 +0100
-+++ vdr-1.7.26/timers.c	2012-03-13 17:15:44.800951995 +0100
+--- vdr-1.7.26.orig/timers.c	2012-03-11 14:16:19.000000000 +0100
++++ vdr-1.7.26/timers.c	2012-03-14 22:32:16.401015656 +0100
 @@ -47,6 +47,7 @@
       stop -= 2400;
    priority = Pause ? Setup.PausePriority : Setup.DefaultPriority;
@@ -370,8 +370,8 @@ Index: vdr-1.7.26/timers.c
  cTimers Timers;
 Index: vdr-1.7.26/timers.h
 ===================================================================
---- vdr-1.7.26.orig/timers.h	2012-03-13 17:08:12.000000000 +0100
-+++ vdr-1.7.26/timers.h	2012-03-13 17:15:44.800951995 +0100
+--- vdr-1.7.26.orig/timers.h	2012-03-11 14:16:19.000000000 +0100
++++ vdr-1.7.26/timers.h	2012-03-14 22:32:16.401015656 +0100
 @@ -38,6 +38,7 @@
    int start;
    int stop;
@@ -398,8 +398,8 @@ Index: vdr-1.7.26/timers.h
    bool HasFlags(uint Flags) const;
 Index: vdr-1.7.26/vdr.c
 ===================================================================
---- vdr-1.7.26.orig/vdr.c	2012-03-13 17:15:44.100951995 +0100
-+++ vdr-1.7.26/vdr.c	2012-03-13 17:15:44.800951995 +0100
+--- vdr-1.7.26.orig/vdr.c	2012-03-14 22:32:15.691015656 +0100
++++ vdr-1.7.26/vdr.c	2012-03-14 22:32:16.401015656 +0100
 @@ -60,6 +60,7 @@
  #include "skinsttng.h"
  #include "sourceparams.h"
@@ -408,7 +408,7 @@ Index: vdr-1.7.26/vdr.c
  #include "themes.h"
  #include "timers.h"
  #include "tools.h"
-@@ -930,6 +930,7 @@
+@@ -930,6 +931,7 @@
          cOsdObject *Interact = Menu ? Menu : cControl::Control();
          eKeys key = Interface->GetKey(!Interact || !Interact->NeedsFastResponse());
          if (ISREALKEY(key)) {
@@ -416,7 +416,7 @@ Index: vdr-1.7.26/vdr.c
             EITScanner.Activity();
             // Cancel shutdown countdown:
             if (ShutdownHandler.countdown)
-@@ -1002,10 +1003,12 @@
+@@ -1002,10 +1004,12 @@
                       cControl::Control()->Hide();
                    cPlugin *plugin = cPluginManager::GetPlugin(PluginName);
                    if (plugin) {
@@ -429,7 +429,7 @@ Index: vdr-1.7.26/vdr.c
                    else
                       esyslog("ERROR: unknown plugin '%s'", PluginName);
                    }
-@@ -1218,9 +1221,11 @@
+@@ -1218,9 +1222,11 @@
               // Instant resume of the last viewed recording:
               case kPlay:
                    if (cReplayControl::LastReplayed()) {

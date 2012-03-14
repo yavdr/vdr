@@ -1,7 +1,7 @@
 Index: vdr-1.7.26/ci.h
 ===================================================================
---- vdr-1.7.26.orig/ci.h	2012-03-11 22:27:52.842013122 +0100
-+++ vdr-1.7.26/ci.h	2012-03-11 22:43:37.052013156 +0100
+--- vdr-1.7.26.orig/ci.h	2012-03-14 22:32:16.291015656 +0100
++++ vdr-1.7.26/ci.h	2012-03-14 22:32:16.411015656 +0100
 @@ -72,6 +72,7 @@
    };
  
@@ -24,9 +24,9 @@ Index: vdr-1.7.26/ci.h
    };
 Index: vdr-1.7.26/device.h
 ===================================================================
---- vdr-1.7.26.orig/device.h	2012-03-11 22:27:52.842013122 +0100
-+++ vdr-1.7.26/device.h	2012-03-11 22:43:37.052013156 +0100
-@@ -785,7 +785,14 @@
+--- vdr-1.7.26.orig/device.h	2012-03-14 22:32:16.301015656 +0100
++++ vdr-1.7.26/device.h	2012-03-14 22:32:16.411015656 +0100
+@@ -792,7 +792,14 @@
  /// sure the returned data points to a TS packet and automatically
  /// re-synchronizes after broken packets.
  
@@ -42,7 +42,7 @@ Index: vdr-1.7.26/device.h
  private:
    int f;
    int cardIndex;
-@@ -794,8 +801,8 @@
+@@ -801,8 +808,8 @@
    virtual void Action(void);
  public:
    cTSBuffer(int File, int Size, int CardIndex);
@@ -55,8 +55,8 @@ Index: vdr-1.7.26/device.h
  /// A plugin that want to create devices handled by the dynamite-plugin needs to create
 Index: vdr-1.7.26/dvbci.c
 ===================================================================
---- vdr-1.7.26.orig/dvbci.c	2012-03-11 22:27:52.842013122 +0100
-+++ vdr-1.7.26/dvbci.c	2012-03-11 22:43:37.052013156 +0100
+--- vdr-1.7.26.orig/dvbci.c	2012-03-14 22:32:16.301015656 +0100
++++ vdr-1.7.26/dvbci.c	2012-03-14 22:32:16.421015656 +0100
 @@ -22,23 +22,8 @@
    adapter = Adapter;
    frontend = Frontend;
@@ -163,8 +163,8 @@ Index: vdr-1.7.26/dvbci.c
  }
 Index: vdr-1.7.26/dvbci.h
 ===================================================================
---- vdr-1.7.26.orig/dvbci.h	2012-03-11 22:27:52.842013122 +0100
-+++ vdr-1.7.26/dvbci.h	2012-03-11 22:43:37.052013156 +0100
+--- vdr-1.7.26.orig/dvbci.h	2012-03-14 22:32:16.301015656 +0100
++++ vdr-1.7.26/dvbci.h	2012-03-14 22:32:16.421015656 +0100
 @@ -31,9 +31,33 @@
    cDvbCiAdapter(cDevice *Device, int Fd, int Adapter = -1, int Frontend = -1);
  public:
@@ -201,8 +201,8 @@ Index: vdr-1.7.26/dvbci.h
  #endif //__DVBCI_H
 Index: vdr-1.7.26/dvbdevice.c
 ===================================================================
---- vdr-1.7.26.orig/dvbdevice.c	2012-03-11 22:27:52.842013122 +0100
-+++ vdr-1.7.26/dvbdevice.c	2012-03-11 22:43:37.062013156 +0100
+--- vdr-1.7.26.orig/dvbdevice.c	2012-03-14 22:32:16.301015656 +0100
++++ vdr-1.7.26/dvbdevice.c	2012-03-14 22:32:16.421015656 +0100
 @@ -1106,9 +1106,8 @@
  
    // Common Interface:
@@ -232,8 +232,8 @@ Index: vdr-1.7.26/dvbdevice.c
  
 Index: vdr-1.7.26/dvbdevice.h
 ===================================================================
---- vdr-1.7.26.orig/dvbdevice.h	2012-03-11 22:27:52.852013122 +0100
-+++ vdr-1.7.26/dvbdevice.h	2012-03-11 22:43:37.062013156 +0100
+--- vdr-1.7.26.orig/dvbdevice.h	2012-03-14 22:32:16.301015656 +0100
++++ vdr-1.7.26/dvbdevice.h	2012-03-14 22:32:16.421015656 +0100
 @@ -127,7 +127,7 @@
    int deliverySystems[MAXDELIVERYSYSTEMS];
    int numDeliverySystems;
