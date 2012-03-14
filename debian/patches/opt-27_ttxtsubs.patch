@@ -3,8 +3,8 @@ Origin: ttxsubs plugin
 
 Index: vdr-1.7.26/MANUAL
 ===================================================================
---- vdr-1.7.26.orig/MANUAL	2012-03-11 21:16:44.202012973 +0100
-+++ vdr-1.7.26/MANUAL	2012-03-11 21:16:44.242012973 +0100
+--- vdr-1.7.26.orig/MANUAL	2012-03-14 22:36:16.171015800 +0100
++++ vdr-1.7.26/MANUAL	2012-03-14 22:36:16.211015800 +0100
 @@ -730,6 +730,9 @@
                           background transparency. By default the values as broadcast
                           are used.
@@ -17,8 +17,8 @@ Index: vdr-1.7.26/MANUAL
    Use DiSEqC = no        Generally turns DiSEqC support on or off.
 Index: vdr-1.7.26/Makefile
 ===================================================================
---- vdr-1.7.26.orig/Makefile	2012-03-11 21:16:44.122012973 +0100
-+++ vdr-1.7.26/Makefile	2012-03-11 21:16:44.252012973 +0100
+--- vdr-1.7.26.orig/Makefile	2012-03-14 22:36:16.051015800 +0100
++++ vdr-1.7.26/Makefile	2012-03-14 22:36:16.211015800 +0100
 @@ -47,6 +47,8 @@
         skinclassic.o skins.o skinsttng.o sourceparams.o sources.o spu.o status.o svdrp.o themes.o thread.o\
         timers.o tools.o transfer.o vdr.o videodir.o
@@ -31,7 +31,7 @@ Index: vdr-1.7.26/Makefile
 Index: vdr-1.7.26/channels.c
 ===================================================================
 --- vdr-1.7.26.orig/channels.c	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/channels.c	2012-03-11 21:16:44.252012973 +0100
++++ vdr-1.7.26/channels.c	2012-03-14 22:36:16.221015800 +0100
 @@ -378,6 +378,26 @@
       }
  }
@@ -114,7 +114,7 @@ Index: vdr-1.7.26/channels.c
 Index: vdr-1.7.26/channels.h
 ===================================================================
 --- vdr-1.7.26.orig/channels.h	2012-01-18 22:24:07.000000000 +0100
-+++ vdr-1.7.26/channels.h	2012-03-11 21:16:44.252012973 +0100
++++ vdr-1.7.26/channels.h	2012-03-14 22:36:16.221015800 +0100
 @@ -35,6 +35,7 @@
  #define MAXDPIDS 16 // dolby (AC3 + DTS)
  #define MAXSPIDS 32 // subtitles
@@ -170,7 +170,7 @@ Index: vdr-1.7.26/channels.h
 Index: vdr-1.7.26/ci.c
 ===================================================================
 --- vdr-1.7.26.orig/ci.c	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/ci.c	2012-03-11 21:16:44.252012973 +0100
++++ vdr-1.7.26/ci.c	2012-03-14 22:36:16.221015800 +0100
 @@ -1913,6 +1913,8 @@
           AddPid(Channel->Sid(), *Dpid, STREAM_TYPE_PRIVATE);
       for (const int *Spid = Channel->Spids(); *Spid; Spid++)
@@ -192,8 +192,8 @@ Index: vdr-1.7.26/ci.c
       do {
 Index: vdr-1.7.26/config.c
 ===================================================================
---- vdr-1.7.26.orig/config.c	2012-03-11 21:16:44.202012973 +0100
-+++ vdr-1.7.26/config.c	2012-03-11 21:16:44.252012973 +0100
+--- vdr-1.7.26.orig/config.c	2012-03-14 22:36:16.171015800 +0100
++++ vdr-1.7.26/config.c	2012-03-14 22:36:16.221015800 +0100
 @@ -395,6 +395,7 @@
    MarginStop = 10;
    AudioLanguages[0] = -1;
@@ -220,8 +220,8 @@ Index: vdr-1.7.26/config.c
    Store("SubtitleFgTransparency", SubtitleFgTransparency);
 Index: vdr-1.7.26/config.h
 ===================================================================
---- vdr-1.7.26.orig/config.h	2012-03-11 21:16:44.202012973 +0100
-+++ vdr-1.7.26/config.h	2012-03-11 21:16:44.252012973 +0100
+--- vdr-1.7.26.orig/config.h	2012-03-14 22:36:16.171015800 +0100
++++ vdr-1.7.26/config.h	2012-03-14 22:36:16.221015800 +0100
 @@ -262,6 +262,7 @@
    int MarginStart, MarginStop;
    int AudioLanguages[I18N_MAX_LANGUAGES + 1];
@@ -232,8 +232,8 @@ Index: vdr-1.7.26/config.h
    int SubtitleFgTransparency, SubtitleBgTransparency;
 Index: vdr-1.7.26/device.c
 ===================================================================
---- vdr-1.7.26.orig/device.c	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/device.c	2012-03-11 21:16:44.252012973 +0100
+--- vdr-1.7.26.orig/device.c	2012-03-14 22:36:16.101015800 +0100
++++ vdr-1.7.26/device.c	2012-03-14 22:36:16.221015800 +0100
 @@ -18,6 +18,7 @@
  #include "receiver.h"
  #include "status.h"
@@ -242,7 +242,7 @@ Index: vdr-1.7.26/device.c
  
  // --- cLiveSubtitle ---------------------------------------------------------
  
-@@ -1285,6 +1286,13 @@
+@@ -1288,6 +1289,13 @@
                    }
                 break;
            case 0xBD: { // private stream 1
@@ -256,7 +256,7 @@ Index: vdr-1.7.26/device.c
                 int PayloadOffset = Data[8] + 9;
  
                 // Compatibility mode for old subtitles plugin:
-@@ -1444,6 +1452,7 @@
+@@ -1447,6 +1455,7 @@
       tsToPesVideo.Reset();
       tsToPesAudio.Reset();
       tsToPesSubtitle.Reset();
@@ -264,7 +264,7 @@ Index: vdr-1.7.26/device.c
       }
    else if (Length < TS_SIZE) {
       esyslog("ERROR: skipped %d bytes of TS fragment", Length);
-@@ -1489,6 +1498,17 @@
+@@ -1492,6 +1501,17 @@
                      if (!VideoOnly || HasIBPTrickSpeed())
                         PlayTsSubtitle(Data, TS_SIZE);
                      }
@@ -284,9 +284,9 @@ Index: vdr-1.7.26/device.c
             else if (Pid == patPmtParser.Ppid()) {
 Index: vdr-1.7.26/device.h
 ===================================================================
---- vdr-1.7.26.orig/device.h	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/device.h	2012-03-11 21:16:44.262012973 +0100
-@@ -560,6 +560,7 @@
+--- vdr-1.7.26.orig/device.h	2012-03-14 22:36:16.101015800 +0100
++++ vdr-1.7.26/device.h	2012-03-14 22:36:16.221015800 +0100
+@@ -567,6 +567,7 @@
    cTsToPes tsToPesVideo;
    cTsToPes tsToPesAudio;
    cTsToPes tsToPesSubtitle;
@@ -296,8 +296,8 @@ Index: vdr-1.7.26/device.h
    const cPatPmtParser *PatPmtParser(void) const { return &patPmtParser; }
 Index: vdr-1.7.26/menu.c
 ===================================================================
---- vdr-1.7.26.orig/menu.c	2012-03-11 21:16:44.212012973 +0100
-+++ vdr-1.7.26/menu.c	2012-03-11 21:16:44.262012973 +0100
+--- vdr-1.7.26.orig/menu.c	2012-03-14 22:36:16.181015800 +0100
++++ vdr-1.7.26/menu.c	2012-03-14 22:36:16.231015800 +0100
 @@ -2991,6 +2991,7 @@
       Add(new cMenuEditIntItem( tr("Setup.DVB$Subtitle foreground transparency"), &data.SubtitleFgTransparency, 0, 9));
       Add(new cMenuEditIntItem( tr("Setup.DVB$Subtitle background transparency"), &data.SubtitleBgTransparency, 0, 10));
@@ -309,7 +309,7 @@ Index: vdr-1.7.26/menu.c
 Index: vdr-1.7.26/pat.c
 ===================================================================
 --- vdr-1.7.26.orig/pat.c	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/pat.c	2012-03-11 21:16:44.262012973 +0100
++++ vdr-1.7.26/pat.c	2012-03-14 22:36:16.231015800 +0100
 @@ -13,6 +13,7 @@
  #include "libsi/section.h"
  #include "libsi/descriptor.h"
@@ -366,7 +366,7 @@ Index: vdr-1.7.26/pat.c
 Index: vdr-1.7.26/po/ca_ES.po
 ===================================================================
 --- vdr-1.7.26.orig/po/ca_ES.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/ca_ES.po	2012-03-11 21:16:44.262012973 +0100
++++ vdr-1.7.26/po/ca_ES.po	2012-03-14 22:36:16.231015800 +0100
 @@ -962,6 +962,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparència fons subtítols"
@@ -380,7 +380,7 @@ Index: vdr-1.7.26/po/ca_ES.po
 Index: vdr-1.7.26/po/cs_CZ.po
 ===================================================================
 --- vdr-1.7.26.orig/po/cs_CZ.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/cs_CZ.po	2012-03-11 21:16:44.262012973 +0100
++++ vdr-1.7.26/po/cs_CZ.po	2012-03-14 22:36:16.231015800 +0100
 @@ -961,6 +961,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "PrÅ¯hlednost pozadÃ­ titulkÅ¯"
@@ -394,7 +394,7 @@ Index: vdr-1.7.26/po/cs_CZ.po
 Index: vdr-1.7.26/po/da_DK.po
 ===================================================================
 --- vdr-1.7.26.orig/po/da_DK.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/da_DK.po	2012-03-11 21:16:44.262012973 +0100
++++ vdr-1.7.26/po/da_DK.po	2012-03-14 22:36:16.231015800 +0100
 @@ -959,6 +959,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Undertekst baggrundsgennemsigtighed"
@@ -407,8 +407,8 @@ Index: vdr-1.7.26/po/da_DK.po
  
 Index: vdr-1.7.26/po/de_DE.po
 ===================================================================
---- vdr-1.7.26.orig/po/de_DE.po	2012-03-11 21:16:44.212012973 +0100
-+++ vdr-1.7.26/po/de_DE.po	2012-03-11 21:16:44.272012973 +0100
+--- vdr-1.7.26.orig/po/de_DE.po	2012-03-14 22:36:16.181015800 +0100
++++ vdr-1.7.26/po/de_DE.po	2012-03-14 22:36:16.231015800 +0100
 @@ -959,6 +959,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Untertitel-Transparenz Hintergrund"
@@ -422,7 +422,7 @@ Index: vdr-1.7.26/po/de_DE.po
 Index: vdr-1.7.26/po/el_GR.po
 ===================================================================
 --- vdr-1.7.26.orig/po/el_GR.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/el_GR.po	2012-03-11 21:16:44.272012973 +0100
++++ vdr-1.7.26/po/el_GR.po	2012-03-14 22:36:16.241015800 +0100
 @@ -959,6 +959,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr ""
@@ -436,7 +436,7 @@ Index: vdr-1.7.26/po/el_GR.po
 Index: vdr-1.7.26/po/es_ES.po
 ===================================================================
 --- vdr-1.7.26.orig/po/es_ES.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/es_ES.po	2012-03-11 21:16:44.272012973 +0100
++++ vdr-1.7.26/po/es_ES.po	2012-03-14 22:36:16.241015800 +0100
 @@ -960,6 +960,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparencia fondo subtítulos"
@@ -450,7 +450,7 @@ Index: vdr-1.7.26/po/es_ES.po
 Index: vdr-1.7.26/po/et_EE.po
 ===================================================================
 --- vdr-1.7.26.orig/po/et_EE.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/et_EE.po	2012-03-11 21:16:44.272012973 +0100
++++ vdr-1.7.26/po/et_EE.po	2012-03-14 22:36:16.241015800 +0100
 @@ -959,6 +959,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Subtiitri tausta lÃ¤bipaistvus"
@@ -463,8 +463,8 @@ Index: vdr-1.7.26/po/et_EE.po
  
 Index: vdr-1.7.26/po/fi_FI.po
 ===================================================================
---- vdr-1.7.26.orig/po/fi_FI.po	2012-03-11 21:16:44.132012973 +0100
-+++ vdr-1.7.26/po/fi_FI.po	2012-03-11 21:16:44.272012973 +0100
+--- vdr-1.7.26.orig/po/fi_FI.po	2012-03-14 22:36:16.061015800 +0100
++++ vdr-1.7.26/po/fi_FI.po	2012-03-14 22:36:16.241015800 +0100
 @@ -962,6 +962,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Tekstityksen taustan lÃ¤pinÃ¤kyvyys"
@@ -477,8 +477,8 @@ Index: vdr-1.7.26/po/fi_FI.po
  
 Index: vdr-1.7.26/po/fr_FR.po
 ===================================================================
---- vdr-1.7.26.orig/po/fr_FR.po	2012-03-11 21:16:44.212012973 +0100
-+++ vdr-1.7.26/po/fr_FR.po	2012-03-11 21:16:44.272012973 +0100
+--- vdr-1.7.26.orig/po/fr_FR.po	2012-03-14 22:36:16.181015800 +0100
++++ vdr-1.7.26/po/fr_FR.po	2012-03-14 22:36:16.241015800 +0100
 @@ -965,6 +965,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparence du fond"
@@ -492,7 +492,7 @@ Index: vdr-1.7.26/po/fr_FR.po
 Index: vdr-1.7.26/po/hr_HR.po
 ===================================================================
 --- vdr-1.7.26.orig/po/hr_HR.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/hr_HR.po	2012-03-11 21:16:44.272012973 +0100
++++ vdr-1.7.26/po/hr_HR.po	2012-03-14 22:36:16.241015800 +0100
 @@ -961,6 +961,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparentnost pozadine titla"
@@ -506,7 +506,7 @@ Index: vdr-1.7.26/po/hr_HR.po
 Index: vdr-1.7.26/po/hu_HU.po
 ===================================================================
 --- vdr-1.7.26.orig/po/hu_HU.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/hu_HU.po	2012-03-11 21:16:44.272012973 +0100
++++ vdr-1.7.26/po/hu_HU.po	2012-03-14 22:36:16.241015800 +0100
 @@ -962,6 +962,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Felirat hátterének transzparenciája"
@@ -520,7 +520,7 @@ Index: vdr-1.7.26/po/hu_HU.po
 Index: vdr-1.7.26/po/it_IT.po
 ===================================================================
 --- vdr-1.7.26.orig/po/it_IT.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/it_IT.po	2012-03-11 21:16:44.282012973 +0100
++++ vdr-1.7.26/po/it_IT.po	2012-03-14 22:36:16.241015800 +0100
 @@ -966,6 +966,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Trasparenza sfondo sottotitoli"
@@ -534,7 +534,7 @@ Index: vdr-1.7.26/po/it_IT.po
 Index: vdr-1.7.26/po/lt_LT.po
 ===================================================================
 --- vdr-1.7.26.orig/po/lt_LT.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/lt_LT.po	2012-03-11 21:16:44.282012973 +0100
++++ vdr-1.7.26/po/lt_LT.po	2012-03-14 22:36:16.251015800 +0100
 @@ -959,6 +959,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "SubtitrÅ³ fono permatomumas"
@@ -548,7 +548,7 @@ Index: vdr-1.7.26/po/lt_LT.po
 Index: vdr-1.7.26/po/nl_NL.po
 ===================================================================
 --- vdr-1.7.26.orig/po/nl_NL.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/nl_NL.po	2012-03-11 21:16:44.282012973 +0100
++++ vdr-1.7.26/po/nl_NL.po	2012-03-14 22:36:16.251015800 +0100
 @@ -963,6 +963,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparantie achtergrond ondertiteling"
@@ -562,7 +562,7 @@ Index: vdr-1.7.26/po/nl_NL.po
 Index: vdr-1.7.26/po/nn_NO.po
 ===================================================================
 --- vdr-1.7.26.orig/po/nn_NO.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/nn_NO.po	2012-03-11 21:16:44.282012973 +0100
++++ vdr-1.7.26/po/nn_NO.po	2012-03-14 22:36:16.251015800 +0100
 @@ -960,6 +960,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr ""
@@ -576,7 +576,7 @@ Index: vdr-1.7.26/po/nn_NO.po
 Index: vdr-1.7.26/po/pl_PL.po
 ===================================================================
 --- vdr-1.7.26.orig/po/pl_PL.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/pl_PL.po	2012-03-11 21:16:44.282012973 +0100
++++ vdr-1.7.26/po/pl_PL.po	2012-03-14 22:36:16.251015800 +0100
 @@ -960,6 +960,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Prze¼rocze podtytu³ów: T³o"
@@ -590,7 +590,7 @@ Index: vdr-1.7.26/po/pl_PL.po
 Index: vdr-1.7.26/po/pt_PT.po
 ===================================================================
 --- vdr-1.7.26.orig/po/pt_PT.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/pt_PT.po	2012-03-11 21:16:44.282012973 +0100
++++ vdr-1.7.26/po/pt_PT.po	2012-03-14 22:36:16.251015800 +0100
 @@ -960,6 +960,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparência de fundo das legendas"
@@ -604,7 +604,7 @@ Index: vdr-1.7.26/po/pt_PT.po
 Index: vdr-1.7.26/po/ro_RO.po
 ===================================================================
 --- vdr-1.7.26.orig/po/ro_RO.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/ro_RO.po	2012-03-11 21:16:44.282012973 +0100
++++ vdr-1.7.26/po/ro_RO.po	2012-03-14 22:36:16.251015800 +0100
 @@ -962,6 +962,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparenþa fundalului subtitrãrii"
@@ -618,7 +618,7 @@ Index: vdr-1.7.26/po/ro_RO.po
 Index: vdr-1.7.26/po/ru_RU.po
 ===================================================================
 --- vdr-1.7.26.orig/po/ru_RU.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/ru_RU.po	2012-03-11 21:16:44.282012973 +0100
++++ vdr-1.7.26/po/ru_RU.po	2012-03-14 22:36:16.251015800 +0100
 @@ -960,6 +960,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "¿àÞ×àÐçÝÞáâì äÞÝÐ áãÑâØâàÞÒ"
@@ -632,7 +632,7 @@ Index: vdr-1.7.26/po/ru_RU.po
 Index: vdr-1.7.26/po/sk_SK.po
 ===================================================================
 --- vdr-1.7.26.orig/po/sk_SK.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/sk_SK.po	2012-03-11 21:16:44.292012973 +0100
++++ vdr-1.7.26/po/sk_SK.po	2012-03-14 22:36:16.251015800 +0100
 @@ -959,6 +959,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Priehµadnos» pozadia titulkov"
@@ -646,7 +646,7 @@ Index: vdr-1.7.26/po/sk_SK.po
 Index: vdr-1.7.26/po/sl_SI.po
 ===================================================================
 --- vdr-1.7.26.orig/po/sl_SI.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/sl_SI.po	2012-03-11 21:16:44.292012973 +0100
++++ vdr-1.7.26/po/sl_SI.po	2012-03-14 22:36:16.251015800 +0100
 @@ -960,6 +960,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparentnost ozadja podnapisov"
@@ -660,7 +660,7 @@ Index: vdr-1.7.26/po/sl_SI.po
 Index: vdr-1.7.26/po/sv_SE.po
 ===================================================================
 --- vdr-1.7.26.orig/po/sv_SE.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/sv_SE.po	2012-03-11 21:16:44.292012973 +0100
++++ vdr-1.7.26/po/sv_SE.po	2012-03-14 22:36:16.261015800 +0100
 @@ -962,6 +962,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparent bakgrund textremsa"
@@ -674,7 +674,7 @@ Index: vdr-1.7.26/po/sv_SE.po
 Index: vdr-1.7.26/po/tr_TR.po
 ===================================================================
 --- vdr-1.7.26.orig/po/tr_TR.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/tr_TR.po	2012-03-11 21:16:44.292012973 +0100
++++ vdr-1.7.26/po/tr_TR.po	2012-03-14 22:36:16.261015800 +0100
 @@ -959,6 +959,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Altyazý arka þeffaflýk"
@@ -688,7 +688,7 @@ Index: vdr-1.7.26/po/tr_TR.po
 Index: vdr-1.7.26/po/uk_UA.po
 ===================================================================
 --- vdr-1.7.26.orig/po/uk_UA.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/uk_UA.po	2012-03-11 21:16:44.292012973 +0100
++++ vdr-1.7.26/po/uk_UA.po	2012-03-14 22:36:16.261015800 +0100
 @@ -959,6 +959,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "ÐŸÑ€Ð¾Ð·Ð¾Ñ€Ñ–ÑÑ‚ÑŒ Ð·Ð°Ð´Ð½ÑŒÐ¾Ð³Ð¾ Ð¿Ð»Ð°Ð½Ñƒ ÑÑƒÐ±Ñ‚Ð¸Ñ‚Ñ€Ñ–Ð²"
@@ -702,7 +702,7 @@ Index: vdr-1.7.26/po/uk_UA.po
 Index: vdr-1.7.26/po/zh_CN.po
 ===================================================================
 --- vdr-1.7.26.orig/po/zh_CN.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/zh_CN.po	2012-03-11 21:16:44.292012973 +0100
++++ vdr-1.7.26/po/zh_CN.po	2012-03-14 22:36:16.261015800 +0100
 @@ -962,6 +962,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "å­—å¹•èƒŒæ™¯é€æ˜Žåº¦"
@@ -716,7 +716,7 @@ Index: vdr-1.7.26/po/zh_CN.po
 Index: vdr-1.7.26/receiver.c
 ===================================================================
 --- vdr-1.7.26.orig/receiver.c	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/receiver.c	2012-03-11 21:16:44.292012973 +0100
++++ vdr-1.7.26/receiver.c	2012-03-14 22:36:16.261015800 +0100
 @@ -81,7 +81,8 @@
              (Channel->Ppid() == Channel->Vpid() || AddPid(Channel->Ppid())) &&
              AddPids(Channel->Apids()) &&
@@ -730,7 +730,7 @@ Index: vdr-1.7.26/receiver.c
 Index: vdr-1.7.26/remux.c
 ===================================================================
 --- vdr-1.7.26.orig/remux.c	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/remux.c	2012-03-11 21:16:44.292012973 +0100
++++ vdr-1.7.26/remux.c	2012-03-14 22:36:16.261015800 +0100
 @@ -219,6 +219,29 @@
    return i;
  }
@@ -834,7 +834,7 @@ Index: vdr-1.7.26/remux.c
 Index: vdr-1.7.26/remux.h
 ===================================================================
 --- vdr-1.7.26.orig/remux.h	2012-01-18 22:24:07.000000000 +0100
-+++ vdr-1.7.26/remux.h	2012-03-11 21:16:44.292012973 +0100
++++ vdr-1.7.26/remux.h	2012-03-14 22:36:16.261015800 +0100
 @@ -174,6 +174,7 @@
    int MakeStream(uchar *Target, uchar Type, int Pid);
    int MakeAC3Descriptor(uchar *Target, uchar Type);
@@ -882,7 +882,7 @@ Index: vdr-1.7.26/remux.h
 Index: vdr-1.7.26/vdr.5
 ===================================================================
 --- vdr-1.7.26.orig/vdr.5	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/vdr.5	2012-03-11 21:16:44.302012973 +0100
++++ vdr-1.7.26/vdr.5	2012-03-14 22:36:16.261015800 +0100
 @@ -233,6 +233,12 @@
  
  .B ...:201;2001=deu,2002=eng:...
@@ -899,7 +899,7 @@ Index: vdr-1.7.26/vdr.5
 Index: vdr-1.7.26/vdrttxtsubshooks.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ vdr-1.7.26/vdrttxtsubshooks.c	2012-03-11 21:16:44.302012973 +0100
++++ vdr-1.7.26/vdrttxtsubshooks.c	2012-03-14 22:36:16.261015800 +0100
 @@ -0,0 +1,63 @@
 +/*
 + * vdr-ttxtsubs - A plugin for the Linux Video Disk Recorder
@@ -967,7 +967,7 @@ Index: vdr-1.7.26/vdrttxtsubshooks.c
 Index: vdr-1.7.26/vdrttxtsubshooks.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ vdr-1.7.26/vdrttxtsubshooks.h	2012-03-11 21:16:44.302012973 +0100
++++ vdr-1.7.26/vdrttxtsubshooks.h	2012-03-14 22:36:16.261015800 +0100
 @@ -0,0 +1,46 @@
 +/*
 + * vdr-ttxtsubs - A plugin for the Linux Video Disk Recorder
