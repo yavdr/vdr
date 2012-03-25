@@ -113,7 +113,7 @@ Index: vdr-1.7.27/cutter.c
 +                 // Get file number of next cut mark
 +                 if (!Mark && !LastMark
 +                     || Mark
-+                        && fromIndex->Get(Mark->position, &MarkFileNumber, &MarkFileOffset)
++                        && fromIndex->Get(Mark->Position(), &MarkFileNumber, &MarkFileOffset)
 +                        && (MarkFileNumber != CurrentFileNumber)) {
 +                    // The current source file will be copied completely.
 +                    // Start new output file unless we did that already

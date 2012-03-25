@@ -88,7 +88,7 @@ Index: vdr-1.7.27/dvbplayer.c
       if (Index >= 0) {
 +        // set resume position to 0 if replay stops at the first mark
 +        if (Setup.PlayJump && marks.First() &&
-+            abs(Index - marks.First()->position) <= int(round(RESUMEBACKUP * framesPerSecond)))
++            abs(Index - marks.First()->Position()) <= int(round(RESUMEBACKUP * framesPerSecond)))
 +           Index = 0;
          Index -= int(round(RESUMEBACKUP * framesPerSecond));
          if (Index > 0)
@@ -105,7 +105,7 @@ Index: vdr-1.7.27/dvbplayer.c
       isyslog("resuming replay at index %d (%s)", readIndex, *IndexToHMSF(readIndex, true, framesPerSecond));
  
 +  if (Setup.PlayJump && readIndex <= 0 && marks.First() && index) {
-+     int Index = marks.First()->position;
++     int Index = marks.First()->Position();
 +     uint16_t FileNumber;
 +     off_t FileOffset;
 +     if (index->Get(Index, &FileNumber, &FileOffset) &&
@@ -142,7 +142,7 @@ Index: vdr-1.7.27/dvbplayer.c
 +                            m = marks.Next(m);
 +                            int Index;
 +                            if (m)
-+                               Index = m->position;
++                               Index = m->Position();
 +                            else if (Setup.PauseLastMark) {
 +                               // pause at last mark
 +                               isyslog("PauseLastMark: pause at position %d (%s)",
@@ -268,12 +268,12 @@ Index: vdr-1.7.27/menu.c
 +           bool Play2, Forward2;
 +           int Speed;
 +           if (Setup.JumpPlay && GetReplayMode(Play2, Forward2, Speed) &&
-+               Play2 && Forward && m->position < Total - SecondsToFrames(3, FramesPerSecond())) {
-+              Goto(m->position);
++               Play2 && Forward && m->Position() < Total - SecondsToFrames(3, FramesPerSecond())) {
++              Goto(m->Position());
 +              Play();
 +              }
 +           else {
-+              Goto(m->position, true);
++              Goto(m->Position(), true);
 +              displayFrames = true;
 +              }
             }
