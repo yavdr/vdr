@@ -2,10 +2,10 @@ Description: Patch collection - see HISTORY-liemikuutio for details.
 Author: Rolf Ahrenberg <Rolf.Ahrenberg AT sci.fi>
 Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.26-liemikuutio-1.34.patch.gz
 
-Index: vdr-1.7.26/config.h
+Index: vdr-1.7.27/config.h
 ===================================================================
---- vdr-1.7.26.orig/config.h	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/config.h	2012-03-11 19:13:36.342012718 +0100
+--- vdr-1.7.27.orig/config.h	2012-03-11 11:41:44.000000000 +0100
++++ vdr-1.7.27/config.h	2012-03-25 14:18:05.374975038 +0200
 @@ -36,6 +36,8 @@
  // plugins to work with newer versions of the core VDR as long as no
  // VDR header files have changed.
@@ -15,10 +15,10 @@ Index: vdr-1.7.26/config.h
  #define MAXPRIORITY       99
  #define MINPRIORITY       (-MAXPRIORITY)
  #define LIVEPRIORITY      0                  // priority used when selecting a device for live viewing
-Index: vdr-1.7.26/cutter.c
+Index: vdr-1.7.27/cutter.c
 ===================================================================
---- vdr-1.7.26.orig/cutter.c	2012-02-20 14:35:49.000000000 +0100
-+++ vdr-1.7.26/cutter.c	2012-03-11 19:13:36.342012718 +0100
+--- vdr-1.7.27.orig/cutter.c	2012-02-16 13:08:39.000000000 +0100
++++ vdr-1.7.27/cutter.c	2012-03-25 14:18:05.374975038 +0200
 @@ -8,6 +8,7 @@
   */
  
@@ -56,10 +56,10 @@ Index: vdr-1.7.26/cutter.c
          char *e = strrchr(s, '.');
          if (e) {
             if (strcmp(e, ".rec") == 0) {
-Index: vdr-1.7.26/cutter.h
+Index: vdr-1.7.27/cutter.h
 ===================================================================
---- vdr-1.7.26.orig/cutter.h	2012-02-20 14:35:49.000000000 +0100
-+++ vdr-1.7.26/cutter.h	2012-03-11 19:13:36.342012718 +0100
+--- vdr-1.7.27.orig/cutter.h	2012-02-16 13:05:33.000000000 +0100
++++ vdr-1.7.27/cutter.h	2012-03-25 14:18:05.384975038 +0200
 @@ -24,7 +24,7 @@
    static bool error;
    static bool ended;
@@ -69,10 +69,10 @@ Index: vdr-1.7.26/cutter.h
    static void Stop(void);
    static bool Active(const char *FileName = NULL);
           ///< Returns true if the cutter is currently active.
-Index: vdr-1.7.26/filetransfer.c
+Index: vdr-1.7.27/filetransfer.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ vdr-1.7.26/filetransfer.c	2012-03-11 19:13:36.342012718 +0100
++++ vdr-1.7.27/filetransfer.c	2012-03-25 14:18:05.384975038 +0200
 @@ -0,0 +1,278 @@
 +/*
 + * filetransfer.c: The video file transfer facilities
@@ -352,10 +352,10 @@ Index: vdr-1.7.26/filetransfer.c
 +  ended = false;
 +  return result;
 +}
-Index: vdr-1.7.26/filetransfer.h
+Index: vdr-1.7.27/filetransfer.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ vdr-1.7.26/filetransfer.h	2012-03-11 19:13:36.342012718 +0100
++++ vdr-1.7.27/filetransfer.h	2012-03-25 14:18:05.384975038 +0200
 @@ -0,0 +1,33 @@
 +/*
 + * filetransfer.h: The video file transfer facilities
@@ -390,10 +390,10 @@ Index: vdr-1.7.26/filetransfer.h
 +  };
 +
 +#endif //__FILETRANSFER_H
-Index: vdr-1.7.26/HISTORY-liemikuutio
+Index: vdr-1.7.27/HISTORY-liemikuutio
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ vdr-1.7.26/HISTORY-liemikuutio	2012-03-11 19:13:36.342012718 +0100
++++ vdr-1.7.27/HISTORY-liemikuutio	2012-03-25 14:18:05.384975038 +0200
 @@ -0,0 +1,165 @@
 +-----------------------------------
 +Liemikuutio for Video Disc Recorder
@@ -560,10 +560,10 @@ Index: vdr-1.7.26/HISTORY-liemikuutio
 +
 +- Updated the filetransfer patch.
 +- Removed the DVB subtitles hack for old recordings.
-Index: vdr-1.7.26/Makefile
+Index: vdr-1.7.27/Makefile
 ===================================================================
---- vdr-1.7.26.orig/Makefile	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/Makefile	2012-03-11 19:13:36.342012718 +0100
+--- vdr-1.7.27.orig/Makefile	2012-03-11 16:33:57.000000000 +0100
++++ vdr-1.7.27/Makefile	2012-03-25 14:18:05.384975038 +0200
 @@ -41,8 +41,8 @@
  SILIB    = $(LSIDIR)/libsi.a
  
@@ -575,10 +575,10 @@ Index: vdr-1.7.26/Makefile
         receiver.o recorder.o recording.o remote.o remux.o ringbuffer.o sdt.o sections.o shutdown.o\
         skinclassic.o skins.o skinsttng.o sourceparams.o sources.o spu.o status.o svdrp.o themes.o thread.o\
         timers.o tools.o transfer.o vdr.o videodir.o
-Index: vdr-1.7.26/menu.c
+Index: vdr-1.7.27/menu.c
 ===================================================================
---- vdr-1.7.26.orig/menu.c	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/menu.c	2012-03-11 19:13:36.352012718 +0100
+--- vdr-1.7.27.orig/menu.c	2012-03-13 14:14:38.000000000 +0100
++++ vdr-1.7.27/menu.c	2012-03-25 14:18:05.384975038 +0200
 @@ -18,6 +18,7 @@
  #include "config.h"
  #include "cutter.h"
@@ -587,7 +587,7 @@ Index: vdr-1.7.26/menu.c
  #include "i18n.h"
  #include "interface.h"
  #include "plugin.h"
-@@ -2203,6 +2204,167 @@
+@@ -2207,6 +2208,167 @@
    SetText(cString::sprintf("%d\t\t%d\t%s", totalEntries, newEntries, name));
  }
  
@@ -755,7 +755,7 @@ Index: vdr-1.7.26/menu.c
  // --- cMenuRecordings -------------------------------------------------------
  
  cMenuRecordings::cMenuRecordings(const char *Base, int Level, bool OpenSubMenus)
-@@ -2451,6 +2613,19 @@
+@@ -2455,6 +2617,19 @@
    return osContinue;
  }
  
@@ -775,7 +775,7 @@ Index: vdr-1.7.26/menu.c
  eOSState cMenuRecordings::ProcessKey(eKeys Key)
  {
    bool HadSubMenu = HasSubMenu();
-@@ -2465,6 +2640,7 @@
+@@ -2469,6 +2644,7 @@
         case kYellow: return Delete();
         case kInfo:
         case kBlue:   return Info();
@@ -783,7 +783,7 @@ Index: vdr-1.7.26/menu.c
         case k1...k9: return Commands(Key);
         case kNone:   if (Recordings.StateChanged(recordingsState))
                          Set(true);
-@@ -3325,6 +3501,7 @@
+@@ -3329,6 +3505,7 @@
    replaying = false;
    stopReplayItem = NULL;
    cancelEditingItem = NULL;
@@ -791,7 +791,7 @@ Index: vdr-1.7.26/menu.c
    stopRecordingItem = NULL;
    recordControlsState = 0;
    Set();
-@@ -3426,6 +3603,19 @@
+@@ -3430,6 +3607,19 @@
       result = true;
       }
  
@@ -811,7 +811,7 @@ Index: vdr-1.7.26/menu.c
    // Record control:
    if (cRecordControls::StateChanged(recordControlsState)) {
       while (stopRecordingItem) {
-@@ -3474,6 +3664,12 @@
+@@ -3478,6 +3668,12 @@
                            return osEnd;
                            }
                         break;
@@ -824,7 +824,7 @@ Index: vdr-1.7.26/menu.c
      case osPlugin:     {
                           cMenuPluginItem *item = (cMenuPluginItem *)Get(Current());
                           if (item) {
-@@ -4424,6 +4620,10 @@
+@@ -4428,6 +4624,10 @@
  
  // --- cReplayControl --------------------------------------------------------
  
@@ -835,7 +835,7 @@ Index: vdr-1.7.26/menu.c
  cReplayControl *cReplayControl::currentReplayControl = NULL;
  char *cReplayControl::fileName = NULL;
  char *cReplayControl::title = NULL;
-@@ -4437,6 +4637,9 @@
+@@ -4441,6 +4641,9 @@
    lastCurrent = lastTotal = -1;
    lastPlay = lastForward = false;
    lastSpeed = -2; // an invalid value
@@ -845,7 +845,7 @@ Index: vdr-1.7.26/menu.c
    timeoutShow = 0;
    timeSearchActive = false;
    cRecording Recording(fileName);
-@@ -4759,7 +4962,7 @@
+@@ -4763,7 +4966,7 @@
       if (!cCutter::Active()) {
          if (!marks.Count())
             Skins.Message(mtError, tr("No editing marks defined!"));
@@ -854,7 +854,7 @@ Index: vdr-1.7.26/menu.c
             Skins.Message(mtError, tr("Can't start editing process!"));
          else
             Skins.Message(mtInfo, tr("Editing process started"));
-@@ -4841,6 +5044,32 @@
+@@ -4845,6 +5048,32 @@
      case kGreen:   SkipSeconds(-60); break;
      case kYellow|k_Repeat:
      case kYellow:  SkipSeconds( 60); break;
@@ -887,7 +887,7 @@ Index: vdr-1.7.26/menu.c
      case kStop:
      case kBlue:    Hide();
                     Stop();
-@@ -4850,12 +5079,8 @@
+@@ -4854,12 +5083,8 @@
        switch (int(Key)) {
          // Editing:
          case kMarkToggle:      MarkToggle(); break;
@@ -900,10 +900,10 @@ Index: vdr-1.7.26/menu.c
          case kMarkJumpForward|k_Repeat:
          case kMarkJumpForward: MarkJump(true); break;
          case kMarkMoveBack|k_Repeat:
-Index: vdr-1.7.26/menu.h
+Index: vdr-1.7.27/menu.h
 ===================================================================
---- vdr-1.7.26.orig/menu.h	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/menu.h	2012-03-11 19:13:36.352012718 +0100
+--- vdr-1.7.27.orig/menu.h	2012-03-08 14:11:40.000000000 +0100
++++ vdr-1.7.27/menu.h	2012-03-25 14:18:05.384975038 +0200
 @@ -101,6 +101,7 @@
    bool replaying;
    cOsdItem *stopReplayItem;
@@ -930,10 +930,10 @@ Index: vdr-1.7.26/menu.h
    time_t timeoutShow;
    bool timeSearchActive, timeSearchHide;
    int timeSearchTime, timeSearchPos;
-Index: vdr-1.7.26/osdbase.c
+Index: vdr-1.7.27/osdbase.c
 ===================================================================
---- vdr-1.7.26.orig/osdbase.c	2012-03-11 19:13:36.192012718 +0100
-+++ vdr-1.7.26/osdbase.c	2012-03-11 19:13:36.352012718 +0100
+--- vdr-1.7.27.orig/osdbase.c	2012-03-25 14:18:05.224975038 +0200
++++ vdr-1.7.27/osdbase.c	2012-03-25 14:18:05.394975038 +0200
 @@ -78,6 +78,7 @@
  {
    isMenu = true;
@@ -1026,10 +1026,10 @@ Index: vdr-1.7.26/osdbase.c
      case kUp|k_Repeat:
      case kUp:   CursorUp();   break;
      case kDown|k_Repeat:
-Index: vdr-1.7.26/osdbase.h
+Index: vdr-1.7.27/osdbase.h
 ===================================================================
---- vdr-1.7.26.orig/osdbase.h	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/osdbase.h	2012-03-11 19:13:36.352012718 +0100
+--- vdr-1.7.27.orig/osdbase.h	2012-03-02 16:49:57.000000000 +0100
++++ vdr-1.7.27/osdbase.h	2012-03-25 14:18:05.394975038 +0200
 @@ -30,6 +30,7 @@
                  osStopRecord,
                  osStopReplay,
@@ -1047,10 +1047,10 @@ Index: vdr-1.7.26/osdbase.h
    void DisplayHelp(bool Force = false);
  protected:
    void SetDisplayMenu(void);
-Index: vdr-1.7.26/po/de_DE.po
+Index: vdr-1.7.27/po/de_DE.po
 ===================================================================
---- vdr-1.7.26.orig/po/de_DE.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/de_DE.po	2012-03-11 19:13:36.352012718 +0100
+--- vdr-1.7.27.orig/po/de_DE.po	2012-03-11 11:44:44.000000000 +0100
++++ vdr-1.7.27/po/de_DE.po	2012-03-25 14:18:05.394975038 +0200
 @@ -1341,3 +1341,70 @@
  #, c-format
  msgid "VDR will shut down in %s minutes"
@@ -1122,10 +1122,10 @@ Index: vdr-1.7.26/po/de_DE.po
 +
 +msgid "File already exists - overwrite?"
 +msgstr "Datei besteht bereits - überschreiben?"
-Index: vdr-1.7.26/po/fi_FI.po
+Index: vdr-1.7.27/po/fi_FI.po
 ===================================================================
---- vdr-1.7.26.orig/po/fi_FI.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/fi_FI.po	2012-03-11 19:13:36.352012718 +0100
+--- vdr-1.7.27.orig/po/fi_FI.po	2012-03-11 11:44:43.000000000 +0100
++++ vdr-1.7.27/po/fi_FI.po	2012-03-25 14:18:05.394975038 +0200
 @@ -1344,3 +1344,70 @@
  #, c-format
  msgid "VDR will shut down in %s minutes"
@@ -1197,10 +1197,10 @@ Index: vdr-1.7.26/po/fi_FI.po
 +
 +msgid "File already exists - overwrite?"
 +msgstr "Tiedosto on jo olemassa - ylikirjoitetaanko?"
-Index: vdr-1.7.26/recording.c
+Index: vdr-1.7.27/recording.c
 ===================================================================
---- vdr-1.7.26.orig/recording.c	2012-03-11 19:13:36.162012718 +0100
-+++ vdr-1.7.26/recording.c	2012-03-11 19:13:36.352012718 +0100
+--- vdr-1.7.27.orig/recording.c	2012-03-25 14:18:05.204975038 +0200
++++ vdr-1.7.27/recording.c	2012-03-25 14:18:05.394975038 +0200
 @@ -932,6 +932,16 @@
    return NULL;
  }
@@ -1218,7 +1218,7 @@ Index: vdr-1.7.26/recording.c
  int cRecording::HierarchyLevels(void) const
  {
    const char *s = name;
-@@ -1205,7 +1215,7 @@
+@@ -1215,7 +1225,7 @@
       }
  }
  
@@ -1227,7 +1227,7 @@ Index: vdr-1.7.26/recording.c
  {
    LOCK_THREAD;
    cRecording *recording = GetByName(FileName);
-@@ -1213,7 +1223,7 @@
+@@ -1223,7 +1233,7 @@
       cThreadLock DeletedRecordingsLock(&DeletedRecordings);
       Del(recording, false);
       char *ext = strrchr(recording->fileName, '.');
@@ -1235,11 +1235,11 @@ Index: vdr-1.7.26/recording.c
 +     if (ext && RemoveRecording) {
          strncpy(ext, DELEXT, strlen(ext));
          if (access(recording->FileName(), F_OK) == 0) {
-            recording->fileSizeMB = DirSizeMB(recording->FileName());
-Index: vdr-1.7.26/recording.h
+            recording->deleted = time(NULL);
+Index: vdr-1.7.27/recording.h
 ===================================================================
---- vdr-1.7.26.orig/recording.h	2012-02-20 14:35:49.000000000 +0100
-+++ vdr-1.7.26/recording.h	2012-03-11 19:13:36.362012718 +0100
+--- vdr-1.7.27.orig/recording.h	2012-03-13 13:41:05.000000000 +0100
++++ vdr-1.7.27/recording.h	2012-03-25 14:18:05.394975038 +0200
 @@ -121,6 +121,7 @@
    const char *Title(char Delimiter = ' ', bool NewIndicator = false, int Level = -1) const;
    const cRecordingInfo *Info(void) const { return info; }
@@ -1248,19 +1248,19 @@ Index: vdr-1.7.26/recording.h
    int HierarchyLevels(void) const;
    void ResetResume(void) const;
    double FramesPerSecond(void) const { return framesPerSecond; }
-@@ -188,7 +189,7 @@
+@@ -191,7 +192,7 @@
    void ResetResume(const char *ResumeFileName = NULL);
    cRecording *GetByName(const char *FileName);
    void AddByName(const char *FileName, bool TriggerUpdate = true);
 -  void DelByName(const char *FileName);
 +  void DelByName(const char *FileName, bool RemoveRecording = true);
    void UpdateByName(const char *FileName);
-   int TotalFileSizeMB(void); ///< Only for deleted recordings!
-   };
-Index: vdr-1.7.26/shutdown.c
+   int TotalFileSizeMB(void);
+   double MBperMinute(void);
+Index: vdr-1.7.27/shutdown.c
 ===================================================================
---- vdr-1.7.26.orig/shutdown.c	2012-01-18 22:24:07.000000000 +0100
-+++ vdr-1.7.26/shutdown.c	2012-03-11 19:13:36.362012718 +0100
+--- vdr-1.7.27.orig/shutdown.c	2008-02-24 11:29:00.000000000 +0100
++++ vdr-1.7.27/shutdown.c	2012-03-25 14:18:05.394975038 +0200
 @@ -17,6 +17,7 @@
  #include "channels.h"
  #include "config.h"
@@ -1291,10 +1291,10 @@ Index: vdr-1.7.26/shutdown.c
  
    cTimer *timer = Timers.GetNextActiveTimer();
    time_t Next  = timer ? timer->StartTime() : 0;
-Index: vdr-1.7.26/svdrp.c
+Index: vdr-1.7.27/svdrp.c
 ===================================================================
---- vdr-1.7.26.orig/svdrp.c	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/svdrp.c	2012-03-11 19:13:36.362012718 +0100
+--- vdr-1.7.27.orig/svdrp.c	2012-03-04 13:05:56.000000000 +0100
++++ vdr-1.7.27/svdrp.c	2012-03-25 14:18:05.394975038 +0200
 @@ -31,6 +31,7 @@
  #include "cutter.h"
  #include "device.h"
@@ -1409,10 +1409,10 @@ Index: vdr-1.7.26/svdrp.c
    else if (CMD("NEWC"))  CmdNEWC(s);
    else if (CMD("NEWT"))  CmdNEWT(s);
    else if (CMD("NEXT"))  CmdNEXT(s);
-Index: vdr-1.7.26/svdrp.h
+Index: vdr-1.7.27/svdrp.h
 ===================================================================
---- vdr-1.7.26.orig/svdrp.h	2012-02-20 14:35:49.000000000 +0100
-+++ vdr-1.7.26/svdrp.h	2012-03-11 19:13:36.362012718 +0100
+--- vdr-1.7.27.orig/svdrp.h	2012-02-16 13:37:53.000000000 +0100
++++ vdr-1.7.27/svdrp.h	2012-03-25 14:18:05.404975038 +0200
 @@ -56,6 +56,7 @@
    void PrintHelpTopics(const char **hp);
    void CmdCHAN(const char *Option);
@@ -1429,10 +1429,10 @@ Index: vdr-1.7.26/svdrp.h
    void CmdNEWC(const char *Option);
    void CmdNEWT(const char *Option);
    void CmdNEXT(const char *Option);
-Index: vdr-1.7.26/vdr.c
+Index: vdr-1.7.27/vdr.c
 ===================================================================
---- vdr-1.7.26.orig/vdr.c	2012-03-11 19:13:36.282012718 +0100
-+++ vdr-1.7.26/vdr.c	2012-03-11 19:13:36.362012718 +0100
+--- vdr-1.7.27.orig/vdr.c	2012-03-25 14:18:05.314975038 +0200
++++ vdr-1.7.27/vdr.c	2012-03-25 14:18:05.404975038 +0200
 @@ -45,6 +45,7 @@
  #include "dvbdevice.h"
  #include "eitscan.h"
@@ -1471,10 +1471,10 @@ Index: vdr-1.7.26/vdr.c
    cCutter::Stop();
    delete Menu;
    cControl::Shutdown();
-Index: vdr-1.7.26/videodir.c
+Index: vdr-1.7.27/videodir.c
 ===================================================================
---- vdr-1.7.26.orig/videodir.c	2012-01-18 22:24:07.000000000 +0100
-+++ vdr-1.7.26/videodir.c	2012-03-11 19:13:36.362012718 +0100
+--- vdr-1.7.27.orig/videodir.c	2008-02-16 14:00:03.000000000 +0100
++++ vdr-1.7.27/videodir.c	2012-03-25 14:18:05.404975038 +0200
 @@ -224,6 +224,22 @@
    return NULL;
  }
@@ -1498,10 +1498,10 @@ Index: vdr-1.7.26/videodir.c
  void RemoveEmptyVideoDirectories(void)
  {
    cVideoDirectory Dir;
-Index: vdr-1.7.26/videodir.h
+Index: vdr-1.7.27/videodir.h
 ===================================================================
---- vdr-1.7.26.orig/videodir.h	2012-01-18 22:24:07.000000000 +0100
-+++ vdr-1.7.26/videodir.h	2012-03-11 19:13:36.362012718 +0100
+--- vdr-1.7.27.orig/videodir.h	2008-02-16 13:53:11.000000000 +0100
++++ vdr-1.7.27/videodir.h	2012-03-25 14:18:05.404975038 +0200
 @@ -22,6 +22,7 @@
  bool VideoFileSpaceAvailable(int SizeMB);
  int VideoDiskSpace(int *FreeMB = NULL, int *UsedMB = NULL); // returns the used disk space in percent

@@ -2,10 +2,10 @@ Description: Patch for VDR
 Author: Lars Hanisch <dvb@flensrocker.de>
 Origin: https://github.com/flensrocker/vdr-plugin-dynamite
 
-Index: vdr-1.7.26/ci.c
+Index: vdr-1.7.27/ci.c
 ===================================================================
---- vdr-1.7.26.orig/ci.c	2012-03-14 22:36:16.221015800 +0100
-+++ vdr-1.7.26/ci.c	2012-03-14 22:36:16.701015800 +0100
+--- vdr-1.7.27.orig/ci.c	2012-03-25 14:39:28.000000000 +0200
++++ vdr-1.7.27/ci.c	2012-03-25 14:47:30.464975099 +0200
 @@ -1571,6 +1571,8 @@
  
  cCamSlot::~cCamSlot()
@@ -15,10 +15,10 @@ Index: vdr-1.7.26/ci.c
    CamSlots.Del(this, false);
    DeleteAllConnections();
  }
-Index: vdr-1.7.26/ci.h
+Index: vdr-1.7.27/ci.h
 ===================================================================
---- vdr-1.7.26.orig/ci.h	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/ci.h	2012-03-14 22:36:16.701015800 +0100
+--- vdr-1.7.27.orig/ci.h	2012-02-29 11:24:27.000000000 +0100
++++ vdr-1.7.27/ci.h	2012-03-25 14:47:30.464975099 +0200
 @@ -115,6 +115,8 @@
         ///< The derived class must call Cancel(3) in its destructor.
    virtual bool Ready(void);
@@ -28,10 +28,10 @@ Index: vdr-1.7.26/ci.h
    };
  
  class cTPDU;
-Index: vdr-1.7.26/device.c
+Index: vdr-1.7.27/device.c
 ===================================================================
---- vdr-1.7.26.orig/device.c	2012-03-14 22:36:16.221015800 +0100
-+++ vdr-1.7.26/device.c	2012-03-14 22:36:16.701015800 +0100
+--- vdr-1.7.27.orig/device.c	2012-03-25 14:39:28.000000000 +0200
++++ vdr-1.7.27/device.c	2012-03-25 14:47:30.464975099 +0200
 @@ -70,12 +70,22 @@
  cDevice *cDevice::device[MAXDEVICES] = { NULL };
  cDevice *cDevice::primaryDevice = NULL;
@@ -116,7 +116,7 @@ Index: vdr-1.7.26/device.c
    for (int i = 0; i < numDevices; i++) {
        if (device[i] == this)
           return i;
-@@ -345,6 +384,8 @@
+@@ -350,6 +389,8 @@
  
  void cDevice::SetCamSlot(cCamSlot *CamSlot)
  {
@@ -125,7 +125,7 @@ Index: vdr-1.7.26/device.c
    camSlot = CamSlot;
  }
  
-@@ -557,6 +598,10 @@
+@@ -562,6 +603,10 @@
  
  void cDevice::StartSectionHandler(void)
  {
@@ -136,7 +136,7 @@ Index: vdr-1.7.26/device.c
    if (!sectionHandler) {
       sectionHandler = new cSectionHandler(this);
       AttachFilter(eitFilter = new cEitFilter);
-@@ -568,6 +613,10 @@
+@@ -573,6 +618,10 @@
  
  void cDevice::StopSectionHandler(void)
  {
@@ -147,7 +147,7 @@ Index: vdr-1.7.26/device.c
    if (sectionHandler) {
       delete nitFilter;
       delete sdtFilter;
-@@ -594,12 +643,17 @@
+@@ -599,12 +648,17 @@
  
  void cDevice::AttachFilter(cFilter *Filter)
  {
@@ -165,7 +165,7 @@ Index: vdr-1.7.26/device.c
    if (sectionHandler)
       sectionHandler->Detach(Filter);
  }
-@@ -761,6 +815,7 @@
+@@ -766,6 +820,7 @@
          sectionHandler->SetStatus(false);
          sectionHandler->SetChannel(NULL);
          }
@@ -173,7 +173,7 @@ Index: vdr-1.7.26/device.c
       // Tell the camSlot about the channel switch and add all PIDs of this
       // channel to it, for possible later decryption:
       if (camSlot)
-@@ -807,19 +862,27 @@
+@@ -812,19 +867,27 @@
  {
    if (!cTransferControl::ReceiverDevice()) {
       cChannel *Channel = Channels.GetByNumber(CurrentChannel());
@@ -202,7 +202,7 @@ Index: vdr-1.7.26/device.c
    if (Seconds >= 0)
       occupiedTimeout = time(NULL) + min(Seconds, MAXOCCUPIEDTIMEOUT);
  }
-@@ -1192,7 +1255,10 @@
+@@ -1197,7 +1260,10 @@
  
  bool cDevice::AttachPlayer(cPlayer *Player)
  {
@@ -213,7 +213,7 @@ Index: vdr-1.7.26/device.c
       if (player)
          Detach(player);
       DELETENULL(liveSubtitle);
-@@ -1211,6 +1277,8 @@
+@@ -1216,6 +1282,8 @@
  
  void cDevice::Detach(cPlayer *Player)
  {
@@ -222,7 +222,7 @@ Index: vdr-1.7.26/device.c
    if (Player && player == Player) {
       cPlayer *p = player;
       player = NULL; // avoids recursive calls to Detach()
-@@ -1230,6 +1298,8 @@
+@@ -1235,6 +1303,8 @@
  
  void cDevice::StopReplay(void)
  {
@@ -231,7 +231,7 @@ Index: vdr-1.7.26/device.c
    if (player) {
       Detach(player);
       if (IsPrimaryDevice())
-@@ -1531,6 +1601,8 @@
+@@ -1536,6 +1606,8 @@
  
  int cDevice::Priority(void) const
  {
@@ -240,7 +240,7 @@ Index: vdr-1.7.26/device.c
    int priority = IDLEPRIORITY;
    if (IsPrimaryDevice() && !Replaying() && ActualDevice() == PrimaryDevice())
       priority = TRANSFERPRIORITY; // we use the same value here, no matter whether it's actual Transfer Mode or real live viewing
-@@ -1549,6 +1621,8 @@
+@@ -1554,6 +1626,8 @@
  
  bool cDevice::Receiving(bool Dummy) const
  {
@@ -249,7 +249,7 @@ Index: vdr-1.7.26/device.c
    cMutexLock MutexLock(&mutexReceiver);
    for (int i = 0; i < MAXRECEIVERS; i++) {
        if (receiver[i])
-@@ -1629,10 +1703,13 @@
+@@ -1634,10 +1708,13 @@
  
  bool cDevice::AttachReceiver(cReceiver *Receiver)
  {
@@ -263,7 +263,7 @@ Index: vdr-1.7.26/device.c
  // activate the following line if you need it - actually the driver should be fixed!
  //#define WAIT_FOR_TUNER_LOCK
  #ifdef WAIT_FOR_TUNER_LOCK
-@@ -1671,6 +1748,8 @@
+@@ -1676,6 +1753,8 @@
  
  void cDevice::Detach(cReceiver *Receiver)
  {
@@ -272,7 +272,7 @@ Index: vdr-1.7.26/device.c
    if (!Receiver || Receiver->device != this)
       return;
    bool receiversLeft = false;
-@@ -1696,6 +1775,8 @@
+@@ -1701,6 +1780,8 @@
  
  void cDevice::DetachAll(int Pid)
  {
@@ -281,7 +281,7 @@ Index: vdr-1.7.26/device.c
    if (Pid) {
       cMutexLock MutexLock(&mutexReceiver);
       for (int i = 0; i < MAXRECEIVERS; i++) {
-@@ -1708,6 +1789,8 @@
+@@ -1713,6 +1794,8 @@
  
  void cDevice::DetachAllReceivers(void)
  {
@@ -290,7 +290,7 @@ Index: vdr-1.7.26/device.c
    cMutexLock MutexLock(&mutexReceiver);
    for (int i = 0; i < MAXRECEIVERS; i++)
        Detach(receiver[i]);
-@@ -1779,3 +1862,25 @@
+@@ -1784,3 +1867,25 @@
       }
    return NULL;
  }
@@ -316,10 +316,10 @@ Index: vdr-1.7.26/device.c
 +{
 +  DynamicDeviceProbes.Del(this, false);
 +}
-Index: vdr-1.7.26/device.h
+Index: vdr-1.7.27/device.h
 ===================================================================
---- vdr-1.7.26.orig/device.h	2012-03-14 22:36:16.481015800 +0100
-+++ vdr-1.7.26/device.h	2012-03-14 22:36:16.701015800 +0100
+--- vdr-1.7.27.orig/device.h	2012-03-25 14:39:29.000000000 +0200
++++ vdr-1.7.27/device.h	2012-03-25 14:47:30.474975099 +0200
 @@ -171,7 +171,6 @@
    static int nextCardIndex;
    int cardIndex;
@@ -337,8 +337,8 @@ Index: vdr-1.7.26/device.h
 -         ///< Returns the card index of this device (0 ... MAXDEVICES - 1).
    int DeviceNumber(void) const;
           ///< Returns the number of this device (0 ... numDevices).
-   virtual bool HasDecoder(void) const;
-@@ -414,9 +410,6 @@
+   virtual cString DeviceName(void) const;
+@@ -417,9 +413,6 @@
           ///< shall check whether the channel can be decrypted.
    void SetCamSlot(cCamSlot *CamSlot);
           ///< Sets the given CamSlot to be used with this device.
@@ -348,7 +348,7 @@ Index: vdr-1.7.26/device.h
  
  // Image Grab facilities
  
-@@ -573,9 +566,6 @@
+@@ -576,9 +569,6 @@
    cTsToPes tsToPesTeletext;
    bool isPlayingVideo;
  protected:
@@ -358,7 +358,7 @@ Index: vdr-1.7.26/device.h
    virtual bool CanReplay(void) const;
         ///< Returns true if this device can currently start a replay session.
    virtual bool SetPlayMode(ePlayMode PlayMode);
-@@ -760,6 +750,38 @@
+@@ -763,6 +753,38 @@
         ///< Detaches all receivers from this device for this pid.
    virtual void DetachAllReceivers(void);
         ///< Detaches all receivers from this device.
@@ -397,7 +397,7 @@ Index: vdr-1.7.26/device.h
    };
  
  /// Derived cDevice classes that can receive channels will have to provide
-@@ -783,4 +805,47 @@
+@@ -786,4 +808,47 @@
    uchar *Get(void);
    };
  
@@ -445,10 +445,10 @@ Index: vdr-1.7.26/device.h
 +extern cList<cDynamicDeviceProbe> DynamicDeviceProbes;
 +
  #endif //__DEVICE_H
-Index: vdr-1.7.26/dvbci.c
+Index: vdr-1.7.27/dvbci.c
 ===================================================================
---- vdr-1.7.26.orig/dvbci.c	2012-01-18 22:24:07.000000000 +0100
-+++ vdr-1.7.26/dvbci.c	2012-03-14 22:36:16.701015800 +0100
+--- vdr-1.7.27.orig/dvbci.c	2007-01-04 13:49:10.000000000 +0100
++++ vdr-1.7.27/dvbci.c	2012-03-25 14:47:30.474975099 +0200
 @@ -10,15 +10,18 @@
  #include "dvbci.h"
  #include <linux/dvb/ca.h>
@@ -555,10 +555,10 @@ Index: vdr-1.7.26/dvbci.c
 +     return new cDvbCiAdapter(Device, Fd, Adapter, Frontend);
    return NULL;
  }
-Index: vdr-1.7.26/dvbci.h
+Index: vdr-1.7.27/dvbci.h
 ===================================================================
---- vdr-1.7.26.orig/dvbci.h	2012-01-18 22:24:07.000000000 +0100
-+++ vdr-1.7.26/dvbci.h	2012-03-14 22:36:16.701015800 +0100
+--- vdr-1.7.27.orig/dvbci.h	2006-11-26 12:19:42.000000000 +0100
++++ vdr-1.7.27/dvbci.h	2012-03-25 14:47:30.474975099 +0200
 @@ -16,16 +16,24 @@
  private:
    cDevice *device;
@@ -586,10 +586,10 @@ Index: vdr-1.7.26/dvbci.h
    };
  
  #endif //__DVBCI_H
-Index: vdr-1.7.26/dvbdevice.c
+Index: vdr-1.7.27/dvbdevice.c
 ===================================================================
---- vdr-1.7.26.orig/dvbdevice.c	2012-03-14 22:36:16.441015800 +0100
-+++ vdr-1.7.26/dvbdevice.c	2012-03-14 22:36:16.701015800 +0100
+--- vdr-1.7.27.orig/dvbdevice.c	2012-03-25 14:39:29.000000000 +0200
++++ vdr-1.7.27/dvbdevice.c	2012-03-25 14:47:30.474975099 +0200
 @@ -307,12 +307,16 @@
    bool bondedMasterFailed;
    bool SetFrontendType(const cChannel *Channel);
@@ -764,7 +764,7 @@ Index: vdr-1.7.26/dvbdevice.c
  
    // The DVR device (will be opened and closed as needed):
  
-@@ -1269,7 +1320,11 @@
+@@ -1274,7 +1325,11 @@
           if (d >= 0) {
              int ErrorDevice = 0;
              if (cDevice *Device1 = cDevice::GetDevice(i)) {
@@ -776,7 +776,7 @@ Index: vdr-1.7.26/dvbdevice.c
                    if (cDvbDevice *DvbDevice1 = dynamic_cast<cDvbDevice *>(Device1)) {
                       if (cDvbDevice *DvbDevice2 = dynamic_cast<cDvbDevice *>(Device2)) {
                          if (!DvbDevice1->Bond(DvbDevice2))
-@@ -1303,7 +1358,10 @@
+@@ -1308,7 +1363,10 @@
  void cDvbDevice::UnBondDevices(void)
  {
    for (int i = 0; i < cDevice::NumDevices(); i++) {
@@ -788,7 +788,7 @@ Index: vdr-1.7.26/dvbdevice.c
           d->UnBond();
        }
  }
-@@ -1357,6 +1415,26 @@
+@@ -1362,6 +1420,26 @@
    return true;
  }
  
@@ -815,7 +815,7 @@ Index: vdr-1.7.26/dvbdevice.c
  bool cDvbDevice::HasCi(void)
  {
    return ciAdapter;
-@@ -1523,7 +1601,7 @@
+@@ -1528,7 +1606,7 @@
  
  bool cDvbDevice::ProvidesEIT(void) const
  {
@@ -824,10 +824,10 @@ Index: vdr-1.7.26/dvbdevice.c
  }
  
  int cDvbDevice::NumProvidedSystems(void) const
-Index: vdr-1.7.26/dvbdevice.h
+Index: vdr-1.7.27/dvbdevice.h
 ===================================================================
---- vdr-1.7.26.orig/dvbdevice.h	2012-03-14 22:36:16.441015800 +0100
-+++ vdr-1.7.26/dvbdevice.h	2012-03-14 22:36:16.701015800 +0100
+--- vdr-1.7.27.orig/dvbdevice.h	2012-03-25 14:39:29.000000000 +0200
++++ vdr-1.7.27/dvbdevice.h	2012-03-25 14:50:28.174975106 +0200
 @@ -107,7 +107,7 @@
  /// The cDvbDevice implements a DVB device which can be accessed through the Linux DVB driver API.
  
@@ -837,7 +837,7 @@ Index: vdr-1.7.26/dvbdevice.h
    static cString DvbName(const char *Name, int Adapter, int Frontend);
    static int DvbOpen(const char *Name, int Adapter, int Frontend, int Mode, bool ReportError = false);
  private:
-@@ -133,11 +133,13 @@
+@@ -133,12 +133,14 @@
    mutable bool needsDetachBondedReceivers;
    bool QueryDeliverySystems(int fd_frontend);
  public:
@@ -847,6 +847,7 @@ Index: vdr-1.7.26/dvbdevice.h
    int Adapter(void) const { return adapter; }
    int Frontend(void) const { return frontend; }
    virtual bool Ready(void);
+   virtual cString DeviceName(void) const;
 +  virtual bool SetIdleDevice(bool Idle, bool TestOnly);
 +
    static bool BondDevices(const char *Bondings);

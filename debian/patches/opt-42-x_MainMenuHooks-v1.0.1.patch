@@ -71,10 +71,10 @@ think you need to modify the patch, we'd encourage you to contact the
 authors first or at least use a service id which differs in more than
 just the version number.
 
-Index: vdr-1.7.26/config.h
+Index: vdr-1.7.27/config.h
 ===================================================================
---- vdr-1.7.26.orig/config.h	2012-03-11 21:39:18.000000000 +0100
-+++ vdr-1.7.26/config.h	2012-03-11 21:40:31.112013023 +0100
+--- vdr-1.7.27.orig/config.h	2012-03-25 14:18:05.554975038 +0200
++++ vdr-1.7.27/config.h	2012-03-25 14:18:05.694975038 +0200
 @@ -39,7 +39,11 @@
  #define LIEMIKUUTIO  134
  
@@ -88,11 +88,11 @@ Index: vdr-1.7.26/config.h
  #define MAXPRIORITY       99
  #define MINPRIORITY       (-MAXPRIORITY)
  #define LIVEPRIORITY      0                  // priority used when selecting a device for live viewing
-Index: vdr-1.7.26/menu.c
+Index: vdr-1.7.27/menu.c
 ===================================================================
---- vdr-1.7.26.orig/menu.c	2012-03-11 21:39:19.000000000 +0100
-+++ vdr-1.7.26/menu.c	2012-03-11 21:39:26.412013021 +0100
-@@ -3642,15 +3642,31 @@
+--- vdr-1.7.27.orig/menu.c	2012-03-25 14:18:05.664975038 +0200
++++ vdr-1.7.27/menu.c	2012-03-25 14:18:05.704975038 +0200
+@@ -3646,15 +3646,31 @@
  
    // Initial submenus:
  
@@ -130,7 +130,7 @@ Index: vdr-1.7.26/menu.c
  }
  
  cOsdObject *cMenuMain::PluginOsdObject(void)
-@@ -3803,13 +3819,34 @@
+@@ -3807,13 +3823,34 @@
    eOSState state = cOsdMenu::ProcessKey(Key);
    HadSubMenu |= HasSubMenu();
  
@@ -171,7 +171,7 @@ Index: vdr-1.7.26/menu.c
      case osStopRecord: if (Interface->Confirm(tr("Stop recording?"))) {
                            cOsdItem *item = Get(Current());
                            if (item) {
-@@ -3902,6 +3939,12 @@
+@@ -3906,6 +3943,12 @@
                 default:      break;
                 }
      }

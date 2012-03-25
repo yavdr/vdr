@@ -1,7 +1,7 @@
-Index: vdr-1.7.26/config.c
+Index: vdr-1.7.27/config.c
 ===================================================================
---- vdr-1.7.26.orig/config.c	2012-03-11 21:46:59.912013037 +0100
-+++ vdr-1.7.26/config.c	2012-03-11 21:55:21.832013056 +0100
+--- vdr-1.7.27.orig/config.c	2012-03-25 14:25:29.000000000 +0200
++++ vdr-1.7.27/config.c	2012-03-25 14:29:44.014975063 +0200
 @@ -375,6 +375,7 @@
    strcpy(OSDLanguage, ""); // default is taken from environment
    strcpy(OSDSkin, "sttng");
@@ -26,10 +26,10 @@ Index: vdr-1.7.26/config.c
    Store("PrimaryDVB",         PrimaryDVB);
    Store("ShowInfoOnChSwitch", ShowInfoOnChSwitch);
    Store("TimeoutRequChInfo",  TimeoutRequChInfo);
-Index: vdr-1.7.26/config.h
+Index: vdr-1.7.27/config.h
 ===================================================================
---- vdr-1.7.26.orig/config.h	2012-03-11 21:47:00.062013037 +0100
-+++ vdr-1.7.26/config.h	2012-03-11 21:55:21.832013056 +0100
+--- vdr-1.7.27.orig/config.h	2012-03-25 14:25:29.000000000 +0200
++++ vdr-1.7.27/config.h	2012-03-25 14:29:44.014975063 +0200
 @@ -247,6 +247,7 @@
    char OSDLanguage[I18N_MAX_LOCALE_LEN];
    char OSDSkin[MaxSkinName];
@@ -38,10 +38,10 @@ Index: vdr-1.7.26/config.h
    int PrimaryDVB;
    int ShowInfoOnChSwitch;
    int TimeoutRequChInfo;
-Index: vdr-1.7.26/iconpatch.c
+Index: vdr-1.7.27/iconpatch.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ vdr-1.7.26/iconpatch.c	2012-03-11 21:55:21.842013056 +0100
++++ vdr-1.7.27/iconpatch.c	2012-03-25 14:29:44.014975063 +0200
 @@ -0,0 +1,28 @@
 +
 +#include "iconpatch.h"
@@ -71,10 +71,10 @@ Index: vdr-1.7.26/iconpatch.c
 +
 +  return false;
 +}
-Index: vdr-1.7.26/iconpatch.h
+Index: vdr-1.7.27/iconpatch.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ vdr-1.7.26/iconpatch.h	2012-03-11 21:55:21.842013056 +0100
++++ vdr-1.7.27/iconpatch.h	2012-03-25 14:29:44.014975063 +0200
 @@ -0,0 +1,72 @@
 +/*
 + * iconpatch.h: Information of iconpatch
@@ -148,10 +148,10 @@ Index: vdr-1.7.26/iconpatch.h
 +bool IsLangUtf8(void);
 +
 +
-Index: vdr-1.7.26/Makefile
+Index: vdr-1.7.27/Makefile
 ===================================================================
---- vdr-1.7.26.orig/Makefile	2012-03-11 21:46:59.902013037 +0100
-+++ vdr-1.7.26/Makefile	2012-03-11 21:55:21.842013056 +0100
+--- vdr-1.7.27.orig/Makefile	2012-03-25 14:25:29.000000000 +0200
++++ vdr-1.7.27/Makefile	2012-03-25 14:29:44.014975063 +0200
 @@ -49,6 +49,8 @@
  
  OBJS += vdrttxtsubshooks.o
@@ -161,10 +161,10 @@ Index: vdr-1.7.26/Makefile
  ifndef NO_KBD
  DEFINES += -DREMOTE_KBD
  endif
-Index: vdr-1.7.26/menu.c
+Index: vdr-1.7.27/menu.c
 ===================================================================
---- vdr-1.7.26.orig/menu.c	2012-03-11 21:54:21.772013052 +0100
-+++ vdr-1.7.26/menu.c	2012-03-11 21:55:21.842013056 +0100
+--- vdr-1.7.27.orig/menu.c	2012-03-25 14:25:29.000000000 +0200
++++ vdr-1.7.27/menu.c	2012-03-25 14:36:47.754975077 +0200
 @@ -8,6 +8,7 @@
   */
  
@@ -173,7 +173,7 @@ Index: vdr-1.7.26/menu.c
  #include <ctype.h>
  #include <limits.h>
  #include <math.h>
-@@ -354,6 +355,15 @@
+@@ -358,6 +359,15 @@
    if (!channel->GroupSep()) {
       if (sortMode == csmProvider)
          buffer = cString::sprintf("%d\t%s - %s", channel->Number(), channel->Provider(), channel->Name());
@@ -189,7 +189,7 @@ Index: vdr-1.7.26/menu.c
       else
          buffer = cString::sprintf("%d\t%s", channel->Number(), channel->Name());
       }
-@@ -1075,9 +1085,9 @@
+@@ -1079,9 +1089,9 @@
       File = timer->File();
    cCharSetConv csc("ISO-8859-1", cCharSetConv::SystemCharacterTable());
    char diskStatusString[2] = { diskStatus, 0 };
@@ -202,7 +202,7 @@ Index: vdr-1.7.26/menu.c
                      timer->Channel()->Number(),
                      *name,
                      *name && **name ? " " : "",
-@@ -1464,7 +1474,12 @@
+@@ -1468,7 +1478,12 @@
    return r;
  }
  
@@ -216,7 +216,7 @@ Index: vdr-1.7.26/menu.c
  
  bool cMenuScheduleItem::Update(bool Force)
  {
-@@ -1473,17 +1488,17 @@
+@@ -1477,17 +1492,17 @@
    Timers.GetMatch(event, &timerMatch);
    if (Force || timerMatch != OldTimerMatch) {
       cString buffer;
@@ -229,10 +229,10 @@ Index: vdr-1.7.26/menu.c
       const char *csn = channel ? channel->ShortName(true) : NULL;
       cString eds = event->GetDateString();
       if (channel && withDate)
--        buffer = cString::sprintf("%d\t%.*s\t%.*s\t%s\t%c%c%c\t%s", channel->Number(), Utf8SymChars(csn, 6), csn, Utf8SymChars(eds, 6), *eds, *event->GetTimeString(), t, v, r, event->Title());
+-        buffer = cString::sprintf("%d\t%.*s\t%.*s\t%s\t%c%c%c\t%s", channel->Number(), Utf8SymChars(csn, 999), csn, Utf8SymChars(eds, 6), *eds, *event->GetTimeString(), t, v, r, event->Title());
 +        buffer = cString::sprintf("%d\t%.*s\t%.*s\t%s\t%s%s%s\t%s", channel->Number(), Utf8SymChars(csn, 6), csn, Utf8SymChars(eds, 6), *eds, *event->GetTimeString(), t, v, r, event->Title());
       else if (channel)
--        buffer = cString::sprintf("%d\t%.*s\t%s\t%c%c%c\t%s", channel->Number(), Utf8SymChars(csn, 6), csn, *event->GetTimeString(), t, v, r, event->Title());
+-        buffer = cString::sprintf("%d\t%.*s\t%s\t%c%c%c\t%s", channel->Number(), Utf8SymChars(csn, 999), csn, *event->GetTimeString(), t, v, r, event->Title());
 +        buffer = cString::sprintf("%d\t%.*s\t%s\t%s%s%s\t%s", channel->Number(), Utf8SymChars(csn, 6), csn, *event->GetTimeString(), t, v, r, event->Title());
       else
 -        buffer = cString::sprintf("%.*s\t%s\t%c%c%c\t%s", Utf8SymChars(eds, 6), *eds, *event->GetTimeString(), t, v, r, event->Title());
@@ -240,7 +240,7 @@ Index: vdr-1.7.26/menu.c
       SetText(buffer);
       result = true;
       }
-@@ -2924,6 +2939,7 @@
+@@ -2928,6 +2943,7 @@
    Add(new cMenuEditStraItem(tr("Setup.OSD$Skin"),                   &skinIndex, numSkins, skinDescriptions));
    if (themes.NumThemes())
    Add(new cMenuEditStraItem(tr("Setup.OSD$Theme"),                  &themeIndex, themes.NumThemes(), themes.Descriptions()));
@@ -248,10 +248,10 @@ Index: vdr-1.7.26/menu.c
    Add(new cMenuEditPrcItem( tr("Setup.OSD$Left (%)"),               &data.OSDLeftP, 0.0, 0.5));
    Add(new cMenuEditPrcItem( tr("Setup.OSD$Top (%)"),                &data.OSDTopP, 0.0, 0.5));
    Add(new cMenuEditPrcItem( tr("Setup.OSD$Width (%)"),              &data.OSDWidthP, 0.5, 1.0));
-Index: vdr-1.7.26/recording.c
+Index: vdr-1.7.27/recording.c
 ===================================================================
---- vdr-1.7.26.orig/recording.c	2012-03-11 21:46:59.792013037 +0100
-+++ vdr-1.7.26/recording.c	2012-03-11 21:55:21.842013056 +0100
+--- vdr-1.7.27.orig/recording.c	2012-03-25 14:25:29.000000000 +0200
++++ vdr-1.7.27/recording.c	2012-03-25 14:29:44.024975063 +0200
 @@ -8,6 +8,7 @@
   */
  

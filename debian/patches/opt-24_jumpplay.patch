@@ -5,9 +5,10 @@ Description: Play after jump to next mark. Automatically jump over commercial br
 Author: Torsten Kunkel <vdr@tkunkel.de>, Thomas GÃ¼nther <tom@toms-cafe.de>
 Origin: http://toms-cafe.de/vdr/download/vdr-jumpplay-1.0-1.7.6.diff
 
-diff -urNad vdr-1.7.26-orig/config.c vdr-1.7.26/config.c
---- vdr-1.7.26-orig/config.c	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/config.c	2012-03-11 21:02:29.252012945 +0100
+Index: vdr-1.7.27/config.c
+===================================================================
+--- vdr-1.7.27.orig/config.c	2012-02-29 11:15:54.000000000 +0100
++++ vdr-1.7.27/config.c	2012-03-25 14:18:05.504975038 +0200
 @@ -454,6 +454,9 @@
    ShowReplayMode = 0;
    ShowRemainingTime = 0;
@@ -38,9 +39,10 @@ diff -urNad vdr-1.7.26-orig/config.c vdr-1.7.26/config.c
    Store("CurrentChannel",     CurrentChannel);
    Store("CurrentVolume",      CurrentVolume);
    Store("CurrentDolby",       CurrentDolby);
-diff -urNad vdr-1.7.26-orig/config.h vdr-1.7.26/config.h
---- vdr-1.7.26-orig/config.h	2012-03-11 20:57:44.000000000 +0100
-+++ vdr-1.7.26/config.h	2012-03-11 21:08:50.552012957 +0100
+Index: vdr-1.7.27/config.h
+===================================================================
+--- vdr-1.7.27.orig/config.h	2012-03-25 14:18:05.374975038 +0200
++++ vdr-1.7.27/config.h	2012-03-25 14:18:05.504975038 +0200
 @@ -37,6 +37,8 @@
  // VDR header files have changed.
  
@@ -60,9 +62,10 @@ diff -urNad vdr-1.7.26-orig/config.h vdr-1.7.26/config.h
    int CurrentChannel;
    int CurrentVolume;
    int CurrentDolby;
-diff -urNad vdr-1.7.26-orig/dvbplayer.c vdr-1.7.26/dvbplayer.c
---- vdr-1.7.26-orig/dvbplayer.c	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/dvbplayer.c	2012-03-11 21:02:29.262012945 +0100
+Index: vdr-1.7.27/dvbplayer.c
+===================================================================
+--- vdr-1.7.27.orig/dvbplayer.c	2012-03-12 15:36:55.000000000 +0100
++++ vdr-1.7.27/dvbplayer.c	2012-03-25 14:18:05.504975038 +0200
 @@ -204,6 +204,7 @@
    cNonBlockingFileReader *nonBlockingFileReader;
    cRingBufferFrame *ringBuffer;
@@ -200,9 +203,10 @@ diff -urNad vdr-1.7.26-orig/dvbplayer.c vdr-1.7.26/dvbplayer.c
  
            // Handle hitting begin/end of recording:
  
-diff -urNad vdr-1.7.26-orig/MANUAL vdr-1.7.26/MANUAL
---- vdr-1.7.26-orig/MANUAL	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/MANUAL	2012-03-11 21:02:29.252012945 +0100
+Index: vdr-1.7.27/MANUAL
+===================================================================
+--- vdr-1.7.27.orig/MANUAL	2012-02-25 14:38:52.000000000 +0100
++++ vdr-1.7.27/MANUAL	2012-03-25 14:18:05.504975038 +0200
 @@ -857,6 +857,25 @@
                           0 resulting in a file named 'resume', and any other
                           value resulting in 'resume.n'.
@@ -229,10 +233,11 @@ diff -urNad vdr-1.7.26-orig/MANUAL vdr-1.7.26/MANUAL
    Miscellaneous:
  
    Min. event timeout = 30
-diff -urNad vdr-1.7.26-orig/menu.c vdr-1.7.26/menu.c
---- vdr-1.7.26-orig/menu.c	2012-03-11 20:57:44.000000000 +0100
-+++ vdr-1.7.26/menu.c	2012-03-11 21:02:29.262012945 +0100
-@@ -3308,6 +3308,9 @@
+Index: vdr-1.7.27/menu.c
+===================================================================
+--- vdr-1.7.27.orig/menu.c	2012-03-25 14:18:05.474975038 +0200
++++ vdr-1.7.27/menu.c	2012-03-25 14:18:05.504975038 +0200
+@@ -3312,6 +3312,9 @@
    Add(new cMenuEditBoolItem(tr("Setup.Replay$Show replay mode"), &data.ShowReplayMode));
    Add(new cMenuEditBoolItem(tr("Setup.Replay$Show remaining time"), &data.ShowRemainingTime));
    Add(new cMenuEditIntItem(tr("Setup.Replay$Resume ID"), &data.ResumeID, 0, 99));
@@ -242,7 +247,7 @@ diff -urNad vdr-1.7.26-orig/menu.c vdr-1.7.26/menu.c
  }
  
  void cMenuSetupReplay::Store(void)
-@@ -4909,8 +4912,10 @@
+@@ -4913,8 +4916,10 @@
          marks.Add(Current);
          bool Play, Forward;
          int Speed;
@@ -254,7 +259,7 @@ diff -urNad vdr-1.7.26-orig/menu.c vdr-1.7.26/menu.c
          }
       ShowTimed(2);
       marks.Save();
-@@ -4924,8 +4929,17 @@
+@@ -4928,8 +4933,17 @@
       if (GetIndex(Current, Total)) {
          cMark *m = Forward ? marks.GetNext(Current) : marks.GetPrev(Current);
          if (m) {
@@ -274,7 +279,7 @@ diff -urNad vdr-1.7.26-orig/menu.c vdr-1.7.26/menu.c
             }
          }
       }
-@@ -4981,7 +4995,7 @@
+@@ -4985,7 +4999,7 @@
       if (!m)
          m = marks.GetNext(Current);
       if (m) {
@@ -283,9 +288,10 @@ diff -urNad vdr-1.7.26-orig/menu.c vdr-1.7.26/menu.c
             m = marks.Next(m);
          if (m) {
             Goto(m->Position() - SecondsToFrames(3, FramesPerSecond()));
-diff -urNad vdr-1.7.26-orig/po/de_DE.po vdr-1.7.26/po/de_DE.po
---- vdr-1.7.26-orig/po/de_DE.po	2012-03-11 20:57:44.000000000 +0100
-+++ vdr-1.7.26/po/de_DE.po	2012-03-11 21:02:29.262012945 +0100
+Index: vdr-1.7.27/po/de_DE.po
+===================================================================
+--- vdr-1.7.27.orig/po/de_DE.po	2012-03-25 14:18:05.394975038 +0200
++++ vdr-1.7.27/po/de_DE.po	2012-03-25 14:18:05.514975038 +0200
 @@ -1080,6 +1080,15 @@
  msgid "Replay"
  msgstr "Wiedergabe"
@@ -302,9 +308,10 @@ diff -urNad vdr-1.7.26-orig/po/de_DE.po vdr-1.7.26/po/de_DE.po
  msgid "Setup.Replay$Multi speed mode"
  msgstr "Mehrstufiger Vor-/Rücklauf"
  
-diff -urNad vdr-1.7.26-orig/po/fr_FR.po vdr-1.7.26/po/fr_FR.po
---- vdr-1.7.26-orig/po/fr_FR.po	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/po/fr_FR.po	2012-03-11 21:02:29.262012945 +0100
+Index: vdr-1.7.27/po/fr_FR.po
+===================================================================
+--- vdr-1.7.27.orig/po/fr_FR.po	2012-03-11 11:44:44.000000000 +0100
++++ vdr-1.7.27/po/fr_FR.po	2012-03-25 14:18:05.514975038 +0200
 @@ -1086,6 +1086,15 @@
  msgid "Replay"
  msgstr "Lecture"
@@ -321,9 +328,10 @@ diff -urNad vdr-1.7.26-orig/po/fr_FR.po vdr-1.7.26/po/fr_FR.po
  msgid "Setup.Replay$Multi speed mode"
  msgstr "Mode multi-vitesses"
  
-diff -urNad vdr-1.7.26-orig/README.jumpplay vdr-1.7.26/README.jumpplay
---- vdr-1.7.26-orig/README.jumpplay	1970-01-01 01:00:00.000000000 +0100
-+++ vdr-1.7.26/README.jumpplay	2012-03-11 21:02:29.252012945 +0100
+Index: vdr-1.7.27/README.jumpplay
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ vdr-1.7.27/README.jumpplay	2012-03-25 14:18:05.514975038 +0200
 @@ -0,0 +1,92 @@
 +JumpPlay patch for VDR
 +----------------------
