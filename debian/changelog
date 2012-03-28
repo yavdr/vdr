@@ -1,3 +1,9 @@
+vdr (1.7.27-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Tobias Grimm <etobi@debian.org>  Wed, 28 Mar 2012 19:57:27 +0200
+
 vdr (1.7.26-1) unstable; urgency=low
 
   * New upstream release (Closes: #659646)
