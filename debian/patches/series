@@ -3,7 +3,6 @@
 11_sortrecordings.patch
 12_osdbase-maxitems.patch
 16_channels.conf.terr-fix.patch
-17_epg_channel_name_width.patch
 
 81_Make_config.patch
 82_valgrind.patch

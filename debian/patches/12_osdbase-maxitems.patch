@@ -4,9 +4,9 @@ Origin: http://vdrportal.de/board/thread.php?postid=343665#post343665
 
 Index: vdr/osdbase.c
 ===================================================================
---- vdr.orig/osdbase.c	2011-12-10 22:22:04.000000000 +0100
-+++ vdr/osdbase.c	2011-12-11 01:48:58.000000000 +0100
-@@ -297,6 +297,7 @@
+--- vdr.orig/osdbase.c	2012-03-11 21:54:10.000000000 +0100
++++ vdr/osdbase.c	2012-03-28 20:00:48.000000000 +0200
+@@ -312,6 +312,7 @@
  
  void cOsdMenu::CursorUp(void)
  {
@@ -14,7 +14,7 @@ Index: vdr/osdbase.c
    int tmpCurrent = current;
    int lastOnScreen = first + displayMenuItems - 1;
    int last = Count() - 1;
-@@ -335,6 +336,7 @@
+@@ -350,6 +351,7 @@
  
  void cOsdMenu::CursorDown(void)
  {
@@ -22,7 +22,7 @@ Index: vdr/osdbase.c
    int tmpCurrent = current;
    int lastOnScreen = first + displayMenuItems - 1;
    int last = Count() - 1;
-@@ -375,6 +377,7 @@
+@@ -390,6 +392,7 @@
  
  void cOsdMenu::PageUp(void)
  {
@@ -30,7 +30,7 @@ Index: vdr/osdbase.c
    int oldCurrent = current;
    int oldFirst = first;
    current -= displayMenuItems;
-@@ -409,6 +412,7 @@
+@@ -424,6 +427,7 @@
  
  void cOsdMenu::PageDown(void)
  {
