@@ -6,9 +6,9 @@ Author: Tobias Grimm <tg@e-tobi.net>
 
 Index: vdr/plugin.c
 ===================================================================
---- vdr.orig/plugin.c	2011-12-10 22:22:04.000000000 +0100
-+++ vdr/plugin.c	2011-12-11 01:49:08.000000000 +0100
-@@ -152,6 +152,10 @@
+--- vdr.orig/plugin.c	2012-03-28 19:57:04.000000000 +0200
++++ vdr/plugin.c	2012-03-28 20:07:38.000000000 +0200
+@@ -147,6 +147,10 @@
  
  // --- cDll ------------------------------------------------------------------
  
@@ -19,7 +19,7 @@ Index: vdr/plugin.c
  cDll::cDll(const char *FileName, const char *Args)
  {
    fileName = strdup(FileName);
-@@ -163,8 +167,16 @@
+@@ -158,8 +162,16 @@
  cDll::~cDll()
  {
    delete plugin;
@@ -38,9 +38,9 @@ Index: vdr/plugin.c
  }
 Index: vdr/plugin.h
 ===================================================================
---- vdr.orig/plugin.h	2011-12-10 22:22:04.000000000 +0100
-+++ vdr/plugin.h	2011-12-11 01:49:08.000000000 +0100
-@@ -68,6 +68,9 @@
+--- vdr.orig/plugin.h	2012-03-28 19:57:04.000000000 +0200
++++ vdr/plugin.h	2012-03-28 20:07:38.000000000 +0200
+@@ -66,6 +66,9 @@
    void *handle;
    cPlugin *plugin;
  public:
@@ -52,9 +52,9 @@ Index: vdr/plugin.h
    bool Load(bool Log = false);
 Index: vdr/vdr.c
 ===================================================================
---- vdr.orig/vdr.c	2011-12-11 01:48:50.000000000 +0100
-+++ vdr/vdr.c	2011-12-11 01:49:08.000000000 +0100
-@@ -228,6 +228,9 @@
+--- vdr.orig/vdr.c	2012-03-28 20:07:38.000000000 +0200
++++ vdr/vdr.c	2012-03-28 20:07:38.000000000 +0200
+@@ -225,6 +225,9 @@
        { "grab",     required_argument, NULL, 'g' },
        { "help",     no_argument,       NULL, 'h' },
        { "instance", required_argument, NULL, 'i' },
@@ -64,7 +64,7 @@ Index: vdr/vdr.c
        { "lib",      required_argument, NULL, 'L' },
        { "lirc",     optional_argument, NULL, 'l' | 0x100 },
        { "localedir",required_argument, NULL, 'l' | 0x200 },
-@@ -251,7 +254,7 @@
+@@ -247,7 +250,7 @@
      };
  
    int c;
@@ -73,7 +73,7 @@ Index: vdr/vdr.c
          switch (c) {
            case 'a': AudioCommand = optarg;
                      break;
-@@ -292,6 +295,10 @@
+@@ -288,6 +291,10 @@
                         }
                      fprintf(stderr, "vdr: invalid instance id: %s\n", optarg);
                      return 2;
@@ -84,7 +84,7 @@ Index: vdr/vdr.c
            case 'l': {
                        char *p = strchr(optarg, '.');
                        if (p)
-@@ -440,6 +447,9 @@
+@@ -433,6 +440,9 @@
                 "                           or symlinks (default: none, same as -g-)\n"
                 "  -h,       --help         print this help and exit\n"
                 "  -i ID,    --instance=ID  use ID as the id of this VDR instance (default: 0)\n"
