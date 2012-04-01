@@ -1,0 +1,19 @@
+Description: Fix for the channel name column in the "What's on now/next"
+			 menu, which now adjusts its width to display the short name
+			 of each channel, for channels that don't have a ShortName.
+Origin:      http://permalink.gmane.org/gmane.linux.vdr/45847
+Author:      Klaus Schmidinger <klaus.schmidinger@tvdr.de>
+Last-Update: 2012-03-30
+Index: yavdr-vdr/channels.c
+===================================================================
+--- yavdr-vdr.orig/channels.c	2012-04-01 01:31:49.525188254 +0100
++++ yavdr-vdr/channels.c	2012-04-01 01:32:08.685132269 +0100
+@@ -1008,7 +1008,7 @@
+   if (!maxShortChannelNameLength) {
+      for (cChannel *channel = First(); channel; channel = Next(channel)) {
+          if (!channel->GroupSep())
+-            maxShortChannelNameLength = max(Utf8StrLen(channel->ShortName()), maxShortChannelNameLength);
++            maxShortChannelNameLength = max(Utf8StrLen(channel->ShortName(true)), maxShortChannelNameLength);
+          }
+      }
+   return maxShortChannelNameLength;
