@@ -1,3 +1,8 @@
+Description: Adds some icons to timer, recording and channel list
+Origin: http://toms-cafe.de/vdr/download/vdr-wareagle-icons+setup-1.3.22.diff
+Forwarded: no
+Author: Torsten Kunkel <vdr@tkunkel.de>
+Author: Thomas Günther <tom@toms-cafe.de>
 Index: vdr-1.7.27/config.c
 ===================================================================
 --- vdr-1.7.27.orig/config.c	2012-03-25 14:25:29.000000000 +0200
