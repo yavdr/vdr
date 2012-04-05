@@ -1,6 +1,8 @@
-Description: Patch for VDR
-Author: Lars Hanisch <dvb@flensrocker.de>
+Description: Patch for VDR to support hotpluggable devices via the
+ dynamite plugin.
 Origin: https://github.com/flensrocker/vdr-plugin-dynamite
+Forwarded: no
+Author: Lars Hanisch <dvb@flensrocker.de>
 
 --- a/ci.c
 +++ b/ci.c
