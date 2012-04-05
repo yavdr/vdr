@@ -3,10 +3,8 @@ Origin: http://toms-cafe.de/vdr/download/vdr-wareagle-icons+setup-1.3.22.diff
 Forwarded: no
 Author: Torsten Kunkel <vdr@tkunkel.de>
 Author: Thomas Günther <tom@toms-cafe.de>
-Index: vdr-1.7.27/config.c
-===================================================================
---- vdr-1.7.27.orig/config.c	2012-03-25 14:25:29.000000000 +0200
-+++ vdr-1.7.27/config.c	2012-03-25 14:29:44.014975063 +0200
+--- a/config.c
++++ b/config.c
 @@ -375,6 +375,7 @@
    strcpy(OSDLanguage, ""); // default is taken from environment
    strcpy(OSDSkin, "sttng");
@@ -31,10 +29,8 @@ Index: vdr-1.7.27/config.c
    Store("PrimaryDVB",         PrimaryDVB);
    Store("ShowInfoOnChSwitch", ShowInfoOnChSwitch);
    Store("TimeoutRequChInfo",  TimeoutRequChInfo);
-Index: vdr-1.7.27/config.h
-===================================================================
---- vdr-1.7.27.orig/config.h	2012-03-25 14:25:29.000000000 +0200
-+++ vdr-1.7.27/config.h	2012-03-25 14:29:44.014975063 +0200
+--- a/config.h
++++ b/config.h
 @@ -247,6 +247,7 @@
    char OSDLanguage[I18N_MAX_LOCALE_LEN];
    char OSDSkin[MaxSkinName];
@@ -43,10 +39,8 @@ Index: vdr-1.7.27/config.h
    int PrimaryDVB;
    int ShowInfoOnChSwitch;
    int TimeoutRequChInfo;
-Index: vdr-1.7.27/iconpatch.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ vdr-1.7.27/iconpatch.c	2012-03-25 14:29:44.014975063 +0200
+--- /dev/null
++++ b/iconpatch.c
 @@ -0,0 +1,28 @@
 +
 +#include "iconpatch.h"
@@ -76,10 +70,8 @@ Index: vdr-1.7.27/iconpatch.c
 +
 +  return false;
 +}
-Index: vdr-1.7.27/iconpatch.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ vdr-1.7.27/iconpatch.h	2012-03-25 14:29:44.014975063 +0200
+--- /dev/null
++++ b/iconpatch.h
 @@ -0,0 +1,72 @@
 +/*
 + * iconpatch.h: Information of iconpatch
@@ -153,10 +145,8 @@ Index: vdr-1.7.27/iconpatch.h
 +bool IsLangUtf8(void);
 +
 +
-Index: vdr-1.7.27/Makefile
-===================================================================
---- vdr-1.7.27.orig/Makefile	2012-03-25 14:25:29.000000000 +0200
-+++ vdr-1.7.27/Makefile	2012-03-25 14:29:44.014975063 +0200
+--- a/Makefile
++++ b/Makefile
 @@ -49,6 +49,8 @@
  
  OBJS += vdrttxtsubshooks.o
@@ -166,10 +156,8 @@ Index: vdr-1.7.27/Makefile
  ifndef NO_KBD
  DEFINES += -DREMOTE_KBD
  endif
-Index: vdr-1.7.27/menu.c
-===================================================================
---- vdr-1.7.27.orig/menu.c	2012-03-25 14:25:29.000000000 +0200
-+++ vdr-1.7.27/menu.c	2012-03-25 14:36:47.754975077 +0200
+--- a/menu.c
++++ b/menu.c
 @@ -8,6 +8,7 @@
   */
  
@@ -235,10 +223,10 @@ Index: vdr-1.7.27/menu.c
       cString eds = event->GetDateString();
       if (channel && withDate)
 -        buffer = cString::sprintf("%d\t%.*s\t%.*s\t%s\t%c%c%c\t%s", channel->Number(), Utf8SymChars(csn, 999), csn, Utf8SymChars(eds, 6), *eds, *event->GetTimeString(), t, v, r, event->Title());
-+        buffer = cString::sprintf("%d\t%.*s\t%.*s\t%s\t%s%s%s\t%s", channel->Number(), Utf8SymChars(csn, 6), csn, Utf8SymChars(eds, 6), *eds, *event->GetTimeString(), t, v, r, event->Title());
++        buffer = cString::sprintf("%d\t%.*s\t%.*s\t%s\t%s%s%s\t%s", channel->Number(), Utf8SymChars(csn, 999), csn, Utf8SymChars(eds, 6), *eds, *event->GetTimeString(), t, v, r, event->Title());
       else if (channel)
 -        buffer = cString::sprintf("%d\t%.*s\t%s\t%c%c%c\t%s", channel->Number(), Utf8SymChars(csn, 999), csn, *event->GetTimeString(), t, v, r, event->Title());
-+        buffer = cString::sprintf("%d\t%.*s\t%s\t%s%s%s\t%s", channel->Number(), Utf8SymChars(csn, 6), csn, *event->GetTimeString(), t, v, r, event->Title());
++        buffer = cString::sprintf("%d\t%.*s\t%s\t%s%s%s\t%s", channel->Number(), Utf8SymChars(csn, 999), csn, *event->GetTimeString(), t, v, r, event->Title());
       else
 -        buffer = cString::sprintf("%.*s\t%s\t%c%c%c\t%s", Utf8SymChars(eds, 6), *eds, *event->GetTimeString(), t, v, r, event->Title());
 +        buffer = cString::sprintf("%.*s\t%s\t%s%s%s\t%s", Utf8SymChars(eds, 6), *eds, *event->GetTimeString(), t, v, r, event->Title());
@@ -253,10 +241,8 @@ Index: vdr-1.7.27/menu.c
    Add(new cMenuEditPrcItem( tr("Setup.OSD$Left (%)"),               &data.OSDLeftP, 0.0, 0.5));
    Add(new cMenuEditPrcItem( tr("Setup.OSD$Top (%)"),                &data.OSDTopP, 0.0, 0.5));
    Add(new cMenuEditPrcItem( tr("Setup.OSD$Width (%)"),              &data.OSDWidthP, 0.5, 1.0));
-Index: vdr-1.7.27/recording.c
-===================================================================
---- vdr-1.7.27.orig/recording.c	2012-03-25 14:25:29.000000000 +0200
-+++ vdr-1.7.27/recording.c	2012-03-25 14:29:44.024975063 +0200
+--- a/recording.c
++++ b/recording.c
 @@ -8,6 +8,7 @@
   */
  
