@@ -74,6 +74,7 @@ opt-61_dynamite.patch
 opt-62_hard_link_cutter.patch
 opt-63_naludump.patch
 opt-65_pin.patch
+opt-66_jumpingseconds.patch
 
 xprmtl-01_externalci.patch
 channelname-fix-1.7.27.patch
