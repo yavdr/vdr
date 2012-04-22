@@ -2,6 +2,7 @@ vdr (1.7.27-1) unstable; urgency=low
 
   * New upstream release
   * Dropped 17_epg_channel_name_width.patch - fixed upstream
+  * Fixed removing user vdr from groups in vdr-groups.sh
 
  -- Tobias Grimm <etobi@debian.org>  Wed, 28 Mar 2012 19:57:27 +0200
 

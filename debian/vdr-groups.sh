@@ -52,8 +52,12 @@ remove_from_groups()
     local groups=`read_groups "$groups_file"`
     local needed_groups
     local group
-    
-    needed_groups=`read_groups $DIR/*`
+
+    for file in $DIR/*; do
+      if [ "$file" != "$groups_file" ] ; then
+        needed_groups="$needed_groups `read_groups $file`"
+      fi
+    done
 
     for group in $groups; do
         if is_group_in_list $group $ACTUAL_GROUPS; then
