@@ -17,7 +17,7 @@ is_group_in_list()
 {
     local group=$1
     shift
-    local group_list=$*
+    local group_list="$*"
     local current_group
 
     for current_group in $group_list; do
@@ -35,7 +35,7 @@ read_groups()
 add_to_groups()
 {
     local groups_file="$1"
-    local groups=`read_groups "$groups_file"`
+    local groups="`read_groups "$groups_file"`"
     local group
 
     for group in $groups; do
@@ -49,7 +49,7 @@ add_to_groups()
 remove_from_groups()
 {
     local groups_file="$1"
-    local groups=`read_groups "$groups_file"`
+    local groups="`read_groups "$groups_file"`"
     local needed_groups
     local group
 
