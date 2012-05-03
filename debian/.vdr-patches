@@ -1,6 +1,7 @@
 debian/patches/12_osdbase-maxitems.patch:10ab91b6a8619bdb50d37e2de6ec50d0
 debian/patches/16_channels.conf.terr-fix.patch:933f8daa6bb6d26c711d0ae987a2b03e
 debian/patches/82_valgrind.patch:27e07a83103317b9bc90ac9b836e2c47
+debian/patches/fontconfig_fontsort.patch:6a08714204d718800899fb9d1ce544fa
 debian/patches/04_newplugin.patch:5877f4f62dab4f3d437d4eef7cae3ac0
 debian/patches/99_ncursesw-include.patch:fa259a7a1c210dbb2fd398eef22f2bf7
 debian/patches/06_default_svdrp_port_0.patch:4835f681f185991262a3160146f43f2f
