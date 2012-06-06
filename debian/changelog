@@ -5,6 +5,9 @@ vdr (1.7.28-1) unstable; urgency=low
   * Updated documentation about the originial recording now passed as 3'rd
     argument to the "edited" action of the recording hooks
   * Fixed passing parameters to recording hooks
+  * Added fix-no-hddvbdevice-segfault.patch to avoid a segfault when the
+    dvbhddevice plugin is installed but no full featured HD DVB card is
+    available (Closes: #674441)
 
  -- Tobias Grimm <etobi@debian.org>  Wed, 06 Jun 2012 17:57:29 +0200
 

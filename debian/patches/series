@@ -9,3 +9,4 @@
 
 99_ncursesw-include.patch
 
+fix-no-hddvbdevice-segfault.patch
