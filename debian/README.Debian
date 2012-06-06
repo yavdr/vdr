@@ -108,15 +108,15 @@ VIDEO_DIR="<VIDEODIR>"
 
     Default: "/var/lib/video.00"
 
-    The video directory where vdr recordings will be stored.  
+    The video directory where vdr recordings will be stored.
 
 
 Automatic Loading of Plugins
 ----------------------------
 
-When starting vdr with "/etc/init.d/vdr start", for each plugin found in 
+When starting vdr with "/etc/init.d/vdr start", for each plugin found in
 /usr/lib/vdr/plugins the appropriate command line argument -P<plugin_name>
-will be created automatically. 
+will be created automatically.
 
 If a file /etc/vdr/plugins/plugin.<plugin_name>.conf exists, it will be
 parsed for command line arguments for the specified plugin. This file may
@@ -138,7 +138,7 @@ In order to allow other packages (Addons) to install their own commands, the
 command files passed to vdr in /etc/init.d/vdr are generated out of the files
 commands.<descriptor>.conf and reccmds.<descriptor>.conf found in
 /usr/share/vdr/command-hooks/. <descriptor> normally should be the name of
-the package, that wants to add these commands to VDR. The order of the 
+the package, that wants to add these commands to VDR. The order of the
 commands can be defined in the files order.commands.conf and order.reccmds.conf
 in /etc/vdr/command-hooks/.
 
@@ -165,11 +165,11 @@ If a file is not an executable or a link to an executable, it is executed as
 a shell script.
 
 Recording hooks are called in their alphabetical order and should follow this
-naming scheme: 
+naming scheme:
 
 R<XX>.<identifier>
 
-Where <XX> is a two digit number, that mainly specifies the execution order 
+Where <XX> is a two digit number, that mainly specifies the execution order
 and <identifier> is a unique descriptor.
 
 Two parameters are passed to each recording hook:
@@ -178,8 +178,12 @@ Parameter 1 can have the values "before", "after" and "edited", depending
 on whether the recording hook is called before the recording starts,
 after the recording ends or after the recording has been edited.
 
-Parameter 2 is the directory of the recording. Be aware, that this directory 
-doesn't exist before the recording starts.
+Parameter 2 is the directory of the recording. Be aware, that this directory
+doesn't exist before the recording starts. if parameter 1 is "edited", this
+is the result of the cutting.
+
+Parameter 3 is the directory of the original recording if parameter 1 is
+"edited"
 
 If the author of a package wants the user to be able to customize a recording
 hook, it should be installed to /etc/vdr/recording-hooks/ and only symlinked
@@ -192,15 +196,15 @@ to /etc/vdr/recording-hooks/R90.custom.
 Shutdown-Hooks
 ---------------
 
-If you press the power key on your remote control, VDR executes a script 
+If you press the power key on your remote control, VDR executes a script
 provided by the command line option -s. By default, this script will
-execute all files in /usr/share/vdr/shutdown-hooks/ in their alphabetical order. 
+execute all files in /usr/share/vdr/shutdown-hooks/ in their alphabetical order.
 If a file in there is not executable, it is treated as a shell script. These
 so called "shutdown hooks" should follow this naming scheme:
 
 S<XX>.<identifier>
 
-Where <XX> is a two digit number, that mainly specifies the execution order 
+Where <XX> is a two digit number, that mainly specifies the execution order
 and <identifier> is a unique descriptor.
 
 All shutdown hooks will be passed the same parameters as the main shutdown
@@ -235,10 +239,10 @@ SHUTDOWNCMD=<new shutdown command>
 Group memberships
 -----------------
 
-A few plugins require that the user vdr is member in additional system groups 
-like audio or cdrom. To be a little bit more flexible, we have designed a 
+A few plugins require that the user vdr is member in additional system groups
+like audio or cdrom. To be a little bit more flexible, we have designed a
 mechanism which can be used by plugins to specify additional group memberships.
-Plugins can add a file /usr/share/vdr/groups.d/<plugin-name>.groups and call 
+Plugins can add a file /usr/share/vdr/groups.d/<plugin-name>.groups and call
 /usr/lib/vdr/vdr-groups.sh in postinst and prerm. vdr-groups.sh will then take
 care of adding/removing vdr to/from the groups listed in the specified
 <plugin-name>.groups file. vdr will be removed from a group only, if no other
@@ -271,8 +275,8 @@ uncomment it in debian/patches/00list and recompile vdr.
 Most of these optional patches modify the interfaces used by the plugins. This
 means, that the plugins become binary incompatible. If you activate/deactivate
 patches in the vdr package, all plugins must be recompiled with the new vdr-dev
-package! There is only one exception from this rule - patches named 
-opt-<nn>-x_<patch name> do not affect the plugin interfaces and can therefore 
+package! There is only one exception from this rule - patches named
+opt-<nn>-x_<patch name> do not affect the plugin interfaces and can therefore
 be enabled or disabled without the need to recompile the plugins.
 
 Keep in mind, that if you enable any optional patches, you can't use apt-get

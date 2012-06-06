@@ -39,5 +39,6 @@ case $1 in
     edited)
         # do here whatever you would like to do right AFTER
         # the recording $2 has been EDITED
+        # $3 is the original recording
         ;;
 esac

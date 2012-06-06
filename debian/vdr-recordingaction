@@ -8,11 +8,11 @@
 # In order to allow other addons to hook into this process, this script will
 # search for any executables in /usr/share/vdr/recording-hooks. These
 # hooks are called in their alphabetical order and should follow this
-# naming scheme: 
+# naming scheme:
 #
 # R<XX>.<identifier>
 #
-# Where <XX> is a two digit number, that mainly specifies the execution order 
+# Where <XX> is a two digit number, that mainly specifies the execution order
 # and <identifier> is a unique descriptor.
 #
 # Two parameters are passed to each recording hook:
@@ -21,7 +21,7 @@
 # on whether the recording hook is called before the recording starts,
 # after the recording ends or after the recording has been edited.
 #
-# Parameter 2 is the directory of the recording. Be aware, that this directory 
+# Parameter 2 is the directory of the recording. Be aware, that this directory
 # doesn't exist before the recording starts.
 #
 
@@ -32,10 +32,10 @@ recordinghooks=`find $REC_HOOKS_DIR -maxdepth 1 -xtype f | sort`
 for recordinghook in $recordinghooks; do
     case $1 in
         before|after)
-            action="$1 recording $2" 
+            action="$1 recording $2"
             ;;
         edited)
-            action="after editing recording $2" 
+            action="after cutting recording $2 from $3"
             ;;
     esac
     if [ -x $recordinghook ]; then
@@ -46,4 +46,4 @@ for recordinghook in $recordinghooks; do
         /bin/sh $recordinghook $*
     fi
     [ $? -ne 0 ] && logger -t recordingaction "error when executing $recordinghook"
-done 
+done

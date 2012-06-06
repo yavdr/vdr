@@ -2,6 +2,8 @@ vdr (1.7.28-1) unstable; urgency=low
 
   * New upstream release
   * Removed fontconfig_fontsort.patch - fixed upstream
+  * Updated documentation about the originial recording now passed as 3'rd
+    argument to the "edited" action of the recording hooks
 
  -- Tobias Grimm <etobi@debian.org>  Wed, 06 Jun 2012 17:57:29 +0200
 
