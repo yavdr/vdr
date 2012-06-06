@@ -1,6 +1,7 @@
 vdr (1.7.28-1) unstable; urgency=low
 
   * New upstream release
+  * Removed fontconfig_fontsort.patch - fixed upstream
 
  -- Tobias Grimm <etobi@debian.org>  Wed, 06 Jun 2012 17:57:29 +0200
 
