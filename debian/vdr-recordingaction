@@ -40,10 +40,10 @@ for recordinghook in $recordinghooks; do
     esac
     if [ -x $recordinghook ]; then
         logger -t recordingaction "executing $recordinghook $action"
-        $recordinghook $*
+        $recordinghook "$@"
     else
         logger -t recordingaction "executing $recordinghook $action as shell script"
-        /bin/sh $recordinghook $*
+        /bin/sh $recordinghook "$@"
     fi
     [ $? -ne 0 ] && logger -t recordingaction "error when executing $recordinghook"
 done
