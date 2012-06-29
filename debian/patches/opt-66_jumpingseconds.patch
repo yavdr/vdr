@@ -1,6 +1,6 @@
 --- a/config.c
 +++ b/config.c
-@@ -470,6 +470,8 @@
+@@ -471,6 +471,8 @@
    InitialVolume = -1;
    ChannelsWrap = 0;
    EmergencyExit = 1;
@@ -9,7 +9,7 @@
  }
  
  cSetup& cSetup::operator= (const cSetup &s)
-@@ -672,6 +674,8 @@
+@@ -674,6 +676,8 @@
    else if (!strcasecmp(Name, "DeviceBondings"))      DeviceBondings     = Value;
    else if (!strcasecmp(Name, "ChannelsWrap"))        ChannelsWrap       = atoi(Value);
    else if (!strcasecmp(Name, "EmergencyExit"))       EmergencyExit      = atoi(Value);
@@ -18,7 +18,7 @@
    else
       return false;
    return true;
-@@ -777,6 +781,8 @@
+@@ -780,6 +784,8 @@
    Store("DeviceBondings",     DeviceBondings);
    Store("ChannelsWrap",       ChannelsWrap);
    Store("EmergencyExit",      EmergencyExit);
@@ -29,7 +29,7 @@
  
 --- a/config.h
 +++ b/config.h
-@@ -331,6 +331,8 @@
+@@ -342,6 +342,8 @@
    int InitialVolume;
    int ChannelsWrap;
    int EmergencyExit;
@@ -40,7 +40,7 @@
    cString DeviceBondings;
 --- a/menu.c
 +++ b/menu.c
-@@ -3533,6 +3533,8 @@
+@@ -3498,6 +3498,8 @@
    Add(new cMenuEditBoolItem(tr("Setup.Replay$Jump&Play"), &data.JumpPlay));
    Add(new cMenuEditBoolItem(tr("Setup.Replay$Play&Jump"), &data.PlayJump));
    Add(new cMenuEditBoolItem(tr("Setup.Replay$Pause at last mark"), &data.PauseLastMark));
@@ -49,7 +49,7 @@
  }
  
  void cMenuSetupReplay::Store(void)
-@@ -5446,9 +5448,9 @@
+@@ -5423,9 +5425,9 @@
      case kRight:   Forward(); break;
      case kRed:     TimeSearch(); break;
      case kGreen|k_Repeat:
@@ -61,7 +61,7 @@
      case kPrev|k_Repeat:
      case kPrev:    if (lastSkipTimeout.TimedOut()) {
                        lastSkipSeconds = REPLAYCONTROLSKIPSECONDS;
-@@ -5495,7 +5497,7 @@
+@@ -5472,7 +5474,7 @@
                                    marks.Save();
                                    }
                                 else
@@ -70,7 +70,7 @@
                                 break;
          case k3|k_Repeat:
          case k3:               if (GetReplayMode(play, forward, speed) && !play && GetIndex(Current, Total) && (m = marks.Get(Current)) != NULL) {
-@@ -5508,7 +5510,7 @@
+@@ -5485,7 +5487,7 @@
                                    marks.Save();
                                    }
                                 else

@@ -3,7 +3,7 @@ Origin: ttxsubs plugin
 
 --- a/MANUAL
 +++ b/MANUAL
-@@ -730,6 +730,9 @@
+@@ -735,6 +735,9 @@
                           background transparency. By default the values as broadcast
                           are used.
  
@@ -16,7 +16,7 @@ Origin: ttxsubs plugin
 --- a/Makefile
 +++ b/Makefile
 @@ -47,6 +47,8 @@
-        skinclassic.o skins.o skinsttng.o sourceparams.o sources.o spu.o status.o svdrp.o themes.o thread.o\
+        skinclassic.o skinlcars.o skins.o skinsttng.o sourceparams.o sources.o spu.o status.o svdrp.o themes.o thread.o\
         timers.o tools.o transfer.o vdr.o videodir.o
  
 +OBJS += vdrttxtsubshooks.o
@@ -161,7 +161,7 @@ Origin: ttxsubs plugin
    void SetLinkChannels(cLinkChannels *LinkChannels);
 --- a/ci.c
 +++ b/ci.c
-@@ -1913,6 +1913,8 @@
+@@ -1914,6 +1914,8 @@
           AddPid(Channel->Sid(), *Dpid, STREAM_TYPE_PRIVATE);
       for (const int *Spid = Channel->Spids(); *Spid; Spid++)
           AddPid(Channel->Sid(), *Spid, STREAM_TYPE_PRIVATE);
@@ -170,7 +170,7 @@ Origin: ttxsubs plugin
       }
  }
  
-@@ -1936,6 +1938,9 @@
+@@ -1937,6 +1939,9 @@
           CaPmt.AddPid(*Dpid, STREAM_TYPE_PRIVATE);
       for (const int *Spid = Channel->Spids(); *Spid; Spid++)
           CaPmt.AddPid(*Spid, STREAM_TYPE_PRIVATE); 
@@ -182,7 +182,7 @@ Origin: ttxsubs plugin
       do {
 --- a/config.c
 +++ b/config.c
-@@ -395,6 +395,7 @@
+@@ -396,6 +396,7 @@
    MarginStop = 10;
    AudioLanguages[0] = -1;
    DisplaySubtitles = 0;
@@ -190,7 +190,7 @@ Origin: ttxsubs plugin
    SubtitleLanguages[0] = -1;
    SubtitleOffset = 0;
    SubtitleFgTransparency = 0;
-@@ -592,6 +593,7 @@
+@@ -594,6 +595,7 @@
    else if (!strcasecmp(Name, "MarginStop"))          MarginStop         = atoi(Value);
    else if (!strcasecmp(Name, "AudioLanguages"))      return ParseLanguages(Value, AudioLanguages);
    else if (!strcasecmp(Name, "DisplaySubtitles"))    DisplaySubtitles   = atoi(Value);
@@ -198,7 +198,7 @@ Origin: ttxsubs plugin
    else if (!strcasecmp(Name, "SubtitleLanguages"))   return ParseLanguages(Value, SubtitleLanguages);
    else if (!strcasecmp(Name, "SubtitleOffset"))      SubtitleOffset     = atoi(Value);
    else if (!strcasecmp(Name, "SubtitleFgTransparency")) SubtitleFgTransparency = atoi(Value);
-@@ -692,6 +694,7 @@
+@@ -695,6 +697,7 @@
    Store("MarginStop",         MarginStop);
    StoreLanguages("AudioLanguages", AudioLanguages);
    Store("DisplaySubtitles",   DisplaySubtitles);
@@ -208,7 +208,7 @@ Origin: ttxsubs plugin
    Store("SubtitleFgTransparency", SubtitleFgTransparency);
 --- a/config.h
 +++ b/config.h
-@@ -262,6 +262,7 @@
+@@ -273,6 +273,7 @@
    int MarginStart, MarginStop;
    int AudioLanguages[I18N_MAX_LANGUAGES + 1];
    int DisplaySubtitles;
@@ -226,7 +226,7 @@ Origin: ttxsubs plugin
  
  // --- cLiveSubtitle ---------------------------------------------------------
  
-@@ -1293,6 +1294,13 @@
+@@ -1300,6 +1301,13 @@
                    }
                 break;
            case 0xBD: { // private stream 1
@@ -240,7 +240,7 @@ Origin: ttxsubs plugin
                 int PayloadOffset = Data[8] + 9;
  
                 // Compatibility mode for old subtitles plugin:
-@@ -1452,6 +1460,7 @@
+@@ -1459,6 +1467,7 @@
       tsToPesVideo.Reset();
       tsToPesAudio.Reset();
       tsToPesSubtitle.Reset();
@@ -248,7 +248,7 @@ Origin: ttxsubs plugin
       }
    else if (Length < TS_SIZE) {
       esyslog("ERROR: skipped %d bytes of TS fragment", Length);
-@@ -1497,6 +1506,17 @@
+@@ -1504,6 +1513,17 @@
                      if (!VideoOnly || HasIBPTrickSpeed())
                         PlayTsSubtitle(Data, TS_SIZE);
                      }
@@ -268,7 +268,7 @@ Origin: ttxsubs plugin
             else if (Pid == patPmtParser.Ppid()) {
 --- a/device.h
 +++ b/device.h
-@@ -570,6 +570,7 @@
+@@ -576,6 +576,7 @@
    cTsToPes tsToPesVideo;
    cTsToPes tsToPesAudio;
    cTsToPes tsToPesSubtitle;
@@ -278,7 +278,7 @@ Origin: ttxsubs plugin
    const cPatPmtParser *PatPmtParser(void) const { return &patPmtParser; }
 --- a/menu.c
 +++ b/menu.c
-@@ -2995,6 +2995,7 @@
+@@ -2959,6 +2959,7 @@
       Add(new cMenuEditIntItem( tr("Setup.DVB$Subtitle foreground transparency"), &data.SubtitleFgTransparency, 0, 9));
       Add(new cMenuEditIntItem( tr("Setup.DVB$Subtitle background transparency"), &data.SubtitleBgTransparency, 0, 10));
       }
@@ -328,7 +328,7 @@ Origin: ttxsubs plugin
                                   break;
                              case SI::ISO639LanguageDescriptorTag: {
                                   SI::ISO639LanguageDescriptor *ld = (SI::ISO639LanguageDescriptor *)d;
-@@ -537,6 +553,12 @@
+@@ -547,6 +563,12 @@
              }
          if (Setup.UpdateChannels >= 2) {
             Channel->SetPids(Vpid, Ppid, Vtype, Apids, Atypes, ALangs, Dpids, Dtypes, DLangs, Spids, SLangs, Tpid);
@@ -343,7 +343,7 @@ Origin: ttxsubs plugin
             }
 --- a/po/ca_ES.po
 +++ b/po/ca_ES.po
-@@ -962,6 +962,9 @@
+@@ -959,6 +959,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparència fons subtítols"
  
@@ -355,7 +355,7 @@ Origin: ttxsubs plugin
  
 --- a/po/cs_CZ.po
 +++ b/po/cs_CZ.po
-@@ -961,6 +961,9 @@
+@@ -958,6 +958,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "PrÅ¯hlednost pozadÃ­ titulkÅ¯"
  
@@ -367,7 +367,7 @@ Origin: ttxsubs plugin
  
 --- a/po/da_DK.po
 +++ b/po/da_DK.po
-@@ -959,6 +959,9 @@
+@@ -956,6 +956,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Undertekst baggrundsgennemsigtighed"
  
@@ -379,7 +379,7 @@ Origin: ttxsubs plugin
  
 --- a/po/de_DE.po
 +++ b/po/de_DE.po
-@@ -959,6 +959,9 @@
+@@ -956,6 +956,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Untertitel-Transparenz Hintergrund"
  
@@ -391,7 +391,7 @@ Origin: ttxsubs plugin
  
 --- a/po/el_GR.po
 +++ b/po/el_GR.po
-@@ -959,6 +959,9 @@
+@@ -956,6 +956,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr ""
  
@@ -403,7 +403,7 @@ Origin: ttxsubs plugin
  
 --- a/po/es_ES.po
 +++ b/po/es_ES.po
-@@ -960,6 +960,9 @@
+@@ -957,6 +957,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparencia fondo subtítulos"
  
@@ -415,7 +415,7 @@ Origin: ttxsubs plugin
  
 --- a/po/et_EE.po
 +++ b/po/et_EE.po
-@@ -959,6 +959,9 @@
+@@ -956,6 +956,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Subtiitri tausta lÃ¤bipaistvus"
  
@@ -427,7 +427,7 @@ Origin: ttxsubs plugin
  
 --- a/po/fi_FI.po
 +++ b/po/fi_FI.po
-@@ -962,6 +962,9 @@
+@@ -959,6 +959,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Tekstityksen taustan lÃ¤pinÃ¤kyvyys"
  
@@ -439,7 +439,7 @@ Origin: ttxsubs plugin
  
 --- a/po/fr_FR.po
 +++ b/po/fr_FR.po
-@@ -965,6 +965,9 @@
+@@ -962,6 +962,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparence du fond"
  
@@ -451,7 +451,7 @@ Origin: ttxsubs plugin
  
 --- a/po/hr_HR.po
 +++ b/po/hr_HR.po
-@@ -961,6 +961,9 @@
+@@ -958,6 +958,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparentnost pozadine titla"
  
@@ -463,7 +463,7 @@ Origin: ttxsubs plugin
  
 --- a/po/hu_HU.po
 +++ b/po/hu_HU.po
-@@ -962,6 +962,9 @@
+@@ -959,6 +959,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Felirat hátterének transzparenciája"
  
@@ -475,7 +475,7 @@ Origin: ttxsubs plugin
  
 --- a/po/it_IT.po
 +++ b/po/it_IT.po
-@@ -966,6 +966,9 @@
+@@ -963,6 +963,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Trasparenza sfondo sottotitoli"
  
@@ -487,7 +487,7 @@ Origin: ttxsubs plugin
  
 --- a/po/lt_LT.po
 +++ b/po/lt_LT.po
-@@ -959,6 +959,9 @@
+@@ -956,6 +956,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "SubtitrÅ³ fono permatomumas"
  
@@ -499,7 +499,7 @@ Origin: ttxsubs plugin
  
 --- a/po/nl_NL.po
 +++ b/po/nl_NL.po
-@@ -963,6 +963,9 @@
+@@ -960,6 +960,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparantie achtergrond ondertiteling"
  
@@ -511,7 +511,7 @@ Origin: ttxsubs plugin
  
 --- a/po/nn_NO.po
 +++ b/po/nn_NO.po
-@@ -960,6 +960,9 @@
+@@ -957,6 +957,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr ""
  
@@ -523,7 +523,7 @@ Origin: ttxsubs plugin
  
 --- a/po/pl_PL.po
 +++ b/po/pl_PL.po
-@@ -960,6 +960,9 @@
+@@ -957,6 +957,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Prze¼rocze podtytu³ów: T³o"
  
@@ -535,7 +535,7 @@ Origin: ttxsubs plugin
  
 --- a/po/pt_PT.po
 +++ b/po/pt_PT.po
-@@ -960,6 +960,9 @@
+@@ -957,6 +957,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparência de fundo das legendas"
  
@@ -547,7 +547,7 @@ Origin: ttxsubs plugin
  
 --- a/po/ro_RO.po
 +++ b/po/ro_RO.po
-@@ -962,6 +962,9 @@
+@@ -959,6 +959,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparenþa fundalului subtitrãrii"
  
@@ -559,7 +559,7 @@ Origin: ttxsubs plugin
  
 --- a/po/ru_RU.po
 +++ b/po/ru_RU.po
-@@ -960,6 +960,9 @@
+@@ -957,6 +957,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "¿àÞ×àÐçÝÞáâì äÞÝÐ áãÑâØâàÞÒ"
  
@@ -571,7 +571,7 @@ Origin: ttxsubs plugin
  
 --- a/po/sk_SK.po
 +++ b/po/sk_SK.po
-@@ -959,6 +959,9 @@
+@@ -956,6 +956,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Priehµadnos» pozadia titulkov"
  
@@ -583,7 +583,7 @@ Origin: ttxsubs plugin
  
 --- a/po/sl_SI.po
 +++ b/po/sl_SI.po
-@@ -960,6 +960,9 @@
+@@ -957,6 +957,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparentnost ozadja podnapisov"
  
@@ -595,7 +595,7 @@ Origin: ttxsubs plugin
  
 --- a/po/sv_SE.po
 +++ b/po/sv_SE.po
-@@ -962,6 +962,9 @@
+@@ -959,6 +959,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparent bakgrund textremsa"
  
@@ -607,7 +607,7 @@ Origin: ttxsubs plugin
  
 --- a/po/tr_TR.po
 +++ b/po/tr_TR.po
-@@ -959,6 +959,9 @@
+@@ -956,6 +956,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Altyazý arka þeffaflýk"
  
@@ -619,7 +619,7 @@ Origin: ttxsubs plugin
  
 --- a/po/uk_UA.po
 +++ b/po/uk_UA.po
-@@ -959,6 +959,9 @@
+@@ -956,6 +956,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "ÐŸÑ€Ð¾Ð·Ð¾Ñ€Ñ–ÑÑ‚ÑŒ Ð·Ð°Ð´Ð½ÑŒÐ¾Ð³Ð¾ Ð¿Ð»Ð°Ð½Ñƒ ÑÑƒÐ±Ñ‚Ð¸Ñ‚Ñ€Ñ–Ð²"
  
@@ -631,7 +631,7 @@ Origin: ttxsubs plugin
  
 --- a/po/zh_CN.po
 +++ b/po/zh_CN.po
-@@ -962,6 +962,9 @@
+@@ -959,6 +959,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "å­—å¹•èƒŒæ™¯é€æ˜Žåº¦"
  
@@ -643,7 +643,7 @@ Origin: ttxsubs plugin
  
 --- a/receiver.c
 +++ b/receiver.c
-@@ -81,7 +81,8 @@
+@@ -67,7 +67,8 @@
              (Channel->Ppid() == Channel->Vpid() || AddPid(Channel->Ppid())) &&
              AddPids(Channel->Apids()) &&
              AddPids(Channel->Dpids()) &&
@@ -651,7 +651,7 @@ Origin: ttxsubs plugin
 +            AddPids(Channel->Spids()) &&
 +            (!Setup.SupportTeletext || AddPid(Channel->Tpid()));
       }
- return true;
+   return true;
  }
 --- a/remux.c
 +++ b/remux.c

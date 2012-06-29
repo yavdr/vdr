@@ -5,7 +5,7 @@ Origin: http://www.jepsennet.de/vdr/download/11_sortrecordings.dpatch
 
 --- a/recording.c
 +++ b/recording.c
-@@ -811,8 +811,8 @@
+@@ -815,8 +815,8 @@
                s1 = t;
             }
          t++;
@@ -16,7 +16,7 @@ Origin: http://www.jepsennet.de/vdr/download/11_sortrecordings.dpatch
       memmove(s1 + 1, s2, t - s2 + 1);
    return s;
  }
-@@ -820,7 +820,7 @@
+@@ -824,7 +824,7 @@
  char *cRecording::SortName(void) const
  {
    if (!sortBuffer) {

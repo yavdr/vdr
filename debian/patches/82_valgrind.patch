@@ -48,7 +48,7 @@ Author: Tobias Grimm <tg@e-tobi.net>
    bool Load(bool Log = false);
 --- a/vdr.c
 +++ b/vdr.c
-@@ -225,6 +225,9 @@
+@@ -226,6 +226,9 @@
        { "grab",     required_argument, NULL, 'g' },
        { "help",     no_argument,       NULL, 'h' },
        { "instance", required_argument, NULL, 'i' },
@@ -58,7 +58,7 @@ Author: Tobias Grimm <tg@e-tobi.net>
        { "lib",      required_argument, NULL, 'L' },
        { "lirc",     optional_argument, NULL, 'l' | 0x100 },
        { "localedir",required_argument, NULL, 'l' | 0x200 },
-@@ -247,7 +250,7 @@
+@@ -248,7 +251,7 @@
      };
  
    int c;
@@ -67,7 +67,7 @@ Author: Tobias Grimm <tg@e-tobi.net>
          switch (c) {
            case 'a': AudioCommand = optarg;
                      break;
-@@ -288,6 +291,10 @@
+@@ -289,6 +292,10 @@
                         }
                      fprintf(stderr, "vdr: invalid instance id: %s\n", optarg);
                      return 2;
@@ -78,7 +78,7 @@ Author: Tobias Grimm <tg@e-tobi.net>
            case 'l': {
                        char *p = strchr(optarg, '.');
                        if (p)
-@@ -433,6 +440,9 @@
+@@ -434,6 +441,9 @@
                 "                           or symlinks (default: none, same as -g-)\n"
                 "  -h,       --help         print this help and exit\n"
                 "  -i ID,    --instance=ID  use ID as the id of this VDR instance (default: 0)\n"

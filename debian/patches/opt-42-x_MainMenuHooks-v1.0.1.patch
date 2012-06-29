@@ -86,7 +86,7 @@ just the version number.
  #define LIVEPRIORITY      0                  // priority used when selecting a device for live viewing
 --- a/menu.c
 +++ b/menu.c
-@@ -3646,15 +3646,31 @@
+@@ -3617,15 +3617,31 @@
  
    // Initial submenus:
  
@@ -124,7 +124,7 @@ just the version number.
  }
  
  cOsdObject *cMenuMain::PluginOsdObject(void)
-@@ -3807,13 +3823,34 @@
+@@ -3771,13 +3787,34 @@
    eOSState state = cOsdMenu::ProcessKey(Key);
    HadSubMenu |= HasSubMenu();
  
@@ -165,7 +165,7 @@ just the version number.
      case osStopRecord: if (Interface->Confirm(tr("Stop recording?"))) {
                            cOsdItem *item = Get(Current());
                            if (item) {
-@@ -3906,6 +3943,12 @@
+@@ -3870,6 +3907,12 @@
                 default:      break;
                 }
      }

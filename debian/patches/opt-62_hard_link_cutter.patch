@@ -4,7 +4,7 @@ Origin: http://www.udo-richter.de/vdr/patches.html#hlcutter
 
 --- a/config.c
 +++ b/config.c
-@@ -447,8 +447,10 @@
+@@ -448,8 +448,10 @@
    FontSmlSize = 18;
    FontFixSize = 20;
    MaxVideoFileSize = MAXVIDEOFILESIZEDEFAULT;
@@ -15,7 +15,7 @@ Origin: http://www.udo-richter.de/vdr/patches.html#hlcutter
    MinEventTimeout = 30;
    MinUserInactivity = 300;
    NextWakeupTime = 0;
-@@ -646,8 +648,10 @@
+@@ -648,8 +650,10 @@
    else if (!strcasecmp(Name, "FontSmlSize"))         FontSmlSize        = atoi(Value);
    else if (!strcasecmp(Name, "FontFixSize"))         FontFixSize        = atoi(Value);
    else if (!strcasecmp(Name, "MaxVideoFileSize"))    MaxVideoFileSize   = atoi(Value);
@@ -26,7 +26,7 @@ Origin: http://www.udo-richter.de/vdr/patches.html#hlcutter
    else if (!strcasecmp(Name, "MinEventTimeout"))     MinEventTimeout    = atoi(Value);
    else if (!strcasecmp(Name, "MinUserInactivity"))   MinUserInactivity  = atoi(Value);
    else if (!strcasecmp(Name, "NextWakeupTime"))      NextWakeupTime     = atoi(Value);
-@@ -748,8 +752,10 @@
+@@ -751,8 +755,10 @@
    Store("FontSmlSize",        FontSmlSize);
    Store("FontFixSize",        FontFixSize);
    Store("MaxVideoFileSize",   MaxVideoFileSize);
@@ -39,7 +39,7 @@ Origin: http://www.udo-richter.de/vdr/patches.html#hlcutter
    Store("NextWakeupTime",     NextWakeupTime);
 --- a/config.h
 +++ b/config.h
-@@ -311,8 +311,10 @@
+@@ -322,8 +322,10 @@
    int FontSmlSize;
    int FontFixSize;
    int MaxVideoFileSize;
@@ -210,7 +210,7 @@ Origin: http://www.udo-richter.de/vdr/patches.html#hlcutter
       Recordings.TouchUpdate();
 --- a/menu.c
 +++ b/menu.c
-@@ -3491,8 +3491,10 @@
+@@ -3456,8 +3456,10 @@
    Add(new cMenuEditStrItem( tr("Setup.Recording$Name instant recording"),     data.NameInstantRecord, sizeof(data.NameInstantRecord)));
    Add(new cMenuEditIntItem( tr("Setup.Recording$Instant rec. time (min)"),   &data.InstantRecordTime, 1, MAXINSTANTRECTIME));
    Add(new cMenuEditIntItem( tr("Setup.Recording$Max. video file size (MB)"), &data.MaxVideoFileSize, MINVIDEOFILESIZE, MAXVIDEOFILESIZETS));
@@ -354,7 +354,7 @@ Origin: http://www.udo-richter.de/vdr/patches.html#hlcutter
          }
 --- a/recording.c
 +++ b/recording.c
-@@ -2075,6 +2075,20 @@
+@@ -2090,6 +2090,20 @@
    return NULL;
  }
  
@@ -377,7 +377,7 @@ Origin: http://www.udo-richter.de/vdr/patches.html#hlcutter
    return SetOffset(fileNumber + 1);
 --- a/recording.h
 +++ b/recording.h
-@@ -266,9 +266,17 @@
+@@ -260,9 +260,17 @@
  // before the next independent frame, to have a complete Group Of Pictures):
  #define MAXVIDEOFILESIZETS  1048570 // MB
  #define MAXVIDEOFILESIZEPES    2000 // MB
@@ -396,7 +396,7 @@ Origin: http://www.udo-richter.de/vdr/patches.html#hlcutter
  struct tIndexTs;
  class cIndexFileGenerator;
  
-@@ -321,6 +329,8 @@
+@@ -315,6 +323,8 @@
    cUnbufferedFile *Open(void);
    void Close(void);
    cUnbufferedFile *SetOffset(int Number, off_t Offset = 0); // yes, Number is int for easier internal calculating
@@ -540,7 +540,7 @@ Origin: http://www.udo-richter.de/vdr/patches.html#hlcutter
    cVideoDirectory Dir;
 --- a/videodir.h
 +++ b/videodir.h
-@@ -19,6 +19,7 @@
+@@ -22,6 +22,7 @@
  int CloseVideoFile(cUnbufferedFile *File);
  bool RenameVideoFile(const char *OldName, const char *NewName);
  bool RemoveVideoFile(const char *FileName);

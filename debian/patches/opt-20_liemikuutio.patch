@@ -559,7 +559,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
 +       dvbplayer.o dvbspu.o dvbsubtitle.o eit.o eitscan.o epg.o filetransfer.o filter.o font.o i18n.o\
 +       interface.o keys.o lirc.o menu.o menuitems.o nit.o osdbase.o osd.o pat.o player.o plugin.o\
         receiver.o recorder.o recording.o remote.o remux.o ringbuffer.o sdt.o sections.o shutdown.o\
-        skinclassic.o skins.o skinsttng.o sourceparams.o sources.o spu.o status.o svdrp.o themes.o thread.o\
+        skinclassic.o skinlcars.o skins.o skinsttng.o sourceparams.o sources.o spu.o status.o svdrp.o themes.o thread.o\
         timers.o tools.o transfer.o vdr.o videodir.o
 --- a/menu.c
 +++ b/menu.c
@@ -571,7 +571,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
  #include "i18n.h"
  #include "interface.h"
  #include "plugin.h"
-@@ -2207,6 +2208,167 @@
+@@ -2180,6 +2181,167 @@
    SetText(cString::sprintf("%d\t\t%d\t%s", totalEntries, newEntries, name));
  }
  
@@ -739,7 +739,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
  // --- cMenuRecordings -------------------------------------------------------
  
  cMenuRecordings::cMenuRecordings(const char *Base, int Level, bool OpenSubMenus)
-@@ -2455,6 +2617,19 @@
+@@ -2417,6 +2579,19 @@
    return osContinue;
  }
  
@@ -759,7 +759,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
  eOSState cMenuRecordings::ProcessKey(eKeys Key)
  {
    bool HadSubMenu = HasSubMenu();
-@@ -2469,6 +2644,7 @@
+@@ -2431,6 +2606,7 @@
         case kYellow: return Delete();
         case kInfo:
         case kBlue:   return Info();
@@ -767,7 +767,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
         case k1...k9: return Commands(Key);
         case kNone:   if (Recordings.StateChanged(recordingsState))
                          Set(true);
-@@ -3329,6 +3505,7 @@
+@@ -3300,6 +3476,7 @@
    replaying = false;
    stopReplayItem = NULL;
    cancelEditingItem = NULL;
@@ -775,7 +775,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
    stopRecordingItem = NULL;
    recordControlsState = 0;
    Set();
-@@ -3430,6 +3607,19 @@
+@@ -3394,6 +3571,19 @@
       result = true;
       }
  
@@ -795,7 +795,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
    // Record control:
    if (cRecordControls::StateChanged(recordControlsState)) {
       while (stopRecordingItem) {
-@@ -3478,6 +3668,12 @@
+@@ -3442,6 +3632,12 @@
                            return osEnd;
                            }
                         break;
@@ -808,7 +808,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
      case osPlugin:     {
                           cMenuPluginItem *item = (cMenuPluginItem *)Get(Current());
                           if (item) {
-@@ -4428,6 +4624,10 @@
+@@ -4401,6 +4597,10 @@
  
  // --- cReplayControl --------------------------------------------------------
  
@@ -817,9 +817,9 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
 +#define REPLAYCONTROLSKIPTIMEOUT 5000 // ms
 +
  cReplayControl *cReplayControl::currentReplayControl = NULL;
- char *cReplayControl::fileName = NULL;
- char *cReplayControl::title = NULL;
-@@ -4441,6 +4641,9 @@
+ cString cReplayControl::fileName;
+ 
+@@ -4413,6 +4613,9 @@
    lastCurrent = lastTotal = -1;
    lastPlay = lastForward = false;
    lastSpeed = -2; // an invalid value
@@ -829,7 +829,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
    timeoutShow = 0;
    timeSearchActive = false;
    cRecording Recording(fileName);
-@@ -4763,7 +4966,7 @@
+@@ -4732,7 +4935,7 @@
       if (!cCutter::Active()) {
          if (!marks.Count())
             Skins.Message(mtError, tr("No editing marks defined!"));
@@ -838,7 +838,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
             Skins.Message(mtError, tr("Can't start editing process!"));
          else
             Skins.Message(mtInfo, tr("Editing process started"));
-@@ -4845,6 +5048,32 @@
+@@ -4821,6 +5024,32 @@
      case kGreen:   SkipSeconds(-60); break;
      case kYellow|k_Repeat:
      case kYellow:  SkipSeconds( 60); break;
@@ -871,7 +871,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
      case kStop:
      case kBlue:    Hide();
                     Stop();
-@@ -4854,12 +5083,8 @@
+@@ -4830,12 +5059,8 @@
        switch (int(Key)) {
          // Editing:
          case kMarkToggle:      MarkToggle(); break;
@@ -894,7 +894,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
    cOsdItem *stopRecordingItem;
    int recordControlsState;
    static cOsdObject *pluginOsdObject;
-@@ -205,6 +206,7 @@
+@@ -204,6 +205,7 @@
    eOSState Delete(void);
    eOSState Info(void);
    eOSState Commands(eKeys Key = kNone);
@@ -902,7 +902,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
  protected:
    cRecording *GetRecording(cMenuRecordingItem *Item);
  public:
-@@ -259,6 +261,9 @@
+@@ -261,6 +263,9 @@
    int lastCurrent, lastTotal;
    bool lastPlay, lastForward;
    int lastSpeed;
@@ -914,15 +914,15 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
    int timeSearchTime, timeSearchPos;
 --- a/osdbase.c
 +++ b/osdbase.c
-@@ -78,6 +78,7 @@
+@@ -77,6 +77,7 @@
  {
    isMenu = true;
    digit = 0;
 +  key_nr = -1;
    hasHotkeys = false;
+   displayMenuItems = 0;
    title = NULL;
-   SetTitle(Title);
-@@ -121,7 +122,7 @@
+@@ -126,7 +127,7 @@
          digit = -1; // prevents automatic hotkeys - input already has them
       if (digit >= 0) {
          digit++;
@@ -931,7 +931,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
          s = buffer;
          }
       }
-@@ -468,20 +469,60 @@
+@@ -476,20 +477,60 @@
       }
  }
  
@@ -995,7 +995,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
    return osContinue;
  }
  
-@@ -520,8 +561,8 @@
+@@ -528,8 +569,8 @@
          }
       }
    switch (int(Key)) {
@@ -1016,7 +1016,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
                  osSwitchDvb,
                  osBack,
                  osEnd,
-@@ -96,6 +97,8 @@
+@@ -97,6 +98,8 @@
    char *status;
    int digit;
    bool hasHotkeys;
@@ -1027,11 +1027,10 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
    void SetDisplayMenu(void);
 --- a/po/de_DE.po
 +++ b/po/de_DE.po
-@@ -1341,3 +1341,70 @@
- #, c-format
+@@ -1354,6 +1354,73 @@
  msgid "VDR will shut down in %s minutes"
  msgstr "VDR wird in %s Minuten abgeschaltet"
-+
+ 
 +msgid "Edit recording"
 +msgstr "Aufnahme bearbeiten"
 +
@@ -1098,82 +1097,13 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
 +
 +msgid "File already exists - overwrite?"
 +msgstr "Datei besteht bereits - �berschreiben?"
---- a/po/fi_FI.po
-+++ b/po/fi_FI.po
-@@ -1344,3 +1344,70 @@
- #, c-format
- msgid "VDR will shut down in %s minutes"
- msgstr "VDR sammuu %s minuutin kuluttua"
 +
-+msgid "Edit recording"
-+msgstr "Muokkaa tallennetta"
-+
-+msgid "Button$Cut"
-+msgstr "Leikkaa"
-+
-+msgid "Button$Copy"
-+msgstr "Kopioi"
-+
-+msgid "Button$Rename/Move"
-+msgstr "Nimeä/Siirrä"
-+
-+msgid "Date"
-+msgstr "Päiväys"
-+
-+msgid "Length"
-+msgstr "Pituus"
-+
-+msgid "Format"
-+msgstr "Tiedostomuoto"
-+
-+msgid "PES"
-+msgstr "PES"
-+
-+msgid "TS"
-+msgstr "TS"
-+
-+msgid "Size"
-+msgstr "Koko"
-+
-+msgid "Delete marks information?"
-+msgstr "Poista tallenteen merkinnät?"
-+
-+msgid "Delete resume information?"
-+msgstr "Poista tallenteen paluutiedot?"
-+
-+msgid "File transfer started"
-+msgstr "Tiedoston siirto aloitettu"
-+
-+msgid "Can't start file transfer!"
-+msgstr "Tiedoston siirron aloitus epäonnistui!"
-+
-+msgid "File transfer already active!"
-+msgstr "Tiedoston siirto on jo käynnissä!"
-+
-+#. TRANSLATORS: note the leading blank!
-+msgid " Cancel file transfer"
-+msgstr " Peru tiedoston siirto"
-+
-+msgid "Cancel file transfer?"
-+msgstr "Perutaanko tiedoston siirto?"
-+
-+msgid "Transfering file - shut down anyway?"
-+msgstr "Tiedoston siirto kesken - sammutetaanko?"
-+
-+msgid "Transfering file - restart anyway?"
-+msgstr "Tiedoston siirto kesken - käynnistetäänkö uudelleen?"
-+
-+msgid "File transfer failed!"
-+msgstr "Tiedoston siirto epäonnistui!"
-+
-+msgid "File transfer finished"
-+msgstr "Tiedoston siirto valmis"
-+
-+msgid "File already exists - overwrite?"
-+msgstr "Tiedosto on jo olemassa - ylikirjoitetaanko?"
+ msgid "Disk"
+ msgstr "Disk"
+ 
 --- a/recording.c
 +++ b/recording.c
-@@ -932,6 +932,16 @@
+@@ -936,6 +936,16 @@
    return NULL;
  }
  
@@ -1190,7 +1120,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
  int cRecording::HierarchyLevels(void) const
  {
    const char *s = name;
-@@ -1215,7 +1225,7 @@
+@@ -1226,7 +1236,7 @@
       }
  }
  
@@ -1199,7 +1129,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
  {
    LOCK_THREAD;
    cRecording *recording = GetByName(FileName);
-@@ -1223,7 +1233,7 @@
+@@ -1234,7 +1244,7 @@
       cThreadLock DeletedRecordingsLock(&DeletedRecordings);
       Del(recording, false);
       char *ext = strrchr(recording->fileName, '.');
@@ -1210,7 +1140,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
             recording->deleted = time(NULL);
 --- a/recording.h
 +++ b/recording.h
-@@ -121,6 +121,7 @@
+@@ -117,6 +117,7 @@
    const char *Title(char Delimiter = ' ', bool NewIndicator = false, int Level = -1) const;
    const cRecordingInfo *Info(void) const { return info; }
    const char *PrefixFileName(char Prefix);
@@ -1218,7 +1148,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
    int HierarchyLevels(void) const;
    void ResetResume(void) const;
    double FramesPerSecond(void) const { return framesPerSecond; }
-@@ -191,7 +192,7 @@
+@@ -188,7 +189,7 @@
    void ResetResume(const char *ResumeFileName = NULL);
    cRecording *GetByName(const char *FileName);
    void AddByName(const char *FileName, bool TriggerUpdate = true);
@@ -1403,7 +1333,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
  #include "i18n.h"
  #include "interface.h"
  #include "keys.h"
-@@ -1233,6 +1234,12 @@
+@@ -1235,6 +1236,12 @@
                else
                   Skins.Message(mtInfo, tr("Editing process finished"));
                }
@@ -1416,7 +1346,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
             }
  
          // SIGHUP shall cause a restart:
-@@ -1248,7 +1255,7 @@
+@@ -1250,7 +1257,7 @@
                ShutdownHandler.countdown.Cancel();
             }
  
@@ -1425,7 +1355,7 @@ Origin: http://www.saunalahti.fi/~rahrenbe/vdr/patches/vdr-1.7.27-liemikuutio-1.
             // Handle housekeeping tasks
  
             // Shutdown:
-@@ -1295,6 +1302,7 @@
+@@ -1297,6 +1304,7 @@
  
    PluginManager.StopPlugins();
    cRecordControls::Shutdown();

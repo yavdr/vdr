@@ -23,7 +23,7 @@ Origin: http://vdr.schmirler.de/
  #include "menuorgpatch.h"
  
  #define MAXWAIT4EPGINFO   3 // seconds
-@@ -4770,6 +4771,50 @@
+@@ -4735,6 +4736,50 @@
  
  bool cRecordControls::Start(cTimer *Timer, bool Pause)
  {
@@ -47,7 +47,7 @@ Origin: http://vdr.schmirler.de/
 +        Timers.Add(t);
 +        Timers.SetModified();
 +        if (!cReplayControl::LastReplayed())
-+           cReplayControl::SetRecording(recording.FileName(), recording.Name());
++           cReplayControl::SetRecording(recording.FileName());
 +        return true;
 +     }
 +     else {
@@ -60,7 +60,7 @@ Origin: http://vdr.schmirler.de/
 +
 +        if (cPluginManager::CallFirstService("RemoteTimers::InstantRecording-v1.0", &ir)) {
 +           if (!cReplayControl::LastReplayed())
-+              cReplayControl::SetRecording(ir.fileName, ir.name);
++              cReplayControl::SetRecording(ir.fileName);
 + 	  delete t;
 + 	  // empty names indicate an error
 + 	  return *ir.fileName && *ir.name;

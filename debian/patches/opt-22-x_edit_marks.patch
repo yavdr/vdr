@@ -6,7 +6,7 @@ Origin: http://vdrportal.de/board/thread.php?postid=718583#post718583
 
 --- a/menu.c
 +++ b/menu.c
-@@ -5048,10 +5048,6 @@
+@@ -5024,10 +5024,6 @@
      case kGreen:   SkipSeconds(-60); break;
      case kYellow|k_Repeat:
      case kYellow:  SkipSeconds( 60); break;
@@ -17,7 +17,7 @@ Origin: http://vdrportal.de/board/thread.php?postid=718583#post718583
      case kPrev|k_Repeat:
      case kPrev:    if (lastSkipTimeout.TimedOut()) {
                        lastSkipSeconds = REPLAYCONTROLSKIPSECONDS;
-@@ -5079,10 +5075,46 @@
+@@ -5055,10 +5051,46 @@
                     Stop();
                     return osEnd;
      default: {

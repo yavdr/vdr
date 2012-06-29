@@ -4,7 +4,7 @@ Origin: http://www.jwendel.de/vdr/
 
 --- a/device.c
 +++ b/device.c
-@@ -735,6 +735,12 @@
+@@ -740,6 +740,12 @@
  
  bool cDevice::SwitchChannel(const cChannel *Channel, bool LiveView)
  {
@@ -17,7 +17,7 @@ Origin: http://www.jwendel.de/vdr/
    if (LiveView) {
       isyslog("switching to channel %d", Channel->Number());
       cControl::Shutdown(); // prevents old channel from being shown too long if GetDevice() takes longer
-@@ -765,6 +771,7 @@
+@@ -770,6 +776,7 @@
       cChannel *channel;
       while ((channel = Channels.GetByNumber(n, Direction)) != NULL) {
             // try only channels which are currently available
@@ -27,7 +27,7 @@ Origin: http://www.jwendel.de/vdr/
             n = channel->Number() + Direction;
 --- a/menu.c
 +++ b/menu.c
-@@ -938,6 +938,16 @@
+@@ -905,6 +905,16 @@
       Add(new cMenuEditBitItem( tr("VPS"),          &data.flags, tfVps));
       Add(new cMenuEditIntItem( tr("Priority"),     &data.priority, 0, MAXPRIORITY));
       Add(new cMenuEditIntItem( tr("Lifetime"),     &data.lifetime, 0, MAXLIFETIME));
@@ -44,7 +44,7 @@ Origin: http://www.jwendel.de/vdr/
       Add(file = new cMenuEditStrItem( tr("File"),   data.file, sizeof(data.file)));
       SetFirstDayItem();
       }
-@@ -2629,7 +2639,10 @@
+@@ -2593,7 +2603,10 @@
    for (cRecording *recording = Recordings.First(); recording; recording = Recordings.Next(recording)) {
        if (!base || (strstr(recording->Name(), base) == recording->Name() && recording->Name()[strlen(base)] == FOLDERDELIMCHAR)) {
           cMenuRecordingItem *Item = new cMenuRecordingItem(recording, level);
@@ -56,7 +56,7 @@ Origin: http://www.jwendel.de/vdr/
              Add(Item);
              LastItem = Item;
              free(LastItemText);
-@@ -2692,6 +2705,9 @@
+@@ -2655,6 +2668,9 @@
  {
    cMenuRecordingItem *ri = (cMenuRecordingItem *)Get(Current());
    if (ri) {
@@ -66,7 +66,7 @@ Origin: http://www.jwendel.de/vdr/
       if (ri->IsDirectory())
          Open();
       else {
-@@ -3787,28 +3803,32 @@
+@@ -3759,28 +3775,32 @@
  
    // Basic menu items:
  
@@ -104,7 +104,7 @@ Origin: http://www.jwendel.de/vdr/
       Add(new cOsdItem(hk(tr("Commands")),  osCommands));
  
    }
-@@ -3900,6 +3920,14 @@
+@@ -3865,6 +3885,14 @@
    HadSubMenu |= HasSubMenu();
  
    cOsdObject *menu = NULL;
@@ -119,7 +119,7 @@ Origin: http://www.jwendel.de/vdr/
    switch (state) {
      case osSchedule:
          if (!cPluginManager::CallFirstService("MainMenuHooksPatch-v1.0::osSchedule", &menu))
-@@ -3951,6 +3979,7 @@
+@@ -3916,6 +3944,7 @@
                           if (item) {
                              cPlugin *p = cPluginManager::GetPlugin(item->PluginIndex());
                              if (p) {
@@ -127,7 +127,7 @@ Origin: http://www.jwendel.de/vdr/
                                 cOsdObject *menu = p->MainMenuAction();
                                 if (menu) {
                                    if (menu->IsMenu())
-@@ -3962,6 +3991,7 @@
+@@ -3927,6 +3956,7 @@
                                    }
                                 }
                              }
@@ -135,7 +135,7 @@ Origin: http://www.jwendel.de/vdr/
                           state = osEnd;
                         }
                         break;
-@@ -4173,6 +4203,8 @@
+@@ -4138,6 +4168,8 @@
             Channel = Direction > 0 ? Channels.Next(Channel) : Channels.Prev(Channel);
             if (!Channel && Setup.ChannelsWrap)
                Channel = Direction > 0 ? Channels.First() : Channels.Last();
@@ -144,7 +144,7 @@ Origin: http://www.jwendel.de/vdr/
             if (Channel && !Channel->GroupSep() && cDevice::GetDevice(Channel, LIVEPRIORITY, true, true))
                return Channel;
             }
-@@ -4852,6 +4884,7 @@
+@@ -4817,6 +4849,7 @@
             for (int i = 0; i < MAXRECORDCONTROLS; i++) {
                 if (!RecordControls[i]) {
                    RecordControls[i] = new cRecordControl(device, Timer, Pause);
@@ -154,7 +154,7 @@ Origin: http://www.jwendel.de/vdr/
                 }
 --- a/osd.c
 +++ b/osd.c
-@@ -1605,6 +1605,7 @@
+@@ -1623,6 +1623,7 @@
  int cOsd::osdHeight = 0;
  cVector<cOsd *> cOsd::Osds;
  cMutex cOsd::mutex;
@@ -164,7 +164,7 @@ Origin: http://www.jwendel.de/vdr/
  {
 --- a/osd.h
 +++ b/osd.h
-@@ -922,6 +922,7 @@
+@@ -932,6 +932,7 @@
         ///<        delete pm;
         ///<        }
    tArea vidWin;
@@ -174,29 +174,33 @@ Origin: http://www.jwendel.de/vdr/
  #define MAXOSDIMAGES 64
 --- a/status.c
 +++ b/status.c
-@@ -153,3 +153,55 @@
-   for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+@@ -154,31 +154,54 @@
       sm->OsdEventItem(Event, Text, Index, Count);
  }
-+
+ 
+-void cStatus::MsgOsdSetEvent(const cEvent* event)
 +bool cStatus::MsgChannelProtected(const cDevice* Device, const cChannel* Channel)     // PIN PATCH
-+{
-+  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+ {
+   for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+-      sm->OsdSetEvent(event);
 +      if (sm->ChannelProtected(Device, Channel) == true)
 + 	 return true;
 +
 +  return false;
-+}
-+
+ }
+ 
+-void cStatus::MsgOsdSetRecording(const cRecording* recording)
 +bool cStatus::MsgReplayProtected(const cRecording* Recording, const char* Name,
 +                                 const char* Base, bool isDirectory, int menuView)    // PIN PATCH
-+{
-+  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+ {
+   for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+-      sm->OsdSetRecording(recording);
 +     if (sm->ReplayProtected(Recording, Name, Base, isDirectory, menuView) == true)
 +         return true;
 +      return false;
-+}
-+
+ }
+ 
+-void cStatus::MsgOsdMenuDisplay(const char* kind)
 +void cStatus::MsgRecordingFile(const char* FileName)
 +{
 +  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))   // PIN PATCH
@@ -210,26 +214,31 @@ Origin: http://www.jwendel.de/vdr/
 +}
 +
 +bool cStatus::MsgPluginProtected(cPlugin* Plugin, int menuView)                  // PIN PATCH
-+{
-+  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+ {
+   for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+-      sm->OsdMenuDisplay(kind);
 +     if (sm->PluginProtected(Plugin, menuView) == true)
 +         return true;
 +      return false;
-+}
-+
+ }
+ 
+-void cStatus::MsgOsdMenuDestroy()
 +void cStatus::MsgUserAction(const eKeys key, const cOsdObject* Interact)         // PIN PATCH
-+{
-+  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+ {
+   for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+-      sm->OsdMenuDestroy();
 +     sm->UserAction(key, Interact);
-+}
+ }
+-void cStatus::MsgOsdEventItem(const cEvent* Event, const char *Text, int Index, int Count)
 +
 +bool cStatus::MsgMenuItemProtected(const char* Name, int menuView)               // PIN PATCH
-+{
-+  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+ {
+   for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+-     sm->OsdEventItem(Event, Text, Index, Count);
 +     if (sm->MenuItemProtected(Name, menuView) == true)
 +         return true;
 +      return false;
-+}
+ }
 --- a/status.h
 +++ b/status.h
 @@ -14,6 +14,7 @@
@@ -382,7 +391,7 @@ Origin: http://www.jwendel.de/vdr/
    bool HasFlags(uint Flags) const;
 --- a/vdr.c
 +++ b/vdr.c
-@@ -60,6 +60,7 @@
+@@ -61,6 +61,7 @@
  #include "skinsttng.h"
  #include "sourceparams.h"
  #include "sources.h"
@@ -390,7 +399,7 @@ Origin: http://www.jwendel.de/vdr/
  #include "themes.h"
  #include "timers.h"
  #include "tools.h"
-@@ -930,6 +931,7 @@
+@@ -932,6 +933,7 @@
          cOsdObject *Interact = Menu ? Menu : cControl::Control();
          eKeys key = Interface->GetKey(!Interact || !Interact->NeedsFastResponse());
          if (ISREALKEY(key)) {
@@ -398,7 +407,7 @@ Origin: http://www.jwendel.de/vdr/
             EITScanner.Activity();
             // Cancel shutdown countdown:
             if (ShutdownHandler.countdown)
-@@ -1002,10 +1004,12 @@
+@@ -1004,10 +1006,12 @@
                       cControl::Control()->Hide();
                    cPlugin *plugin = cPluginManager::GetPlugin(PluginName);
                    if (plugin) {
@@ -411,7 +420,7 @@ Origin: http://www.jwendel.de/vdr/
                    else
                       esyslog("ERROR: unknown plugin '%s'", PluginName);
                    }
-@@ -1218,9 +1222,11 @@
+@@ -1220,9 +1224,11 @@
               // Instant resume of the last viewed recording:
               case kPlay:
                    if (cReplayControl::LastReplayed()) {

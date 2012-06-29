@@ -4,7 +4,7 @@ Origin: http://www.udo-richter.de/vdr/naludump.html
 
 --- a/config.c
 +++ b/config.c
-@@ -450,6 +450,7 @@
+@@ -451,6 +451,7 @@
    MaxRecordingSize = DEFAULTRECORDINGSIZE;
    SplitEditedFiles = 0;
    DelTimeshiftRec = 0;
@@ -12,7 +12,7 @@ Origin: http://www.udo-richter.de/vdr/naludump.html
    HardLinkCutter = 0;
    MinEventTimeout = 30;
    MinUserInactivity = 300;
-@@ -651,6 +652,7 @@
+@@ -653,6 +654,7 @@
    else if (!strcasecmp(Name, "MaxRecordingSize"))    MaxRecordingSize   = atoi(Value);
    else if (!strcasecmp(Name, "SplitEditedFiles"))    SplitEditedFiles   = atoi(Value);
    else if (!strcasecmp(Name, "DelTimeshiftRec"))     DelTimeshiftRec    = atoi(Value);
@@ -20,7 +20,7 @@ Origin: http://www.udo-richter.de/vdr/naludump.html
    else if (!strcasecmp(Name, "HardLinkCutter"))      HardLinkCutter     = atoi(Value);
    else if (!strcasecmp(Name, "MinEventTimeout"))     MinEventTimeout    = atoi(Value);
    else if (!strcasecmp(Name, "MinUserInactivity"))   MinUserInactivity  = atoi(Value);
-@@ -755,6 +757,7 @@
+@@ -758,6 +760,7 @@
    Store("MaxRecordingSize",   MaxRecordingSize);
    Store("SplitEditedFiles",   SplitEditedFiles);
    Store("DelTimeshiftRec",    DelTimeshiftRec);
@@ -30,7 +30,7 @@ Origin: http://www.udo-richter.de/vdr/naludump.html
    Store("MinUserInactivity",  MinUserInactivity);
 --- a/config.h
 +++ b/config.h
-@@ -314,6 +314,7 @@
+@@ -325,6 +325,7 @@
    int MaxRecordingSize;
    int SplitEditedFiles;
    int DelTimeshiftRec;
@@ -40,7 +40,7 @@ Origin: http://www.udo-richter.de/vdr/naludump.html
    time_t NextWakeupTime;
 --- a/menu.c
 +++ b/menu.c
-@@ -3494,6 +3494,7 @@
+@@ -3459,6 +3459,7 @@
    Add(new cMenuEditIntItem( tr("Setup.Recording$Max. recording size (GB)"),  &data.MaxRecordingSize, MINRECORDINGSIZE, MAXRECORDINGSIZE));
    Add(new cMenuEditBoolItem(tr("Setup.Recording$Split edited files"),        &data.SplitEditedFiles));
    Add(new cMenuEditStraItem(tr("Setup.Recording$Delete timeshift recording"),&data.DelTimeshiftRec, 3, delTimeshiftRecTexts));

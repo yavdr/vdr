@@ -77,7 +77,7 @@ Origin: http://toms-cafe.de/vdr/download/vdr-timer-info-0.5-1.7.13.diff
 +   http://toms-cafe.de/vdr/download/vdr-timer-info-0.5-1.7.13.diff
 --- a/menu.c
 +++ b/menu.c
-@@ -1032,8 +1032,10 @@
+@@ -998,8 +998,10 @@
  class cMenuTimerItem : public cOsdItem {
  private:
    cTimer *timer;
@@ -88,7 +88,7 @@ Origin: http://toms-cafe.de/vdr/download/vdr-timer-info-0.5-1.7.13.diff
    virtual int Compare(const cListObject &ListObject) const;
    virtual void Set(void);
    cTimer *Timer(void) { return timer; }
-@@ -1042,6 +1044,7 @@
+@@ -1008,6 +1010,7 @@
  cMenuTimerItem::cMenuTimerItem(cTimer *Timer)
  {
    timer = Timer;
@@ -96,7 +96,7 @@ Origin: http://toms-cafe.de/vdr/download/vdr-timer-info-0.5-1.7.13.diff
    Set();
  }
  
-@@ -1072,7 +1075,10 @@
+@@ -1038,7 +1041,10 @@
       File++;
    else
       File = timer->File();
@@ -108,7 +108,7 @@ Origin: http://toms-cafe.de/vdr/download/vdr-timer-info-0.5-1.7.13.diff
                      !(timer->HasFlags(tfActive)) ? ' ' : timer->FirstDay() ? '!' : timer->Recording() ? '#' : '>',
                      timer->Channel()->Number(),
                      *name,
-@@ -1085,6 +1091,57 @@
+@@ -1051,6 +1057,57 @@
                      File));
  }
  
@@ -166,7 +166,7 @@ Origin: http://toms-cafe.de/vdr/download/vdr-timer-info-0.5-1.7.13.diff
  // --- cMenuTimers -----------------------------------------------------------
  
  class cMenuTimers : public cOsdMenu {
-@@ -1097,14 +1154,17 @@
+@@ -1063,14 +1120,17 @@
    eOSState Info(void);
    cTimer *CurrentTimer(void);
    void SetHelpKeys(void);
@@ -183,9 +183,9 @@ Origin: http://toms-cafe.de/vdr/download/vdr-timer-info-0.5-1.7.13.diff
 -:cOsdMenu(tr("Timers"), 2, CHNUMWIDTH, 10, 6, 6)
 +:cOsdMenu(tr("Timers"), 3, CHNUMWIDTH, 10, 6, 6)
  {
+   SetMenuCategory(mcTimer);
    helpKeys = -1;
-   for (cTimer *timer = Timers.First(); timer; timer = Timers.Next(timer)) {
-@@ -1115,6 +1175,7 @@
+@@ -1082,6 +1142,7 @@
    SetCurrent(First());
    SetHelpKeys();
    Timers.IncBeingEdited();
@@ -193,7 +193,7 @@ Origin: http://toms-cafe.de/vdr/download/vdr-timer-info-0.5-1.7.13.diff
  }
  
  cMenuTimers::~cMenuTimers()
-@@ -1153,7 +1214,7 @@
+@@ -1120,7 +1181,7 @@
       timer->OnOff();
       timer->SetEventFromSchedule();
       RefreshCurrent();
@@ -202,7 +202,7 @@ Origin: http://toms-cafe.de/vdr/download/vdr-timer-info-0.5-1.7.13.diff
       if (timer->FirstDay())
          isyslog("timer %s first day set to %s", *timer->ToDescr(), *timer->PrintFirstDay());
       else
-@@ -1212,6 +1273,67 @@
+@@ -1179,6 +1240,67 @@
    return osContinue;
  }
  
@@ -270,7 +270,7 @@ Origin: http://toms-cafe.de/vdr/download/vdr-timer-info-0.5-1.7.13.diff
  eOSState cMenuTimers::ProcessKey(eKeys Key)
  {
    int TimerNumber = HasSubMenu() ? Count() : -1;
-@@ -1220,18 +1342,22 @@
+@@ -1187,18 +1309,22 @@
    if (state == osUnknown) {
       switch (Key) {
         case kOk:     return Edit();
@@ -298,3 +298,27 @@ Origin: http://toms-cafe.de/vdr/download/vdr-timer-info-0.5-1.7.13.diff
       Display();
       }
    if (Key != kNone)
+--- a/videodir.c
++++ b/videodir.c
+@@ -260,9 +260,6 @@
+ 
+ // --- cVideoDiskUsage -------------------------------------------------------
+ 
+-#define DISKSPACECHEK     5 // seconds between disk space checks
+-#define MB_PER_MINUTE 25.75 // this is just an estimate!
+-
+ int cVideoDiskUsage::state = 0;
+ time_t cVideoDiskUsage::lastChecked = 0;
+ int cVideoDiskUsage::usedPercent = 0;
+--- a/videodir.h
++++ b/videodir.h
+@@ -13,6 +13,9 @@
+ #include <stdlib.h>
+ #include "tools.h"
+ 
++#define DISKSPACECHEK     5 // seconds between disk space checks
++#define MB_PER_MINUTE 25.75 // this is just an estimate!
++
+ extern const char *VideoDirectory;
+ 
+ cUnbufferedFile *OpenVideoFile(const char *FileName, int Flags);

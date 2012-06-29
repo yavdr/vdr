@@ -40,7 +40,7 @@ Origin: http://www.hoochvdr.info/yaepg/vdr-1.3.19-core-yaepg.diff
  }
 --- a/device.h
 +++ b/device.h
-@@ -300,12 +300,12 @@
+@@ -306,12 +306,12 @@
           ///< Direction (only the sign of Direction is evaluated, positive values
           ///< switch to higher channel numbers).
  private:
@@ -57,7 +57,7 @@ Origin: http://www.hoochvdr.info/yaepg/vdr-1.3.19-core-yaepg.diff
    static void SetCurrentChannel(const cChannel *Channel) { currentChannel = Channel ? Channel->Number() : 0; }
 --- a/osd.c
 +++ b/osd.c
-@@ -1626,6 +1626,7 @@
+@@ -1644,6 +1644,7 @@
           }
        }
    Osds.Append(this);
@@ -67,7 +67,7 @@ Origin: http://www.hoochvdr.info/yaepg/vdr-1.3.19-core-yaepg.diff
  cOsd::~cOsd()
 --- a/osd.h
 +++ b/osd.h
-@@ -921,6 +921,7 @@
+@@ -931,6 +931,7 @@
         ///<        MyOsdDrawPixmap(Left() + pm->ViewPort().X(), Top() + pm->ViewPort().Y(), pm->Data(), w, h, h * d);
         ///<        delete pm;
         ///<        }

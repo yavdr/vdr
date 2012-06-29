@@ -5,7 +5,7 @@ Author: Thomas Schmidt <tschmidt@debian.org>
 
 --- a/vdr.c
 +++ b/vdr.c
-@@ -177,7 +177,7 @@
+@@ -178,7 +178,7 @@
  
    // Command line options:
  

@@ -4,7 +4,7 @@ Author: Walter Koch <koch@u32.de>
 
 --- a/menu.c
 +++ b/menu.c
-@@ -2594,6 +2594,19 @@
+@@ -2557,6 +2557,19 @@
           }
        }
    free(LastItemText);
@@ -21,6 +21,6 @@ Author: Walter Koch <koch@u32.de>
 +  free(buffer);
 +//kw
 +
-   Refresh |= SetFreeDiskDisplay(Refresh);
    if (Refresh)
       Display();
+ }
