@@ -4,10 +4,8 @@ Description: Patch adds keys '1', '3' in replay mode to move marks by +/-5secs.
 Author: FrankJepsen at vdrportal.de
 Origin: http://vdrportal.de/board/thread.php?postid=718583#post718583
 
-Index: vdr-1.7.27/menu.c
-===================================================================
---- vdr-1.7.27.orig/menu.c	2012-03-25 14:18:05.384975038 +0200
-+++ vdr-1.7.27/menu.c	2012-03-25 14:18:05.474975038 +0200
+--- a/menu.c
++++ b/menu.c
 @@ -5048,10 +5048,6 @@
      case kGreen:   SkipSeconds(-60); break;
      case kYellow|k_Repeat:

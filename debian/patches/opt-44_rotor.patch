@@ -2,10 +2,8 @@ Description: This patch is needed for the rotor plugin.
 Author: Thomas Bergwinkl <Bergwinkl.Thomas@vr-web.de>
 Origin: extracted from the rotor plugin 0.1.4-vdr1.5
 
-Index: vdr-1.7.27/device.h
-===================================================================
---- vdr-1.7.27.orig/device.h	2012-03-25 14:18:05.554975038 +0200
-+++ vdr-1.7.27/device.h	2012-03-25 14:18:05.764975038 +0200
+--- a/device.h
++++ b/device.h
 @@ -24,6 +24,8 @@
  #include "spu.h"
  #include "thread.h"
@@ -23,10 +21,8 @@ Index: vdr-1.7.27/device.h
  
  // PID handle facilities
  
-Index: vdr-1.7.27/dvbdevice.c
-===================================================================
---- vdr-1.7.27.orig/dvbdevice.c	2012-03-25 12:41:45.000000000 +0200
-+++ vdr-1.7.27/dvbdevice.c	2012-03-25 14:18:05.764975038 +0200
+--- a/dvbdevice.c
++++ b/dvbdevice.c
 @@ -285,6 +285,7 @@
  private:
    static cMutex bondMutex;
@@ -119,10 +115,8 @@ Index: vdr-1.7.27/dvbdevice.c
  void cDvbDevice::SetTransferModeForDolbyDigital(int Mode)
  {
    setTransferModeForDolbyDigital = Mode;
-Index: vdr-1.7.27/dvbdevice.h
-===================================================================
---- vdr-1.7.27.orig/dvbdevice.h	2012-03-13 11:11:15.000000000 +0100
-+++ vdr-1.7.27/dvbdevice.h	2012-03-25 14:18:05.774975038 +0200
+--- a/dvbdevice.h
++++ b/dvbdevice.h
 @@ -192,6 +192,7 @@
    virtual bool SetChannelDevice(const cChannel *Channel, bool LiveView);
  public:

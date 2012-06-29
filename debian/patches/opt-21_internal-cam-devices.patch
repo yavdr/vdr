@@ -4,10 +4,8 @@ Description: This patch allows tuning to encrypted channels which are
  See also: http://www.vdr-developer.org/mantisbt/view.php?id=429
 Author: Tobias Grimm <tg@e-tobi.net>
 
-Index: vdr-1.7.27/device.c
-===================================================================
---- vdr-1.7.27.orig/device.c	2012-03-13 10:48:14.000000000 +0100
-+++ vdr-1.7.27/device.c	2012-03-25 14:18:05.434975038 +0200
+--- a/device.c
++++ b/device.c
 @@ -236,6 +236,7 @@
    int NumCamSlots = CamSlots.Count();
    int SlotPriority[NumCamSlots];
@@ -64,10 +62,8 @@ Index: vdr-1.7.27/device.c
                     s = CamSlots.Get(j);
                  }
               }
-Index: vdr-1.7.27/device.h
-===================================================================
---- vdr-1.7.27.orig/device.h	2012-03-13 11:17:16.000000000 +0100
-+++ vdr-1.7.27/device.h	2012-03-25 14:18:05.434975038 +0200
+--- a/device.h
++++ b/device.h
 @@ -405,6 +405,13 @@
  public:
    virtual bool HasCi(void);

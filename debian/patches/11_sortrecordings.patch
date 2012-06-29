@@ -3,10 +3,8 @@ Description: Sort recordings dirs first and by name, recs by date or name
 Author: FrankJepsen at vdrportal.de
 Origin: http://www.jepsennet.de/vdr/download/11_sortrecordings.dpatch
 
-Index: vdr/recording.c
-===================================================================
---- vdr.orig/recording.c	2011-12-10 22:22:04.000000000 +0100
-+++ vdr/recording.c	2011-12-11 01:48:54.000000000 +0100
+--- a/recording.c
++++ b/recording.c
 @@ -811,8 +811,8 @@
                s1 = t;
             }

@@ -5,10 +5,8 @@ Description: Play after jump to next mark. Automatically jump over commercial br
 Author: Torsten Kunkel <vdr@tkunkel.de>, Thomas GÃ¼nther <tom@toms-cafe.de>
 Origin: http://toms-cafe.de/vdr/download/vdr-jumpplay-1.0-1.7.6.diff
 
-Index: vdr-1.7.27/config.c
-===================================================================
---- vdr-1.7.27.orig/config.c	2012-02-29 11:15:54.000000000 +0100
-+++ vdr-1.7.27/config.c	2012-03-25 14:18:05.504975038 +0200
+--- a/config.c
++++ b/config.c
 @@ -454,6 +454,9 @@
    ShowReplayMode = 0;
    ShowRemainingTime = 0;
@@ -39,19 +37,17 @@ Index: vdr-1.7.27/config.c
    Store("CurrentChannel",     CurrentChannel);
    Store("CurrentVolume",      CurrentVolume);
    Store("CurrentDolby",       CurrentDolby);
-Index: vdr-1.7.27/config.h
-===================================================================
---- vdr-1.7.27.orig/config.h	2012-03-25 14:18:05.374975038 +0200
-+++ vdr-1.7.27/config.h	2012-03-25 14:18:05.504975038 +0200
-@@ -37,6 +37,8 @@
- // VDR header files have changed.
+--- a/config.h
++++ b/config.h
+@@ -38,6 +38,8 @@
  
  #define LIEMIKUUTIO  134
-+
+ 
 +#define JUMPPLAYVERSNUM 100
-  
++
  #define MAXPRIORITY       99
  #define MINPRIORITY       (-MAXPRIORITY)
+ #define LIVEPRIORITY      0                  // priority used when selecting a device for live viewing
 @@ -309,6 +311,9 @@
    int ShowReplayMode;
    int ShowRemainingTime;
@@ -62,10 +58,8 @@ Index: vdr-1.7.27/config.h
    int CurrentChannel;
    int CurrentVolume;
    int CurrentDolby;
-Index: vdr-1.7.27/dvbplayer.c
-===================================================================
---- vdr-1.7.27.orig/dvbplayer.c	2012-03-12 15:36:55.000000000 +0100
-+++ vdr-1.7.27/dvbplayer.c	2012-03-25 14:18:05.504975038 +0200
+--- a/dvbplayer.c
++++ b/dvbplayer.c
 @@ -204,6 +204,7 @@
    cNonBlockingFileReader *nonBlockingFileReader;
    cRingBufferFrame *ringBuffer;
@@ -203,10 +197,8 @@ Index: vdr-1.7.27/dvbplayer.c
  
            // Handle hitting begin/end of recording:
  
-Index: vdr-1.7.27/MANUAL
-===================================================================
---- vdr-1.7.27.orig/MANUAL	2012-02-25 14:38:52.000000000 +0100
-+++ vdr-1.7.27/MANUAL	2012-03-25 14:18:05.504975038 +0200
+--- a/MANUAL
++++ b/MANUAL
 @@ -857,6 +857,25 @@
                           0 resulting in a file named 'resume', and any other
                           value resulting in 'resume.n'.
@@ -233,10 +225,8 @@ Index: vdr-1.7.27/MANUAL
    Miscellaneous:
  
    Min. event timeout = 30
-Index: vdr-1.7.27/menu.c
-===================================================================
---- vdr-1.7.27.orig/menu.c	2012-03-25 14:18:05.474975038 +0200
-+++ vdr-1.7.27/menu.c	2012-03-25 14:18:05.504975038 +0200
+--- a/menu.c
++++ b/menu.c
 @@ -3312,6 +3312,9 @@
    Add(new cMenuEditBoolItem(tr("Setup.Replay$Show replay mode"), &data.ShowReplayMode));
    Add(new cMenuEditBoolItem(tr("Setup.Replay$Show remaining time"), &data.ShowRemainingTime));
@@ -288,10 +278,8 @@ Index: vdr-1.7.27/menu.c
             m = marks.Next(m);
          if (m) {
             Goto(m->Position() - SecondsToFrames(3, FramesPerSecond()));
-Index: vdr-1.7.27/po/de_DE.po
-===================================================================
---- vdr-1.7.27.orig/po/de_DE.po	2012-03-25 14:18:05.394975038 +0200
-+++ vdr-1.7.27/po/de_DE.po	2012-03-25 14:18:05.514975038 +0200
+--- a/po/de_DE.po
++++ b/po/de_DE.po
 @@ -1080,6 +1080,15 @@
  msgid "Replay"
  msgstr "Wiedergabe"
@@ -308,10 +296,8 @@ Index: vdr-1.7.27/po/de_DE.po
  msgid "Setup.Replay$Multi speed mode"
  msgstr "Mehrstufiger Vor-/Rücklauf"
  
-Index: vdr-1.7.27/po/fr_FR.po
-===================================================================
---- vdr-1.7.27.orig/po/fr_FR.po	2012-03-11 11:44:44.000000000 +0100
-+++ vdr-1.7.27/po/fr_FR.po	2012-03-25 14:18:05.514975038 +0200
+--- a/po/fr_FR.po
++++ b/po/fr_FR.po
 @@ -1086,6 +1086,15 @@
  msgid "Replay"
  msgstr "Lecture"
@@ -328,10 +314,8 @@ Index: vdr-1.7.27/po/fr_FR.po
  msgid "Setup.Replay$Multi speed mode"
  msgstr "Mode multi-vitesses"
  
-Index: vdr-1.7.27/README.jumpplay
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ vdr-1.7.27/README.jumpplay	2012-03-25 14:18:05.514975038 +0200
+--- /dev/null
++++ b/README.jumpplay
 @@ -0,0 +1,92 @@
 +JumpPlay patch for VDR
 +----------------------

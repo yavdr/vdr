@@ -2,10 +2,8 @@ Description: Patch for vdr-plugin-remotetimers
 Author: Frank Schmirler <vdrdev@schmirler.de> 
 Origin: http://vdr.schmirler.de/
 
-Index: vdr-1.7.26/config.h
-===================================================================
---- vdr-1.7.26.orig/config.h	2012-03-11 22:12:02.000000000 +0100
-+++ vdr-1.7.26/config.h	2012-03-11 22:12:40.252013090 +0100
+--- a/config.h
++++ b/config.h
 @@ -44,6 +44,8 @@
  #define MAINMENUHOOKSVERSION "1.0.1"
  #define MAINMENUHOOKSVERSNUM 10001  // Version * 10000 + Major * 100 + Minor
@@ -15,10 +13,8 @@ Index: vdr-1.7.26/config.h
  #define MAXPRIORITY       99
  #define MINPRIORITY       (-MAXPRIORITY)
  #define LIVEPRIORITY      0                  // priority used when selecting a device for live viewing
-Index: vdr-1.7.26/menu.c
-===================================================================
---- vdr-1.7.26.orig/menu.c	2012-03-11 21:55:21.000000000 +0100
-+++ vdr-1.7.26/menu.c	2012-03-11 22:12:11.412013090 +0100
+--- a/menu.c
++++ b/menu.c
 @@ -33,6 +33,7 @@
  #include "timers.h"
  #include "transfer.h"
@@ -27,7 +23,7 @@ Index: vdr-1.7.26/menu.c
  #include "menuorgpatch.h"
  
  #define MAXWAIT4EPGINFO   3 // seconds
-@@ -4766,6 +4767,50 @@
+@@ -4770,6 +4771,50 @@
  
  bool cRecordControls::Start(cTimer *Timer, bool Pause)
  {
@@ -61,7 +57,7 @@ Index: vdr-1.7.26/menu.c
 +        ir.event = event;
 +        ir.name = NULL;
 +        ir.fileName = NULL;
-+ 
++
 +        if (cPluginManager::CallFirstService("RemoteTimers::InstantRecording-v1.0", &ir)) {
 +           if (!cReplayControl::LastReplayed())
 +              cReplayControl::SetRecording(ir.fileName, ir.name);
@@ -78,10 +74,8 @@ Index: vdr-1.7.26/menu.c
    static time_t LastNoDiskSpaceMessage = 0;
    int FreeMB = 0;
    if (Timer) {
-Index: vdr-1.7.26/remotetimers.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ vdr-1.7.26/remotetimers.h	2012-03-11 22:12:11.412013090 +0100
+--- /dev/null
++++ b/remotetimers.h
 @@ -0,0 +1,25 @@
 +/*
 + * remotetimers.h: Public interface of the plugin's services

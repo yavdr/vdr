@@ -2,10 +2,8 @@ Description: Naludump-Patch for VDR
 Author: Udo Richter <udo_richter@gmx.de>      
 Origin: http://www.udo-richter.de/vdr/naludump.html
 
-Index: vdr-1.7.27/config.c
-===================================================================
---- vdr-1.7.27.orig/config.c	2012-03-25 14:51:11.694975107 +0200
-+++ vdr-1.7.27/config.c	2012-03-25 14:51:11.734975107 +0200
+--- a/config.c
++++ b/config.c
 @@ -450,6 +450,7 @@
    MaxRecordingSize = DEFAULTRECORDINGSIZE;
    SplitEditedFiles = 0;
@@ -30,10 +28,8 @@ Index: vdr-1.7.27/config.c
    Store("HardLinkCutter",     HardLinkCutter);
    Store("MinEventTimeout",    MinEventTimeout);
    Store("MinUserInactivity",  MinUserInactivity);
-Index: vdr-1.7.27/config.h
-===================================================================
---- vdr-1.7.27.orig/config.h	2012-03-25 14:51:11.694975107 +0200
-+++ vdr-1.7.27/config.h	2012-03-25 14:51:11.734975107 +0200
+--- a/config.h
++++ b/config.h
 @@ -314,6 +314,7 @@
    int MaxRecordingSize;
    int SplitEditedFiles;
@@ -42,10 +38,8 @@ Index: vdr-1.7.27/config.h
    int HardLinkCutter;
    int MinEventTimeout, MinUserInactivity;
    time_t NextWakeupTime;
-Index: vdr-1.7.27/menu.c
-===================================================================
---- vdr-1.7.27.orig/menu.c	2012-03-25 14:51:11.694975107 +0200
-+++ vdr-1.7.27/menu.c	2012-03-25 14:51:11.744975107 +0200
+--- a/menu.c
++++ b/menu.c
 @@ -3494,6 +3494,7 @@
    Add(new cMenuEditIntItem( tr("Setup.Recording$Max. recording size (GB)"),  &data.MaxRecordingSize, MINRECORDINGSIZE, MAXRECORDINGSIZE));
    Add(new cMenuEditBoolItem(tr("Setup.Recording$Split edited files"),        &data.SplitEditedFiles));
@@ -54,10 +48,8 @@ Index: vdr-1.7.27/menu.c
    Add(new cMenuEditBoolItem(tr("Setup.Recording$Hard Link Cutter"),          &data.HardLinkCutter));
  }
  
-Index: vdr-1.7.27/recorder.c
-===================================================================
---- vdr-1.7.27.orig/recorder.c	2012-03-25 14:51:11.694975107 +0200
-+++ vdr-1.7.27/recorder.c	2012-03-25 14:51:11.744975107 +0200
+--- a/recorder.c
++++ b/recorder.c
 @@ -45,6 +45,14 @@
       Type = 0x06;
       }
@@ -123,10 +115,8 @@ Index: vdr-1.7.27/recorder.c
                      t = time(NULL);
                      }
                   }
-Index: vdr-1.7.27/recorder.h
-===================================================================
---- vdr-1.7.27.orig/recorder.h	2010-12-27 12:17:04.000000000 +0100
-+++ vdr-1.7.27/recorder.h	2012-03-25 14:51:11.744975107 +0200
+--- a/recorder.h
++++ b/recorder.h
 @@ -21,6 +21,7 @@
    cRingBufferLinear *ringBuffer;
    cFrameDetector *frameDetector;
@@ -135,10 +125,8 @@ Index: vdr-1.7.27/recorder.h
    cFileName *fileName;
    cIndexFile *index;
    cUnbufferedFile *recordFile;
-Index: vdr-1.7.27/remux.c
-===================================================================
---- vdr-1.7.27.orig/remux.c	2012-03-25 14:39:28.894975081 +0200
-+++ vdr-1.7.27/remux.c	2012-03-25 14:51:11.744975107 +0200
+--- a/remux.c
++++ b/remux.c
 @@ -146,6 +146,42 @@
          }
  }
@@ -527,10 +515,8 @@ Index: vdr-1.7.27/remux.c
 +    OutLength = (OutEnd - Out);
 +    return OutLength > 0 ? Out : NULL;
 +}
-Index: vdr-1.7.27/remux.h
-===================================================================
---- vdr-1.7.27.orig/remux.h	2012-03-25 14:39:28.894975081 +0200
-+++ vdr-1.7.27/remux.h	2012-03-25 14:51:11.744975107 +0200
+--- a/remux.h
++++ b/remux.h
 @@ -57,6 +57,11 @@
    return p[3] & TS_PAYLOAD_EXISTS;
  }

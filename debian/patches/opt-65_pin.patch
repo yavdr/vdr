@@ -2,10 +2,8 @@ Description: Pin-Patch for VDR-Pin-Plugin
 Author: Jörg Wendel <horchi@vdr-portal>       
 Origin: http://www.jwendel.de/vdr/
 
-Index: vdr-1.7.27/device.c
-===================================================================
---- vdr-1.7.27.orig/device.c	2012-03-25 14:47:30.464975099 +0200
-+++ vdr-1.7.27/device.c	2012-03-25 14:51:11.774975107 +0200
+--- a/device.c
++++ b/device.c
 @@ -735,6 +735,12 @@
  
  bool cDevice::SwitchChannel(const cChannel *Channel, bool LiveView)
@@ -27,10 +25,8 @@ Index: vdr-1.7.27/device.c
             if (GetDevice(channel, LIVEPRIORITY, true, true))
                break;
             n = channel->Number() + Direction;
-Index: vdr-1.7.27/menu.c
-===================================================================
---- vdr-1.7.27.orig/menu.c	2012-03-25 14:51:11.744975107 +0200
-+++ vdr-1.7.27/menu.c	2012-03-25 14:51:11.784975107 +0200
+--- a/menu.c
++++ b/menu.c
 @@ -938,6 +938,16 @@
       Add(new cMenuEditBitItem( tr("VPS"),          &data.flags, tfVps));
       Add(new cMenuEditIntItem( tr("Priority"),     &data.priority, 0, MAXPRIORITY));
@@ -156,10 +152,8 @@ Index: vdr-1.7.27/menu.c
                    return RecordControls[i]->Process(time(NULL));
                    }
                 }
-Index: vdr-1.7.27/osd.c
-===================================================================
---- vdr-1.7.27.orig/osd.c	2012-03-25 14:39:29.104975081 +0200
-+++ vdr-1.7.27/osd.c	2012-03-25 14:51:11.784975107 +0200
+--- a/osd.c
++++ b/osd.c
 @@ -1605,6 +1605,7 @@
  int cOsd::osdHeight = 0;
  cVector<cOsd *> cOsd::Osds;
@@ -168,10 +162,8 @@ Index: vdr-1.7.27/osd.c
  
  cOsd::cOsd(int Left, int Top, uint Level)
  {
-Index: vdr-1.7.27/osd.h
-===================================================================
---- vdr-1.7.27.orig/osd.h	2012-03-25 14:39:29.104975081 +0200
-+++ vdr-1.7.27/osd.h	2012-03-25 14:51:11.784975107 +0200
+--- a/osd.h
++++ b/osd.h
 @@ -922,6 +922,7 @@
         ///<        delete pm;
         ///<        }
@@ -180,10 +172,8 @@ Index: vdr-1.7.27/osd.h
    };
  
  #define MAXOSDIMAGES 64
-Index: vdr-1.7.27/status.c
-===================================================================
---- vdr-1.7.27.orig/status.c	2012-03-25 14:39:29.144975081 +0200
-+++ vdr-1.7.27/status.c	2012-03-25 14:51:11.784975107 +0200
+--- a/status.c
++++ b/status.c
 @@ -153,3 +153,55 @@
    for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
       sm->OsdEventItem(Event, Text, Index, Count);
@@ -240,10 +230,8 @@ Index: vdr-1.7.27/status.c
 +         return true;
 +      return false;
 +}
-Index: vdr-1.7.27/status.h
-===================================================================
---- vdr-1.7.27.orig/status.h	2012-03-25 14:39:29.144975081 +0200
-+++ vdr-1.7.27/status.h	2012-03-25 14:51:11.784975107 +0200
+--- a/status.h
++++ b/status.h
 @@ -14,6 +14,7 @@
  #include "device.h"
  #include "player.h"
@@ -290,10 +278,8 @@ Index: vdr-1.7.27/status.h
    };
  
  #endif //__STATUS_H
-Index: vdr-1.7.27/timers.c
-===================================================================
---- vdr-1.7.27.orig/timers.c	2012-02-27 10:38:41.000000000 +0100
-+++ vdr-1.7.27/timers.c	2012-03-25 14:51:11.784975107 +0200
+--- a/timers.c
++++ b/timers.c
 @@ -47,6 +47,7 @@
       stop -= 2400;
    priority = Pause ? Setup.PausePriority : Setup.DefaultPriority;
@@ -368,10 +354,8 @@ Index: vdr-1.7.27/timers.c
  // --- cTimers ---------------------------------------------------------------
  
  cTimers Timers;
-Index: vdr-1.7.27/timers.h
-===================================================================
---- vdr-1.7.27.orig/timers.h	2012-02-20 16:52:57.000000000 +0100
-+++ vdr-1.7.27/timers.h	2012-03-25 14:51:11.794975107 +0200
+--- a/timers.h
++++ b/timers.h
 @@ -38,6 +38,7 @@
    int start;
    int stop;
@@ -396,10 +380,8 @@ Index: vdr-1.7.27/timers.h
    void ClrFlags(uint Flags);
    void InvFlags(uint Flags);
    bool HasFlags(uint Flags) const;
-Index: vdr-1.7.27/vdr.c
-===================================================================
---- vdr-1.7.27.orig/vdr.c	2012-03-25 14:39:28.704975081 +0200
-+++ vdr-1.7.27/vdr.c	2012-03-25 14:51:11.794975107 +0200
+--- a/vdr.c
++++ b/vdr.c
 @@ -60,6 +60,7 @@
  #include "skinsttng.h"
  #include "sourceparams.h"

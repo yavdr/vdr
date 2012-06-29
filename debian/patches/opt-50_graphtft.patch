@@ -2,15 +2,13 @@ Description: Patch required for the GraphTFT plugin.
 Author: Jörg Wendel (Horchi)
 Origin: https://vdr-graphtft.svn.sourceforge.net/svnroot/vdr-graphtft
 
-Index: vdr-1.7.27/menu.c
-===================================================================
---- vdr-1.7.27.orig/menu.c	2012-03-25 14:18:05.734975038 +0200
-+++ vdr-1.7.27/menu.c	2012-03-25 14:18:05.844975038 +0200
+--- a/menu.c
++++ b/menu.c
 @@ -210,6 +210,7 @@
  public:
    cMenuEditChannel(cChannel *Channel, bool New = false);
    virtual eOSState ProcessKey(eKeys Key);
-+  virtual const char* MenuKind() { return "MenuEditChannel"; } 
++  virtual const char* MenuKind() { return "MenuEditChannel"; }
    };
  
  cMenuEditChannel::cMenuEditChannel(cChannel *Channel, bool New)
@@ -54,7 +52,7 @@ Index: vdr-1.7.27/menu.c
 +void cMenuWhatsOn::Display(void)
 +{
 +   cOsdMenu::Display();
-+   
++
 +   if (Count() > 0) {
 +      int ni = 0;
 +      for (cOsdItem *item = First(); item; item = Next(item)) {
@@ -82,7 +80,7 @@ Index: vdr-1.7.27/menu.c
 +void cMenuSchedule::Display(void)
 +{
 +   cOsdMenu::Display();
-+   
++
 +   if (Count() > 0) {
 +      int ni = 0;
 +      for (cOsdItem *item = First(); item; item = Next(item)) {
@@ -174,10 +172,8 @@ Index: vdr-1.7.27/menu.c
    };
  
  cMenuSetup::cMenuSetup(void)
-Index: vdr-1.7.27/menu.h
-===================================================================
---- vdr-1.7.27.orig/menu.h	2012-03-25 14:18:05.384975038 +0200
-+++ vdr-1.7.27/menu.h	2012-03-25 14:18:05.844975038 +0200
+--- a/menu.h
++++ b/menu.h
 @@ -29,6 +29,7 @@
    void SetText(const char *Text);
    virtual void Display(void);
@@ -226,10 +222,8 @@ Index: vdr-1.7.27/menu.h
    };
  
  class cRecordControl {
-Index: vdr-1.7.27/menuitems.h
-===================================================================
---- vdr-1.7.27.orig/menuitems.h	2012-03-13 12:19:11.000000000 +0100
-+++ vdr-1.7.27/menuitems.h	2012-03-25 14:18:05.844975038 +0200
+--- a/menuitems.h
++++ b/menuitems.h
 @@ -209,6 +209,7 @@
    cMenuSetupPage(void);
    virtual eOSState ProcessKey(eKeys Key);
@@ -238,10 +232,8 @@ Index: vdr-1.7.27/menuitems.h
    };
  
  #endif //__MENUITEMS_H
-Index: vdr-1.7.27/osdbase.c
-===================================================================
---- vdr-1.7.27.orig/osdbase.c	2012-03-25 14:18:05.394975038 +0200
-+++ vdr-1.7.27/osdbase.c	2012-03-25 14:18:05.844975038 +0200
+--- a/osdbase.c
++++ b/osdbase.c
 @@ -100,6 +100,7 @@
    free(status);
    displayMenu->Clear();
@@ -258,10 +250,8 @@ Index: vdr-1.7.27/osdbase.c
    displayMenu->SetTabs(cols[0], cols[1], cols[2], cols[3], cols[4]);//XXX
    displayMenu->SetTitle(title);
    cStatus::MsgOsdTitle(title);
-Index: vdr-1.7.27/osdbase.h
-===================================================================
---- vdr-1.7.27.orig/osdbase.h	2012-03-25 14:18:05.394975038 +0200
-+++ vdr-1.7.27/osdbase.h	2012-03-25 14:18:05.844975038 +0200
+--- a/osdbase.h
++++ b/osdbase.h
 @@ -136,6 +136,7 @@
    void Ins(cOsdItem *Item, bool Current = false, cOsdItem *Before = NULL);
    virtual void Display(void);
@@ -270,10 +260,8 @@ Index: vdr-1.7.27/osdbase.h
    };
  
  #endif //__OSDBASE_H
-Index: vdr-1.7.27/recording.h
-===================================================================
---- vdr-1.7.27.orig/recording.h	2012-03-25 14:18:05.394975038 +0200
-+++ vdr-1.7.27/recording.h	2012-03-25 14:18:05.844975038 +0200
+--- a/recording.h
++++ b/recording.h
 @@ -70,6 +70,7 @@
    const cEvent *GetEvent(void) const { return event; }
    const char *Title(void) const { return event->Title(); }
@@ -282,10 +270,8 @@ Index: vdr-1.7.27/recording.h
    const char *Description(void) const { return event->Description(); }
    const cComponents *Components(void) const { return event->Components(); }
    const char *Aux(void) const { return aux; }
-Index: vdr-1.7.27/status.c
-===================================================================
---- vdr-1.7.27.orig/status.c	2012-03-07 15:17:24.000000000 +0100
-+++ vdr-1.7.27/status.c	2012-03-25 14:18:05.844975038 +0200
+--- a/status.c
++++ b/status.c
 @@ -124,3 +124,32 @@
    for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
        sm->OsdProgramme(PresentTime, PresentTitle, PresentSubtitle, FollowingTime, FollowingTitle, FollowingSubtitle);
@@ -319,10 +305,8 @@ Index: vdr-1.7.27/status.c
 +  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
 +     sm->OsdEventItem(Event, Text, Index, Count);
 +}
-Index: vdr-1.7.27/status.h
-===================================================================
---- vdr-1.7.27.orig/status.h	2012-03-07 15:16:57.000000000 +0100
-+++ vdr-1.7.27/status.h	2012-03-25 14:18:05.844975038 +0200
+--- a/status.h
++++ b/status.h
 @@ -81,6 +81,17 @@
                 // The OSD displays the single line Text with the current channel information.
    virtual void OsdProgramme(time_t PresentTime, const char *PresentTitle, const char *PresentSubtitle, time_t FollowingTime, const char *FollowingTitle, const char *FollowingSubtitle) {}

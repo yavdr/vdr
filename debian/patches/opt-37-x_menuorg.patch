@@ -5,10 +5,8 @@ Description: This patch is required by the MenuOrg plugin. It adds a service
  This is version 0.4.s of the patch
 Author: Tobias Grimm <tg@e-tobi.net>
 
-Index: vdr-1.7.27/mainmenuitemsprovider.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ vdr-1.7.27/mainmenuitemsprovider.h	2012-03-25 14:18:05.624975038 +0200
+--- /dev/null
++++ b/mainmenuitemsprovider.h
 @@ -0,0 +1,60 @@
 +/*
 + * vdr-menuorg - A plugin for the Linux Video Disk Recorder
@@ -70,10 +68,8 @@ Index: vdr-1.7.27/mainmenuitemsprovider.h
 +};
 +
 +#endif //__MAINMENUITEMSPROVIDER_H
-Index: vdr-1.7.27/menu.c
-===================================================================
---- vdr-1.7.27.orig/menu.c	2012-03-25 14:18:05.554975038 +0200
-+++ vdr-1.7.27/menu.c	2012-03-25 14:18:05.624975038 +0200
+--- a/menu.c
++++ b/menu.c
 @@ -32,6 +32,7 @@
  #include "timers.h"
  #include "transfer.h"
@@ -173,10 +169,8 @@ Index: vdr-1.7.27/menu.c
      default: switch (Key) {
                 case kRecord:
                 case kRed:    if (!HadSubMenu)
-Index: vdr-1.7.27/menuorgpatch.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ vdr-1.7.27/menuorgpatch.h	2012-03-25 14:18:05.634975038 +0200
+--- /dev/null
++++ b/menuorgpatch.h
 @@ -0,0 +1,100 @@
 +/*
 + * vdr-menuorg - A plugin for the Linux Video Disk Recorder

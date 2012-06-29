@@ -2,10 +2,8 @@ Description: This patch is needed for the yaepg plugin.
 Author: bball950@yahoo.com
 Origin: http://www.hoochvdr.info/yaepg/vdr-1.3.19-core-yaepg.diff
 
-Index: vdr-1.7.27/PLUGINS/src/dvbsddevice/dvbsdffosd.c
-===================================================================
---- vdr-1.7.27.orig/PLUGINS/src/dvbsddevice/dvbsdffosd.c	2011-04-17 14:55:09.000000000 +0200
-+++ vdr-1.7.27/PLUGINS/src/dvbsddevice/dvbsdffosd.c	2012-03-25 14:18:05.804975038 +0200
+--- a/PLUGINS/src/dvbsddevice/dvbsdffosd.c
++++ b/PLUGINS/src/dvbsddevice/dvbsdffosd.c
 @@ -77,6 +77,10 @@
              Cmd(OSD_SetWindow, 0, i + 1);
              Cmd(OSD_Close);
@@ -40,10 +38,8 @@ Index: vdr-1.7.27/PLUGINS/src/dvbsddevice/dvbsdffosd.c
       shown = true;
       }
  }
-Index: vdr-1.7.27/device.h
-===================================================================
---- vdr-1.7.27.orig/device.h	2012-03-25 14:18:05.764975038 +0200
-+++ vdr-1.7.27/device.h	2012-03-25 14:18:05.804975038 +0200
+--- a/device.h
++++ b/device.h
 @@ -300,12 +300,12 @@
           ///< Direction (only the sign of Direction is evaluated, positive values
           ///< switch to higher channel numbers).
@@ -59,10 +55,8 @@ Index: vdr-1.7.27/device.h
    static int CurrentChannel(void) { return primaryDevice ? currentChannel : 0; }
           ///< Returns the number of the current channel on the primary device.
    static void SetCurrentChannel(const cChannel *Channel) { currentChannel = Channel ? Channel->Number() : 0; }
-Index: vdr-1.7.27/osd.c
-===================================================================
---- vdr-1.7.27.orig/osd.c	2012-03-05 11:28:01.000000000 +0100
-+++ vdr-1.7.27/osd.c	2012-03-25 14:18:05.804975038 +0200
+--- a/osd.c
++++ b/osd.c
 @@ -1626,6 +1626,7 @@
           }
        }
@@ -71,10 +65,8 @@ Index: vdr-1.7.27/osd.c
  }
  
  cOsd::~cOsd()
-Index: vdr-1.7.27/osd.h
-===================================================================
---- vdr-1.7.27.orig/osd.h	2011-12-04 14:38:17.000000000 +0100
-+++ vdr-1.7.27/osd.h	2012-03-25 14:18:05.804975038 +0200
+--- a/osd.h
++++ b/osd.h
 @@ -921,6 +921,7 @@
         ///<        MyOsdDrawPixmap(Left() + pm->ViewPort().X(), Top() + pm->ViewPort().Y(), pm->Data(), w, h, h * d);
         ///<        delete pm;
