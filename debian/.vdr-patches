@@ -2,6 +2,7 @@ debian/patches/12_osdbase-maxitems.patch:10ab91b6a8619bdb50d37e2de6ec50d0
 debian/patches/16_channels.conf.terr-fix.patch:933f8daa6bb6d26c711d0ae987a2b03e
 debian/patches/82_valgrind.patch:27e07a83103317b9bc90ac9b836e2c47
 debian/patches/fix-gcc-issue.patch:da7db4f1f426823da318956836995667
+debian/patches/vdr_freesat_freeviewhd.patch:e0a09be6b0aa1fc8fdd70eb77ce5f5f1
 debian/patches/04_newplugin.patch:5877f4f62dab4f3d437d4eef7cae3ac0
 debian/patches/99_ncursesw-include.patch:202634ae3e5d18b35edd5d04d2390e01
 debian/patches/fix-no-hddvbdevice-segfault.patch:51fca90c1a05d8ddfa6a8988c11be6f2
