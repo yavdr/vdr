@@ -2,10 +2,8 @@ Description: Patch for the newplugin-script, to not require a normal
  vdr-source-dir
 Author: Thomas Schmidt <tschmidt@debian.org>
 
-Index: vdr/newplugin
-===================================================================
---- vdr.orig/newplugin	2011-12-10 22:22:04.000000000 +0100
-+++ vdr/newplugin	2011-12-11 01:48:22.000000000 +0100
+--- a/newplugin
++++ b/newplugin
 @@ -24,7 +24,7 @@
  $PLUGIN_DESCRIPTION = "Enter description for '$PLUGIN_NAME' plugin";
  $PLUGIN_MAINENTRY = $PLUGIN_CLASS;

@@ -2,15 +2,13 @@ Description: Shows remaining recording capacity in recordings menu.
  (Requires timer-info patch)
 Author: Walter Koch <koch@u32.de>
 
-Index: vdr-1.7.27/menu.c
-===================================================================
---- vdr-1.7.27.orig/menu.c	2012-03-25 14:18:05.704975038 +0200
-+++ vdr-1.7.27/menu.c	2012-03-25 14:18:05.734975038 +0200
-@@ -2594,6 +2594,19 @@
+--- a/menu.c
++++ b/menu.c
+@@ -2557,6 +2557,19 @@
           }
        }
    free(LastItemText);
-+  
++
 +//kw
 +  char *buffer = NULL;
 +  int FreeMB;
@@ -22,7 +20,7 @@ Index: vdr-1.7.27/menu.c
 +  SetTitle(buffer);
 +  free(buffer);
 +//kw
-+  
-   Refresh |= SetFreeDiskDisplay(Refresh);
++
    if (Refresh)
       Display();
+ }

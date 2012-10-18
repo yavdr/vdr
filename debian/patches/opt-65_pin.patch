@@ -2,11 +2,9 @@ Description: Pin-Patch for VDR-Pin-Plugin
 Author: Jörg Wendel <horchi@vdr-portal>       
 Origin: http://www.jwendel.de/vdr/
 
-Index: vdr-1.7.27/device.c
-===================================================================
---- vdr-1.7.27.orig/device.c	2012-03-25 14:47:30.464975099 +0200
-+++ vdr-1.7.27/device.c	2012-03-25 14:51:11.774975107 +0200
-@@ -735,6 +735,12 @@
+--- a/device.c
++++ b/device.c
+@@ -740,6 +740,12 @@
  
  bool cDevice::SwitchChannel(const cChannel *Channel, bool LiveView)
  {
@@ -19,7 +17,7 @@ Index: vdr-1.7.27/device.c
    if (LiveView) {
       isyslog("switching to channel %d", Channel->Number());
       cControl::Shutdown(); // prevents old channel from being shown too long if GetDevice() takes longer
-@@ -765,6 +771,7 @@
+@@ -770,6 +776,7 @@
       cChannel *channel;
       while ((channel = Channels.GetByNumber(n, Direction)) != NULL) {
             // try only channels which are currently available
@@ -27,11 +25,9 @@ Index: vdr-1.7.27/device.c
             if (GetDevice(channel, LIVEPRIORITY, true, true))
                break;
             n = channel->Number() + Direction;
-Index: vdr-1.7.27/menu.c
-===================================================================
---- vdr-1.7.27.orig/menu.c	2012-03-25 14:51:11.744975107 +0200
-+++ vdr-1.7.27/menu.c	2012-03-25 14:51:11.784975107 +0200
-@@ -938,6 +938,16 @@
+--- a/menu.c
++++ b/menu.c
+@@ -905,6 +905,16 @@
       Add(new cMenuEditBitItem( tr("VPS"),          &data.flags, tfVps));
       Add(new cMenuEditIntItem( tr("Priority"),     &data.priority, 0, MAXPRIORITY));
       Add(new cMenuEditIntItem( tr("Lifetime"),     &data.lifetime, 0, MAXLIFETIME));
@@ -48,7 +44,7 @@ Index: vdr-1.7.27/menu.c
       Add(file = new cMenuEditStrItem( tr("File"),   data.file, sizeof(data.file)));
       SetFirstDayItem();
       }
-@@ -2629,7 +2639,10 @@
+@@ -2593,7 +2603,10 @@
    for (cRecording *recording = Recordings.First(); recording; recording = Recordings.Next(recording)) {
        if (!base || (strstr(recording->Name(), base) == recording->Name() && recording->Name()[strlen(base)] == FOLDERDELIMCHAR)) {
           cMenuRecordingItem *Item = new cMenuRecordingItem(recording, level);
@@ -60,7 +56,7 @@ Index: vdr-1.7.27/menu.c
              Add(Item);
              LastItem = Item;
              free(LastItemText);
-@@ -2692,6 +2705,9 @@
+@@ -2655,6 +2668,9 @@
  {
    cMenuRecordingItem *ri = (cMenuRecordingItem *)Get(Current());
    if (ri) {
@@ -70,7 +66,7 @@ Index: vdr-1.7.27/menu.c
       if (ri->IsDirectory())
          Open();
       else {
-@@ -3787,28 +3803,32 @@
+@@ -3759,28 +3775,32 @@
  
    // Basic menu items:
  
@@ -108,7 +104,7 @@ Index: vdr-1.7.27/menu.c
       Add(new cOsdItem(hk(tr("Commands")),  osCommands));
  
    }
-@@ -3900,6 +3920,14 @@
+@@ -3865,6 +3885,14 @@
    HadSubMenu |= HasSubMenu();
  
    cOsdObject *menu = NULL;
@@ -123,7 +119,7 @@ Index: vdr-1.7.27/menu.c
    switch (state) {
      case osSchedule:
          if (!cPluginManager::CallFirstService("MainMenuHooksPatch-v1.0::osSchedule", &menu))
-@@ -3951,6 +3979,7 @@
+@@ -3916,6 +3944,7 @@
                           if (item) {
                              cPlugin *p = cPluginManager::GetPlugin(item->PluginIndex());
                              if (p) {
@@ -131,7 +127,7 @@ Index: vdr-1.7.27/menu.c
                                 cOsdObject *menu = p->MainMenuAction();
                                 if (menu) {
                                    if (menu->IsMenu())
-@@ -3962,6 +3991,7 @@
+@@ -3927,6 +3956,7 @@
                                    }
                                 }
                              }
@@ -139,7 +135,7 @@ Index: vdr-1.7.27/menu.c
                           state = osEnd;
                         }
                         break;
-@@ -4173,6 +4203,8 @@
+@@ -4138,6 +4168,8 @@
             Channel = Direction > 0 ? Channels.Next(Channel) : Channels.Prev(Channel);
             if (!Channel && Setup.ChannelsWrap)
                Channel = Direction > 0 ? Channels.First() : Channels.Last();
@@ -148,7 +144,7 @@ Index: vdr-1.7.27/menu.c
             if (Channel && !Channel->GroupSep() && cDevice::GetDevice(Channel, LIVEPRIORITY, true, true))
                return Channel;
             }
-@@ -4852,6 +4884,7 @@
+@@ -4817,6 +4849,7 @@
             for (int i = 0; i < MAXRECORDCONTROLS; i++) {
                 if (!RecordControls[i]) {
                    RecordControls[i] = new cRecordControl(device, Timer, Pause);
@@ -156,11 +152,9 @@ Index: vdr-1.7.27/menu.c
                    return RecordControls[i]->Process(time(NULL));
                    }
                 }
-Index: vdr-1.7.27/osd.c
-===================================================================
---- vdr-1.7.27.orig/osd.c	2012-03-25 14:39:29.104975081 +0200
-+++ vdr-1.7.27/osd.c	2012-03-25 14:51:11.784975107 +0200
-@@ -1605,6 +1605,7 @@
+--- a/osd.c
++++ b/osd.c
+@@ -1623,6 +1623,7 @@
  int cOsd::osdHeight = 0;
  cVector<cOsd *> cOsd::Osds;
  cMutex cOsd::mutex;
@@ -168,11 +162,9 @@ Index: vdr-1.7.27/osd.c
  
  cOsd::cOsd(int Left, int Top, uint Level)
  {
-Index: vdr-1.7.27/osd.h
-===================================================================
---- vdr-1.7.27.orig/osd.h	2012-03-25 14:39:29.104975081 +0200
-+++ vdr-1.7.27/osd.h	2012-03-25 14:51:11.784975107 +0200
-@@ -922,6 +922,7 @@
+--- a/osd.h
++++ b/osd.h
+@@ -932,6 +932,7 @@
         ///<        delete pm;
         ///<        }
    tArea vidWin;
@@ -180,33 +172,35 @@ Index: vdr-1.7.27/osd.h
    };
  
  #define MAXOSDIMAGES 64
-Index: vdr-1.7.27/status.c
-===================================================================
---- vdr-1.7.27.orig/status.c	2012-03-25 14:39:29.144975081 +0200
-+++ vdr-1.7.27/status.c	2012-03-25 14:51:11.784975107 +0200
-@@ -153,3 +153,55 @@
-   for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+--- a/status.c
++++ b/status.c
+@@ -154,31 +154,54 @@
       sm->OsdEventItem(Event, Text, Index, Count);
  }
-+
+ 
+-void cStatus::MsgOsdSetEvent(const cEvent* event)
 +bool cStatus::MsgChannelProtected(const cDevice* Device, const cChannel* Channel)     // PIN PATCH
-+{
-+  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+ {
+   for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+-      sm->OsdSetEvent(event);
 +      if (sm->ChannelProtected(Device, Channel) == true)
 + 	 return true;
 +
 +  return false;
-+}
-+
+ }
+ 
+-void cStatus::MsgOsdSetRecording(const cRecording* recording)
 +bool cStatus::MsgReplayProtected(const cRecording* Recording, const char* Name,
 +                                 const char* Base, bool isDirectory, int menuView)    // PIN PATCH
-+{
-+  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+ {
+   for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+-      sm->OsdSetRecording(recording);
 +     if (sm->ReplayProtected(Recording, Name, Base, isDirectory, menuView) == true)
 +         return true;
 +      return false;
-+}
-+
+ }
+ 
+-void cStatus::MsgOsdMenuDisplay(const char* kind)
 +void cStatus::MsgRecordingFile(const char* FileName)
 +{
 +  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))   // PIN PATCH
@@ -220,30 +214,33 @@ Index: vdr-1.7.27/status.c
 +}
 +
 +bool cStatus::MsgPluginProtected(cPlugin* Plugin, int menuView)                  // PIN PATCH
-+{
-+  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+ {
+   for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+-      sm->OsdMenuDisplay(kind);
 +     if (sm->PluginProtected(Plugin, menuView) == true)
 +         return true;
 +      return false;
-+}
-+
+ }
+ 
+-void cStatus::MsgOsdMenuDestroy()
 +void cStatus::MsgUserAction(const eKeys key, const cOsdObject* Interact)         // PIN PATCH
-+{
-+  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+ {
+   for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+-      sm->OsdMenuDestroy();
 +     sm->UserAction(key, Interact);
-+}
+ }
+-void cStatus::MsgOsdEventItem(const cEvent* Event, const char *Text, int Index, int Count)
 +
 +bool cStatus::MsgMenuItemProtected(const char* Name, int menuView)               // PIN PATCH
-+{
-+  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+ {
+   for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+-     sm->OsdEventItem(Event, Text, Index, Count);
 +     if (sm->MenuItemProtected(Name, menuView) == true)
 +         return true;
 +      return false;
-+}
-Index: vdr-1.7.27/status.h
-===================================================================
---- vdr-1.7.27.orig/status.h	2012-03-25 14:39:29.144975081 +0200
-+++ vdr-1.7.27/status.h	2012-03-25 14:51:11.784975107 +0200
+ }
+--- a/status.h
++++ b/status.h
 @@ -14,6 +14,7 @@
  #include "device.h"
  #include "player.h"
@@ -290,10 +287,8 @@ Index: vdr-1.7.27/status.h
    };
  
  #endif //__STATUS_H
-Index: vdr-1.7.27/timers.c
-===================================================================
---- vdr-1.7.27.orig/timers.c	2012-02-27 10:38:41.000000000 +0100
-+++ vdr-1.7.27/timers.c	2012-03-25 14:51:11.784975107 +0200
+--- a/timers.c
++++ b/timers.c
 @@ -47,6 +47,7 @@
       stop -= 2400;
    priority = Pause ? Setup.PausePriority : Setup.DefaultPriority;
@@ -368,10 +363,8 @@ Index: vdr-1.7.27/timers.c
  // --- cTimers ---------------------------------------------------------------
  
  cTimers Timers;
-Index: vdr-1.7.27/timers.h
-===================================================================
---- vdr-1.7.27.orig/timers.h	2012-02-20 16:52:57.000000000 +0100
-+++ vdr-1.7.27/timers.h	2012-03-25 14:51:11.794975107 +0200
+--- a/timers.h
++++ b/timers.h
 @@ -38,6 +38,7 @@
    int start;
    int stop;
@@ -396,11 +389,9 @@ Index: vdr-1.7.27/timers.h
    void ClrFlags(uint Flags);
    void InvFlags(uint Flags);
    bool HasFlags(uint Flags) const;
-Index: vdr-1.7.27/vdr.c
-===================================================================
---- vdr-1.7.27.orig/vdr.c	2012-03-25 14:39:28.704975081 +0200
-+++ vdr-1.7.27/vdr.c	2012-03-25 14:51:11.794975107 +0200
-@@ -60,6 +60,7 @@
+--- a/vdr.c
++++ b/vdr.c
+@@ -61,6 +61,7 @@
  #include "skinsttng.h"
  #include "sourceparams.h"
  #include "sources.h"
@@ -408,7 +399,7 @@ Index: vdr-1.7.27/vdr.c
  #include "themes.h"
  #include "timers.h"
  #include "tools.h"
-@@ -930,6 +931,7 @@
+@@ -932,6 +933,7 @@
          cOsdObject *Interact = Menu ? Menu : cControl::Control();
          eKeys key = Interface->GetKey(!Interact || !Interact->NeedsFastResponse());
          if (ISREALKEY(key)) {
@@ -416,7 +407,7 @@ Index: vdr-1.7.27/vdr.c
             EITScanner.Activity();
             // Cancel shutdown countdown:
             if (ShutdownHandler.countdown)
-@@ -1002,10 +1004,12 @@
+@@ -1004,10 +1006,12 @@
                       cControl::Control()->Hide();
                    cPlugin *plugin = cPluginManager::GetPlugin(PluginName);
                    if (plugin) {
@@ -429,7 +420,7 @@ Index: vdr-1.7.27/vdr.c
                    else
                       esyslog("ERROR: unknown plugin '%s'", PluginName);
                    }
-@@ -1218,9 +1222,11 @@
+@@ -1220,9 +1224,11 @@
               // Instant resume of the last viewed recording:
               case kPlay:
                    if (cReplayControl::LastReplayed()) {

@@ -1,11 +1,9 @@
 Description: This patch is needed for the ttxtsubs plugin.
 Origin: ttxsubs plugin
 
-Index: vdr-1.7.27/MANUAL
-===================================================================
---- vdr-1.7.27.orig/MANUAL	2012-03-25 14:18:05.504975038 +0200
-+++ vdr-1.7.27/MANUAL	2012-03-25 14:18:05.544975038 +0200
-@@ -730,6 +730,9 @@
+--- a/MANUAL
++++ b/MANUAL
+@@ -735,6 +735,9 @@
                           background transparency. By default the values as broadcast
                           are used.
  
@@ -15,12 +13,10 @@ Index: vdr-1.7.27/MANUAL
    LNB:
  
    Use DiSEqC = no        Generally turns DiSEqC support on or off.
-Index: vdr-1.7.27/Makefile
-===================================================================
---- vdr-1.7.27.orig/Makefile	2012-03-25 14:18:05.384975038 +0200
-+++ vdr-1.7.27/Makefile	2012-03-25 14:18:05.544975038 +0200
+--- a/Makefile
++++ b/Makefile
 @@ -47,6 +47,8 @@
-        skinclassic.o skins.o skinsttng.o sourceparams.o sources.o spu.o status.o svdrp.o themes.o thread.o\
+        skinclassic.o skinlcars.o skins.o skinsttng.o sourceparams.o sources.o spu.o status.o svdrp.o themes.o thread.o\
         timers.o tools.o transfer.o vdr.o videodir.o
  
 +OBJS += vdrttxtsubshooks.o
@@ -28,10 +24,8 @@ Index: vdr-1.7.27/Makefile
  ifndef NO_KBD
  DEFINES += -DREMOTE_KBD
  endif
-Index: vdr-1.7.27/channels.c
-===================================================================
---- vdr-1.7.27.orig/channels.c	2012-03-11 14:29:06.000000000 +0100
-+++ vdr-1.7.27/channels.c	2012-03-25 14:18:05.544975038 +0200
+--- a/channels.c
++++ b/channels.c
 @@ -378,6 +378,26 @@
       }
  }
@@ -111,10 +105,8 @@ Index: vdr-1.7.27/channels.c
             if (sscanf(tpidbuf, "%d", &tpid) != 1)
                return false;
             if (caidbuf) {
-Index: vdr-1.7.27/channels.h
-===================================================================
---- vdr-1.7.27.orig/channels.h	2012-03-11 12:46:39.000000000 +0100
-+++ vdr-1.7.27/channels.h	2012-03-25 14:18:05.544975038 +0200
+--- a/channels.h
++++ b/channels.h
 @@ -35,6 +35,7 @@
  #define MAXDPIDS 16 // dolby (AC3 + DTS)
  #define MAXSPIDS 32 // subtitles
@@ -167,11 +159,9 @@ Index: vdr-1.7.27/channels.h
    void SetCaIds(const int *CaIds); // list must be zero-terminated
    void SetCaDescriptors(int Level);
    void SetLinkChannels(cLinkChannels *LinkChannels);
-Index: vdr-1.7.27/ci.c
-===================================================================
---- vdr-1.7.27.orig/ci.c	2012-02-29 11:24:41.000000000 +0100
-+++ vdr-1.7.27/ci.c	2012-03-25 14:18:05.544975038 +0200
-@@ -1913,6 +1913,8 @@
+--- a/ci.c
++++ b/ci.c
+@@ -1914,6 +1914,8 @@
           AddPid(Channel->Sid(), *Dpid, STREAM_TYPE_PRIVATE);
       for (const int *Spid = Channel->Spids(); *Spid; Spid++)
           AddPid(Channel->Sid(), *Spid, STREAM_TYPE_PRIVATE);
@@ -180,7 +170,7 @@ Index: vdr-1.7.27/ci.c
       }
  }
  
-@@ -1936,6 +1938,9 @@
+@@ -1937,6 +1939,9 @@
           CaPmt.AddPid(*Dpid, STREAM_TYPE_PRIVATE);
       for (const int *Spid = Channel->Spids(); *Spid; Spid++)
           CaPmt.AddPid(*Spid, STREAM_TYPE_PRIVATE); 
@@ -190,11 +180,9 @@ Index: vdr-1.7.27/ci.c
       cas->SendPMT(&CaPmt);
       cTimeMs Timeout(QUERY_REPLY_TIMEOUT);
       do {
-Index: vdr-1.7.27/config.c
-===================================================================
---- vdr-1.7.27.orig/config.c	2012-03-25 14:18:05.504975038 +0200
-+++ vdr-1.7.27/config.c	2012-03-25 14:18:05.544975038 +0200
-@@ -395,6 +395,7 @@
+--- a/config.c
++++ b/config.c
+@@ -396,6 +396,7 @@
    MarginStop = 10;
    AudioLanguages[0] = -1;
    DisplaySubtitles = 0;
@@ -202,7 +190,7 @@ Index: vdr-1.7.27/config.c
    SubtitleLanguages[0] = -1;
    SubtitleOffset = 0;
    SubtitleFgTransparency = 0;
-@@ -592,6 +593,7 @@
+@@ -594,6 +595,7 @@
    else if (!strcasecmp(Name, "MarginStop"))          MarginStop         = atoi(Value);
    else if (!strcasecmp(Name, "AudioLanguages"))      return ParseLanguages(Value, AudioLanguages);
    else if (!strcasecmp(Name, "DisplaySubtitles"))    DisplaySubtitles   = atoi(Value);
@@ -210,7 +198,7 @@ Index: vdr-1.7.27/config.c
    else if (!strcasecmp(Name, "SubtitleLanguages"))   return ParseLanguages(Value, SubtitleLanguages);
    else if (!strcasecmp(Name, "SubtitleOffset"))      SubtitleOffset     = atoi(Value);
    else if (!strcasecmp(Name, "SubtitleFgTransparency")) SubtitleFgTransparency = atoi(Value);
-@@ -692,6 +694,7 @@
+@@ -695,6 +697,7 @@
    Store("MarginStop",         MarginStop);
    StoreLanguages("AudioLanguages", AudioLanguages);
    Store("DisplaySubtitles",   DisplaySubtitles);
@@ -218,11 +206,9 @@ Index: vdr-1.7.27/config.c
    StoreLanguages("SubtitleLanguages", SubtitleLanguages);
    Store("SubtitleOffset",     SubtitleOffset);
    Store("SubtitleFgTransparency", SubtitleFgTransparency);
-Index: vdr-1.7.27/config.h
-===================================================================
---- vdr-1.7.27.orig/config.h	2012-03-25 14:18:05.504975038 +0200
-+++ vdr-1.7.27/config.h	2012-03-25 14:18:05.554975038 +0200
-@@ -262,6 +262,7 @@
+--- a/config.h
++++ b/config.h
+@@ -273,6 +273,7 @@
    int MarginStart, MarginStop;
    int AudioLanguages[I18N_MAX_LANGUAGES + 1];
    int DisplaySubtitles;
@@ -230,10 +216,8 @@ Index: vdr-1.7.27/config.h
    int SubtitleLanguages[I18N_MAX_LANGUAGES + 1];
    int SubtitleOffset;
    int SubtitleFgTransparency, SubtitleBgTransparency;
-Index: vdr-1.7.27/device.c
-===================================================================
---- vdr-1.7.27.orig/device.c	2012-03-25 14:18:05.434975038 +0200
-+++ vdr-1.7.27/device.c	2012-03-25 14:18:05.554975038 +0200
+--- a/device.c
++++ b/device.c
 @@ -18,6 +18,7 @@
  #include "receiver.h"
  #include "status.h"
@@ -242,7 +226,7 @@ Index: vdr-1.7.27/device.c
  
  // --- cLiveSubtitle ---------------------------------------------------------
  
-@@ -1293,6 +1294,13 @@
+@@ -1300,6 +1301,13 @@
                    }
                 break;
            case 0xBD: { // private stream 1
@@ -256,7 +240,7 @@ Index: vdr-1.7.27/device.c
                 int PayloadOffset = Data[8] + 9;
  
                 // Compatibility mode for old subtitles plugin:
-@@ -1452,6 +1460,7 @@
+@@ -1459,6 +1467,7 @@
       tsToPesVideo.Reset();
       tsToPesAudio.Reset();
       tsToPesSubtitle.Reset();
@@ -264,7 +248,7 @@ Index: vdr-1.7.27/device.c
       }
    else if (Length < TS_SIZE) {
       esyslog("ERROR: skipped %d bytes of TS fragment", Length);
-@@ -1497,6 +1506,17 @@
+@@ -1504,6 +1513,17 @@
                      if (!VideoOnly || HasIBPTrickSpeed())
                         PlayTsSubtitle(Data, TS_SIZE);
                      }
@@ -282,11 +266,9 @@ Index: vdr-1.7.27/device.c
                   }
                }
             else if (Pid == patPmtParser.Ppid()) {
-Index: vdr-1.7.27/device.h
-===================================================================
---- vdr-1.7.27.orig/device.h	2012-03-25 14:18:05.434975038 +0200
-+++ vdr-1.7.27/device.h	2012-03-25 14:18:05.554975038 +0200
-@@ -570,6 +570,7 @@
+--- a/device.h
++++ b/device.h
+@@ -576,6 +576,7 @@
    cTsToPes tsToPesVideo;
    cTsToPes tsToPesAudio;
    cTsToPes tsToPesSubtitle;
@@ -294,11 +276,9 @@ Index: vdr-1.7.27/device.h
    bool isPlayingVideo;
  protected:
    const cPatPmtParser *PatPmtParser(void) const { return &patPmtParser; }
-Index: vdr-1.7.27/menu.c
-===================================================================
---- vdr-1.7.27.orig/menu.c	2012-03-25 14:18:05.504975038 +0200
-+++ vdr-1.7.27/menu.c	2012-03-25 14:18:05.554975038 +0200
-@@ -2995,6 +2995,7 @@
+--- a/menu.c
++++ b/menu.c
+@@ -2959,6 +2959,7 @@
       Add(new cMenuEditIntItem( tr("Setup.DVB$Subtitle foreground transparency"), &data.SubtitleFgTransparency, 0, 9));
       Add(new cMenuEditIntItem( tr("Setup.DVB$Subtitle background transparency"), &data.SubtitleBgTransparency, 0, 10));
       }
@@ -306,10 +286,8 @@ Index: vdr-1.7.27/menu.c
  
    SetCurrent(Get(current));
    Display();
-Index: vdr-1.7.27/pat.c
-===================================================================
---- vdr-1.7.27.orig/pat.c	2012-03-02 11:56:45.000000000 +0100
-+++ vdr-1.7.27/pat.c	2012-03-25 14:18:05.554975038 +0200
+--- a/pat.c
++++ b/pat.c
 @@ -13,6 +13,7 @@
  #include "libsi/section.h"
  #include "libsi/descriptor.h"
@@ -350,7 +328,7 @@ Index: vdr-1.7.27/pat.c
                                   break;
                              case SI::ISO639LanguageDescriptorTag: {
                                   SI::ISO639LanguageDescriptor *ld = (SI::ISO639LanguageDescriptor *)d;
-@@ -537,6 +553,12 @@
+@@ -547,6 +563,12 @@
              }
          if (Setup.UpdateChannels >= 2) {
             Channel->SetPids(Vpid, Ppid, Vtype, Apids, Atypes, ALangs, Dpids, Dtypes, DLangs, Spids, SLangs, Tpid);
@@ -363,11 +341,9 @@ Index: vdr-1.7.27/pat.c
             Channel->SetCaIds(CaDescriptors->CaIds());
             Channel->SetSubtitlingDescriptors(SubtitlingTypes, CompositionPageIds, AncillaryPageIds);
             }
-Index: vdr-1.7.27/po/ca_ES.po
-===================================================================
---- vdr-1.7.27.orig/po/ca_ES.po	2012-03-11 11:44:43.000000000 +0100
-+++ vdr-1.7.27/po/ca_ES.po	2012-03-25 14:18:05.564975038 +0200
-@@ -962,6 +962,9 @@
+--- a/po/ca_ES.po
++++ b/po/ca_ES.po
+@@ -959,6 +959,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparència fons subtítols"
  
@@ -377,11 +353,9 @@ Index: vdr-1.7.27/po/ca_ES.po
  msgid "LNB"
  msgstr "Configuració de l'LNB"
  
-Index: vdr-1.7.27/po/cs_CZ.po
-===================================================================
---- vdr-1.7.27.orig/po/cs_CZ.po	2012-03-11 11:44:43.000000000 +0100
-+++ vdr-1.7.27/po/cs_CZ.po	2012-03-25 14:18:05.564975038 +0200
-@@ -961,6 +961,9 @@
+--- a/po/cs_CZ.po
++++ b/po/cs_CZ.po
+@@ -958,6 +958,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "PrÅ¯hlednost pozadÃ­ titulkÅ¯"
  
@@ -391,11 +365,9 @@ Index: vdr-1.7.27/po/cs_CZ.po
  msgid "LNB"
  msgstr "LNB"
  
-Index: vdr-1.7.27/po/da_DK.po
-===================================================================
---- vdr-1.7.27.orig/po/da_DK.po	2012-03-11 11:44:43.000000000 +0100
-+++ vdr-1.7.27/po/da_DK.po	2012-03-25 14:18:05.564975038 +0200
-@@ -959,6 +959,9 @@
+--- a/po/da_DK.po
++++ b/po/da_DK.po
+@@ -956,6 +956,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Undertekst baggrundsgennemsigtighed"
  
@@ -405,11 +377,9 @@ Index: vdr-1.7.27/po/da_DK.po
  msgid "LNB"
  msgstr "LNB"
  
-Index: vdr-1.7.27/po/de_DE.po
-===================================================================
---- vdr-1.7.27.orig/po/de_DE.po	2012-03-25 14:18:05.514975038 +0200
-+++ vdr-1.7.27/po/de_DE.po	2012-03-25 14:18:05.564975038 +0200
-@@ -959,6 +959,9 @@
+--- a/po/de_DE.po
++++ b/po/de_DE.po
+@@ -956,6 +956,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Untertitel-Transparenz Hintergrund"
  
@@ -419,11 +389,9 @@ Index: vdr-1.7.27/po/de_DE.po
  msgid "LNB"
  msgstr "LNB"
  
-Index: vdr-1.7.27/po/el_GR.po
-===================================================================
---- vdr-1.7.27.orig/po/el_GR.po	2012-03-11 11:44:43.000000000 +0100
-+++ vdr-1.7.27/po/el_GR.po	2012-03-25 14:18:05.564975038 +0200
-@@ -959,6 +959,9 @@
+--- a/po/el_GR.po
++++ b/po/el_GR.po
+@@ -956,6 +956,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr ""
  
@@ -433,11 +401,9 @@ Index: vdr-1.7.27/po/el_GR.po
  msgid "LNB"
  msgstr "LNB"
  
-Index: vdr-1.7.27/po/es_ES.po
-===================================================================
---- vdr-1.7.27.orig/po/es_ES.po	2012-03-11 11:44:43.000000000 +0100
-+++ vdr-1.7.27/po/es_ES.po	2012-03-25 14:18:05.564975038 +0200
-@@ -960,6 +960,9 @@
+--- a/po/es_ES.po
++++ b/po/es_ES.po
+@@ -957,6 +957,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparencia fondo subtítulos"
  
@@ -447,11 +413,9 @@ Index: vdr-1.7.27/po/es_ES.po
  msgid "LNB"
  msgstr "LNB"
  
-Index: vdr-1.7.27/po/et_EE.po
-===================================================================
---- vdr-1.7.27.orig/po/et_EE.po	2012-03-12 11:03:28.000000000 +0100
-+++ vdr-1.7.27/po/et_EE.po	2012-03-25 14:18:05.564975038 +0200
-@@ -959,6 +959,9 @@
+--- a/po/et_EE.po
++++ b/po/et_EE.po
+@@ -956,6 +956,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Subtiitri tausta lÃ¤bipaistvus"
  
@@ -461,11 +425,9 @@ Index: vdr-1.7.27/po/et_EE.po
  msgid "LNB"
  msgstr "LNB"
  
-Index: vdr-1.7.27/po/fi_FI.po
-===================================================================
---- vdr-1.7.27.orig/po/fi_FI.po	2012-03-25 14:18:05.394975038 +0200
-+++ vdr-1.7.27/po/fi_FI.po	2012-03-25 14:18:05.564975038 +0200
-@@ -962,6 +962,9 @@
+--- a/po/fi_FI.po
++++ b/po/fi_FI.po
+@@ -959,6 +959,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Tekstityksen taustan lÃ¤pinÃ¤kyvyys"
  
@@ -475,11 +437,9 @@ Index: vdr-1.7.27/po/fi_FI.po
  msgid "LNB"
  msgstr "LNB"
  
-Index: vdr-1.7.27/po/fr_FR.po
-===================================================================
---- vdr-1.7.27.orig/po/fr_FR.po	2012-03-25 14:18:05.514975038 +0200
-+++ vdr-1.7.27/po/fr_FR.po	2012-03-25 14:18:05.574975038 +0200
-@@ -965,6 +965,9 @@
+--- a/po/fr_FR.po
++++ b/po/fr_FR.po
+@@ -962,6 +962,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparence du fond"
  
@@ -489,11 +449,9 @@ Index: vdr-1.7.27/po/fr_FR.po
  msgid "LNB"
  msgstr "LNB"
  
-Index: vdr-1.7.27/po/hr_HR.po
-===================================================================
---- vdr-1.7.27.orig/po/hr_HR.po	2012-03-11 11:44:44.000000000 +0100
-+++ vdr-1.7.27/po/hr_HR.po	2012-03-25 14:18:05.574975038 +0200
-@@ -961,6 +961,9 @@
+--- a/po/hr_HR.po
++++ b/po/hr_HR.po
+@@ -958,6 +958,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparentnost pozadine titla"
  
@@ -503,11 +461,9 @@ Index: vdr-1.7.27/po/hr_HR.po
  msgid "LNB"
  msgstr "LNB"
  
-Index: vdr-1.7.27/po/hu_HU.po
-===================================================================
---- vdr-1.7.27.orig/po/hu_HU.po	2012-03-11 11:44:43.000000000 +0100
-+++ vdr-1.7.27/po/hu_HU.po	2012-03-25 14:18:05.574975038 +0200
-@@ -962,6 +962,9 @@
+--- a/po/hu_HU.po
++++ b/po/hu_HU.po
+@@ -959,6 +959,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Felirat hátterének transzparenciája"
  
@@ -517,11 +473,9 @@ Index: vdr-1.7.27/po/hu_HU.po
  msgid "LNB"
  msgstr "LNB"
  
-Index: vdr-1.7.27/po/it_IT.po
-===================================================================
---- vdr-1.7.27.orig/po/it_IT.po	2012-03-19 09:16:10.000000000 +0100
-+++ vdr-1.7.27/po/it_IT.po	2012-03-25 14:18:05.574975038 +0200
-@@ -966,6 +966,9 @@
+--- a/po/it_IT.po
++++ b/po/it_IT.po
+@@ -963,6 +963,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Trasparenza sfondo sottotitoli"
  
@@ -531,11 +485,9 @@ Index: vdr-1.7.27/po/it_IT.po
  msgid "LNB"
  msgstr "LNB"
  
-Index: vdr-1.7.27/po/lt_LT.po
-===================================================================
---- vdr-1.7.27.orig/po/lt_LT.po	2012-03-11 11:44:43.000000000 +0100
-+++ vdr-1.7.27/po/lt_LT.po	2012-03-25 14:18:05.574975038 +0200
-@@ -959,6 +959,9 @@
+--- a/po/lt_LT.po
++++ b/po/lt_LT.po
+@@ -956,6 +956,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "SubtitrÅ³ fono permatomumas"
  
@@ -545,11 +497,9 @@ Index: vdr-1.7.27/po/lt_LT.po
  msgid "LNB"
  msgstr "Konverteris (LNB)"
  
-Index: vdr-1.7.27/po/nl_NL.po
-===================================================================
---- vdr-1.7.27.orig/po/nl_NL.po	2012-03-11 11:44:43.000000000 +0100
-+++ vdr-1.7.27/po/nl_NL.po	2012-03-25 14:18:05.574975038 +0200
-@@ -963,6 +963,9 @@
+--- a/po/nl_NL.po
++++ b/po/nl_NL.po
+@@ -960,6 +960,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparantie achtergrond ondertiteling"
  
@@ -559,11 +509,9 @@ Index: vdr-1.7.27/po/nl_NL.po
  msgid "LNB"
  msgstr "LNB"
  
-Index: vdr-1.7.27/po/nn_NO.po
-===================================================================
---- vdr-1.7.27.orig/po/nn_NO.po	2012-03-11 11:44:44.000000000 +0100
-+++ vdr-1.7.27/po/nn_NO.po	2012-03-25 14:18:05.574975038 +0200
-@@ -960,6 +960,9 @@
+--- a/po/nn_NO.po
++++ b/po/nn_NO.po
+@@ -957,6 +957,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr ""
  
@@ -573,11 +521,9 @@ Index: vdr-1.7.27/po/nn_NO.po
  msgid "LNB"
  msgstr "LNB"
  
-Index: vdr-1.7.27/po/pl_PL.po
-===================================================================
---- vdr-1.7.27.orig/po/pl_PL.po	2012-03-11 11:44:43.000000000 +0100
-+++ vdr-1.7.27/po/pl_PL.po	2012-03-25 14:18:05.574975038 +0200
-@@ -960,6 +960,9 @@
+--- a/po/pl_PL.po
++++ b/po/pl_PL.po
+@@ -957,6 +957,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Prze¼rocze podtytu³ów: T³o"
  
@@ -587,11 +533,9 @@ Index: vdr-1.7.27/po/pl_PL.po
  msgid "LNB"
  msgstr "LNB"
  
-Index: vdr-1.7.27/po/pt_PT.po
-===================================================================
---- vdr-1.7.27.orig/po/pt_PT.po	2012-03-11 11:44:42.000000000 +0100
-+++ vdr-1.7.27/po/pt_PT.po	2012-03-25 14:18:05.574975038 +0200
-@@ -960,6 +960,9 @@
+--- a/po/pt_PT.po
++++ b/po/pt_PT.po
+@@ -957,6 +957,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparência de fundo das legendas"
  
@@ -601,11 +545,9 @@ Index: vdr-1.7.27/po/pt_PT.po
  msgid "LNB"
  msgstr "LNB"
  
-Index: vdr-1.7.27/po/ro_RO.po
-===================================================================
---- vdr-1.7.27.orig/po/ro_RO.po	2012-03-11 11:44:43.000000000 +0100
-+++ vdr-1.7.27/po/ro_RO.po	2012-03-25 14:18:05.584975038 +0200
-@@ -962,6 +962,9 @@
+--- a/po/ro_RO.po
++++ b/po/ro_RO.po
+@@ -959,6 +959,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparenþa fundalului subtitrãrii"
  
@@ -615,11 +557,9 @@ Index: vdr-1.7.27/po/ro_RO.po
  msgid "LNB"
  msgstr "LNB"
  
-Index: vdr-1.7.27/po/ru_RU.po
-===================================================================
---- vdr-1.7.27.orig/po/ru_RU.po	2012-03-11 11:44:44.000000000 +0100
-+++ vdr-1.7.27/po/ru_RU.po	2012-03-25 14:18:05.584975038 +0200
-@@ -960,6 +960,9 @@
+--- a/po/ru_RU.po
++++ b/po/ru_RU.po
+@@ -957,6 +957,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "¿àÞ×àÐçÝÞáâì äÞÝÐ áãÑâØâàÞÒ"
  
@@ -629,11 +569,9 @@ Index: vdr-1.7.27/po/ru_RU.po
  msgid "LNB"
  msgstr "ºÞÝÒÕàâÕà"
  
-Index: vdr-1.7.27/po/sk_SK.po
-===================================================================
---- vdr-1.7.27.orig/po/sk_SK.po	2012-03-11 11:44:44.000000000 +0100
-+++ vdr-1.7.27/po/sk_SK.po	2012-03-25 14:18:05.584975038 +0200
-@@ -959,6 +959,9 @@
+--- a/po/sk_SK.po
++++ b/po/sk_SK.po
+@@ -956,6 +956,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Priehµadnos» pozadia titulkov"
  
@@ -643,11 +581,9 @@ Index: vdr-1.7.27/po/sk_SK.po
  msgid "LNB"
  msgstr "LNB"
  
-Index: vdr-1.7.27/po/sl_SI.po
-===================================================================
---- vdr-1.7.27.orig/po/sl_SI.po	2012-03-11 11:44:44.000000000 +0100
-+++ vdr-1.7.27/po/sl_SI.po	2012-03-25 14:18:05.584975038 +0200
-@@ -960,6 +960,9 @@
+--- a/po/sl_SI.po
++++ b/po/sl_SI.po
+@@ -957,6 +957,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparentnost ozadja podnapisov"
  
@@ -657,11 +593,9 @@ Index: vdr-1.7.27/po/sl_SI.po
  msgid "LNB"
  msgstr "LNB"
  
-Index: vdr-1.7.27/po/sv_SE.po
-===================================================================
---- vdr-1.7.27.orig/po/sv_SE.po	2012-03-11 11:44:44.000000000 +0100
-+++ vdr-1.7.27/po/sv_SE.po	2012-03-25 14:18:05.584975038 +0200
-@@ -962,6 +962,9 @@
+--- a/po/sv_SE.po
++++ b/po/sv_SE.po
+@@ -959,6 +959,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Transparent bakgrund textremsa"
  
@@ -671,11 +605,9 @@ Index: vdr-1.7.27/po/sv_SE.po
  msgid "LNB"
  msgstr "LNB"
  
-Index: vdr-1.7.27/po/tr_TR.po
-===================================================================
---- vdr-1.7.27.orig/po/tr_TR.po	2012-03-11 11:44:43.000000000 +0100
-+++ vdr-1.7.27/po/tr_TR.po	2012-03-25 14:18:05.584975038 +0200
-@@ -959,6 +959,9 @@
+--- a/po/tr_TR.po
++++ b/po/tr_TR.po
+@@ -956,6 +956,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "Altyazý arka þeffaflýk"
  
@@ -685,11 +617,9 @@ Index: vdr-1.7.27/po/tr_TR.po
  msgid "LNB"
  msgstr "LNB"
  
-Index: vdr-1.7.27/po/uk_UA.po
-===================================================================
---- vdr-1.7.27.orig/po/uk_UA.po	2012-03-11 11:44:43.000000000 +0100
-+++ vdr-1.7.27/po/uk_UA.po	2012-03-25 14:18:05.584975038 +0200
-@@ -959,6 +959,9 @@
+--- a/po/uk_UA.po
++++ b/po/uk_UA.po
+@@ -956,6 +956,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "ÐŸÑ€Ð¾Ð·Ð¾Ñ€Ñ–ÑÑ‚ÑŒ Ð·Ð°Ð´Ð½ÑŒÐ¾Ð³Ð¾ Ð¿Ð»Ð°Ð½Ñƒ ÑÑƒÐ±Ñ‚Ð¸Ñ‚Ñ€Ñ–Ð²"
  
@@ -699,11 +629,9 @@ Index: vdr-1.7.27/po/uk_UA.po
  msgid "LNB"
  msgstr "ÐšÐ¾Ð½Ð²ÐµÑ€Ñ‚ÐµÑ€"
  
-Index: vdr-1.7.27/po/zh_CN.po
-===================================================================
---- vdr-1.7.27.orig/po/zh_CN.po	2012-03-11 11:44:43.000000000 +0100
-+++ vdr-1.7.27/po/zh_CN.po	2012-03-25 14:18:05.584975038 +0200
-@@ -962,6 +962,9 @@
+--- a/po/zh_CN.po
++++ b/po/zh_CN.po
+@@ -959,6 +959,9 @@
  msgid "Setup.DVB$Subtitle background transparency"
  msgstr "å­—å¹•èƒŒæ™¯é€æ˜Žåº¦"
  
@@ -713,11 +641,9 @@ Index: vdr-1.7.27/po/zh_CN.po
  msgid "LNB"
  msgstr "åˆ‡æ¢å™¨è®¾ç½®"
  
-Index: vdr-1.7.27/receiver.c
-===================================================================
---- vdr-1.7.27.orig/receiver.c	2012-02-29 12:49:36.000000000 +0100
-+++ vdr-1.7.27/receiver.c	2012-03-25 14:18:05.584975038 +0200
-@@ -81,7 +81,8 @@
+--- a/receiver.c
++++ b/receiver.c
+@@ -67,7 +67,8 @@
              (Channel->Ppid() == Channel->Vpid() || AddPid(Channel->Ppid())) &&
              AddPids(Channel->Apids()) &&
              AddPids(Channel->Dpids()) &&
@@ -725,12 +651,10 @@ Index: vdr-1.7.27/receiver.c
 +            AddPids(Channel->Spids()) &&
 +            (!Setup.SupportTeletext || AddPid(Channel->Tpid()));
       }
- return true;
+   return true;
  }
-Index: vdr-1.7.27/remux.c
-===================================================================
---- vdr-1.7.27.orig/remux.c	2012-03-02 11:56:49.000000000 +0100
-+++ vdr-1.7.27/remux.c	2012-03-25 14:18:05.594975038 +0200
+--- a/remux.c
++++ b/remux.c
 @@ -219,6 +219,29 @@
    return i;
  }
@@ -831,10 +755,8 @@ Index: vdr-1.7.27/remux.c
                              case SI::ISO639LanguageDescriptorTag: {
                                   SI::ISO639LanguageDescriptor *ld = (SI::ISO639LanguageDescriptor *)d;
                                   dbgpatpmt(" '%s'", ld->languageCode);
-Index: vdr-1.7.27/remux.h
-===================================================================
---- vdr-1.7.27.orig/remux.h	2011-09-04 14:48:26.000000000 +0200
-+++ vdr-1.7.27/remux.h	2012-03-25 14:18:05.594975038 +0200
+--- a/remux.h
++++ b/remux.h
 @@ -174,6 +174,7 @@
    int MakeStream(uchar *Target, uchar Type, int Pid);
    int MakeAC3Descriptor(uchar *Target, uchar Type);
@@ -879,10 +801,8 @@ Index: vdr-1.7.27/remux.h
    };
  
  // TS to PES converter:
-Index: vdr-1.7.27/vdr.5
-===================================================================
---- vdr-1.7.27.orig/vdr.5	2012-03-10 15:56:01.000000000 +0100
-+++ vdr-1.7.27/vdr.5	2012-03-25 14:18:05.594975038 +0200
+--- a/vdr.5
++++ b/vdr.5
 @@ -233,6 +233,12 @@
  
  .B ...:201;2001=deu,2002=eng:...
@@ -896,10 +816,8 @@ Index: vdr-1.7.27/vdr.5
  .TP
  .B Conditional access
  A hexadecimal integer defining how this channel can be accessed:
-Index: vdr-1.7.27/vdrttxtsubshooks.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ vdr-1.7.27/vdrttxtsubshooks.c	2012-03-25 14:18:05.594975038 +0200
+--- /dev/null
++++ b/vdrttxtsubshooks.c
 @@ -0,0 +1,63 @@
 +/*
 + * vdr-ttxtsubs - A plugin for the Linux Video Disk Recorder
@@ -964,10 +882,8 @@ Index: vdr-1.7.27/vdrttxtsubshooks.c
 +  return &gProxy;
 +}
 +
-Index: vdr-1.7.27/vdrttxtsubshooks.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ vdr-1.7.27/vdrttxtsubshooks.h	2012-03-25 14:18:05.594975038 +0200
+--- /dev/null
++++ b/vdrttxtsubshooks.h
 @@ -0,0 +1,46 @@
 +/*
 + * vdr-ttxtsubs - A plugin for the Linux Video Disk Recorder

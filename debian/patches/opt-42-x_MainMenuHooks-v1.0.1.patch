@@ -71,16 +71,12 @@ think you need to modify the patch, we'd encourage you to contact the
 authors first or at least use a service id which differs in more than
 just the version number.
 
-Index: vdr-1.7.27/config.h
-===================================================================
---- vdr-1.7.27.orig/config.h	2012-03-25 14:18:05.554975038 +0200
-+++ vdr-1.7.27/config.h	2012-03-25 14:18:05.694975038 +0200
-@@ -39,7 +39,11 @@
- #define LIEMIKUUTIO  134
+--- a/config.h
++++ b/config.h
+@@ -40,6 +40,10 @@
  
  #define JUMPPLAYVERSNUM 100
-- 
-+
+ 
 +// The MainMenuHook Patch's version number:
 +#define MAINMENUHOOKSVERSION "1.0.1"
 +#define MAINMENUHOOKSVERSNUM 10001  // Version * 10000 + Major * 100 + Minor
@@ -88,11 +84,9 @@ Index: vdr-1.7.27/config.h
  #define MAXPRIORITY       99
  #define MINPRIORITY       (-MAXPRIORITY)
  #define LIVEPRIORITY      0                  // priority used when selecting a device for live viewing
-Index: vdr-1.7.27/menu.c
-===================================================================
---- vdr-1.7.27.orig/menu.c	2012-03-25 14:18:05.664975038 +0200
-+++ vdr-1.7.27/menu.c	2012-03-25 14:18:05.704975038 +0200
-@@ -3646,15 +3646,31 @@
+--- a/menu.c
++++ b/menu.c
+@@ -3617,15 +3617,31 @@
  
    // Initial submenus:
  
@@ -130,7 +124,7 @@ Index: vdr-1.7.27/menu.c
  }
  
  cOsdObject *cMenuMain::PluginOsdObject(void)
-@@ -3807,13 +3823,34 @@
+@@ -3771,13 +3787,34 @@
    eOSState state = cOsdMenu::ProcessKey(Key);
    HadSubMenu |= HasSubMenu();
  
@@ -171,7 +165,7 @@ Index: vdr-1.7.27/menu.c
      case osStopRecord: if (Interface->Confirm(tr("Stop recording?"))) {
                            cOsdItem *item = Get(Current());
                            if (item) {
-@@ -3906,6 +3943,12 @@
+@@ -3870,6 +3907,12 @@
                 default:      break;
                 }
      }
@@ -180,7 +174,7 @@ Index: vdr-1.7.27/menu.c
 +        return AddSubMenu((cOsdMenu *) menu);
 +     pluginOsdObject = menu;
 +     return osPlugin;
-+  } 
++  }
    if (!HasSubMenu() && Update(HadSubMenu))
       Display();
    if (Key != kNone) {

@@ -4,10 +4,8 @@ Description: In order to allow valgrind to find memory leaks in VDR plugins,
  to disable plugin unloading.
 Author: Tobias Grimm <tg@e-tobi.net>
 
-Index: vdr-1.7.27/plugin.c
-===================================================================
---- vdr-1.7.27.orig/plugin.c	2012-03-11 14:56:02.000000000 +0100
-+++ vdr-1.7.27/plugin.c	2012-03-25 14:18:05.314975038 +0200
+--- a/plugin.c
++++ b/plugin.c
 @@ -147,6 +147,10 @@
  
  // --- cDll ------------------------------------------------------------------
@@ -36,10 +34,8 @@ Index: vdr-1.7.27/plugin.c
    free(args);
    free(fileName);
  }
-Index: vdr-1.7.27/plugin.h
-===================================================================
---- vdr-1.7.27.orig/plugin.h	2012-03-11 14:55:56.000000000 +0100
-+++ vdr-1.7.27/plugin.h	2012-03-25 14:18:05.314975038 +0200
+--- a/plugin.h
++++ b/plugin.h
 @@ -66,6 +66,9 @@
    void *handle;
    cPlugin *plugin;
@@ -50,11 +46,9 @@ Index: vdr-1.7.27/plugin.h
    cDll(const char *FileName, const char *Args);
    virtual ~cDll();
    bool Load(bool Log = false);
-Index: vdr-1.7.27/vdr.c
-===================================================================
---- vdr-1.7.27.orig/vdr.c	2012-03-25 14:18:05.174975038 +0200
-+++ vdr-1.7.27/vdr.c	2012-03-25 14:18:05.314975038 +0200
-@@ -225,6 +225,9 @@
+--- a/vdr.c
++++ b/vdr.c
+@@ -226,6 +226,9 @@
        { "grab",     required_argument, NULL, 'g' },
        { "help",     no_argument,       NULL, 'h' },
        { "instance", required_argument, NULL, 'i' },
@@ -64,7 +58,7 @@ Index: vdr-1.7.27/vdr.c
        { "lib",      required_argument, NULL, 'L' },
        { "lirc",     optional_argument, NULL, 'l' | 0x100 },
        { "localedir",required_argument, NULL, 'l' | 0x200 },
-@@ -247,7 +250,7 @@
+@@ -248,7 +251,7 @@
      };
  
    int c;
@@ -73,7 +67,7 @@ Index: vdr-1.7.27/vdr.c
          switch (c) {
            case 'a': AudioCommand = optarg;
                      break;
-@@ -288,6 +291,10 @@
+@@ -289,6 +292,10 @@
                         }
                      fprintf(stderr, "vdr: invalid instance id: %s\n", optarg);
                      return 2;
@@ -84,7 +78,7 @@ Index: vdr-1.7.27/vdr.c
            case 'l': {
                        char *p = strchr(optarg, '.');
                        if (p)
-@@ -433,6 +440,9 @@
+@@ -434,6 +441,9 @@
                 "                           or symlinks (default: none, same as -g-)\n"
                 "  -h,       --help         print this help and exit\n"
                 "  -i ID,    --instance=ID  use ID as the id of this VDR instance (default: 0)\n"

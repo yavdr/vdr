@@ -2,10 +2,8 @@ Description: Patch for vdr-plugin-restfulapi
 Author: Michael Eiler <eiler.mike@gmail.com>      
 Origin: https://github.com/yavdr/vdr-plugin-restfulapi
 
-Index: vdr-1.7.26/epg.c
-===================================================================
---- vdr-1.7.26.orig/epg.c	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/epg.c	2012-03-14 22:32:16.251015656 +0100
+--- a/epg.c
++++ b/epg.c
 @@ -428,6 +428,21 @@
    return buf;
  }
@@ -59,10 +57,8 @@ Index: vdr-1.7.26/epg.c
                         break;
               case 'e': if (Event && !Event->Title())
                            Event->SetTitle(tr("No title"));
-Index: vdr-1.7.26/epg.h
-===================================================================
---- vdr-1.7.26.orig/epg.h	2012-03-11 14:16:19.000000000 +0100
-+++ vdr-1.7.26/epg.h	2012-03-14 22:32:16.251015656 +0100
+--- a/epg.h
++++ b/epg.h
 @@ -17,6 +17,8 @@
  #include "libsi/section.h"
  #include "thread.h"

@@ -1,3 +1,9 @@
+vdr (1.7.28-0yavdr0~precise) precise; urgency=medium
+
+  * New upstream release
+
+ -- Holger Schvestka <hotzenplotz5@gmx.de>  Fri, 29 Jun 2012 11:19:25 +0100
+
 vdr (1.7.27-0yavdr0~precise) precise; urgency=medium
 
   * New upstream release
