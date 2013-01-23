@@ -11,4 +11,3 @@
 
 fix-no-hddvbdevice-segfault.patch
 fix-gcc-issue.patch
-vdr_freesat_freeviewhd.patch

@@ -32,5 +32,3 @@ debian/themes/*.theme                   var/lib/vdr/themes/
 
 debian/lintian/vdr                      usr/share/lintian/overrides/
 locale                                  usr/share/
-
-freesat.t*                              var/lib/vdr/
