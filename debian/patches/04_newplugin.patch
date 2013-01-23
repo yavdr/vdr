@@ -4,8 +4,8 @@ Author: Thomas Schmidt <tschmidt@debian.org>
 
 Index: vdr/newplugin
 ===================================================================
---- vdr.orig/newplugin	2011-12-10 22:22:04.000000000 +0100
-+++ vdr/newplugin	2011-12-11 01:48:22.000000000 +0100
+--- vdr.orig/newplugin	2013-01-23 22:15:14.000000000 +0100
++++ vdr/newplugin	2013-01-23 22:31:57.000000000 +0100
 @@ -24,7 +24,7 @@
  $PLUGIN_DESCRIPTION = "Enter description for '$PLUGIN_NAME' plugin";
  $PLUGIN_MAINENTRY = $PLUGIN_CLASS;
@@ -15,7 +15,7 @@ Index: vdr/newplugin
  
  $README = qq
  {This is a "plugin" for the Video Disk Recorder (VDR).
-@@ -165,7 +165,7 @@
+@@ -172,7 +172,7 @@
  	\@-rm -rf \$(TMPDIR)/\$(ARCHIVE)
  	\@mkdir \$(TMPDIR)/\$(ARCHIVE)
  	\@cp -a * \$(TMPDIR)/\$(ARCHIVE)
@@ -24,7 +24,7 @@ Index: vdr/newplugin
  	\@-rm -rf \$(TMPDIR)/\$(ARCHIVE)
  	\@echo Distribution package created as \$(PACKAGE).tgz
  
-@@ -317,7 +317,7 @@
+@@ -325,7 +325,7 @@
  VDRPLUGINCREATOR(cPlugin$PLUGIN_CLASS); // Don't touch this!
  };
  
@@ -33,7 +33,7 @@ Index: vdr/newplugin
  
  die "The directory $PLUGINS_SRC doesn't exist!\n" unless (-d "$PLUGINS_SRC");
  die "A plugin named '$PLUGIN_NAME' already exists in $PLUGINS_SRC!\n" if (-e "$PLUGINDIR");
-@@ -338,7 +338,8 @@
+@@ -346,7 +346,8 @@
  * fill in the code skeleton in "$PLUGIN_NAME.c" to implement your plugin function
  * add further source files if necessary
  * adapt the "Makefile" if necessary

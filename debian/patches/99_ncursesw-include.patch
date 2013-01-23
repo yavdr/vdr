@@ -3,10 +3,10 @@ Author: Tobias Grimm <tg@e-tobi.net>
 
 Index: vdr/PLUGINS/src/skincurses/skincurses.c
 ===================================================================
---- vdr.orig/PLUGINS/src/skincurses/skincurses.c	2012-06-06 18:01:48.000000000 +0200
-+++ vdr/PLUGINS/src/skincurses/skincurses.c	2012-06-06 18:01:52.000000000 +0200
+--- vdr.orig/PLUGINS/src/skincurses/skincurses.c	2013-01-23 22:15:14.000000000 +0100
++++ vdr/PLUGINS/src/skincurses/skincurses.c	2013-01-23 22:40:21.000000000 +0100
 @@ -6,7 +6,7 @@
-  * $Id: skincurses.c 2.9 2012/04/23 08:53:13 kls Exp $
+  * $Id: skincurses.c 2.11 2013/01/12 14:13:12 kls Exp $
   */
  
 -#include <ncurses.h>
