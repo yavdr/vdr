@@ -1,3 +1,13 @@
+vdr (1.7.38-1) unstable; urgency=low
+
+  * New upstream release
+  * Dropped 11_sortrecordings.patch - The recording list sorting now is as it is
+    meant to be sortded by the upstream developer
+  * Dropped fix-gcc-issue.patch - fixed upstream
+  * Dropped fix-no-hddvbdevice-segfault.patch - fixed upstream
+
+ -- Tobias Grimm <etobi@debian.org>  Wed, 23 Jan 2013 22:47:45 +0100
+
 vdr (1.7.28-1) unstable; urgency=low
 
   * New upstream release

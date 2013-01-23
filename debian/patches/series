@@ -1,6 +1,5 @@
 04_newplugin.patch
 06_default_svdrp_port_0.patch
-11_sortrecordings.patch
 12_osdbase-maxitems.patch
 16_channels.conf.terr-fix.patch
 
@@ -8,6 +7,3 @@
 82_valgrind.patch
 
 99_ncursesw-include.patch
-
-fix-no-hddvbdevice-segfault.patch
-fix-gcc-issue.patch
