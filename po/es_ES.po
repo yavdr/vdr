@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: VDR 1.6.0\n"
 "Report-Msgid-Bugs-To: <vdr-bugs@tvdr.de>\n"
-"POT-Creation-Date: 2012-06-02 15:10+0200\n"
+"POT-Creation-Date: 2013-02-03 16:46+0100\n"
 "PO-Revision-Date: 2008-03-02 19:02+0100\n"
 "Last-Translator: Luca Olivetti <luca@ventoso.org>\n"
 "Language-Team: Spanish <vdr@linuxtv.org>\n"
@@ -411,6 +411,9 @@ msgstr "Azul"
 msgid "Key$Info"
 msgstr "Info"
 
+msgid "Key$Play/Pause"
+msgstr ""
+
 msgid "Key$Play"
 msgstr "Reproducir"
 
@@ -739,9 +742,6 @@ msgstr "Abrir"
 msgid "Commands"
 msgstr "Órdenes"
 
-msgid "Error while accessing recording!"
-msgstr "¡Error al acceder a la grabación!"
-
 msgid "Delete recording?"
 msgstr "¿Eliminar grabacion?"
 
@@ -848,6 +848,18 @@ msgid "Setup.OSD$Folders in timer menu"
 msgstr ""
 
 msgid "Setup.OSD$Number keys for characters"
+msgstr ""
+
+msgid "Setup.OSD$Color key 0"
+msgstr ""
+
+msgid "Setup.OSD$Color key 1"
+msgstr ""
+
+msgid "Setup.OSD$Color key 2"
+msgstr ""
+
+msgid "Setup.OSD$Color key 3"
 msgstr ""
 
 msgid "EPG"
@@ -1066,6 +1078,9 @@ msgstr "Nombrar grabaciones inmediatas"
 msgid "Setup.Recording$Instant rec. time (min)"
 msgstr "Tiempo de grabación inmediata (min)"
 
+msgid "Setup.Recording$present event"
+msgstr ""
+
 msgid "Setup.Recording$Max. video file size (MB)"
 msgstr "Tamaño máximo de fichero (MB)"
 
@@ -1085,6 +1100,12 @@ msgid "Setup.Replay$Show replay mode"
 msgstr "Mostrar modo de reproducción"
 
 msgid "Setup.Replay$Show remaining time"
+msgstr ""
+
+msgid "Setup.Replay$Progress display time (s)"
+msgstr ""
+
+msgid "Setup.Replay$Pause replay when setting mark"
 msgstr ""
 
 msgid "Setup.Replay$Resume ID"
@@ -1108,6 +1129,12 @@ msgstr "Considerar canal como visto (sg)"
 msgid "Setup.Miscellaneous$Channel entry timeout (ms)"
 msgstr "Tiempo introducción canal (ms)"
 
+msgid "Setup.Miscellaneous$Remote control repeat delay (ms)"
+msgstr ""
+
+msgid "Setup.Miscellaneous$Remote control repeat delta (ms)"
+msgstr ""
+
 msgid "Setup.Miscellaneous$Initial channel"
 msgstr "Canal inicial"
 
@@ -1118,6 +1145,9 @@ msgid "Setup.Miscellaneous$Initial volume"
 msgstr "Volumen inicial"
 
 msgid "Setup.Miscellaneous$Channels wrap"
+msgstr ""
+
+msgid "Setup.Miscellaneous$Show channel names with source"
 msgstr ""
 
 msgid "Setup.Miscellaneous$Emergency exit"
@@ -1196,6 +1226,9 @@ msgstr "Saltar: "
 msgid "No editing marks defined!"
 msgstr "¡No se definieron marcas de edición!"
 
+msgid "No editing sequences defined!"
+msgstr ""
+
 msgid "Can't start editing process!"
 msgstr "¡No se puede iniciar el proceso de edición!"
 
@@ -1236,6 +1269,9 @@ msgid "Regenerating index file"
 msgstr ""
 
 msgid "Index file regeneration complete"
+msgstr ""
+
+msgid "Index file regeneration failed!"
 msgstr ""
 
 msgid "Can't shutdown - option '-s' not given!"

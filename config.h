@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: config.h 2.47 2012/04/15 10:45:32 kls Exp $
+ * $Id: config.h 2.67 2013/02/14 15:13:59 kls Exp $
  */
 
 #ifndef __CONFIG_H
@@ -22,13 +22,13 @@
 
 // VDR's own version number:
 
-#define VDRVERSION  "1.7.28"
-#define VDRVERSNUM   10728  // Version * 10000 + Major * 100 + Minor
+#define VDRVERSION  "1.7.38"
+#define VDRVERSNUM   10738  // Version * 10000 + Major * 100 + Minor
 
 // The plugin API's version number:
 
-#define APIVERSION  "1.7.28"
-#define APIVERSNUM   10728  // Version * 10000 + Major * 100 + Minor
+#define APIVERSION  "1.7.38"
+#define APIVERSNUM   10738  // Version * 10000 + Major * 100 + Minor
 
 // When loading plugins, VDR searches them by their APIVERSION, which
 // may be smaller than VDRVERSION in case there have been no changes to
@@ -42,13 +42,17 @@
 #define TRANSFERPRIORITY  (LIVEPRIORITY - 1) // priority used for actual local Transfer Mode
 #define IDLEPRIORITY      (MINPRIORITY - 1)  // priority of an idle device
 #define MAXLIFETIME       99
+#define DEFINSTRECTIME    180 // default instant recording time (minutes)
+
+#define TIMERMACRO_TITLE    "TITLE"
+#define TIMERMACRO_EPISODE  "EPISODE"
 
 #define MINOSDWIDTH   480
 #define MAXOSDWIDTH  1920
 #define MINOSDHEIGHT  324
 #define MAXOSDHEIGHT 1200
 
-#define MaxFileName 256
+#define MaxFileName NAME_MAX // obsolete - use NAME_MAX directly instead!
 #define MaxSkinName 16
 #define MaxThemeName 16
 
@@ -256,7 +260,7 @@ public:
   int MenuScrollWrap;
   int MenuKeyCloses;
   int MarkInstantRecord;
-  char NameInstantRecord[MaxFileName];
+  char NameInstantRecord[NAME_MAX];
   int InstantRecordTime;
   int LnbSLOF;
   int LnbFrequLo;
@@ -279,6 +283,8 @@ public:
   int SVDRPTimeout;
   int ZapTimeout;
   int ChannelEntryTimeout;
+  int RcRepeatDelay;
+  int RcRepeatDelta;
   int DefaultPriority, DefaultLifetime;
   int PausePriority, PauseLifetime;
   int PauseKeyHandling;
@@ -288,6 +294,7 @@ public:
   int RecordingDirs;
   int FoldersInTimerMenu;
   int NumberKeysForChars;
+  int ColorKey0, ColorKey1, ColorKey2, ColorKey3;
   int VideoDisplayFormat;
   int VideoFormat;
   int UpdateChannels;
@@ -317,12 +324,15 @@ public:
   int MultiSpeedMode;
   int ShowReplayMode;
   int ShowRemainingTime;
+  int ProgressDisplayTime;
+  int PauseOnMarkSet;
   int ResumeID;
   int CurrentChannel;
   int CurrentVolume;
   int CurrentDolby;
   int InitialVolume;
   int ChannelsWrap;
+  int ShowChannelNamesWithSource;
   int EmergencyExit;
   int __EndData__;
   cString InitialChannel;

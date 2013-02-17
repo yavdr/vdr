@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: VDR 1.6.0\n"
 "Report-Msgid-Bugs-To: <vdr-bugs@tvdr.de>\n"
-"POT-Creation-Date: 2012-06-02 15:10+0200\n"
+"POT-Creation-Date: 2013-02-03 16:46+0100\n"
 "PO-Revision-Date: 2007-08-12 14:17+0200\n"
 "Last-Translator: Dimitrios Dimitrakos <mail@dimitrios.de>\n"
 "Language-Team: Greek <vdr@linuxtv.org>\n"
@@ -410,6 +410,9 @@ msgstr "Μπλέ"
 msgid "Key$Info"
 msgstr "Πληροφορίες"
 
+msgid "Key$Play/Pause"
+msgstr ""
+
 msgid "Key$Play"
 msgstr "Αναπαραγωγή"
 
@@ -738,9 +741,6 @@ msgstr "Ανοιγμα"
 msgid "Commands"
 msgstr "Εντολές"
 
-msgid "Error while accessing recording!"
-msgstr "Πρόβλημα στήν προσπέλαση εγγραφής!"
-
 msgid "Delete recording?"
 msgstr "Διαγραφή εγγραφής?"
 
@@ -847,6 +847,18 @@ msgid "Setup.OSD$Folders in timer menu"
 msgstr ""
 
 msgid "Setup.OSD$Number keys for characters"
+msgstr ""
+
+msgid "Setup.OSD$Color key 0"
+msgstr ""
+
+msgid "Setup.OSD$Color key 1"
+msgstr ""
+
+msgid "Setup.OSD$Color key 2"
+msgstr ""
+
+msgid "Setup.OSD$Color key 3"
 msgstr ""
 
 msgid "EPG"
@@ -1065,6 +1077,9 @@ msgstr "Ονομασία τρέχουσας εγγραφής"
 msgid "Setup.Recording$Instant rec. time (min)"
 msgstr "Διάρκεια στγμιαίας εγγραφής (λεπτά)"
 
+msgid "Setup.Recording$present event"
+msgstr ""
+
 msgid "Setup.Recording$Max. video file size (MB)"
 msgstr "Μέγιστο μέγεθος αρχείου (MB)"
 
@@ -1084,6 +1099,12 @@ msgid "Setup.Replay$Show replay mode"
 msgstr "Ένδειξη κατάστασης αναμετάδοσης"
 
 msgid "Setup.Replay$Show remaining time"
+msgstr ""
+
+msgid "Setup.Replay$Progress display time (s)"
+msgstr ""
+
+msgid "Setup.Replay$Pause replay when setting mark"
 msgstr ""
 
 msgid "Setup.Replay$Resume ID"
@@ -1107,6 +1128,12 @@ msgstr "Ζάπινγκ διακοπή (δ)"
 msgid "Setup.Miscellaneous$Channel entry timeout (ms)"
 msgstr ""
 
+msgid "Setup.Miscellaneous$Remote control repeat delay (ms)"
+msgstr ""
+
+msgid "Setup.Miscellaneous$Remote control repeat delta (ms)"
+msgstr ""
+
 msgid "Setup.Miscellaneous$Initial channel"
 msgstr ""
 
@@ -1117,6 +1144,9 @@ msgid "Setup.Miscellaneous$Initial volume"
 msgstr ""
 
 msgid "Setup.Miscellaneous$Channels wrap"
+msgstr ""
+
+msgid "Setup.Miscellaneous$Show channel names with source"
 msgstr ""
 
 msgid "Setup.Miscellaneous$Emergency exit"
@@ -1195,6 +1225,9 @@ msgstr "Τοποθέτηση: "
 msgid "No editing marks defined!"
 msgstr "Δέν έχουν οριστεί σημεία επεξεργασίας"
 
+msgid "No editing sequences defined!"
+msgstr ""
+
 msgid "Can't start editing process!"
 msgstr "Αδυναμία εκκίνησης της επεξεργασίας!"
 
@@ -1235,6 +1268,9 @@ msgid "Regenerating index file"
 msgstr ""
 
 msgid "Index file regeneration complete"
+msgstr ""
+
+msgid "Index file regeneration failed!"
 msgstr ""
 
 msgid "Can't shutdown - option '-s' not given!"

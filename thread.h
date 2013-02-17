@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: thread.h 2.1 2009/04/13 13:50:39 kls Exp $
+ * $Id: thread.h 2.4 2013/02/16 15:20:44 kls Exp $
  */
 
 #ifndef __THREAD_H
@@ -31,7 +31,7 @@ public:
   bool Wait(int TimeoutMs = 0);
        ///< Waits at most TimeoutMs milliseconds for a call to Signal(), or
        ///< forever if TimeoutMs is 0.
-       ///< \return Returns true if Signal() has been called, false it the given
+       ///< Returns true if Signal() has been called, false it the given
        ///< timeout has expired.
   void Signal(void);
        ///< Signals a caller of Wait() that the condition it is waiting for is met.
@@ -83,6 +83,7 @@ private:
   tThreadId childThreadId;
   cMutex mutex;
   char *description;
+  bool lowPriority;
   static tThreadId mainThreadId;
   static void *StartThread(cThread *Thread);
 protected:
@@ -106,11 +107,13 @@ protected:
        ///< If WaitSeconds is -1, only 'running' is set to false and Cancel()
        ///< returns immediately, without killing the thread.
 public:
-  cThread(const char *Description = NULL);
+  cThread(const char *Description = NULL, bool LowPriority = false);
        ///< Creates a new thread.
        ///< If Description is present, a log file entry will be made when
        ///< the thread starts and stops. The Start() function must be called
        ///< to actually start the thread.
+       ///< LowPriority can be set to true to make this thread run at a lower
+       ///< priority.
   virtual ~cThread();
   void SetDescription(const char *Description, ...) __attribute__ ((format (printf, 2, 3)));
   bool Start(void);
@@ -156,6 +159,29 @@ public:
   };
 
 #define LOCK_THREAD cThreadLock ThreadLock(this)
+
+class cIoThrottle {
+private:
+  static cMutex mutex;
+  static int count;
+  bool active;
+public:
+  cIoThrottle(void);
+  ~cIoThrottle();
+  void Activate(void);
+       ///< Activates the global I/O throttling mechanism.
+       ///< This function may be called any number of times, but only
+       ///< the first call after an inactive state will have an effect.
+  void Release(void);
+       ///< Releases the global I/O throttling mechanism.
+       ///< This function may be called any number of times, but only
+       ///< the first call after an active state will have an effect.
+  bool Active(void) { return active; }
+       ///< Returns true if this I/O throttling object is currently active.
+  static bool Engaged(void);
+       ///< Returns true if any I/O throttling object is currently active.
+  };
+
 
 // cPipe implements a pipe that closes all unnecessary file descriptors in
 // the child process.

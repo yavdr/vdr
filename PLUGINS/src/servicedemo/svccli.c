@@ -3,14 +3,14 @@
  *
  * See the README file for copyright information and how to reach the author.
  *
- * $Id: svccli.c 2.0 2007/08/15 13:18:08 kls Exp $
+ * $Id: svccli.c 2.3 2013/02/17 14:10:26 kls Exp $
  */
 
 #include <stdlib.h>
 #include <vdr/interface.h>
 #include <vdr/plugin.h>
 
-static const char *VERSION        = "0.1.2";
+static const char *VERSION        = "0.1.4";
 static const char *DESCRIPTION    = "Service demo client";
 static const char *MAINMENUENTRY  = "Service demo";
 
@@ -32,7 +32,7 @@ struct AddService_v1_0 {
   int sum;
   };
 
-// --- cPluginSvcCli ----------------------------------------------------------
+// --- cPluginSvcCli ---------------------------------------------------------
 
 cOsdObject *cPluginSvcCli::MainMenuAction(void)
 {

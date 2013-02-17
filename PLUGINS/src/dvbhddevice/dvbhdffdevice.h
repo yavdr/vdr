@@ -3,15 +3,15 @@
  *
  * See the README file for copyright information and how to reach the author.
  *
- * $Id: dvbhdffdevice.h 1.7 2011/09/10 10:17:32 kls Exp $
+ * $Id: dvbhdffdevice.h 1.9 2012/12/03 13:43:55 kls Exp $
  */
 
 #ifndef __DVBHDFFDEVICE_H
 #define __DVBHDFFDEVICE_H
 
 #include "hdffcmd.h"
-#include "vdr/dvbdevice.h"
-#include "vdr/dvbspu.h"
+#include <vdr/dvbdevice.h>
+#include <vdr/dvbspu.h>
 
 /// The cDvbHdFfDevice implements a DVB device which can be accessed through the Linux DVB driver API.
 
@@ -81,6 +81,7 @@ private:
   int playAudioPid;
   bool freezed;
   bool trickMode;
+  bool isPlayingVideo;
 
   // Pes2Ts conversion stuff
   uint8_t videoCounter;

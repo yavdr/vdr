@@ -7,7 +7,7 @@
  * Original version (as used in VDR before 1.3.0) written by
  * Robert Schneider <Robert.Schneider@web.de> and Rolf Hakenes <hakenes@hippomi.de>.
  *
- * $Id: epg.h 2.10 2012/06/02 14:07:51 kls Exp $
+ * $Id: epg.h 2.15 2012/09/24 12:53:53 kls Exp $
  */
 
 #ifndef __EPG_H
@@ -193,7 +193,6 @@ private:
   cRwLock rwlock;
   static cSchedules schedules;
   static char *epgDataFileName;
-  static time_t lastCleanup;
   static time_t lastDump;
   static time_t modified;
 public:
@@ -207,7 +206,7 @@ public:
   static void Cleanup(bool Force = false);
   static void ResetVersions(void);
   static bool ClearAll(void);
-  static bool Dump(FILE *f, const char *Prefix = "", eDumpMode DumpMode = dmAll, time_t AtTime = 0);
+  static bool Dump(FILE *f = NULL, const char *Prefix = "", eDumpMode DumpMode = dmAll, time_t AtTime = 0);
   static bool Read(FILE *f = NULL);
   cSchedule *AddSchedule(tChannelID ChannelID);
   const cSchedule *GetSchedule(tChannelID ChannelID) const;
@@ -220,7 +219,7 @@ public:
   virtual void Action(void);
   };
 
-void ReportEpgBugFixStats(bool Reset = false);
+void ReportEpgBugFixStats(bool Force = false);
 
 class cEpgHandler : public cListObject {
 public:
@@ -244,6 +243,16 @@ public:
           ///< EPG handlers are queried to see if any of them would like to do the
           ///< complete processing by itself. TableID and Version are from the
           ///< incoming section data.
+  virtual bool HandledExternally(const cChannel *Channel) { return false; }
+          ///< If any EPG handler returns true in this function, it is assumed that
+          ///< the EPG for the given Channel is handled completely from some external
+          ///< source. Incoming EIT data is processed as usual, but any new EPG event
+          ///< will not be added to the respective schedule. It's up to the EPG
+          ///< handler to take care of this.
+  virtual bool IsUpdate(tEventID EventID, time_t StartTime, uchar TableID, uchar Version) { return false; }
+          ///< VDR can't perform the update check (version, tid) for externally handled events,
+          ///< therefore the EPG handlers have to take care of this. Otherwise the parsing of
+          ///< non-updates will waste a lot of resources.
   virtual bool SetEventID(cEvent *Event, tEventID EventID) { return false; }
   virtual bool SetTitle(cEvent *Event, const char *Title) { return false; }
   virtual bool SetShortText(cEvent *Event, const char *ShortText) { return false; }
@@ -253,14 +262,12 @@ public:
   virtual bool SetStartTime(cEvent *Event, time_t StartTime) { return false; }
   virtual bool SetDuration(cEvent *Event, int Duration) { return false; }
   virtual bool SetVps(cEvent *Event, time_t Vps) { return false; }
+  virtual bool SetComponents(cEvent *Event, cComponents *Components) { return false; }
   virtual bool FixEpgBugs(cEvent *Event) { return false; }
           ///< Fixes some known problems with EPG data.
   virtual bool HandleEvent(cEvent *Event) { return false; }
           ///< After all modifications of the Event have been done, the EPG handler
           ///< can take a final look at it.
-  virtual bool DeleteEvent(const cEvent *Event) { return false; }
-          ///< After the complete processing of the Event is finished, an EPG handler
-          ///< can decide that this Event shall be deleted from its schedule.
   virtual bool SortSchedule(cSchedule *Schedule) { return false; }
           ///< Sorts the Schedule after the complete table has been processed.
   virtual bool DropOutdated(cSchedule *Schedule, time_t SegmentStart, time_t SegmentEnd, uchar TableID, uchar Version) { return false; }
@@ -272,6 +279,8 @@ class cEpgHandlers : public cList<cEpgHandler> {
 public:
   bool IgnoreChannel(const cChannel *Channel);
   bool HandleEitEvent(cSchedule *Schedule, const SI::EIT::Event *EitEvent, uchar TableID, uchar Version);
+  bool HandledExternally(const cChannel *Channel);
+  bool IsUpdate(tEventID EventID, time_t StartTime, uchar TableID, uchar Version);
   void SetEventID(cEvent *Event, tEventID EventID);
   void SetTitle(cEvent *Event, const char *Title);
   void SetShortText(cEvent *Event, const char *ShortText);
@@ -281,9 +290,9 @@ public:
   void SetStartTime(cEvent *Event, time_t StartTime);
   void SetDuration(cEvent *Event, int Duration);
   void SetVps(cEvent *Event, time_t Vps);
+  void SetComponents(cEvent *Event, cComponents *Components);
   void FixEpgBugs(cEvent *Event);
   void HandleEvent(cEvent *Event);
-  bool DeleteEvent(const cEvent *Event);
   void SortSchedule(cSchedule *Schedule);
   void DropOutdated(cSchedule *Schedule, time_t SegmentStart, time_t SegmentEnd, uchar TableID, uchar Version);
   };

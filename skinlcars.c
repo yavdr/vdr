@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: skinlcars.c 2.2 2012/06/03 10:17:00 kls Exp $
+ * $Id: skinlcars.c 2.19 2013/02/15 15:08:02 kls Exp $
  */
 
 // "Star Trek: The Next Generation"(R) is a registered trademark of Paramount Pictures,
@@ -76,11 +76,11 @@ static cTheme Theme;
 // Color domains:
 
 #define CLR_BACKGROUND      0x99000000
-#define CLR_MAIN_FRAME      0xFFF1DF6F
-#define CLR_CHANNEL_FRAME   0xFFFFCC99
+#define CLR_MAIN_FRAME      0xFFFF9966
+#define CLR_CHANNEL_FRAME   0xFF8A9EC9
 #define CLR_REPLAY_FRAME    0xFFCC6666
 #define CLR_DATE            0xFF99CCFF
-#define CLR_MENU_ITEMS      0xFFFFBC57
+#define CLR_MENU_ITEMS      0xFF9999FF
 #define CLR_TIMER           0xFF99CCFF
 #define CLR_DEVICE          0xFFF1B1AF
 #define CLR_CHANNEL_NAME    0xFF99CCFF
@@ -93,10 +93,10 @@ static cTheme Theme;
 #define CLR_ALERT           0xFFFF0000
 #define CLR_EXPOSED         0xFF990000
 #define CLR_WHITE           0xFFFFFFFF
-#define CLR_RED             0xFFB20000
-#define CLR_GREEN           0xFF00B200
-#define CLR_YELLOW          0xFFB2B200
-#define CLR_BLUE            0xFF0000B2
+#define CLR_RED             0xFFCC6666
+#define CLR_GREEN           0xFFA0FF99
+#define CLR_YELLOW          0xFFF1DF60
+#define CLR_BLUE            0xFF9A99FF
 #define CLR_BLACK           0xFF000000
 
 // General colors:
@@ -122,24 +122,24 @@ THEME_CLR(Theme, clrEventDescription,       CLR_TEXT);
 
 // Buttons:
 
-THEME_CLR(Theme, clrButtonRedFg,            CLR_WHITE);
+THEME_CLR(Theme, clrButtonRedFg,            CLR_BLACK);
 THEME_CLR(Theme, clrButtonRedBg,            CLR_RED);
 THEME_CLR(Theme, clrButtonGreenFg,          CLR_BLACK);
 THEME_CLR(Theme, clrButtonGreenBg,          CLR_GREEN);
 THEME_CLR(Theme, clrButtonYellowFg,         CLR_BLACK);
 THEME_CLR(Theme, clrButtonYellowBg,         CLR_YELLOW);
-THEME_CLR(Theme, clrButtonBlueFg,           CLR_WHITE);
+THEME_CLR(Theme, clrButtonBlueFg,           CLR_BLACK);
 THEME_CLR(Theme, clrButtonBlueBg,           CLR_BLUE);
 
 // Messages:
 
-THEME_CLR(Theme, clrMessageStatusFg,        CLR_WHITE);
+THEME_CLR(Theme, clrMessageStatusFg,        CLR_BLACK);
 THEME_CLR(Theme, clrMessageStatusBg,        CLR_BLUE);
 THEME_CLR(Theme, clrMessageInfoFg,          CLR_BLACK);
 THEME_CLR(Theme, clrMessageInfoBg,          CLR_GREEN);
 THEME_CLR(Theme, clrMessageWarningFg,       CLR_BLACK);
 THEME_CLR(Theme, clrMessageWarningBg,       CLR_YELLOW);
-THEME_CLR(Theme, clrMessageErrorFg,         CLR_WHITE);
+THEME_CLR(Theme, clrMessageErrorFg,         CLR_BLACK);
 THEME_CLR(Theme, clrMessageErrorBg,         CLR_RED);
 
 // Volume:
@@ -166,11 +166,11 @@ THEME_CLR(Theme, clrMenuTitle,              CLR_MAIN_FRAME);
 THEME_CLR(Theme, clrMenuMainBracket,        CLR_MENU_ITEMS);
 THEME_CLR(Theme, clrMenuTimerRecording,     CLR_DEVICE);
 THEME_CLR(Theme, clrMenuDeviceRecording,    CLR_TIMER);
-THEME_CLR(Theme, clrMenuItemCurrentFg,      CLR_BLACK);
-THEME_CLR(Theme, clrMenuItemCurrentBg,      CLR_MENU_ITEMS);
+THEME_CLR(Theme, clrMenuItemCurrentFg,      CLR_MAIN_FRAME);
+THEME_CLR(Theme, clrMenuItemCurrentBg,      RgbShade(CLR_MENU_ITEMS, -0.5));
 THEME_CLR(Theme, clrMenuItemSelectable,     CLR_MENU_ITEMS);
 THEME_CLR(Theme, clrMenuItemNonSelectable,  CLR_TEXT);
-THEME_CLR(Theme, clrMenuScrollbarTotal,     CLR_MENU_ITEMS);
+THEME_CLR(Theme, clrMenuScrollbarTotal,     RgbShade(CLR_MAIN_FRAME, 0.2));
 THEME_CLR(Theme, clrMenuScrollbarShown,     CLR_SEEN);
 THEME_CLR(Theme, clrMenuScrollbarArrow,     CLR_BLACK);
 THEME_CLR(Theme, clrMenuText,               CLR_TEXT);
@@ -199,6 +199,8 @@ THEME_CLR(Theme, clrTrackItemCurrentBg,     CLR_TRACK);
 
 // --- Helper functions ------------------------------------------------------
 
+static bool TwoColors = false;
+
 static cOsd *CreateOsd(int Left, int Top, int x0, int y0, int x1, int y1)
 {
   cOsd *Osd = cOsdProvider::NewOsd(Left, Top);
@@ -208,6 +210,7 @@ static cOsd *CreateOsd(int Left, int Top, int x0, int y0, int x1, int y1)
       Area.bpp = Bpp[i];
       if (Osd->CanHandleAreas(&Area, 1) == oeOk) {
          Osd->SetAreas(&Area, 1);
+         TwoColors = Area.bpp == 1;
          break;
          }
       }
@@ -272,16 +275,25 @@ static void DrawDeviceSignal(cOsd *Osd, const cDevice *Device, int x0, int y0, i
   int y01 = y00 + h;
   int y03 = y1 - d;
   int y02 = y03 - h;
+  tColor ColorSignalValue, ColorSignalRest;
+  if (TwoColors) {
+     ColorSignalValue = Theme.Color(clrBackground);
+     ColorSignalRest = Theme.Color(clrMenuFrameBg);
+     }
+  else {
+     ColorSignalValue = Theme.Color(clrSignalValue);
+     ColorSignalRest = Theme.Color(clrSignalRest);
+     }
   if (SignalStrength >= 0 && (Initial || SignalStrength != LastSignalStrength)) {
      int s = SignalStrength * w / 100;
-     Osd->DrawRectangle(x00, y00, x00 + s - 1, y01 - 1, Theme.Color(clrSignalValue));
-     Osd->DrawRectangle(x00 + s, y00, x01 - 1, y01 - 1, Theme.Color(clrSignalRest));
+     Osd->DrawRectangle(x00, y00, x00 + s - 1, y01 - 1, ColorSignalValue);
+     Osd->DrawRectangle(x00 + s, y00, x01 - 1, y01 - 1, ColorSignalRest);
      LastSignalStrength = SignalStrength;
      }
   if (SignalQuality >= 0 && (Initial || SignalQuality != LastSignalQuality)) {
      int q = SignalQuality * w / 100;
-     Osd->DrawRectangle(x00, y02, x00 + q - 1, y03 - 1, Theme.Color(clrSignalValue));
-     Osd->DrawRectangle(x00 + q, y02, x01 - 1, y03 - 1, Theme.Color(clrSignalRest));
+     Osd->DrawRectangle(x00, y02, x00 + q - 1, y03 - 1, ColorSignalValue);
+     Osd->DrawRectangle(x00 + q, y02, x01 - 1, y03 - 1, ColorSignalRest);
      LastSignalQuality = SignalQuality;
      }
 }
@@ -445,7 +457,7 @@ void cSkinLCARSDisplayChannel::DrawTrack(void)
 
 void cSkinLCARSDisplayChannel::DrawSeen(int Current, int Total)
 {
-  int Seen = min(xc07 - xc06, int((xc07 - xc06) * double(Current) / Total));
+  int Seen = (Total > 0) ? min(xc07 - xc06, int((xc07 - xc06) * double(Current) / Total)) : 0;
   if (initial || Seen != lastSeen) {
      int y0 = yc11 - ShowSeenExtent;
      int y1 = yc11 + lineHeight / 2 - Gap / 2;
@@ -515,7 +527,7 @@ void cSkinLCARSDisplayChannel::SetChannel(const cChannel *Channel, int Number)
   else if (Number)
      ChNumber = cString::sprintf("%d-", Number);
   else
-     ChName = ChannelString(NULL, NULL);
+     ChName = ChannelString(NULL, 0);
   osd->DrawText(xc00, yc00, ChNumber, Theme.Color(clrChannelFrameFg), frameColor, tallFont, xc02 - xc00, yc02 - yc00, taTop | taRight | taBorder);
   osd->DrawText(xc03, yc00, ChName, Theme.Color(clrChannelName), Theme.Color(clrBackground), tallFont, xi - xc03 - lineHeight, 0, taTop | taLeft);
   lastSignalDisplay = 0;
@@ -548,14 +560,30 @@ void cSkinLCARSDisplayChannel::SetEvents(const cEvent *Present, const cEvent *Fo
 void cSkinLCARSDisplayChannel::SetMessage(eMessageType Type, const char *Text)
 {
   if (Text) {
-     int y0 = yc11 - ShowSeenExtent;
-     int y1 = yc11;
-     osd->SaveRegion(xc06, y0, xc13 - 1, yc12 - 1);
-     osd->DrawRectangle(xc06, y0, xc07, y1 - 1, Theme.Color(clrBackground)); // clears the "seen" bar
-     osd->DrawText(xc06, yc11, Text, Theme.Color(clrMessageStatusFg + 2 * Type), Theme.Color(clrMessageStatusBg + 2 * Type), cFont::GetFont(fontSml), xc13 - xc06, yc12 - yc11, taCenter);
+     int x0, x1, y0, y1, y2;
+     if (withInfo) {
+        x0 = xc06;
+        x1 = xc13;
+        y0 = yc11 - ShowSeenExtent;
+        y1 = yc11;
+        y2 = yc12;
+        }
+     else {
+        x0 = xc03;
+        x1 = xc13;
+        y0 = y1 = yc00;
+        y2 = yc02;
+        }
+     osd->SaveRegion(x0, y0, x1 - 1, y2 - 1);
+     if (withInfo)
+        osd->DrawRectangle(xc06, y0, xc07, y1 - 1, Theme.Color(clrBackground)); // clears the "seen" bar
+     osd->DrawText(x0, y1, Text, Theme.Color(clrMessageStatusFg + 2 * Type), Theme.Color(clrMessageStatusBg + 2 * Type), cFont::GetFont(fontSml), x1 - x0, y2 - y1, taCenter);
+     message = true;
      }
-  else
+  else {
      osd->RestoreRegion();
+     message = false;
+     }
 }
 
 void cSkinLCARSDisplayChannel::Flush(void)
@@ -566,16 +594,16 @@ void cSkinLCARSDisplayChannel::Flush(void)
         DrawTrack();
         DrawDevice();
         DrawSignal();
+        int Current = 0;
+        int Total = 0;
+        if (present) {
+           time_t t = time(NULL);
+           if (t > present->StartTime())
+              Current = t - present->StartTime();
+           Total = present->Duration();
+           }
+        DrawSeen(Current, Total);
         }
-     int Current = 0;
-     int Total = 0;
-     if (present) {
-        time_t t = time(NULL);
-        if (t > present->StartTime())
-           Current = t - present->StartTime();
-        Total = present->Duration();
-        }
-     DrawSeen(Current, Total);
      }
   osd->Flush();
   initial = false;
@@ -928,7 +956,7 @@ void cSkinLCARSDisplayMenu::DrawMainButton(const char *Text, int x0, int x1, int
 {
   int h = y1 - y0;
   osd->DrawEllipse(x0, y0, x1 - 1, y1 - 1, ColorBg, 7);
-  osd->DrawText(x1 + Gap, y0, Text, ColorFg, ColorBg, Font, x2 - x1 - Gap, h, taBottom | taRight);
+  osd->DrawText(x1, y0, Text, ColorFg, ColorBg, Font, x2 - x1, h, taBottom | taRight);
   osd->DrawEllipse(x2, y0, x3 - 1, y1 - 1, ColorBg, 5);
 }
 
@@ -959,10 +987,11 @@ void cSkinLCARSDisplayMenu::DrawMenuFrame(void)
   osd->DrawEllipse  (xa08 + lineHeight / 2, yb14, xa09 - 1, yb15 - 1, frameColor, 5);
   osd->DrawText(xa00, yb10, "VDR", Theme.Color(clrMenuFrameFg), frameColor, tallFont, xa02 - xa00, yb11 - yb10, taTop | taRight | taBorder);
   // Color buttons:
-  osd->DrawRectangle(xb00, yb14, xb01 - 1, yb15 - 1, Theme.Color(clrButtonRedBg));
-  osd->DrawRectangle(xb04, yb14, xb05 - 1, yb15 - 1, Theme.Color(clrButtonGreenBg));
-  osd->DrawRectangle(xb08, yb14, xb09 - 1, yb15 - 1, Theme.Color(clrButtonYellowBg));
-  osd->DrawRectangle(xb12, yb14, xb13 - 1, yb15 - 1, Theme.Color(clrButtonBlueBg));
+  tColor lutBg[] = { clrButtonRedBg, clrButtonGreenBg, clrButtonYellowBg, clrButtonBlueBg };
+  osd->DrawRectangle(xb00, yb14, xb01 - 1, yb15 - 1, Theme.Color(lutBg[Setup.ColorKey0]));
+  osd->DrawRectangle(xb04, yb14, xb05 - 1, yb15 - 1, Theme.Color(lutBg[Setup.ColorKey1]));
+  osd->DrawRectangle(xb08, yb14, xb09 - 1, yb15 - 1, Theme.Color(lutBg[Setup.ColorKey2]));
+  osd->DrawRectangle(xb12, yb14, xb13 - 1, yb15 - 1, Theme.Color(lutBg[Setup.ColorKey3]));
 }
 
 void cSkinLCARSDisplayMenu::DrawDate(void)
@@ -1107,7 +1136,7 @@ void cSkinLCARSDisplayMenu::DrawTimer(const cTimer *Timer, int y, bool MultiRec)
   // The timer data:
   bool Alert = !Timer->Recording() && Timer->Pending();
   tColor ColorFg = Alert ? Theme.Color(clrAlertFg) : Theme.Color(clrTimerFg);
-  tColor ColorBg = Alert ? Theme.Color(clrAlertFg) : Theme.Color(clrTimerBg);
+  tColor ColorBg = Alert ? Theme.Color(clrAlertBg) : Theme.Color(clrTimerBg);
   osd->DrawRectangle(xs00, y, xs03 - 1, y + lineHeight - 1, ColorBg);
   cString Date;
   if (Timer->Recording())
@@ -1149,6 +1178,7 @@ void cSkinLCARSDisplayMenu::DrawTimers(void)
      osd->DrawRectangle(xs07, ys04, xs13 - 1, ys05 - 1, Theme.Color(clrBackground));
      cSortedTimers SortedTimers;
      cVector<int> FreeDeviceSlots;
+     int NumDevices = 0;
      int y = ys04;
      // Timers and recording devices:
      while (1) {
@@ -1167,6 +1197,7 @@ void cSkinLCARSDisplayMenu::DrawTimers(void)
                               Device = RecordControl->Device();
                               deviceOffset[Device->DeviceNumber()] = y;
                               deviceRecording[Device->DeviceNumber()] = true;
+                              NumDevices++;
                               }
                            else
                               FreeDeviceSlots.Append(y);
@@ -1177,7 +1208,7 @@ void cSkinLCARSDisplayMenu::DrawTimers(void)
                         }
                      SortedTimers[i] = NULL;
                      }
-                  else if (!Device) {
+                  else if (!Device && Timer->HasFlags(tfActive)) {
                      DrawTimer(Timer, y, false);
                      FreeDeviceSlots.Append(y);
                      y += lineHeight + Gap;
@@ -1192,20 +1223,29 @@ void cSkinLCARSDisplayMenu::DrawTimers(void)
      int Slot = 0;
      for (int i = 0; i < cDevice::NumDevices(); i++) {
          if (const cDevice *Device = cDevice::GetDevice(i)) {
-            if (!deviceRecording[Device->DeviceNumber()]) {
-               if (Slot < FreeDeviceSlots.Size()) {
-                  y = FreeDeviceSlots[Slot];
-                  Slot++;
+            if (Device->NumProvidedSystems()) {
+               if (!deviceRecording[Device->DeviceNumber()]) {
+                  if (Slot < FreeDeviceSlots.Size()) {
+                     y = FreeDeviceSlots[Slot];
+                     Slot++;
+                     }
+                  if (y + lineHeight > ys05)
+                     break;
+                  deviceOffset[Device->DeviceNumber()] = y;
+                  y += lineHeight + Gap;
+                  NumDevices++;
                   }
-               if (y + lineHeight > ys05)
-                  break;
-               deviceOffset[Device->DeviceNumber()] = y;
-               y += lineHeight + Gap;
                }
             }
          }
-     osd->DrawText(xs02, ys00, itoa(Timers.Count()), Theme.Color(clrMenuFrameFg), frameColor, font, xs03 - xs02, ys01 - ys00, taBottom | taLeft | taBorder);
-     osd->DrawText(xs08, ys00, itoa(cDevice::NumDevices()), Theme.Color(clrMenuFrameFg), frameColor, font, xs09 - xs08, ys01 - ys00, taBottom | taRight | taBorder);
+     // Total number of active timers:
+     int NumTimers = 0;
+     for (cTimer *Timer = Timers.First(); Timer; Timer = Timers.Next(Timer)) {
+         if (Timer->HasFlags(tfActive))
+            NumTimers++;
+         }
+     osd->DrawText(xs02, ys00, itoa(NumTimers), Theme.Color(clrMenuFrameFg), frameColor, font, xs03 - xs02, ys01 - ys00, taBottom | taLeft | taBorder);
+     osd->DrawText(xs08, ys00, itoa(NumDevices), Theme.Color(clrMenuFrameFg), frameColor, font, xs09 - xs08, ys01 - ys00, taBottom | taRight | taBorder);
      lastSignalDisplay = 0;
      initial = true; // forces redrawing of devices
      }
@@ -1231,8 +1271,10 @@ void cSkinLCARSDisplayMenu::DrawDevice(const cDevice *Device)
 void cSkinLCARSDisplayMenu::DrawDevices(void)
 {
   for (int i = 0; i < cDevice::NumDevices(); i++) {
-      if (const cDevice *Device = cDevice::GetDevice(i))
-         DrawDevice(Device);
+      if (const cDevice *Device = cDevice::GetDevice(i)) {
+         if (Device->NumProvidedSystems())
+            DrawDevice(Device);
+         }
       }
 }
 
@@ -1247,10 +1289,24 @@ void cSkinLCARSDisplayMenu::DrawLiveIndicator(void)
      if (lastLiveIndicatorY >= 0)
         osd->DrawRectangle(xs12, lastLiveIndicatorY, xs13 - 1, lastLiveIndicatorY + lineHeight - 1, Theme.Color(clrBackground));
      if (y >= 0) {
-        osd->DrawRectangle(xs12, y, xs12 + lineHeight / 2 - 1, y + lineHeight - 1, frameColor);
-        osd->DrawEllipse  (xs12 + lineHeight / 2, y, xs13 - 1, y + lineHeight - 1, frameColor, 5);
-        if (Transferring)
-           osd->DrawBitmap((xs12 + xs13 - bmTransferMode.Width()) / 2, y + (lineHeight - bmTransferMode.Height()) / 2, bmTransferMode, Theme.Color(clrChannelFrameFg), Theme.Color(clrChannelFrameBg));
+        tColor ColorBg = Theme.Color(clrChannelFrameBg);
+        osd->DrawRectangle(xs12, y, xs12 + lineHeight / 2 - 1, y + lineHeight - 1, ColorBg);
+        osd->DrawEllipse  (xs12 + lineHeight / 2, y, xs13 - 1, y + lineHeight - 1, ColorBg, 5);
+        if (Transferring) {
+           int w = bmTransferMode.Width();
+           int h = bmTransferMode.Height();
+           int b = w * w + h * h; // the diagonal of the bitmap (squared)
+           int c = lineHeight * lineHeight; // the diameter of the circle (squared)
+           const cBitmap *bm = &bmTransferMode;
+           if (b > c) {
+              // the bitmap doesn't fit, so scale it down:
+              double f = sqrt(double(c) / (2 * b));
+              bm = bmTransferMode.Scaled(f, f);
+              }
+           osd->DrawBitmap((xs12 + xs13 - bm->Width()) / 2, y + (lineHeight - bm->Height()) / 2, *bm, Theme.Color(clrChannelFrameFg), ColorBg);
+           if (bm != &bmTransferMode)
+              delete bm;
+           }
         }
      lastLiveIndicatorY = y;
      lastLiveIndicatorTransferring = Transferring;
@@ -1263,8 +1319,10 @@ void cSkinLCARSDisplayMenu::DrawSignals(void)
   if (initial || Now - lastSignalDisplay >= SIGNALDISPLAYDELTA) {
      for (int i = 0; i < cDevice::NumDevices(); i++) {
          if (const cDevice *Device = cDevice::GetDevice(i)) {
-            if (int y = deviceOffset[i])
-               DrawDeviceSignal(osd, Device, xs + lineHeight / 2, y, xs11, y + lineHeight, lastSignalStrength[i], lastSignalQuality[i], initial);
+            if (Device->NumProvidedSystems()) {
+               if (int y = deviceOffset[i])
+                  DrawDeviceSignal(osd, Device, xs + lineHeight / 2, y, xs11, y + lineHeight, lastSignalStrength[i], lastSignalQuality[i], initial);
+               }
             }
          }
      lastSignalDisplay = Now;
@@ -1285,6 +1343,7 @@ void cSkinLCARSDisplayMenu::DrawLive(const cChannel *Channel)
      osd->DrawText(xa00, yt00, itoa(Channel->Number()), Theme.Color(clrChannelFrameFg), Theme.Color(clrChannelFrameBg), tallFont, xa02 - xa00, yt02 - yt00, taTop | taRight | taBorder);
      osd->DrawText(xa03, yt00, Channel->Name(), Theme.Color(clrChannelName), Theme.Color(clrBackground), tallFont, xd00 - xa03, yd01 - yd00, taTop | taLeft);
      lastChannel = Channel;
+     DrawSeen(0, 0);
      }
   // The current programme:
   cSchedulesLock SchedulesLock;
@@ -1365,7 +1424,7 @@ void cSkinLCARSDisplayMenu::DrawInfo(const cEvent *Event, bool WithTime)
 
 void cSkinLCARSDisplayMenu::DrawSeen(int Current, int Total)
 {
-  int Seen = min(xm08 - xm02, int((xm08 - xm02) * double(Current) / Total));
+  int Seen = (Total > 0) ? min(xm08 - xm02, int((xm08 - xm02) * double(Current) / Total)) : 0;
   if (initial || Seen != lastSeen) {
      int y0 = yc04 - ShowSeenExtent;
      int y1 = yc04 + lineHeight / 2 - Gap / 2;
@@ -1413,19 +1472,22 @@ void cSkinLCARSDisplayMenu::SetTitle(const char *Title)
 
 void cSkinLCARSDisplayMenu::SetButtons(const char *Red, const char *Green, const char *Yellow, const char *Blue)
 {
+  const char *lutText[] = { Red, Green, Yellow, Blue };
+  tColor lutFg[] = { clrButtonRedFg, clrButtonGreenFg, clrButtonYellowFg, clrButtonBlueFg };
+  tColor lutBg[] = { clrButtonRedBg, clrButtonGreenBg, clrButtonYellowBg, clrButtonBlueBg };
   const cFont *font = cFont::GetFont(fontSml);
   if (MenuCategory() == mcMain) {
-     DrawMainButton(Red,    xd00, xd01, xd02, xd03, yd02, yd03, Theme.Color(clrButtonRedFg),    Theme.Color(clrButtonRedBg),    font);
-     DrawMainButton(Green,  xd04, xd05, xd06, xd07, yd02, yd03, Theme.Color(clrButtonGreenFg),  Theme.Color(clrButtonGreenBg),  font);
-     DrawMainButton(Yellow, xd00, xd01, xd02, xd03, yd04, yd05, Theme.Color(clrButtonYellowFg), Theme.Color(clrButtonYellowBg), font);
-     DrawMainButton(Blue,   xd04, xd05, xd06, xd07, yd04, yd05, Theme.Color(clrButtonBlueFg),   Theme.Color(clrButtonBlueBg),   font);
+     DrawMainButton(lutText[Setup.ColorKey0], xd00, xd01, xd02, xd03, yd02, yd03, Theme.Color(lutFg[Setup.ColorKey0]), Theme.Color(lutBg[Setup.ColorKey0]), font);
+     DrawMainButton(lutText[Setup.ColorKey1], xd04, xd05, xd06, xd07, yd02, yd03, Theme.Color(lutFg[Setup.ColorKey1]), Theme.Color(lutBg[Setup.ColorKey1]), font);
+     DrawMainButton(lutText[Setup.ColorKey2], xd00, xd01, xd02, xd03, yd04, yd05, Theme.Color(lutFg[Setup.ColorKey2]), Theme.Color(lutBg[Setup.ColorKey2]), font);
+     DrawMainButton(lutText[Setup.ColorKey3], xd04, xd05, xd06, xd07, yd04, yd05, Theme.Color(lutFg[Setup.ColorKey3]), Theme.Color(lutBg[Setup.ColorKey3]), font);
      }
   else {
      int h = yb15 - yb14;
-     osd->DrawText(xb02, yb14, Red,    Theme.Color(clrButtonRedFg),    Theme.Color(clrButtonRedBg),    font, xb03 - xb02, h, taLeft | taBorder);
-     osd->DrawText(xb06, yb14, Green,  Theme.Color(clrButtonGreenFg),  Theme.Color(clrButtonGreenBg),  font, xb07 - xb06, h, taLeft | taBorder);
-     osd->DrawText(xb10, yb14, Yellow, Theme.Color(clrButtonYellowFg), Theme.Color(clrButtonYellowBg), font, xb11 - xb10, h, taLeft | taBorder);
-     osd->DrawText(xb14, yb14, Blue,   Theme.Color(clrButtonBlueFg),   Theme.Color(clrButtonBlueBg),   font, xb15 - xb14, h, taLeft | taBorder);
+     osd->DrawText(xb02, yb14, lutText[Setup.ColorKey0], Theme.Color(lutFg[Setup.ColorKey0]), Theme.Color(lutBg[Setup.ColorKey0]), font, xb03 - xb02, h, taLeft | taBorder);
+     osd->DrawText(xb06, yb14, lutText[Setup.ColorKey1], Theme.Color(lutFg[Setup.ColorKey1]), Theme.Color(lutBg[Setup.ColorKey1]), font, xb07 - xb06, h, taLeft | taBorder);
+     osd->DrawText(xb10, yb14, lutText[Setup.ColorKey2], Theme.Color(lutFg[Setup.ColorKey2]), Theme.Color(lutBg[Setup.ColorKey2]), font, xb11 - xb10, h, taLeft | taBorder);
+     osd->DrawText(xb14, yb14, lutText[Setup.ColorKey3], Theme.Color(lutFg[Setup.ColorKey3]), Theme.Color(lutBg[Setup.ColorKey3]), font, xb15 - xb14, h, taLeft | taBorder);
      }
 }
 
@@ -1444,8 +1506,14 @@ void cSkinLCARSDisplayMenu::SetItem(const char *Text, int Index, bool Current, b
   int y = yi00 + Index * lineHeight;
   tColor ColorFg, ColorBg;
   if (Current) {
-     ColorFg = Theme.Color(clrMenuItemCurrentFg);
-     ColorBg = Theme.Color(clrMenuItemCurrentBg);
+     if (TwoColors) {
+        ColorFg = Theme.Color(clrBackground);
+        ColorBg = Theme.Color(clrMenuFrameBg);
+        }
+     else {
+        ColorFg = Theme.Color(clrMenuItemCurrentFg);
+        ColorBg = Theme.Color(clrMenuItemCurrentBg);
+        }
      osd->DrawRectangle(xi00, y, xi01 - 1, y + lineHeight - 1, ColorBg);
      osd->DrawRectangle(xi02, y, xi02 + lineHeight / 2 - 1, y + lineHeight - 1, ColorBg);
      osd->DrawEllipse  (xi02 + lineHeight / 2, y, xi03 - 1, y + lineHeight - 1, ColorBg, 5);
@@ -1612,6 +1680,8 @@ private:
   bool modeOnly;
   int lineHeight;
   tColor frameColor;
+  int lastCurrentWidth;
+  int lastTotalWidth;
   cString lastDate;
   tTrackId lastTrackId;
   void DrawDate(void);
@@ -1636,6 +1706,8 @@ cSkinLCARSDisplayReplay::cSkinLCARSDisplayReplay(bool ModeOnly)
   modeOnly = ModeOnly;
   lineHeight = font->Height();
   frameColor = Theme.Color(clrReplayFrameBg);
+  lastCurrentWidth = 0;
+  lastTotalWidth = 0;
   int d = 5 * lineHeight;
   xp00 = 0;
   xp01 = xp00 + d / 2;
@@ -1752,15 +1824,17 @@ void cSkinLCARSDisplayReplay::SetProgress(int Current, int Total)
 void cSkinLCARSDisplayReplay::SetCurrent(const char *Current)
 {
   const cFont *font = cFont::GetFont(fontOsd);
-  int w = font->Width(Current) + 10;
-  osd->DrawText(xp03, yp03 - lineHeight, Current, Theme.Color(clrReplayPosition), Theme.Color(clrBackground), font, w, 0, taLeft);
+  int w = font->Width(Current);
+  osd->DrawText(xp03, yp03 - lineHeight, Current, Theme.Color(clrReplayPosition), Theme.Color(clrBackground), font, max(lastCurrentWidth, w), 0, taLeft);
+  lastCurrentWidth = w;
 }
 
 void cSkinLCARSDisplayReplay::SetTotal(const char *Total)
 {
   const cFont *font = cFont::GetFont(fontOsd);
-  int w = font->Width(Total) + 10;
-  osd->DrawText(xp13 - w, yp03 - lineHeight, Total, Theme.Color(clrReplayPosition), Theme.Color(clrBackground), font, w, 0, taRight);
+  int w = font->Width(Total);
+  osd->DrawText(xp13 - w, yp03 - lineHeight, Total, Theme.Color(clrReplayPosition), Theme.Color(clrBackground), font, max(lastTotalWidth, w), 0, taRight);
+  lastTotalWidth = w;
 }
 
 void cSkinLCARSDisplayReplay::SetJump(const char *Jump)
@@ -1772,7 +1846,7 @@ void cSkinLCARSDisplayReplay::SetMessage(eMessageType Type, const char *Text)
 {
   if (Text) {
      osd->SaveRegion(xp06, yp08, xp13 - 1, yp09 - 1);
-     osd->DrawText(xp06, yp08, Text, Theme.Color(clrMessageStatusFg + 2 * Type), Theme.Color(clrMessageStatusBg + 2 * Type), cFont::GetFont(fontSml), xp13 - xp06, 0, taCenter);
+     osd->DrawText(xp06, yp08, Text, Theme.Color(clrMessageStatusFg + 2 * Type), Theme.Color(clrMessageStatusBg + 2 * Type), cFont::GetFont(fontSml), xp13 - xp06, yp09 - yp08, taCenter);
      }
   else
      osd->RestoreRegion();
@@ -2060,7 +2134,7 @@ void cSkinLCARSDisplayMessage::SetMessage(eMessageType Type, const char *Text)
   osd->DrawRectangle(x0, y0, x1 - 1, y1 - 1, clrTransparent);
   osd->DrawEllipse  (x0, y0, x1 - 1, y1 - 1, ColorBg, 7);
   osd->DrawRectangle(x1, y0, x2 - 1, y1 - 1, ColorBg);
-  osd->DrawText(x3, y0, Text, ColorFg, ColorBg, cFont::GetFont(fontOsd), x4 - x3, 0, taCenter);
+  osd->DrawText(x3, y0, Text, ColorFg, ColorBg, cFont::GetFont(fontSml), x4 - x3, y1 - y0, taCenter);
   osd->DrawRectangle(x5, y0, x6 - 1, y1 - 1, ColorBg);
   osd->DrawRectangle(x6, y0, x7 - 1, y1 - 1, clrTransparent);
   osd->DrawEllipse  (x6, y0, x7 - 1, y1 - 1, ColorBg, 5);

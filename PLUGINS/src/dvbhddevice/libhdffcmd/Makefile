@@ -29,12 +29,12 @@ ARFLAGS ?= r
 %.o: %.c
 	$(CC) $(CFLAGS) -c $(DEFINES) $(INCLUDES) $<
 
-# Dependencies:
+### Dependencies:
 
 MAKEDEP = $(CC) -MM -MG
 DEPFILE = .dependencies
 $(DEPFILE): Makefile
-	@$(MAKEDEP) $(DEFINES) $(INCLUDES) $(OBJS:%.o=%.c) > $@
+	@$(MAKEDEP) $(DEFINES) $(INCLUDES) $(LIB_OBJS:%.o=%.c) > $@
 
 -include $(DEPFILE)
 
@@ -50,7 +50,7 @@ $(LIB_SHARED): $(LIB_OBJS)
 	ln -sf $(LIB_SHARED) $(LIB_NAME).so
 
 clean:
-	rm -f $(LIB_OBJS) $(DEPFILE) $(LIB_STATIC) $(LIB_NAME)*.so
+	@-rm -f $(LIB_OBJS) $(DEPFILE) $(LIB_STATIC) $(LIB_NAME)*.so
 
 install: $(LIB_SHARED)
 	chown root $(LIB_SHARED)

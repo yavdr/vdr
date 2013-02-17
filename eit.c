@@ -8,10 +8,11 @@
  * Robert Schneider <Robert.Schneider@web.de> and Rolf Hakenes <hakenes@hippomi.de>.
  * Adapted to 'libsi' for VDR 1.3.0 by Marcel Wiesweg <marcel.wiesweg@gmx.de>.
  *
- * $Id: eit.c 2.17 2012/06/02 14:05:22 kls Exp $
+ * $Id: eit.c 2.23 2012/12/04 11:10:10 kls Exp $
  */
 
 #include "eit.h"
+#include <sys/time.h>
 #include "epg.h"
 #include "i18n.h"
 #include "libsi/section.h"
@@ -45,6 +46,7 @@ cEIT::cEIT(cSchedules *Schedules, int Source, u_char Tid, const u_char *Data, bo
      return;
      }
 
+  bool handledExternally = EpgHandlers.HandledExternally(channel);
   cSchedule *pSchedule = (cSchedule *)Schedules->GetSchedule(channel, true);
 
   bool Empty = true;
@@ -70,15 +72,18 @@ cEIT::cEIT(cSchedules *Schedules, int Source, u_char Tid, const u_char *Data, bo
       cEvent *newEvent = NULL;
       cEvent *rEvent = NULL;
       cEvent *pEvent = (cEvent *)pSchedule->GetEvent(SiEitEvent.getEventId(), StartTime);
-      if (!pEvent) {
+      if (!pEvent || handledExternally) {
          if (OnlyRunningStatus)
+            continue;
+         if (handledExternally && !EpgHandlers.IsUpdate(SiEitEvent.getEventId(), StartTime, Tid, getVersionNumber()))
             continue;
          // If we don't have that event yet, we create a new one.
          // Otherwise we copy the information into the existing event anyway, because the data might have changed.
          pEvent = newEvent = new cEvent(SiEitEvent.getEventId());
          newEvent->SetStartTime(StartTime);
          newEvent->SetDuration(Duration);
-         pSchedule->AddEvent(newEvent);
+         if (!handledExternally)
+            pSchedule->AddEvent(newEvent);
          }
       else {
          // We have found an existing event, either through its event ID or its start time.
@@ -283,18 +288,15 @@ cEIT::cEIT(cSchedules *Schedules, int Source, u_char Tid, const u_char *Data, bo
       delete ExtendedEventDescriptors;
       delete ShortEventDescriptor;
 
-      pEvent->SetComponents(Components);
+      EpgHandlers.SetComponents(pEvent, Components);
 
       EpgHandlers.FixEpgBugs(pEvent);
       if (LinkChannels)
          channel->SetLinkChannels(LinkChannels);
       Modified = true;
       EpgHandlers.HandleEvent(pEvent);
-
-      if (EpgHandlers.DeleteEvent(pEvent)) {
-         pSchedule->DelEvent(pEvent);
-         pEvent = NULL;
-         }
+      if (handledExternally)
+         delete pEvent;
       }
   if (Tid == 0x4E) {
      if (Empty && getSectionNumber() == 0)
@@ -312,35 +314,48 @@ cEIT::cEIT(cSchedules *Schedules, int Source, u_char Tid, const u_char *Data, bo
 
 // --- cTDT ------------------------------------------------------------------
 
+#define MAX_TIME_DIFF   1 // number of seconds the local time may differ from dvb time before making any corrections
+#define MAX_ADJ_DIFF   10 // number of seconds the local time may differ from dvb time to allow smooth adjustment
+#define ADJ_DELTA     300 // number of seconds between calls for smooth time adjustment
+
 class cTDT : public SI::TDT {
 private:
   static cMutex mutex;
-  static int lastDiff;
+  static time_t lastAdj;
 public:
   cTDT(const u_char *Data);
   };
 
 cMutex cTDT::mutex;
-int cTDT::lastDiff = 0;
+time_t cTDT::lastAdj = 0;
 
 cTDT::cTDT(const u_char *Data)
 :SI::TDT(Data, false)
 {
   CheckParse();
 
-  time_t sattim = getTime();
+  time_t dvbtim = getTime();
   time_t loctim = time(NULL);
 
-  int diff = abs(sattim - loctim);
-  if (diff > 2) {
+  int diff = dvbtim - loctim;
+  if (abs(diff) > MAX_TIME_DIFF) {
      mutex.Lock();
-     if (abs(diff - lastDiff) < 3) {
-        if (stime(&sattim) == 0)
-           isyslog("system time changed from %s (%ld) to %s (%ld)", *TimeToString(loctim), loctim, *TimeToString(sattim), sattim);
+     if (abs(diff) > MAX_ADJ_DIFF) {
+        if (stime(&dvbtim) == 0)
+           isyslog("system time changed from %s (%ld) to %s (%ld)", *TimeToString(loctim), loctim, *TimeToString(dvbtim), dvbtim);
         else
            esyslog("ERROR while setting system time: %m");
         }
-     lastDiff = diff;
+     else if (time(NULL) - lastAdj > ADJ_DELTA) {
+        lastAdj = time(NULL);
+        timeval delta;
+        delta.tv_sec = diff;
+        delta.tv_usec = 0;
+        if (adjtime(&delta, NULL) == 0)
+           isyslog("system time adjustment initiated from %s (%ld) to %s (%ld)", *TimeToString(loctim), loctim, *TimeToString(dvbtim), dvbtim);
+        else
+           esyslog("ERROR while adjusting system time: %m");
+        }
      mutex.Unlock();
      }
 }
@@ -352,8 +367,7 @@ time_t cEitFilter::disableUntil = 0;
 cEitFilter::cEitFilter(void)
 {
   Set(0x12, 0x40, 0xC0);  // event info now&next actual/other TS (0x4E/0x4F), future actual/other TS (0x5X/0x6X)
-  if (Setup.SetSystemTime && Setup.TimeTransponder)
-     Set(0x14, 0x70);     // TDT
+  Set(0x14, 0x70);        // TDT
 }
 
 void cEitFilter::SetDisableUntil(time_t Time)

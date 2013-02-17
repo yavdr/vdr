@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: osd.c 2.31 2012/06/02 13:32:38 kls Exp $
+ * $Id: osd.c 2.38 2013/02/14 15:50:19 kls Exp $
  */
 
 #include "osd.h"
@@ -130,7 +130,7 @@ void cPalette::SetAntiAliasGranularity(uint FixedColors, uint BlendColors)
      antiAliasGranularity = MAXNUMCOLORS - 1;
   else {
      int ColorsForBlending = MAXNUMCOLORS - FixedColors;
-     int ColorsPerBlend = ColorsForBlending / BlendColors + 2; // +2 = the full foreground and background colors, which are amoung the fixed colors
+     int ColorsPerBlend = ColorsForBlending / BlendColors + 2; // +2 = the full foreground and background colors, which are among the fixed colors
      antiAliasGranularity = double(MAXNUMCOLORS - 1) / (ColorsPerBlend - 1);
      }
 }
@@ -853,12 +853,12 @@ cBitmap *cBitmap::Scaled(double FactorX, double FactorY, bool AntiAlias)
      b->SetBpp(8);
      b->Replace(*this); // copy palette (must be done *after* SetBpp()!)
      int SourceY = 0;
-     for (int y = 0; y < b->Height() - 1; y++) {
+     for (int y = 0; y < b->Height(); y++) {
          int SourceX = 0;
-         int sy = SourceY >> 16;
+         int sy = min(SourceY >> 16, Height() - 2);
          uint8_t BlendY = 0xFF - ((SourceY >> 8) & 0xFF);
-         for (int x = 0; x < b->Width() - 1; x++) {
-             int sx = SourceX >> 16;
+         for (int x = 0; x < b->Width(); x++) {
+             int sx = min(SourceX >> 16, Width() - 2);
              uint8_t BlendX = 0xFF - ((SourceX >> 8) & 0xFF);
              tColor c1 = b->Blend(GetColor(sx, sy),     GetColor(sx + 1, sy),     BlendX);
              tColor c2 = b->Blend(GetColor(sx, sy + 1), GetColor(sx + 1, sy + 1), BlendX);
@@ -1631,7 +1631,6 @@ cOsd::cOsd(int Left, int Top, uint Level)
   savedBitmap = NULL;
   numBitmaps = 0;
   savedPixmap = NULL;
-  numPixmaps = 0;
   left = Left;
   top = Top;
   width = height = 0;
@@ -1653,7 +1652,7 @@ cOsd::~cOsd()
       delete bitmaps[i];
   delete savedBitmap;
   delete savedPixmap;
-  for (int i = 0; i < numPixmaps; i++)
+  for (int i = 0; i < pixmaps.Size(); i++)
       delete pixmaps[i];
   for (int i = 0; i < Osds.Size(); i++) {
       if (Osds[i] == this) {
@@ -1683,9 +1682,7 @@ void cOsd::SetAntiAliasGranularity(uint FixedColors, uint BlendColors)
 
 cBitmap *cOsd::GetBitmap(int Area)
 {
-  if (isTrueColor)
-     Area = 0; // returns the dummy bitmap
-  return Area < numBitmaps ? bitmaps[Area] : NULL;
+  return Area < numBitmaps ? (isTrueColor ? bitmaps[0] : bitmaps[Area]) : NULL;
 }
 
 cPixmap *cOsd::CreatePixmap(int Layer, const cRect &ViewPort, const cRect &DrawPort)
@@ -1702,17 +1699,13 @@ cPixmap *cOsd::CreatePixmap(int Layer, const cRect &ViewPort, const cRect &DrawP
 
 void cOsd::DestroyPixmap(cPixmap *Pixmap)
 {
-  if (isTrueColor) {
+  if (Pixmap) {
      LOCK_PIXMAPS;
-     for (int i = 1; i < numPixmaps; i++) { // begin at 1 - don't let the background pixmap be destroyed!
+     for (int i = 1; i < pixmaps.Size(); i++) { // begin at 1 - don't let the background pixmap be destroyed!
          if (pixmaps[i] == Pixmap) {
             pixmaps[0]->MarkViewPortDirty(Pixmap->ViewPort());
             delete Pixmap;
-            while (i < numPixmaps - 1) {
-                  pixmaps[i] = pixmaps[i + 1];
-                  i++;
-                  }
-            numPixmaps--;
+            pixmaps[i] = NULL;
             return;
             }
          }
@@ -1724,12 +1717,13 @@ cPixmap *cOsd::AddPixmap(cPixmap *Pixmap)
 {
   if (Pixmap) {
      LOCK_PIXMAPS;
-     if (numPixmaps < MAXOSDPIXMAPS)
-        return pixmaps[numPixmaps++] = Pixmap;
-     else
-        esyslog("ERROR: too many OSD pixmaps requested (maximum is %d)", MAXOSDPIXMAPS);
+     for (int i = 0; i < pixmaps.Size(); i++) {
+         if (!pixmaps[i])
+            return pixmaps[i] = Pixmap;
+         }
+     pixmaps.Append(Pixmap);
      }
-  return NULL;
+  return Pixmap;
 }
 
 cPixmapMemory *cOsd::RenderPixmaps(void)
@@ -1739,12 +1733,13 @@ cPixmapMemory *cOsd::RenderPixmaps(void)
      LOCK_PIXMAPS;
      // Collect overlapping dirty rectangles:
      cRect d;
-     for (int i = 0; i < numPixmaps; i++) {
-         cPixmap *pm = pixmaps[i];
-         if (!pm->DirtyViewPort().IsEmpty()) {
-            if (d.IsEmpty() || d.Intersects(pm->DirtyViewPort())) {
-               d.Combine(pm->DirtyViewPort());
-               pm->SetClean();
+     for (int i = 0; i < pixmaps.Size(); i++) {
+         if (cPixmap *pm = pixmaps[i]) {
+            if (!pm->DirtyViewPort().IsEmpty()) {
+               if (d.IsEmpty() || d.Intersects(pm->DirtyViewPort())) {
+                  d.Combine(pm->DirtyViewPort());
+                  pm->SetClean();
+                  }
                }
             }
          }
@@ -1760,10 +1755,11 @@ cPixmapMemory *cOsd::RenderPixmaps(void)
         Pixmap->Clear();
         // Render the individual pixmaps into the resulting pixmap:
         for (int Layer = 0; Layer < MAXPIXMAPLAYERS; Layer++) {
-            for (int i = 0; i < numPixmaps; i++) {
-                cPixmap *pm = pixmaps[i];
-                if (pm->Layer() == Layer)
+            for (int i = 0; i < pixmaps.Size(); i++) {
+                if (cPixmap *pm = pixmaps[i]) {
+                   if (pm->Layer() == Layer)
                    Pixmap->DrawPixmap(pm, d);
+                   }
                 }
             }
 #ifdef DebugDirty
@@ -1807,6 +1803,10 @@ eOsdError cOsd::SetAreas(const tArea *Areas, int NumAreas)
   if (Result == oeOk) {
      while (numBitmaps)
            delete bitmaps[--numBitmaps];
+     for (int i = 0; i < pixmaps.Size(); i++) {
+         delete pixmaps[i];
+         pixmaps[i] = NULL;
+         }
      width = height = 0;
      isTrueColor = NumAreas == 1 && Areas[0].bpp == 32;
      if (isTrueColor) {
@@ -2057,7 +2057,7 @@ int cOsdProvider::StoreImage(const cImage &Image)
 {
   if (osdProvider)
      return osdProvider->StoreImageData(Image);
-  return -1;
+  return 0;
 }
 
 void cOsdProvider::DropImage(int ImageHandle)

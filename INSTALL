@@ -36,6 +36,10 @@ and type 'make'. This should produce an executable file
 named 'vdr', which can be run after the DVB driver has been
 installed.
 
+If you want to build a 32-bit version of VDR on a 64-bit machine, you can
+use 'make M32=1' to do so. Note that you also need to have a Make.config file
+(derived from Make.config.template) to make this work.
+
 IMPORTANT: See "Configuration files" below for information on how
 =========  to set up the configuration files at the proper location!
 
@@ -54,8 +58,10 @@ Alternatively you can use the '--lirc' option at runtime.
 This option accepts an optional path to the remote control device,
 the default of which can be set via the LIRC_DEVICE macro.
 
-If your video directory will be on a VFAT partition, you can call VDR with
-the command line option '--vfat'.
+If you want to make your video directory available to other machines that
+have limitations on directory name lengths and/or allowed characters in
+directory names, you can call VDR with the command line option '--dirnames'
+(see man vdr(1) for details).
 
 When running, the 'vdr' program writes status information into the
 system log file, which is usually /var/log/messages (or /var/log/user.log,
@@ -242,7 +248,7 @@ Executing commands before and after a recording:
 
 You can use the '-r' option to define a program or script that gets called
 before and after a recording is performed, and after an editing process
-has finished.
+has finished or a recording has been deleted.
 
 The program will be called with two or three (in case of "edited") string
 parameters. The first parameter is one of
@@ -250,11 +256,14 @@ parameters. The first parameter is one of
   before      if this is *before* a recording starts
   after       if this is *after* a recording has finished
   edited      if this is after a recording has been *edited*
+  deleted     if this is after a recording has been *deleted*
 
 and the second parameter contains the full name of the recording's
 directory (which may not yet exists at that moment in the "before" case).
 In the "edited" case it will be the name of the edited version (second
 parameter) and the name of the source version (third parameter).
+In the "deleted" case the extension of the directory name is ".del"
+instead of ".rec".
 
 Within this program you can do anything you would like to do before and/or
 after a recording or after an editing process. However, the program must return
@@ -276,6 +285,9 @@ case "$1" in
      edited)
             echo "Edited recording $2"
             echo "Source recording $3"
+            ;;
+     deleted)
+            echo "Deleted recording $2"
             ;;
      *)
             echo "ERROR: unknown state: $1"
@@ -301,7 +313,7 @@ This program must be given to VDR with the '-a' option, as in
 The video data directory:
 -------------------------
 
-All recordings are written into directories below "/video". Please
+All recordings are written into directories below "/srv/vdr/video". Please
 make sure this directory exists, and that the user who runs the 'vdr'
 program has read and write access to that directory.
 If you prefer a different location for your video files, you can use
@@ -321,12 +333,12 @@ same basic name and must end with a numeric part, which starts at 0 for
 the main directory and has increasing values for the rest of the
 directories. For example
 
-   /video0
-   /video1
-   /video2
+   /srv/vdr/video0
+   /srv/vdr/video1
+   /srv/vdr/video2
 
 would be a setup with three directories. You can use more than one
-numeric digit, and the directories need not be directly under '/':
+numeric digit:
 
    /mnt/MyVideos/vdr.00
    /mnt/MyVideos/vdr.01
@@ -341,7 +353,7 @@ with the name of the basic directory when running 'vdr':
 
    vdr -v /video0
 
-Note that you should not copy any non-VDR files into the /videoX directories,
+Note that you should not copy any non-VDR files into the video directory,
 since this might cause a lot of unnecessary disk access when VDR cleans up those
 directories and there is a large number of files and/or subdirectories in
 there. If you have a large disk that you want to use for VDR's video data as
@@ -365,9 +377,11 @@ Configuration files:
 
 There are several configuration files that hold information about
 channels, remote control keys, timers etc. By default these files are
-assumed to be located in the video directory, but a different directory
-can be used with the '-c' option. Plugins assume their configuration files
-in a subdirectory called "plugins" of this directory.
+spread around the system according to the FHS ("File system Hierarchy Standard").
+If you prefer to have VDR built to run locally under the VDR source tree,
+you can copy the file Make.config.template to Make.config and set the parameter
+LCLBLD=1. If you also want to have all data files under one single directory,
+set ONEDIR=1 in Make.config.
 
 For starters just copy all *.conf files from the VDR directory into your
 video directory.

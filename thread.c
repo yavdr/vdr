@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: thread.c 2.4 2012/05/08 11:15:57 kls Exp $
+ * $Id: thread.c 2.6 2012/10/04 12:20:43 kls Exp $
  */
 
 #include "thread.h"
@@ -204,7 +204,7 @@ void cMutex::Unlock(void)
 
 tThreadId cThread::mainThreadId = 0;
 
-cThread::cThread(const char *Description)
+cThread::cThread(const char *Description, bool LowPriority)
 {
   active = running = false;
   childTid = 0;
@@ -212,6 +212,7 @@ cThread::cThread(const char *Description)
   description = NULL;
   if (Description)
      SetDescription("%s", Description);
+  lowPriority = LowPriority;
 }
 
 cThread::~cThread()
@@ -248,11 +249,15 @@ void *cThread::StartThread(cThread *Thread)
 {
   Thread->childThreadId = ThreadId();
   if (Thread->description) {
-     dsyslog("%s thread started (pid=%d, tid=%d)", Thread->description, getpid(), Thread->childThreadId);
+     dsyslog("%s thread started (pid=%d, tid=%d, prio=%s)", Thread->description, getpid(), Thread->childThreadId, Thread->lowPriority ? "low" : "high");
 #ifdef PR_SET_NAME
      if (prctl(PR_SET_NAME, Thread->description, 0, 0, 0) < 0)
         esyslog("%s thread naming failed (pid=%d, tid=%d)", Thread->description, getpid(), Thread->childThreadId);
 #endif
+     }
+  if (Thread->lowPriority) {
+     Thread->SetPriority(19);
+     Thread->SetIOPriority(7);
      }
   Thread->Action();
   if (Thread->description)
@@ -396,6 +401,48 @@ bool cThreadLock::Lock(cThread *Thread)
      return true;
      }
   return false;
+}
+
+// --- cIoThrottle -----------------------------------------------------------
+
+cMutex cIoThrottle::mutex;
+int cIoThrottle::count = 0;
+
+cIoThrottle::cIoThrottle(void)
+{
+  active = false;
+}
+
+cIoThrottle::~cIoThrottle()
+{
+  Release();
+}
+
+void cIoThrottle::Activate(void)
+{
+  if (!active) {
+     mutex.Lock();
+     count++;
+     active = true;
+     dsyslog("i/o throttle activated, count = %d (tid=%d)", count, cThread::ThreadId());
+     mutex.Unlock();
+     }
+}
+
+void cIoThrottle::Release(void)
+{
+  if (active) {
+     mutex.Lock();
+     count--;
+     active = false;
+     dsyslog("i/o throttle released, count = %d (tid=%d)", count, cThread::ThreadId());
+     mutex.Unlock();
+     }
+}
+
+bool cIoThrottle::Engaged(void)
+{
+  return count > 0;
 }
 
 // --- cPipe -----------------------------------------------------------------

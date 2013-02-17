@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: device.h 2.39 2012/04/04 09:48:21 kls Exp $
+ * $Id: device.h 2.47 2013/02/16 15:20:01 kls Exp $
  */
 
 #ifndef __DEVICE_H
@@ -116,7 +116,7 @@ public:
          ///< Waits until all devices have become ready, or the given Timeout
          ///< (seconds) has expired. While waiting, the Ready() function of each
          ///< device is called in turn, until they all return true.
-         ///< \return True if all devices have become ready within the given
+         ///< Returns true if all devices have become ready within the given
          ///< timeout.
   static void SetUseDevice(int n);
          ///< Sets the 'useDevice' flag of the given device.
@@ -127,8 +127,8 @@ public:
          ///< this instance of VDR.
   static bool SetPrimaryDevice(int n);
          ///< Sets the primary device to 'n'.
-         ///< \param n must be in the range 1...numDevices.
-         ///< \return true if this was possible.
+         ///< n must be in the range 1...numDevices.
+         ///< Returns true if this was possible.
   static cDevice *PrimaryDevice(void) { return primaryDevice; }
          ///< Returns the primary device.
   static cDevice *ActualDevice(void);
@@ -136,8 +136,8 @@ public:
          ///< primary device otherwise.
   static cDevice *GetDevice(int Index);
          ///< Gets the device with the given Index.
-         ///< \param Index must be in the range 0..numDevices-1.
-         ///< \return A pointer to the device, or NULL if the Index was invalid.
+         ///< Index must be in the range 0..numDevices-1.
+         ///< Returns a pointer to the device, or NULL if the Index was invalid.
   static cDevice *GetDevice(const cChannel *Channel, int Priority, bool LiveView, bool Query = false);
          ///< Returns a device that is able to receive the given Channel at the
          ///< given Priority, with the least impact on active recordings and
@@ -328,13 +328,13 @@ public:
          ///< after the device has been successfully tuned to the requested transponder.
          ///< Seconds will be silently limited to MAXOCCUPIEDTIMEOUT. Values less than
          ///< 0 will be silently ignored.
-  virtual bool HasLock(int TimeoutMs = 0);
+  virtual bool HasLock(int TimeoutMs = 0) const;
          ///< Returns true if the device has a lock on the requested transponder.
          ///< Default is true, a specific device implementation may return false
          ///< to indicate that it is not ready yet.
          ///< If TimeoutMs is not zero, waits for the given number of milliseconds
          ///< before returning false.
-  virtual bool HasProgramme(void);
+  virtual bool HasProgramme(void) const;
          ///< Returns true if the device is currently showing any programme to
          ///< the user, either through replaying or live.
 
@@ -393,6 +393,10 @@ public:
        ///< Opens a file handle for the given filter data.
        ///< A derived device that provides section data must
        ///< implement this function.
+  virtual int ReadFilter(int Handle, void *Buffer, size_t Length);
+       ///< Reads data from a handle for the given filter.
+       ///< A derived class need not implement this function, because this
+       ///< is done by the default implementation.
   virtual void CloseFilter(int Handle);
        ///< Closes a file handle that has previously been opened
        ///< by OpenFilter(). If this is as simple as calling close(Handle),
@@ -411,6 +415,12 @@ private:
 public:
   virtual bool HasCi(void);
          ///< Returns true if this device has a Common Interface.
+  virtual bool HasInternalCam(void) { return false; }
+         ///< Returns true if this device handles encrypted channels itself
+         ///< without VDR assistance. This can be e.g. if the device is a
+         ///< client that gets the stream from another VDR instance that has
+         ///< already decrypted the stream. In this case ProvidesChannel()
+         ///< shall check whether the channel can be decrypted.
   void SetCamSlot(cCamSlot *CamSlot);
          ///< Sets the given CamSlot to be used with this device.
   cCamSlot *CamSlot(void) const { return camSlot; }
@@ -422,19 +432,19 @@ public:
 public:
   virtual uchar *GrabImage(int &Size, bool Jpeg = true, int Quality = -1, int SizeX = -1, int SizeY = -1);
          ///< Grabs the currently visible screen image.
-         ///< \param Size The size of the returned data block.
-         ///< \param Jpeg If true will write a JPEG file. Otherwise a PNM file will be written.
-         ///< \param Quality The compression factor for JPEG. 1 will create a very blocky
-         ///<        and small image, 70..80 will yield reasonable quality images while keeping the
-         ///<        image file size around 50 KB for a full frame. The default will create a big
-         ///<        but very high quality image.
-         ///< \param SizeX The number of horizontal pixels in the frame (default is the current screen width).
-         ///< \param SizeY The number of vertical pixels in the frame (default is the current screen height).
-         ///< \return A pointer to the grabbed image data, or NULL in case of an error.
+         ///< Size is the size of the returned data block.
+         ///< If Jpeg is true it will write a JPEG file. Otherwise a PNM file will be written.
+         ///< Quality is the compression factor for JPEG. 1 will create a very blocky
+         ///< and small image, 70..80 will yield reasonable quality images while keeping the
+         ///< image file size around 50 KB for a full frame. The default will create a big
+         ///< but very high quality image.
+         ///< SizeX is the number of horizontal pixels in the frame (default is the current screen width).
+         ///< SizeY is the number of vertical pixels in the frame (default is the current screen height).
+         ///< Returns a pointer to the grabbed image data, or NULL in case of an error.
          ///< The caller takes ownership of the returned memory and must free() it once it isn't needed any more.
   bool GrabImageFile(const char *FileName, bool Jpeg = true, int Quality = -1, int SizeX = -1, int SizeY = -1);
          ///< Calls GrabImage() and stores the resulting image in a file with the given name.
-         ///< \return True if all went well.
+         ///< Returns true if all went well.
          ///< The caller is responsible for making sure that the given file name
          ///< doesn't lead to overwriting any important other file.
 
@@ -480,6 +490,7 @@ private:
   cMutex mutexCurrentSubtitleTrack;
   int currentAudioTrackMissingCount;
   bool autoSelectPreferredSubtitleLanguage;
+  bool keepTracks;
   int pre_1_3_19_PrivateStream;
 protected:
   virtual void SetAudioTrackDevice(eTrackType Type);
@@ -498,7 +509,7 @@ public:
        ///< Index tells which track of the given basic type is meant.
        ///< If Id is 0 any existing id will be left untouched and only the
        ///< given Language and Description will be set.
-       ///< \return Returns true if the track was set correctly, false otherwise.
+       ///< Returns true if the track was set correctly, false otherwise.
   const tTrackId *GetTrack(eTrackType Type);
        ///< Returns a pointer to the given track id, or NULL if Type is not
        ///< less than ttMaxTrackTypes.
@@ -514,14 +525,14 @@ public:
   eTrackType GetCurrentAudioTrack(void) const { return currentAudioTrack; }
   bool SetCurrentAudioTrack(eTrackType Type);
        ///< Sets the current audio track to the given Type.
-       ///< \return Returns true if Type is a valid audio track, false otherwise.
+       ///< Returns true if Type is a valid audio track, false otherwise.
   eTrackType GetCurrentSubtitleTrack(void) const { return currentSubtitleTrack; }
   bool SetCurrentSubtitleTrack(eTrackType Type, bool Manual = false);
        ///< Sets the current subtitle track to the given Type.
        ///< IF Manual is true, no automatic preferred subtitle language selection
        ///< will be done for the rest of the current replay session, or until
        ///< the channel is changed.
-       ///< \return Returns true if Type is a valid subtitle track, false otherwise.
+       ///< Returns true if Type is a valid subtitle track, false otherwise.
   void EnsureAudioTrack(bool Force = false);
        ///< Makes sure an audio track is selected that is actually available.
        ///< If Force is true, the language and Dolby Digital settings will
@@ -529,6 +540,10 @@ public:
   void EnsureSubtitleTrack(void);
        ///< Makes sure one of the preferred language subtitle tracks is selected.
        ///< Only has an effect if Setup.DisplaySubtitles is on.
+  void SetKeepTracks(bool KeepTracks) { keepTracks = KeepTracks; }
+       ///< Controls whether the current audio and subtitle track settings shall
+       ///< be kept as they currently are, or if they shall be automatically
+       ///< adjusted. This is used when pausing live video.
 
 // Audio facilities
 
@@ -578,13 +593,13 @@ protected:
        ///< Returns true if this device can currently start a replay session.
   virtual bool SetPlayMode(ePlayMode PlayMode);
        ///< Sets the device into the given play mode.
-       ///< \return true if the operation was successful.
+       ///< Returns true if the operation was successful.
   virtual int PlayVideo(const uchar *Data, int Length);
        ///< Plays the given data block as video.
        ///< Data points to exactly one complete PES packet of the given Length.
        ///< PlayVideo() shall process the packet either as a whole (returning
        ///< Length) or not at all (returning 0 or -1 and setting 'errno' accordingly).
-       ///< \return Returns the number of bytes actually taken from Data, or -1
+       ///< Returns the number of bytes actually taken from Data, or -1
        ///< in case of an error.
   virtual int PlayAudio(const uchar *Data, int Length, uchar Id);
        ///< Plays the given data block as audio.
@@ -592,14 +607,14 @@ protected:
        ///< Id indicates the type of audio data this packet holds.
        ///< PlayAudio() shall process the packet either as a whole (returning
        ///< Length) or not at all (returning 0 or -1 and setting 'errno' accordingly).
-       ///< \return Returns the number of bytes actually taken from Data, or -1
+       ///< Returns the number of bytes actually taken from Data, or -1
        ///< in case of an error.
   virtual int PlaySubtitle(const uchar *Data, int Length);
        ///< Plays the given data block as a subtitle.
        ///< Data points to exactly one complete PES packet of the given Length.
        ///< PlaySubtitle() shall process the packet either as a whole (returning
        ///< Length) or not at all (returning 0 or -1 and setting 'errno' accordingly).
-       ///< \return Returns the number of bytes actually taken from Data, or -1
+       ///< Returns the number of bytes actually taken from Data, or -1
        ///< in case of an error.
   virtual int PlayPesPacket(const uchar *Data, int Length, bool VideoOnly = false);
        ///< Plays the single PES packet in Data with the given Length.
@@ -643,8 +658,37 @@ public:
        ///< Only the lower 32 bit of this value are actually used, since some
        ///< devices can't handle the msb correctly.
   virtual bool IsPlayingVideo(void) const { return isPlayingVideo; }
-       ///< \return Returns true if the currently attached player has delivered
+       ///< Returns true if the currently attached player has delivered
        ///< any video packets.
+  virtual cRect CanScaleVideo(const cRect &Rect, int Alignment = taCenter) { return cRect::Null; }
+       ///< Asks the output device whether it can scale the currently shown video in
+       ///< such a way that it fits into the given Rect, while retaining its proper
+       ///< aspect ratio. If the scaled video doesn't exactly fit into Rect, Alignment
+       ///< is used to determine how to align the actual rectangle with the requested
+       ///< one. The actual rectangle can be smaller, larger or the same size as the
+       ///< given Rect, and its location may differ, depending on the capabilities of
+       ///< the output device, which may not be able to display a scaled video at
+       ///< arbitrary sizes and locations. The device shall, however, do its best to
+       ///< match the requested Rect as closely as possible, preferring a size and
+       ///< location that fits completely into the requested Rect if possible.
+       ///< Returns the rectangle that can actually be used when scaling the video.
+       ///< A skin plugin using this function should rearrange its content according
+       ///< to the rectangle returned from calling this function, and should especially
+       ///< be prepared for cases where the returned rectangle is way off the requested
+       ///< Rect, or even Null. In such cases, the skin may want to fall back to
+       ///< working with full screen video.
+       ///< The coordinates of Rect are in the range of the width and height returned
+       ///< by GetOsdSize().
+       ///< If this device can't scale the video, a Null rectangle is returned (this
+       ///< is also the default implementation).
+  virtual void ScaleVideo(const cRect &Rect = cRect::Null) {}
+       ///< Scales the currently shown video in such a way that it fits into the given
+       ///< Rect. Rect should be one retrieved through a previous call to
+       ///< CanScaleVideo() (otherwise results may be undefined).
+       ///< Even if video output is scaled, the functions GetVideoSize() and
+       ///< GetOsdSize() must still return the same values as if in full screen mode!
+       ///< If this device can't scale the video, nothing happens.
+       ///< To restore full screen video, call this function with a Null rectangle.
   virtual bool HasIBPTrickSpeed(void) { return false; }
        ///< Returns true if this device can handle all frames in 'fast forward'
        ///< trick speeds.
@@ -713,7 +757,7 @@ public:
        ///< Returns -1 in case of error, otherwise the number of actually
        ///< processed bytes is returned.
        ///< PlayTs() shall process the TS packets either as a whole (returning
-       ///< n*TS_SIZE) or not at all, returning 0 or -1 and setting 'errno' accordingly).
+       ///< TS_SIZE) or not at all, returning 0 or -1 and setting 'errno' accordingly).
   bool Replaying(void) const;
        ///< Returns true if we are currently replaying.
   bool Transferring(void) const;

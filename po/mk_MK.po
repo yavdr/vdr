@@ -1,14 +1,14 @@
 # VDR language source file.
 # Copyright (C) 2008 Klaus Schmidinger <kls@tvdr.de>
 # This file is distributed under the same license as the VDR package.
-# Dimitar Petrovski <dimeptr@gmail.com>, 2009
+# Dimitar Petrovski <dimeptr@gmail.com>, 2009, 2012, 2013
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: VDR-1.7.14\n"
 "Report-Msgid-Bugs-To: <vdr-bugs@tvdr.de>\n"
-"POT-Creation-Date: 2012-06-02 15:10+0200\n"
-"PO-Revision-Date: 2010-03-11 00:54+0100\n"
+"POT-Creation-Date: 2013-02-03 16:46+0100\n"
+"PO-Revision-Date: 2012-11-19 15:18+0100\n"
 "Last-Translator: Dimitar Petrovski <dimeptr@gmail.com>\n"
 "Language-Team: Macedonian <en@li.org>\n"
 "Language: mk\n"
@@ -75,7 +75,7 @@ msgid "Rolloff"
 msgstr "Рол-оф"
 
 msgid "PlpId"
-msgstr ""
+msgstr "PlpId"
 
 msgid "Starting EPG scan"
 msgstr "Започнувам скенирање на EPG"
@@ -411,6 +411,9 @@ msgstr "Сино"
 msgid "Key$Info"
 msgstr "Инфо"
 
+msgid "Key$Play/Pause"
+msgstr "Старт/Пауза"
+
 msgid "Key$Play"
 msgstr "Старт"
 
@@ -644,10 +647,10 @@ msgid "Button$Folder"
 msgstr "Директориум"
 
 msgid "Button$Single"
-msgstr ""
+msgstr "Единчен"
 
 msgid "Button$Repeating"
-msgstr ""
+msgstr "Периодичен"
 
 msgid "First day"
 msgstr "Прв ден"
@@ -739,14 +742,11 @@ msgstr "Отвори"
 msgid "Commands"
 msgstr "Наредби"
 
-msgid "Error while accessing recording!"
-msgstr "Грешка при пристап до снимката!"
-
 msgid "Delete recording?"
 msgstr "Избриши снимка?"
 
 msgid "Recording is being edited - really delete?"
-msgstr ""
+msgstr "Снимката се уредува - бриши?"
 
 msgid "Error while deleting recording!"
 msgstr "Грешка при бришење на снимката!"
@@ -848,7 +848,19 @@ msgid "Setup.OSD$Folders in timer menu"
 msgstr "Директориуми во менито за тајмер"
 
 msgid "Setup.OSD$Number keys for characters"
-msgstr ""
+msgstr "Нумерички копчиња за букви"
+
+msgid "Setup.OSD$Color key 0"
+msgstr "Копче во боја 0"
+
+msgid "Setup.OSD$Color key 1"
+msgstr "Копче во боја 1"
+
+msgid "Setup.OSD$Color key 2"
+msgstr "Копче во боја 2"
+
+msgid "Setup.OSD$Color key 3"
+msgstr "Копче во боја 3"
 
 msgid "EPG"
 msgstr "EPG (електронски водич на програми)"
@@ -919,7 +931,7 @@ msgid "Setup.DVB$Primary DVB interface"
 msgstr "Примарен DVB уред"
 
 msgid "Setup.DVB$Standard compliance"
-msgstr ""
+msgstr "Согласност со стандард"
 
 msgid "Setup.DVB$Video format"
 msgstr "Видео формат"
@@ -974,10 +986,10 @@ msgstr "Форна LNB фрекфенција (MHz)"
 
 #, c-format
 msgid "Setup.LNB$Device %d connected to sat cable"
-msgstr ""
+msgstr "Уред %d поврзан со сателитски кабел"
 
 msgid "Setup.LNB$own"
-msgstr ""
+msgstr "свој"
 
 msgid "CAM reset"
 msgstr "Рестартирај CAM"
@@ -1066,6 +1078,9 @@ msgstr "Име на директно снимање"
 msgid "Setup.Recording$Instant rec. time (min)"
 msgstr "Траење на директно снимање (мин)"
 
+msgid "Setup.Recording$present event"
+msgstr "сегашен настан"
+
 msgid "Setup.Recording$Max. video file size (MB)"
 msgstr "Максимална големина на датотека (MB)"
 
@@ -1085,7 +1100,13 @@ msgid "Setup.Replay$Show replay mode"
 msgstr "Прикажи начин на пуштање"
 
 msgid "Setup.Replay$Show remaining time"
-msgstr ""
+msgstr "Прикажи преостанато време"
+
+msgid "Setup.Replay$Progress display time (s)"
+msgstr "Време на прикажување на прогрес (сек)"
+
+msgid "Setup.Replay$Pause replay when setting mark"
+msgstr "Паузирај репродукција кога се внесува ознака"
 
 msgid "Setup.Replay$Resume ID"
 msgstr "ID на продолжеток"
@@ -1108,6 +1129,12 @@ msgstr "Зап тајмаут (сек)"
 msgid "Setup.Miscellaneous$Channel entry timeout (ms)"
 msgstr "Тајмаут за внес на канал (ms)"
 
+msgid "Setup.Miscellaneous$Remote control repeat delay (ms)"
+msgstr "Оддолжување на повторување на даљинско (ms)"
+
+msgid "Setup.Miscellaneous$Remote control repeat delta (ms)"
+msgstr "Делта на повторување на даљинско (ms)"
+
 msgid "Setup.Miscellaneous$Initial channel"
 msgstr "Почетен канал"
 
@@ -1119,6 +1146,9 @@ msgstr "Почетна јачина на звук"
 
 msgid "Setup.Miscellaneous$Channels wrap"
 msgstr "Премотување канали"
+
+msgid "Setup.Miscellaneous$Show channel names with source"
+msgstr "Прикажи имиња на канали со извор"
 
 msgid "Setup.Miscellaneous$Emergency exit"
 msgstr "Итен излез"
@@ -1191,10 +1221,13 @@ msgstr "Избриши временски поместена снимка?"
 
 #. TRANSLATORS: note the trailing blank!
 msgid "Jump: "
-msgstr "Скокни:"
+msgstr "Скокни: "
 
 msgid "No editing marks defined!"
 msgstr "Нема одредено ознаки за сечење!"
+
+msgid "No editing sequences defined!"
+msgstr "Нема одредено секвенци за уредување!"
 
 msgid "Can't start editing process!"
 msgstr "Не може да почне уредување!"
@@ -1238,6 +1271,9 @@ msgstr "Регенерирање на индекс датотека"
 msgid "Index file regeneration complete"
 msgstr "Регенерирањето на индексот заврши"
 
+msgid "Index file regeneration failed!"
+msgstr "Регенерирањето на индексот е неуспешен!"
+
 msgid "Can't shutdown - option '-s' not given!"
 msgstr "Невозможно гаснење - недостасува опцијата '-s'!"
 
@@ -1269,28 +1305,28 @@ msgstr "сеедно рестартирај?"
 
 #. TRANSLATORS: note the trailing blank!
 msgid "Volume "
-msgstr "Глас"
+msgstr "Глас "
 
 msgid "Classic VDR"
 msgstr "Класичен VDR"
 
 msgid "DISK"
-msgstr ""
+msgstr "ДИСК"
 
 msgid "LOAD"
-msgstr ""
+msgstr "ТОВАР"
 
 msgid "TIMERS"
-msgstr ""
+msgstr "ТАЈМЕР"
 
 msgid "DEVICES"
-msgstr ""
+msgstr "УРЕДИ"
 
 msgid "LIVE"
-msgstr ""
+msgstr "ЖИВО"
 
 msgid "PLAY"
-msgstr ""
+msgstr "ПУШТИ"
 
 msgid "ST:TNG Panels"
 msgstr "ST:TNG Панели"

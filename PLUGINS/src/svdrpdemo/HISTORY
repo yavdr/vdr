@@ -13,3 +13,11 @@ VDR Plugin 'svdrpdemo' Revision History
 
 - Moved the "all" target in the Makefile before the "Implicit rules",
   so that a plain "make" will compile everything.
+
+2012-12-27: Version 0.0.4
+
+- Adapted Makefile to changes introduced in recent VDR versions.
+
+2013-01-12: Version 0.0.5
+
+- Adapted Makefile to changes introduced in recent VDR versions.

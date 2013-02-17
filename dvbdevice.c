@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: dvbdevice.c 2.71 2012/05/09 08:33:59 kls Exp $
+ * $Id: dvbdevice.c 2.80 2013/02/17 13:17:33 kls Exp $
  */
 
 #include "dvbdevice.h"
@@ -21,7 +21,9 @@
 #include "menuitems.h"
 #include "sourceparams.h"
 
-#define FE_CAN_TURBO_FEC  0x8000000 // TODO: remove this once it is defined in the driver
+#if (DVB_API_VERSION << 8 | DVB_API_VERSION_MINOR) < 0x0508
+#define DTV_STREAM_ID DTV_DVBT2_PLP_ID
+#endif
 
 #define DVBS_TUNE_TIMEOUT  9000 //ms
 #define DVBS_LOCK_TIMEOUT  2000 //ms
@@ -259,16 +261,16 @@ bool cDvbTransponderParameters::Parse(const char *s)
           case 'C': s = ParseParameter(s, coderateH, CoderateValues); break;
           case 'D': s = ParseParameter(s, coderateL, CoderateValues); break;
           case 'G': s = ParseParameter(s, guard, GuardValues); break;
-          case 'H': polarization = *s++; break;
+          case 'H': polarization = 'H'; s++; break;
           case 'I': s = ParseParameter(s, inversion, InversionValues); break;
-          case 'L': polarization = *s++; break;
+          case 'L': polarization = 'L'; s++; break;
           case 'M': s = ParseParameter(s, modulation, ModulationValues); break;
           case 'O': s = ParseParameter(s, rollOff, RollOffValues); break;
           case 'P': s = ParseParameter(s, plpId); break;
-          case 'R': polarization = *s++; break;
+          case 'R': polarization = 'R'; s++; break;
           case 'S': s = ParseParameter(s, system, SystemValuesSat); break; // we only need the numerical value, so Sat or Terr doesn't matter
           case 'T': s = ParseParameter(s, transmission, TransmissionValues); break;
-          case 'V': polarization = *s++; break;
+          case 'V': polarization = 'V'; s++; break;
           case 'Y': s = ParseParameter(s, hierarchy, HierarchyValues); break;
           default: esyslog("ERROR: unknown parameter key '%c'", *s);
                    return false;
@@ -408,7 +410,7 @@ cString cDvbTuner::GetBondingParams(const cChannel *Channel) const
         return diseqc->Commands();
      }
   else {
-     bool ToneOff = Channel->Frequency() < (unsigned int)Setup.LnbSLOF;
+     bool ToneOff = Channel->Frequency() < Setup.LnbSLOF;
      bool VoltOff = dtp.Polarization() == 'V' || dtp.Polarization() == 'R';
      return cString::sprintf("%c %c", ToneOff ? 't' : 'T', VoltOff ? 'v' : 'V');
      }
@@ -574,50 +576,58 @@ int cDvbTuner::GetSignalQuality(void) const
            return 3;
         return 4;
         }
+#ifdef DEBUG_SIGNALQUALITY
      bool HasSnr = true;
+#endif
      uint16_t Snr;
      while (1) {
            if (ioctl(fd_frontend, FE_READ_SNR, &Snr) != -1)
               break;
-           if (errno == EOPNOTSUPP) {
+           if (errno != EINTR) {
               Snr = 0xFFFF;
+#ifdef DEBUG_SIGNALQUALITY
               HasSnr = false;
+#endif
               break;
               }
-           if (errno != EINTR)
-              return -1;
            }
+#ifdef DEBUG_SIGNALQUALITY
      bool HasBer = true;
+#endif
      uint32_t Ber;
      while (1) {
            if (ioctl(fd_frontend, FE_READ_BER, &Ber) != -1)
               break;
-           if (errno == EOPNOTSUPP) {
+           if (errno != EINTR) {
               Ber = 0;
+#ifdef DEBUG_SIGNALQUALITY
               HasBer = false;
+#endif
               break;
               }
-           if (errno != EINTR)
-              return -1;
            }
+#ifdef DEBUG_SIGNALQUALITY
      bool HasUnc = true;
+#endif
      uint32_t Unc;
      while (1) {
            if (ioctl(fd_frontend, FE_READ_UNCORRECTED_BLOCKS, &Unc) != -1)
               break;
-           if (errno == EOPNOTSUPP) {
+           if (errno != EINTR) {
               Unc = 0;
+#ifdef DEBUG_SIGNALQUALITY
               HasUnc = false;
+#endif
               break;
               }
-           if (errno != EINTR)
-              return -1;
            }
      uint16_t MaxSnr = 0xFFFF; // Let's assume the default is using the entire range.
      // Use the subsystemId to identify individual devices in case they need
      // special treatment to map their Snr value into the range 0...0xFFFF.
      switch (subsystemId) {
        case 0x13C21019: MaxSnr = 200; break; // TT-budget S2-3200 (DVB-S/DVB-S2)
+       case 0x20130245:                      // PCTV Systems PCTV 73ESE
+       case 0x2013024F: MaxSnr = 255; break; // PCTV Systems nanoStick T2 290e
        }
      int a = int(Snr) * 100 / MaxSnr;
      int b = 100 - (Unc * 10 + (Ber / 256) * 5);
@@ -649,7 +659,7 @@ void cDvbTuner::ExecuteDiseqc(const cDiseqc *Diseqc, unsigned int *Frequency)
      }
   static cMutex Mutex;
   if (Diseqc->IsScr())
-     Mutex.Lock(); 
+     Mutex.Lock();
   struct dvb_diseqc_master_cmd cmd;
   const char *CurrentAction = NULL;
   for (;;) {
@@ -671,7 +681,7 @@ void cDvbTuner::ExecuteDiseqc(const cDiseqc *Diseqc, unsigned int *Frequency)
   if (scr)
      ResetToneAndVoltage(); // makes sure we don't block the bus!
   if (Diseqc->IsScr())
-     Mutex.Unlock(); 
+     Mutex.Unlock();
 }
 
 void cDvbTuner::ResetToneAndVoltage(void)
@@ -810,7 +820,7 @@ bool cDvbTuner::SetFrontend(void)
      SETCMD(DTV_HIERARCHY, dtp.Hierarchy());
      if (frontendType == SYS_DVBT2) {
         // DVB-T2
-        SETCMD(DTV_DVBT2_PLP_ID, dtp.PlpId());
+        SETCMD(DTV_STREAM_ID, dtp.PlpId());
         }
 
      tuneTimeout = DVBT_TUNE_TIMEOUT;
@@ -1525,7 +1535,7 @@ bool cDvbDevice::SetChannelDevice(const cChannel *Channel, bool LiveView)
   return true;
 }
 
-bool cDvbDevice::HasLock(int TimeoutMs)
+bool cDvbDevice::HasLock(int TimeoutMs) const
 {
   return dvbTuner ? dvbTuner->Locked(TimeoutMs) : false;
 }
@@ -1540,7 +1550,7 @@ bool cDvbDevice::OpenDvr(void)
   CloseDvr();
   fd_dvr = DvbOpen(DEV_DVB_DVR, adapter, frontend, O_RDONLY | O_NONBLOCK, true);
   if (fd_dvr >= 0)
-     tsBuffer = new cTSBuffer(fd_dvr, MEGABYTE(2), CardIndex() + 1);
+     tsBuffer = new cTSBuffer(fd_dvr, MEGABYTE(5), CardIndex() + 1);
   return fd_dvr >= 0;
 }
 

@@ -3,14 +3,14 @@
  *
  * See the README file for copyright information and how to reach the author.
  *
- * $Id: svcsvr.c 2.0 2007/08/15 13:18:59 kls Exp $
+ * $Id: svcsvr.c 2.3 2013/02/17 14:10:38 kls Exp $
  */
 
 #include <stdlib.h>
 #include <vdr/interface.h>
 #include <vdr/plugin.h>
 
-static const char *VERSION        = "0.1.2";
+static const char *VERSION        = "0.1.4";
 static const char *DESCRIPTION    = "Service demo server";
 
 class cPluginSvcSvr : public cPlugin {
@@ -29,7 +29,7 @@ struct AddService_v1_0 {
   int sum;
   };
 
-// --- cPluginSvcSvr ----------------------------------------------------------
+// --- cPluginSvcSvr ---------------------------------------------------------
 
 bool cPluginSvcSvr::Service(const char *Id, void *Data)
 {

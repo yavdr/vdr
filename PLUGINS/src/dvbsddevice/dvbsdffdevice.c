@@ -3,7 +3,7 @@
  *
  * See the README file for copyright information and how to reach the author.
  *
- * $Id: dvbsdffdevice.c 2.33 2012/03/11 13:32:42 kls Exp $
+ * $Id: dvbsdffdevice.c 2.35 2013/02/17 13:16:18 kls Exp $
  */
 
 #include "dvbsdffdevice.h"
@@ -360,6 +360,13 @@ bool cDvbSdFfDevice::ProvidesSource(int Source) const
      return false;
   else
      return cDvbDevice::ProvidesSource(Source);
+}
+
+int cDvbSdFfDevice::NumProvidedSystems(void) const
+{
+  if (outputOnly)
+     return 0;
+  return cDvbDevice::NumProvidedSystems();
 }
 
 void cDvbSdFfDevice::TurnOffLiveMode(bool LiveView)
@@ -788,5 +795,5 @@ bool cDvbSdFfDeviceProbe::Probe(int Adapter, int Frontend)
          return true;
          }
       }
-  return false; 
+  return false;
 }

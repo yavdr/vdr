@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: videodir.c 2.1 2012/04/22 15:03:10 kls Exp $
+ * $Id: videodir.c 2.4 2012/09/30 12:06:33 kls Exp $
  */
 
 #include "videodir.h"
@@ -20,6 +20,11 @@
 #include "tools.h"
 
 const char *VideoDirectory = VIDEODIR;
+
+void SetVideoDirectory(const char *Directory)
+{
+  VideoDirectory = strdup(Directory);
+}
 
 class cVideoDirectory {
 private:
@@ -224,11 +229,11 @@ cString PrefixVideoFileName(const char *FileName, char Prefix)
   return NULL;
 }
 
-void RemoveEmptyVideoDirectories(void)
+void RemoveEmptyVideoDirectories(const char *IgnoreFiles[])
 {
   cVideoDirectory Dir;
   do {
-     RemoveEmptyDirectories(Dir.Name());
+     RemoveEmptyDirectories(Dir.Name(), false, IgnoreFiles);
      } while (Dir.Next());
 }
 
@@ -261,7 +266,7 @@ bool cVideoDiskUsage::HasChanged(int &State)
      if (FreeMB != freeMB) {
         usedPercent = UsedPercent;
         freeMB = FreeMB;
-        int MBperMinute = Recordings.MBperMinute();
+        double MBperMinute = Recordings.MBperMinute();
         if (MBperMinute <= 0)
            MBperMinute = MB_PER_MINUTE;
         freeMinutes = int(double(FreeMB) / MBperMinute);

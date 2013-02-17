@@ -87,6 +87,8 @@ Deti Fliegl <deti@fliegl.de>
  for fixing setting the OSD size in the 'Confirm' interface call
  for fixing handling improper buffer lengths in the EIT parser
  for a patch that was used to implement StopSectionHandler()
+ for adding cDevice::ReadFilter() to allow devices to implement their own way of
+ retrieving section filter data
 
 Dave Chapman <dave@dchapman.com>
  for implementing support for the teletext PID
@@ -139,7 +141,7 @@ Andre Valentin <av2000@topmail.de>
 Jørgen Tvedt <pjtvedt@online.no>
  for translating OSD texts to the Norwegian language
 
-Stefan Huelswitt <huels@iname.com>
+Stefan Huelswitt <s.huelswitt@gmx.de>
  for fixing the repeat function with LIRC
  for making the position of the channel display configurable
  for making the width and height of the OSD configurable
@@ -225,6 +227,10 @@ Stefan Huelswitt <huels@iname.com>
  cStatus::MsgSetVolume() bug to react properly
  for improving the 'i18n' target in the Makefile to avoid unnecessary work
  for a patch that was used to implement the --localedir option
+ for reporting a problem with updating CA descriptors in transfer mode on full
+ featured DVB cards
+ for pointing out a bug in handling lowercase polarization characters in channel
+ definitions if no DiSEqC is used
 
 Ulrich Röder <roeder@efr-net.de>
  for pointing out that there are channels that have a symbol rate higher than 27500
@@ -274,6 +280,7 @@ Uwe Scheffler <linux_dvb@uni.de>
  for reporting a problem with frozen live view in conjunction with device bonding
  for reporting a problem in handling the PrimaryLimit when requesting a device for
  live viewing
+ for reporting a black screen while a "Recording started" message is displayed
 
 Matjaz Thaler <matjaz.thaler@guest.arnes.si>
  for improving AC3 decoding when replaying DVDs
@@ -685,6 +692,8 @@ Oliver Endriss <o.endriss@gmx.de>
  for suggesting a better way of handling calls to realloc()
  for making the cutter set the 'broken link' flag for MPEG2 TS recordings
  for reporting a crash in a plugin using cDeviceHook when VDR ends
+ for reporting that "include" needs to be removed from the DVBDIR setting in the VDR
+ Makefile
 
 Reinhard Walter Buchner <rw.buchner@freenet.de>
  for adding some satellites to 'sources.conf'
@@ -982,7 +991,7 @@ Christian Jacobsen <christian.jacobsen@stageholding.de>
  for reporting a problem with multiple entries of the same subdirectory in the
  "Recordings" menu
 
-Andreas Mair <andreas@vdr-developer.org>
+Andreas Mair <amair.sob@googlemail.com>
  for reporting a short display of the main menu if a plugin displays its own OSD and
  is started through a user defined key macro
  for reporting a problem with extremely long summary fields in timers
@@ -995,6 +1004,11 @@ Andreas Mair <andreas@vdr-developer.org>
  for fixing handling 3 and 4 byte UTF-8 symbols in Utf8CharGet()
  for fixing initializing the timer's flags in the cTimer copy constructor
  for reporting a crash in case CutRecording() is called from a plugin
+ for fixing the type of MBperMinute in cVideoDiskUsage::HasChanged()
+ for reporting a bug in sorting recordings in case two folders have the same name,
+ but one of them ends in an additional digit, as in "abc" and "abc2"
+ for reporting multiple occurrences of the same directory in the recordings list ini
+ case there are directories that only differ in non-alphanumeric characters
 
 Olivier Jacques <jacquesolivier@hotmail.com>)
  for translating OSD texts to the French language
@@ -1141,6 +1155,7 @@ Rolf Ahrenberg <rahrenbe@cc.hut.fi>
  to "Single"
  for fixing reduced bpp support for DVB subtitles
  for implementing "DVB Standard compliance" handling
+ for fixing the call to ChannelString() in cSkinLCARSDisplayChannel::SetChannel()
 
 Ralf Klueber <ralf.klueber@vodafone.com>
  for reporting a bug in cutting a recording if there is only a single editing mark
@@ -1304,13 +1319,24 @@ Reinhard Nissl <rnissl@gmx.de>
  for storing the original display size when handling DVB subtitles
  for reporting a problem with horizontal scaling of subtitles
  for fixing a buffer overflow in cFont::Bidi()
- for avoiding an unecessary call to Recordings.ResetResume()
+ for avoiding an unnecessary call to Recordings.ResetResume()
  for debugging a problem in handling the bitmap color depth for scaled subtitles
  for making subtitle PIDs be decrypted
  for making cEITScanner process new transponders before old ones, to make sure
  transponder changes are recognized
  for helping to debug switching into time shift mode when pausing live video
  for fixing a possible high CPU load when pausing replay
+ for suggesting that the LCARS skin should only displays devices that can actually
+ receive channels
+ for reporting that the Transfer Mode indicator bitmap in the LCARS skin may not
+ fit with small font sizes
+ for reporting a race condition when zapping in transfer mode
+ for requesting that plugin Makefiles should include a configuration file for compile
+ time parameters
+ for suggesting to add a remark indicating that the coordinates of Rect in a call to
+ cDevice::CanScaleVideo() are in the range of the width and height returned by
+ GetOsdSize()
+ for adding "repeat" function when using the keyboard to control VDR
 
 Richard Robson <richard_robson@beeb.net>
  for reporting freezing replay if a timer starts while in Transfer Mode from the
@@ -1440,6 +1466,7 @@ Andreas Regel <andreas.regel@gmx.de>
  for making cDevice::AddPid() store the stream type of the given pid
  for adding cFont::FontName() and cFont::Size()
  for writing the dvbhddevice plugin
+ for reporting replay stuttering close to the end of an ongoing recording
 
 Thomas Bergwinkl <Thomas.Bergwinkl@vr-web.de>
  for fixing the validity check for channel IDs, because some providers use TIDs
@@ -1744,6 +1771,12 @@ Udo Richter <udo_richter@gmx.de>
  for a patch that sets the start time of an edited recording to the time of the first
  editing mark
  for adding the option --outputonly to the dvbsddevice plugin
+ for adding a missing template specification to the c'tor of cSortedTimers
+ for contributing to a patch that implements FHS support
+ for suggesting to check cIoThrottle::Engaged() in cRemoveDeletedRecordingsThread::Action()
+ for suggesting to shift editing marks that don't point to an I-frame towards the next I-frame
+ when a recording is played
+ for requesting to keep using relative paths when building plugins locally
 
 Sven Kreiensen <svenk@kammer.uni-hannover.de>
  for his help in keeping 'channels.conf.terr' up to date
@@ -1758,6 +1791,8 @@ Lucian Muresan <lucianm@users.sourceforge.net>
  for reporting duplicate texts in i18n.c
  for suggesting to use 'gettext' for internationalization
  for exporting some libsi functions
+ for suggesting to add functions to cDevice that allow derived output devices to
+ implement scaling the video to a given size and location
 
 Mattias Grönlund <Mattias@Gronlund.net>
  for pointing out a missing cleanup at program exit in case there is a problem
@@ -1960,6 +1995,12 @@ Ville Skyttä <ville.skytta@iki.fi>
  for pointing out that the variable HasSnr was unused in cDvbTuner::GetSignalQuality()
  for fixing cConfig::Load() for g++ version 4.7.0
  for fixing some typos in HISTORY and CONTRIBUTORS
+ for fixing some spellings in osd.h and svdrp.c
+ for adding missing $(LDFLAGS) to the Makefile of the dvbhddevice plugin
+ for fixing some spellings in PLUGINS.html and Doxyfile
+ for adding '-p' to the cp command in the install-conf target of the Makefile
+ for reporting that some special characters are dropped by Doxygen and thus need to
+ be escaped
 
 Steffen Beyer <cpunk@reactor.de>
  for fixing setting the colored button help after deleting a recording in case the next
@@ -2151,7 +2192,7 @@ Jürgen Schneider <ivory7@gmx.de>
 Christian Wieninger <cwieninger@gmx.de>
  for suggesting to add cMenuEditStrItem::InEditMode()
  for his idea of going directly into the "Edit timer" menu for a timer created
- from the "Schedule" menu in case it starts withing the next two minutes
+ from the "Schedule" menu in case it starts within the next two minutes
  for reporting a problem with a format string in recording.c on 64bit systems
  for reporting a problem with the device selection in case of timer conflicts
  for a patch that fixed part of a crash in i18n character set conversion
@@ -2208,6 +2249,13 @@ André Weidemann <Andre.Weidemann@web.de>
  for suggesting that the primary device should only be avoided for recording if
  it is an old SD full featured card
  for his support in using convert/ffmpeg in the pic2mpg script of the 'pictures' plugin
+ for requesting a way of getting to the very end of an edited recording, since version
+ 1.7.32 no longer generates a mark at that point
+ for suggesting to automatically go into Pause mode if an editing mark is set during
+ replay
+ for reporting a bug in selecting the last replayed recording in the Recordings menu
+ in case there are folders and plain recordings with names that differ only in
+ non-alphanumeric characters
 
 Jürgen Schilling <juergen_schilling@web.de>
  for reporting that color buttons were displayed in the recording info menu if it
@@ -2249,6 +2297,8 @@ Alexander Hans <cleditor@arcor.de>
  for reporting that the "'1' for encrypted radio channels" part in the description
  of the VPID in vdr.5 is obsolete
  for a patch that was used to implement storing the channel name in info.vdr
+ for making the SVDRP command HITK discard any keys if the remote control is currently
+ turned off
 
 Daniel Karsubka <dkar@gmx.de>
  for suggesting to write the epg.data file when VDR exits
@@ -2292,6 +2342,10 @@ Christoph Haubrich <christoph1.haubrich@arcor.de>
  for fixing cRecording::LengthInSeconds(), which wrongfully rounded the result to full
  minutes
  for suggesting to check for NULL in cOsd::AddPixmap()
+ for making modified editing marks be written to disk whenever the replay progress
+ display gets hidden
+ for reporting a wrong type ('int' vs. 'eTimerEvent') in the declaration of
+ cSkinDisplayMenu::SetItemEvent()
 
 Pekka Mauno <pekka.mauno@iki.fi>
  for fixing cSchedule::GetFollowingEvent() in case there is currently no present
@@ -2299,6 +2353,10 @@ Pekka Mauno <pekka.mauno@iki.fi>
 
 Alexander Wenzel <hondansx@gmx.de>
  for fixing the shutdown timeout
+ for making the script given to VDR with the '-r' option be also called whenever a
+ recording is deleted
+ for making pressing the Play key during normal live viewing mode open the Recordings
+ menu if there is no "last viewed" recording
 
 Jan Lenz <email@JanLenz.de>
  for reporting a bug in deleting recordings that have been removed externally when
@@ -2335,6 +2393,7 @@ Tobias Grimm <tobias.grimm@e-tobi.net>
  for avoiding a gcc 4.6 compiler error in the skincurses plugin.
  for suggesting to move setting LC_NUMERIC further up to make sure any floating point
  numbers use a decimal point
+ for adding dependency on 'i18n' to 'install-i18n' in the VDR Makefile
 
 Helge Lenz <h.lenz@gmx.de>
  for reporting a bug in setting the 'Delta' parameter when calling the shutdown
@@ -2393,9 +2452,13 @@ Anssi Hannula <anssi.hannula@gmail.com>
  for adding support for automatically selecting subtitles when playing old PES
  recordings made with the subtitles plugin
  for pointing out -Werror=...
+ for implementing cDevice::HasInternalCam(), which can be implemented by devices that
+ provide encrypted channels in an already decrypted form, without requiring explicit
+ handling of a CAM
 
 Antti Hartikainen <ami+vdr@ah.fi>
  for updating 'S13E' in 'sources.conf'
+ for adding maximum SNR value for PCTV Systems nanoStick T2 290e
 
 Bernd Melcher <bernd@bernd-melcher.de>
  for reporting a problem with the 'servicedemo' plugin having no PLUGIN macro
@@ -2456,9 +2519,13 @@ Ulf Kiener <webmaster@ulf-kiener.de>
  for reporting a problem with audio track descriptions in the DVD plugin after a
  replay has been stopped
  for suggesting to add user defined key kUser0
+ for suggesting to perform absolute jumps when replaying a recording (via the Red key)
+ only if an actual value has been entered
 
 Jörg Wendel <vdr-ml@jwendel.de>
  for reporting that cPlugin::Active() was called too often
+ for adding HandledExternally() to the EPG handler interface
+ for adding IsUpdate() to the EPG handler interface
 
 Peter Pinnau <vdr@unterbrecher.de>
  for reporting that 'uint32_t' requires including stdint.h in font.h on some systems
@@ -2564,6 +2631,7 @@ Benjamin Hess <benjamin.h@gmx.ch>
 Winfried Koehler <w_koehl@gmx.de>
  for fixing finding new transponders
  for reporting a compiler warning in calculations involving FramesPerSecond()
+ for fixing some copy&paste errors in PLUGINS.html
 
 Hans-Werner Hilse <hilse@web.de>
  for adding the command line option --userdump to enable core dumps in case VDR
@@ -2597,6 +2665,10 @@ Sundararaj Reel <sundararaj.reel@googlemail.com>
  for reporting a problem with the function cString::sprintf(const char *fmt, va_list &ap),
  that might inadvertently be called with a 'char *' as the second argument on some
  compilers and cause a crash
+ for reporting a possible memory leak in SI::StructureLoop::getNextAsPointer()
+ for making the TDT EIT filter always be set, because otherwise when turning on using
+ the transponder time in the Setup menu, it would only be used after the next restart
+ of VDR
 
 Ales Jurik <ajurik@quick.cz>
  for reporting broken SI data on Czech/Slovak channels after changing the default
@@ -2650,6 +2722,7 @@ Johann Friedrichs <johann.friedrichs@web.de>
  for some fixes to dvbspu.[hc]
  for fixing a busy loop when moving editing marks
  for making cPalette::ClosestColor() treat fully transparent colors as "equal"
+ for implementing scaling of SPU bitmaps
 
 Timo Helkio <timolavi@mbnet.fi>
  for reporting a hangup when replaying a TS recording with subtitles activated
@@ -2671,6 +2744,8 @@ Derek Kelly (user.vdr@gmail.com)
  several payloads
  for reporting a problem with getting the maximum short channel name length in case there
  are no short names at all
+ for reporting an incompatible change from DTV_DVBT2_PLP_ID to DTV_STREAM_ID in DVB API 5.8
+ for reporting a missing template for DVBDIR in Make.config.template
 
 Marcel Unbehaun <frostworks@gmx.de>
  for adding cRecordingInfo::GetEvent()
@@ -2698,6 +2773,8 @@ Manuel Reimer <Manuel.Reimer@gmx.de>
  contains only the address of the local host
  for a patch that was used as a base for making editing marks be updated every 10
  seconds during replay
+ for suggesting to synchronize system time to the transponder time using adjtime() in
+ order to avoid discontinuities
 
 Rene van den Braken <rene@vandenbraken.name>
  for reporting a bug in writing the PCR pid into the PMT in
@@ -2720,6 +2797,7 @@ Francesco Saverio Schiavarelli <fschiava@libero.it>
 Matti Lehtimäki <matti.lehtimaki@gmail.com>
  for implementing the setup option "Miscellaneous/Channels wrap"
  for reporting a missing change from -O2 to -O3 in Make.config.template
+ for a patch that was used to implement instant recording of only the present event
 
 Stephan Austermühle <au@hcsd.de>
  for suggesting to flush the file in cSafeFile::Close()
@@ -2729,6 +2807,9 @@ Lars Hanisch <dvb@flensrocker.de>
  for a patch that was used to implement SCR (Satellite Channel Routing)
  for implementing the SVDRP command 'UPDR'
  for reporting that the SVDRP command UPDR didn't update the global recordings list
+ for fixing a typo in skins.h
+ for fixing some #include statements in plugins to use <vdr/...> instead of "vdr/..."
+ for reporting an invalid line in channels.conf.terr
 
 Alex Lasnier <alex@fepg.org>
  for adding tuning support for ATSC devices
@@ -2757,6 +2838,13 @@ Luis Fernandes <telping@gmail.com>
 Christopher Reimer <reimer.christopher@freenet.de>
  for reporting a problem with external Dolby Digital processing via the '-a' option
  in live mode and with TS recordings
+ for contributing to a patch that implements FHS support
+ for suggesting to remove some redundancy in the Makefile/Make.global/Make.config
+ mechanism
+ for suggesting to give the plugin Makefiles a separate 'install' target
+ for making plugin Makefiles use DESTDIR and the 'install' program
+ for suggesting to make sure that plugins include the VDR header files from the actual
+ VDR source directory when doing "make plugins"
 
 Stefan Huskamp <coca_cola1@gmx.de>
  for suggesting to make entering characters via the number keys
@@ -2802,6 +2890,7 @@ Juergen Lock <vdr-l@jelal.kn-bremen.de>
  for fixing cUnbufferedFile::Seek() in case it is compiled without USE_FADVISE
  for reporting a problem with EPG scan on systems with only a single DVB device that
  use software output
+ for fixing calling iconv_close() only with a valid iconv_t value
 
 Sergiu Dotenco <sergiu.dotenco@googlemail.com>
  for reporting a missing initialization in sDvbSpuRect
@@ -2855,6 +2944,7 @@ Dominic Evans <oldmanuk@gmail.com>
  for adding cap_net_raw to the capabilities that are not dropped
  for suggesting to make the channel name column in the "What's on now/next" menu
  adjust its width to display the full short name of each channel
+ for reporting wrong permissions of po/sr_SR.po
 
 Torsten Lang <info@torstenlang.de>
  for reporting a problem with newline characters in stream component descriptions
@@ -2864,6 +2954,15 @@ Torsten Lang <info@torstenlang.de>
  for reporting a bug in checking for UTF-8 support in cFont::Bidi()
  for a patch that was used to implement caching the information whether a recording
  is stored on the video directory file system within the cRecording data
+ for suppressing setting the "broken link" or "TEI" flags when cutting recordings
+ if the editing point merges two seamlessly fitting parts of the same stream
+ for reporting a sluggish response when manipulating editing marks while a cutting
+ thread is running
+ for suggesting to allow I/O intense threads to temporarily suspend their activities
+ in case buffers run full
+ for suggesting to increase the size of the TS buffer to 5MB and that of the Recorder
+ buffer to 20MB to better handle HD recordings
+ for fixing setting the video format in the dvbhdffdevice
 
 Christian Ruppert <idl0r@gentoo.org>
  for some improvements to the Makefiles
@@ -2900,3 +2999,86 @@ Christian Richter <cr@crichter.net>
 
 Christian Kaiser <christian.kaiser@teleservice.com>
  for adding DeleteEvent() to the EPG handler interface
+
+Dirk Heiser <dirk-vdr@gmx.de>
+ for adding SetComponents() to the EPG handler interface
+
+Ludi Kaleni <ludi113@hotmail.com>
+ for suggesting to add the source character to channel names whenever they are displayed
+
+Mehdi Karamnejad <mehdi_karamnejad@sfu.ca>
+ for reporting a problem with garbled UTF-8 EPG data and helping to debug it
+
+Dennis Bendlin <dennisbendlin@online.de>
+ for a patch that implements FHS support
+
+Oliver Schinagl <oliver@schinagl.nl>
+ for a patch that was used to implement the setup options "OSD/Color key [0123]"
+
+Andrey Pridvorov <ua0lnj@bk.ru>
+ for reporting a problem with detecting frames in H.264 video, and pointing towards
+ a better way of doing it
+
+Jens Vogel <jens.vogel@akjv.de>
+ for suggesting to make cPatPmtParser::ParsePmt() also recognize stream type 0x81
+ as "AC3", so that recordings that have been converted from the old PES format to
+ TS can be played
+
+Sören Moch <smoch@web.de>
+ for a patch that was used to move cleaning up the EPG data and writing the epg.data
+ file into a separate thread to avoid sluggish response to user input on slow systems
+ for fixing sorting folders before recordings in case of UTF-8
+ for reporting that cCuttingThread::GetPendingPackets() should get only non-video
+ packets
+ for pointing out that the name H264 should be used instead of MPEG4
+ for pointing out that the cutter should only increment the TS continuity counter for
+ packets that have a payload
+ for pointing out that when adjusting the DTS values in the cutter, it hase to compensate
+ for dropped B-frames
+ for simplifying calculating the PTS offset in cPtsFixer::Fix() and fixing the overflow
+ handling of PCR values
+ for improving cutting MPEG-2 video
+ for pointing out that FindHeader() can also be used in cMpeg2Fixer::AdjTref()
+
+Peter Münster <pmlists@free.fr>
+ for fixing 'make install' to not overwrite existing configuration files
+ for translating OSD texts to the French language
+
+Mike Hay <mike.hay@linenshorts.com>
+ for reporting a problem with handling the case of the polarization character in
+ channel definitions if no DiSEqC is used
+
+Stefan Hofmann <stefan.hofmann@t-online.de>
+ for suggesting to implement support for remote controls that only have a combined
+ "Play/Pause" key instead of separate keys for "Play" and "Pause"
+
+Stefan Blochberger <Stefan.Blochberger@gmx.de>
+ for suggesting to automatically display the progress display whenever replay of a
+ recording is started
+ for suggesting that floating point numbers presented to the user shall be displayed
+ in the way defined by the current locale
+
+Cedric Dewijs <cedric.dewijs@telfort.nl>
+ for adding maximum SNR value for PCTV Systems PCTV 73ESE
+
+Stefan Stolz <st.stolz@gmail.com>
+ for suggesting to make the SVDRP command LSTR optionally list the actual file name of
+ a recording's directory
+
+Malte Forkel <malte.forkel@berlin.de>
+ for suggesting to make the SVDRP command NEWT no longer check whether a timer with the
+ given data already exists
+
+Marc Perrudin <vdr@ekass.net>
+ for translating OSD texts to the French language
+
+Bernard Jaulin <bernard.jaulin@gmail.com>
+ for translating OSD texts to the French language
+
+Mikael Hübsch <mikael.hubsch@gmail.com>
+ for reporting a crash in cMenuEditChanItem::Set() when entering a channel number that
+ doesn't exist
+
+Matthias Senzel <matthias.senzel@t-online.de>
+ for reporting a problem with switching back to live viewing after replay in a setup
+ with device bonding

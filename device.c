@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: device.c 2.60 2012/04/26 09:40:36 kls Exp $
+ * $Id: device.c 2.73 2013/02/16 14:39:30 kls Exp $
  */
 
 #include "device.h"
@@ -98,6 +98,7 @@ cDevice::cDevice(void)
   currentAudioTrack = ttNone;
   currentAudioTrackMissingCount = 0;
   currentSubtitleTrack = ttNone;
+  keepTracks = false;
   liveSubtitle = NULL;
   dvbSubtitleConverter = NULL;
   autoSelectPreferredSubtitleLanguage = true;
@@ -241,6 +242,7 @@ cDevice *cDevice::GetDevice(const cChannel *Channel, int Priority, bool LiveView
   int NumCamSlots = CamSlots.Count();
   int SlotPriority[NumCamSlots];
   int NumUsableSlots = 0;
+  bool InternalCamNeeded = false;
   if (Channel->Ca() >= CA_ENCRYPTED_MIN) {
      for (cCamSlot *CamSlot = CamSlots.First(); CamSlot; CamSlot = CamSlots.Next(CamSlot)) {
          SlotPriority[CamSlot->Index()] = MAXPRIORITY + 1; // assumes it can't be used
@@ -254,7 +256,7 @@ cDevice *cDevice::GetDevice(const cChannel *Channel, int Priority, bool LiveView
             }
          }
      if (!NumUsableSlots)
-        return NULL; // no CAM is able to decrypt this channel
+        InternalCamNeeded = true; // no CAM is able to decrypt this channel
      }
 
   bool NeedsDetachReceivers = false;
@@ -268,11 +270,14 @@ cDevice *cDevice::GetDevice(const cChannel *Channel, int Priority, bool LiveView
       for (int i = 0; i < numDevices; i++) {
           if (Channel->Ca() && Channel->Ca() <= CA_DVB_MAX && Channel->Ca() != device[i]->CardIndex() + 1)
              continue; // a specific card was requested, but not this one
-          if (NumUsableSlots && !CamSlots.Get(j)->Assign(device[i], true))
+          bool HasInternalCam = device[i]->HasInternalCam();
+          if (InternalCamNeeded && !HasInternalCam)
+             continue; // no CAM is able to decrypt this channel and the device uses vdr handled CAMs
+          if (NumUsableSlots && !HasInternalCam && !CamSlots.Get(j)->Assign(device[i], true))
              continue; // CAM slot can't be used with this device
           bool ndr;
-          if (device[i]->ProvidesChannel(Channel, Priority, &ndr)) { // this device is basicly able to do the job
-             if (NumUsableSlots && device[i]->CamSlot() && device[i]->CamSlot() != CamSlots.Get(j))
+          if (device[i]->ProvidesChannel(Channel, Priority, &ndr)) { // this device is basically able to do the job
+             if (NumUsableSlots && !HasInternalCam && device[i]->CamSlot() && device[i]->CamSlot() != CamSlots.Get(j))
                 ndr = true; // using a different CAM slot requires detaching receivers
              // Put together an integer number that reflects the "impact" using
              // this device would have on the overall system. Each condition is represented
@@ -287,18 +292,18 @@ cDevice *cDevice::GetDevice(const cChannel *Channel, int Priority, bool LiveView
              imp <<= 4; imp |= GetClippedNumProvidedSystems(4, device[i]) - 1;                                       // avoid cards which support multiple delivery systems
              imp <<= 1; imp |= device[i] == cTransferControl::ReceiverDevice();                                      // avoid the Transfer Mode receiver device
              imp <<= 8; imp |= device[i]->Priority() - IDLEPRIORITY;                                                 // use the device with the lowest priority (- IDLEPRIORITY to assure that values -100..99 can be used)
-             imp <<= 8; imp |= (NumUsableSlots ? SlotPriority[j] : IDLEPRIORITY) - IDLEPRIORITY;                     // use the CAM slot with the lowest priority (- IDLEPRIORITY to assure that values -100..99 can be used)
+             imp <<= 8; imp |= ((NumUsableSlots && !HasInternalCam) ? SlotPriority[j] : IDLEPRIORITY) - IDLEPRIORITY;// use the CAM slot with the lowest priority (- IDLEPRIORITY to assure that values -100..99 can be used)
              imp <<= 1; imp |= ndr;                                                                                  // avoid devices if we need to detach existing receivers
-             imp <<= 1; imp |= NumUsableSlots ? 0 : device[i]->HasCi();                                              // avoid cards with Common Interface for FTA channels
+             imp <<= 1; imp |= (NumUsableSlots || InternalCamNeeded) ? 0 : device[i]->HasCi();                       // avoid cards with Common Interface for FTA channels
              imp <<= 1; imp |= device[i]->AvoidRecording();                                                          // avoid SD full featured cards
-             imp <<= 1; imp |= NumUsableSlots ? !ChannelCamRelations.CamDecrypt(Channel->GetChannelID(), j + 1) : 0; // prefer CAMs that are known to decrypt this channel
+             imp <<= 1; imp |= (NumUsableSlots && !HasInternalCam) ? !ChannelCamRelations.CamDecrypt(Channel->GetChannelID(), j + 1) : 0; // prefer CAMs that are known to decrypt this channel
              imp <<= 1; imp |= device[i]->IsPrimaryDevice();                                                         // avoid the primary device
              if (imp < Impact) {
                 // This device has less impact than any previous one, so we take it.
                 Impact = imp;
                 d = device[i];
                 NeedsDetachReceivers = ndr;
-                if (NumUsableSlots)
+                if (NumUsableSlots && !HasInternalCam)
                    s = CamSlots.Get(j);
                 }
              }
@@ -334,7 +339,7 @@ cDevice *cDevice::GetDeviceForTransponder(const cChannel *Channel, int Priority)
          if (d->ProvidesTransponder(Channel)) {
             if (d->MaySwitchTransponder(Channel))
                Device = d; // this device may switch to the transponder without disturbing any receiver or live view
-            else if (!d->Occupied()) {
+            else if (!d->Occupied() && d->MaySwitchTransponder(Channel)) { // MaySwitchTransponder() implicitly calls Occupied()
                if (d->Priority() < Priority && (!Device || d->Priority() < Device->Priority()))
                   Device = d; // use this one only if no other with less impact can be found
                }
@@ -593,6 +598,11 @@ int cDevice::OpenFilter(u_short Pid, u_char Tid, u_char Mask)
   return -1;
 }
 
+int cDevice::ReadFilter(int Handle, void *Buffer, size_t Length)
+{
+  return safe_read(Handle, Buffer, Length);
+}
+
 void cDevice::CloseFilter(int Handle)
 {
   close(Handle);
@@ -803,7 +813,7 @@ eSetChannelResult cDevice::SetChannel(const cChannel *Channel, bool LiveView)
            EnsureAudioTrack(true);
         EnsureSubtitleTrack();
         }
-     cStatus::MsgChannelSwitch(this, Channel->Number(), LiveView); // only report status if channel switch successfull
+     cStatus::MsgChannelSwitch(this, Channel->Number(), LiveView); // only report status if channel switch successful
      }
 
   return Result;
@@ -835,12 +845,12 @@ bool cDevice::SetChannelDevice(const cChannel *Channel, bool LiveView)
   return false;
 }
 
-bool cDevice::HasLock(int TimeoutMs)
+bool cDevice::HasLock(int TimeoutMs) const
 {
   return true;
 }
 
-bool cDevice::HasProgramme(void)
+bool cDevice::HasProgramme(void) const
 {
   return Replaying() || pidHandles[ptAudio].pid || pidHandles[ptVideo].pid;
 }
@@ -914,6 +924,8 @@ void cDevice::SetVolume(int Volume, bool Absolute)
 
 void cDevice::ClrAvailableTracks(bool DescriptionsOnly, bool IdsOnly)
 {
+  if (keepTracks)
+     return;
   if (DescriptionsOnly) {
      for (int i = ttNone; i < ttMaxTrackTypes; i++)
          *availableTracks[i].description = 0;
@@ -1035,6 +1047,8 @@ bool cDevice::SetCurrentSubtitleTrack(eTrackType Type, bool Manual)
 
 void cDevice::EnsureAudioTrack(bool Force)
 {
+  if (keepTracks)
+     return;
   if (Force || !availableTracks[currentAudioTrack].id) {
      eTrackType PreferredTrack = ttAudioFirst;
      int PreferredAudioChannel = 0;
@@ -1066,6 +1080,8 @@ void cDevice::EnsureAudioTrack(bool Force)
 
 void cDevice::EnsureSubtitleTrack(void)
 {
+  if (keepTracks)
+     return;
   if (Setup.DisplaySubtitles) {
      eTrackType PreferredTrack = ttNone;
      int LanguagePreference = INT_MAX; // higher than the maximum possible value
@@ -1138,9 +1154,9 @@ void cDevice::StillPicture(const uchar *Data, int Length)
      int Size = 0;
      while (Length >= TS_SIZE) {
            int Pid = TsPid(Data);
-           if (Pid == 0)
+           if (Pid == PATPID)
               patPmtParser.ParsePat(Data, TS_SIZE);
-           else if (Pid == patPmtParser.PmtPid())
+           else if (patPmtParser.IsPmtPid(Pid))
               patPmtParser.ParsePmt(Data, TS_SIZE);
            else if (Pid == patPmtParser.Vpid()) {
               if (TsPayloadStart(Data)) {
@@ -1195,7 +1211,7 @@ bool cDevice::Replaying(void) const
 
 bool cDevice::Transferring(void) const
 {
-  return ActualDevice() != PrimaryDevice();
+  return cTransferControl::ReceiverDevice() != NULL;
 }
 
 bool cDevice::AttachPlayer(cPlayer *Player)
@@ -1475,9 +1491,9 @@ int cDevice::PlayTs(const uchar *Data, int Length, bool VideoOnly)
            if (TsHasPayload(Data)) { // silently ignore TS packets w/o payload
               int PayloadOffset = TsPayloadOffset(Data);
               if (PayloadOffset < TS_SIZE) {
-                 if (Pid == 0)
+                 if (Pid == PATPID)
                     patPmtParser.ParsePat(Data, TS_SIZE);
-                 else if (Pid == patPmtParser.PmtPid())
+                 else if (patPmtParser.IsPmtPid(Pid))
                     patPmtParser.ParsePmt(Data, TS_SIZE);
                  else if (Pid == patPmtParser.Vpid()) {
                     isPlayingVideo = true;
@@ -1521,7 +1537,7 @@ int cDevice::PlayTs(const uchar *Data, int Length, bool VideoOnly)
 int cDevice::Priority(void) const
 {
   int priority = IDLEPRIORITY;
-  if (IsPrimaryDevice() && !Replaying() && ActualDevice() == PrimaryDevice())
+  if (IsPrimaryDevice() && !Replaying() && HasProgramme())
      priority = TRANSFERPRIORITY; // we use the same value here, no matter whether it's actual Transfer Mode or real live viewing
   cMutexLock MutexLock(&mutexReceiver);
   for (int i = 0; i < MAXRECEIVERS; i++) {
@@ -1666,11 +1682,11 @@ void cDevice::Detach(cReceiver *Receiver)
   cMutexLock MutexLock(&mutexReceiver);
   for (int i = 0; i < MAXRECEIVERS; i++) {
       if (receiver[i] == Receiver) {
-         Receiver->Activate(false);
          Lock();
          receiver[i] = NULL;
          Receiver->device = NULL;
          Unlock();
+         Receiver->Activate(false);
          for (int n = 0; n < Receiver->numPids; n++)
              DelPid(Receiver->pids[n]);
          }
@@ -1712,6 +1728,7 @@ cTSBuffer::cTSBuffer(int File, int Size, int CardIndex)
   delivered = false;
   ringBuffer = new cRingBufferLinear(Size, TS_SIZE, true, "TS");
   ringBuffer->SetTimeouts(100, 100);
+  ringBuffer->SetIoThrottle();
   Start();
 }
 

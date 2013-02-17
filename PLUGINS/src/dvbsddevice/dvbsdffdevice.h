@@ -3,14 +3,14 @@
  *
  * See the README file for copyright information and how to reach the author.
  *
- * $Id: dvbsdffdevice.h 2.13 2011/08/27 11:32:42 kls Exp $
+ * $Id: dvbsdffdevice.h 2.16 2013/02/17 13:16:29 kls Exp $
  */
 
 #ifndef __DVBSDFFDEVICE_H
 #define __DVBSDFFDEVICE_H
 
-#include "vdr/dvbdevice.h"
-#include "vdr/dvbspu.h"
+#include <vdr/dvbdevice.h>
+#include <vdr/dvbspu.h>
 
 /// The cDvbSdFfDevice implements a DVB device which can be accessed through the Linux DVB driver API.
 
@@ -37,6 +37,7 @@ public:
 
 public:
   virtual bool ProvidesSource(int Source) const;
+  virtual int NumProvidedSystems(void) const;
 private:
   void TurnOffLiveMode(bool LiveView);
 protected:
@@ -111,5 +112,5 @@ public:
   void SetOutputOnly(bool On) { outputOnly = On; }
   virtual bool Probe(int Adapter, int Frontend);
   };
- 
+
 #endif //__DVBSDFFDEVICE_H

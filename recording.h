@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: recording.h 2.33 2012/06/03 09:49:09 kls Exp $
+ * $Id: recording.h 2.44 2013/02/14 15:13:14 kls Exp $
  */
 
 #ifndef __RECORDING_H
@@ -19,10 +19,10 @@
 #include "tools.h"
 
 #define FOLDERDELIMCHAR '~'
-#define TIMERMACRO_TITLE    "TITLE"
-#define TIMERMACRO_EPISODE  "EPISODE"
 
-extern bool VfatFileSystem;
+extern int DirectoryPathMax;
+extern int DirectoryNameMax;
+extern bool DirectoryEncoding;
 extern int InstanceId;
 
 void RemoveDeletedRecordings(void);
@@ -83,7 +83,8 @@ class cRecording : public cListObject {
 private:
   mutable int resume;
   mutable char *titleBuffer;
-  mutable char *sortBuffer;
+  mutable char *sortBufferName;
+  mutable char *sortBufferTime;
   mutable char *fileName;
   mutable char *name;
   mutable int fileSizeMB;
@@ -221,24 +222,42 @@ public:
 
 class cMarks : public cConfig<cMark> {
 private:
+  cString recordingFileName;
   cString fileName;
   double framesPerSecond;
+  bool isPesRecording;
   time_t nextUpdate;
   time_t lastFileTime;
   time_t lastChange;
 public:
   bool Load(const char *RecordingFileName, double FramesPerSecond = DEFAULTFRAMESPERSECOND, bool IsPesRecording = false);
   bool Update(void);
+  bool Save(void);
+  void Align(void);
   void Sort(void);
-  cMark *Add(int Position);
+  void Add(int Position);
   cMark *Get(int Position);
   cMark *GetPrev(int Position);
   cMark *GetNext(int Position);
+  cMark *GetNextBegin(cMark *EndMark = NULL);
+       ///< Returns the next "begin" mark after EndMark, skipping any marks at the
+       ///< same position as EndMark. If EndMark is NULL, the first actual "begin"
+       ///< will be returned (if any).
+  cMark *GetNextEnd(cMark *BeginMark);
+       ///< Returns the next "end" mark after BeginMark, skipping any marks at the
+       ///< same position as BeginMark.
+  int GetNumSequences(void);
+       ///< Returns the actual number of sequences to be cut from the recording.
+       ///< If there is only one actual "begin" mark, and it is positioned at index
+       ///< 0 (the beginning of the recording), and there is no "end" mark, the
+       ///< return value is 0, which means that the result is the same as the original
+       ///< recording.
   };
 
 #define RUC_BEFORERECORDING "before"
 #define RUC_AFTERRECORDING  "after"
 #define RUC_EDITEDRECORDING "edited"
+#define RUC_DELETERECORDING "deleted"
 
 class cRecordingUserCommand {
 private:
@@ -274,7 +293,6 @@ private:
   cResumeFile resumeFile;
   cIndexFileGenerator *indexFileGenerator;
   cMutex mutex;
-  static cString IndexFileName(const char *FileName, bool IsPesRecording);
   void ConvertFromPes(tIndexTs *IndexTs, int Count);
   void ConvertToPes(tIndexTs *IndexTs, int Count);
   bool CatchUp(int Index = -1);
@@ -285,8 +303,14 @@ public:
   bool Write(bool Independent, uint16_t FileNumber, off_t FileOffset);
   bool Get(int Index, uint16_t *FileNumber, off_t *FileOffset, bool *Independent = NULL, int *Length = NULL);
   int GetNextIFrame(int Index, bool Forward, uint16_t *FileNumber = NULL, off_t *FileOffset = NULL, int *Length = NULL);
+  int GetClosestIFrame(int Index);
+       ///< Returns the index of the I-frame that is closest to the given Index (or Index itself,
+       ///< if it already points to an I-frame). Index may be any value, even outside the current
+       ///< range of frame indexes.
+       ///< If there is no actual index data available, 0 is returned.
   int Get(uint16_t FileNumber, off_t FileOffset);
   int Last(void) { CatchUp(); return last; }
+       ///< Returns the index of the last entry in this file, or -1 if the file is empty.
   int GetResume(void) { return resumeFile.Read(); }
   bool StoreResume(int Index) { return resumeFile.Save(Index); }
   bool IsStillRecording(void);
@@ -294,6 +318,7 @@ public:
   static int GetLength(const char *FileName, bool IsPesRecording = false);
        ///< Calculates the recording length (number of frames) without actually reading the index file.
        ///< Returns -1 in case of error.
+  static cString IndexFileName(const char *FileName, bool IsPesRecording);
   };
 
 class cFileName {
@@ -332,5 +357,12 @@ char *ExchangeChars(char *s, bool ToFileSystem);
       // value points to the resulting string, which may be different from s.
 
 bool GenerateIndex(const char *FileName);
+
+enum eRecordingsSortMode { rsmName, rsmTime };
+extern eRecordingsSortMode RecordingsSortMode;
+bool HasRecordingsSortMode(const char *Directory);
+void GetRecordingsSortMode(const char *Directory);
+void SetRecordingsSortMode(const char *Directory, eRecordingsSortMode SortMode);
+void IncRecordingsSortMode(const char *Directory);
 
 #endif //__RECORDING_H

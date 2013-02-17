@@ -3,7 +3,7 @@
  *
  * See the README file for copyright information and how to reach the author.
  *
- * $Id: dvbhdffdevice.c 1.43 2012/05/08 11:40:32 kls Exp $
+ * $Id: dvbhdffdevice.c 1.49 2013/02/17 14:10:06 kls Exp $
  */
 
 #include <stdint.h>
@@ -23,7 +23,11 @@
 #include "hdffosd.h"
 #include "setup.h"
 
-// --- cDvbHdFfDevice ----------------------------------------------------------
+
+static uchar *YuvToJpeg(uchar *Mem, int Width, int Height, int &Size, int Quality);
+
+
+// --- cDvbHdFfDevice --------------------------------------------------------
 
 int cDvbHdFfDevice::devHdffOffset = -1;
 
@@ -69,6 +73,7 @@ cDvbHdFfDevice::cDvbHdFfDevice(int Adapter, int Frontend)
 
      mHdffCmdIf->CmdAvSetAudioDelay(gHdffSetup.AudioDelay);
      mHdffCmdIf->CmdAvSetAudioDownmix((HdffAudioDownmixMode_t) gHdffSetup.AudioDownmix);
+     mHdffCmdIf->CmdAvSetSyncShift(gHdffSetup.AvSyncShift);
      mHdffCmdIf->CmdMuxSetVideoOut((HdffVideoOut_t) gHdffSetup.AnalogueVideo);
      mHdffCmdIf->CmdHdmiSetVideoMode(gHdffSetup.GetVideoMode());
 
@@ -91,10 +96,6 @@ cDvbHdFfDevice::~cDvbHdFfDevice()
     delete spuDecoder;
     if (isHdffPrimary)
     {
-        if (gHdffSetup.CecEnabled && gHdffSetup.CecTvOff)
-        {
-            mHdffCmdIf->CmdHdmiSendCecCommand(HDFF_CEC_COMMAND_TV_OFF);
-        }
         delete mHdffCmdIf;
     }
     // We're not explicitly closing any device files here, since this sometimes
@@ -122,8 +123,112 @@ cSpuDecoder *cDvbHdFfDevice::GetSpuDecoder(void)
 
 uchar *cDvbHdFfDevice::GrabImage(int &Size, bool Jpeg, int Quality, int SizeX, int SizeY)
 {
-  //TODO
-  return NULL;
+    #define BUFFER_SIZE  (sizeof(struct v4l2_pix_format) + 1920 * 1080 * 2)
+    int fd;
+    uint8_t * buffer;
+    uint8_t * result = NULL;
+
+    fd = DvbOpen(DEV_DVB_VIDEO, adapter, frontend, O_RDONLY);
+    if (fd < 0) {
+        esyslog("GrabImage: failed open DVB video device");
+        return NULL;
+    }
+
+    buffer = (uint8_t *) malloc(BUFFER_SIZE);
+    if (buffer)
+    {
+        int readBytes;
+
+        readBytes = read(fd, buffer, BUFFER_SIZE);
+        if (readBytes < (int) sizeof(struct v4l2_pix_format))
+            esyslog("GrabImage: failed reading from DVB video device");
+        else {
+            struct v4l2_pix_format * pixfmt;
+            int dataSize;
+
+            pixfmt = (struct v4l2_pix_format *) buffer;
+            dsyslog("GrabImage: Read image of size %d x %d",
+                    pixfmt->width, pixfmt->height);
+            dataSize = readBytes - sizeof(struct v4l2_pix_format);
+            if (dataSize < (int) pixfmt->sizeimage)
+                esyslog("GrabImage: image is not complete");
+            else {
+                if (Jpeg) {
+                    uint8_t * temp;
+                    temp = (uint8_t *) malloc(pixfmt->width * 3 * pixfmt->height);
+                    if (temp) {
+                        int numPixels = pixfmt->width * pixfmt->height;
+                        uint8_t * destData = temp;
+                        uint8_t * srcData = buffer + sizeof(struct v4l2_pix_format);
+                        while (numPixels > 0)
+                        {
+                            destData[0] = srcData[1];
+                            destData[1] = srcData[0];
+                            destData[2] = srcData[2];
+                            destData[3] = srcData[3];
+                            destData[4] = srcData[0];
+                            destData[5] = srcData[2];
+                            srcData += 4;
+                            destData += 6;
+                            numPixels -= 2;
+                        }
+                        if (Quality < 0)
+                            Quality = 100;
+                        result = YuvToJpeg(temp, pixfmt->width, pixfmt->height, Size, Quality);
+                        free(temp);
+                    }
+                }
+                else {
+                    // convert to PNM:
+                    char buf[32];
+                    snprintf(buf, sizeof(buf), "P6\n%d\n%d\n255\n",
+                             pixfmt->width, pixfmt->height);
+                    int l = strlen(buf);
+                    Size = l + pixfmt->width * 3 * pixfmt->height;
+                    result = (uint8_t *) malloc(Size);
+                    if (result)
+                    {
+                        memcpy(result, buf, l);
+                        uint8_t * destData = result + l;
+                        uint8_t * srcData = buffer + sizeof(struct v4l2_pix_format);
+                        int numPixels = pixfmt->width * pixfmt->height;
+                        while (numPixels > 0)
+                        {
+                            int cb = srcData[0] - 128;
+                            int y1 = srcData[1];
+                            int cr = srcData[2] - 128;
+                            int y2 = srcData[3];
+                            int r;
+                            int g;
+                            int b;
+
+                            r = y1 + (int) (1.402f * cr);
+                            g = y1 - (int) (0.344f * cb + 0.714f * cr);
+                            b = y1 + (int) (1.772f * cb);
+                            destData[0] = r > 255 ? 255 : r < 0 ? 0 : r;
+                            destData[1] = g > 255 ? 255 : g < 0 ? 0 : g;
+                            destData[2] = b > 255 ? 255 : b < 0 ? 0 : b;
+                            r = y2 + (int) (1.402f * cr);
+                            g = y2 - (int) (0.344f * cb + 0.714f * cr);
+                            b = y2 + (int) (1.772f * cb);
+                            destData[3] = r > 255 ? 255 : r < 0 ? 0 : r;
+                            destData[4] = g > 255 ? 255 : g < 0 ? 0 : g;
+                            destData[5] = b > 255 ? 255 : b < 0 ? 0 : b;
+
+                            srcData += 4;
+                            destData += 6;
+                            numPixels -= 2;
+                        }
+                    }
+                }
+            }
+        }
+        free(buffer);
+    }
+
+    close(fd);
+
+    return result;
 }
 
 void cDvbHdFfDevice::SetVideoDisplayFormat(eVideoDisplayFormat VideoDisplayFormat)
@@ -136,7 +241,7 @@ void cDvbHdFfDevice::SetVideoFormat(bool VideoFormat16_9)
 {
   HdffVideoFormat_t videoFormat;
   videoFormat.AutomaticEnabled = true;
-  videoFormat.AfdEnabled = true;
+  videoFormat.AfdEnabled = false;
   videoFormat.TvFormat = (HdffTvFormat_t) gHdffSetup.TvFormat;
   videoFormat.VideoConversion = (HdffVideoConversion_t) gHdffSetup.VideoConversion;
   mHdffCmdIf->CmdAvSetVideoFormat(0, &videoFormat);
@@ -375,62 +480,86 @@ bool cDvbHdFfDevice::CanReplay(void) const
 
 bool cDvbHdFfDevice::SetPlayMode(ePlayMode PlayMode)
 {
-  if (PlayMode == pmNone) {
-     mHdffCmdIf->CmdAvSetVideoSpeed(0, 100);
-     mHdffCmdIf->CmdAvSetAudioSpeed(0, 100);
+    if (PlayMode == pmNone) {
+        if (fd_video == -1)
+            fd_video = DvbOpen(DEV_DVB_VIDEO,  adapter, frontend, O_RDWR | O_NONBLOCK);
+        if (fd_audio == -1)
+            fd_audio = DvbOpen(DEV_DVB_AUDIO,  adapter, frontend, O_RDWR | O_NONBLOCK);
 
-     mHdffCmdIf->CmdAvEnableVideoAfterStop(0, false);
-     mHdffCmdIf->CmdAvSetPcrPid(0, 0);
-     mHdffCmdIf->CmdAvSetVideoPid(0, 0, HDFF_VIDEO_STREAM_MPEG1);
-     mHdffCmdIf->CmdAvSetAudioPid(0, 0, HDFF_AUDIO_STREAM_MPEG1);
+        mHdffCmdIf->CmdAvSetVideoSpeed(0, 100);
+        mHdffCmdIf->CmdAvSetAudioSpeed(0, 100);
 
-     ioctl(fd_video, VIDEO_SELECT_SOURCE, VIDEO_SOURCE_DEMUX);
-     mHdffCmdIf->CmdAvSetDecoderInput(0, 0);
-     mHdffCmdIf->CmdAvEnableSync(0, true);
-     mHdffCmdIf->CmdAvSetPlayMode(0, true);
-     }
-  else {
-     if (playMode == pmNone)
-        TurnOffLiveMode(true);
+        mHdffCmdIf->CmdAvEnableVideoAfterStop(0, false);
+        mHdffCmdIf->CmdAvSetPcrPid(0, 0);
+        mHdffCmdIf->CmdAvSetVideoPid(0, 0, HDFF_VIDEO_STREAM_MPEG1);
+        mHdffCmdIf->CmdAvSetAudioPid(0, 0, HDFF_AUDIO_STREAM_MPEG1);
 
-     mHdffCmdIf->CmdAvSetPlayMode(1, Transferring() || (cTransferControl::ReceiverDevice() == this));
-     mHdffCmdIf->CmdAvSetStc(0, 100000);
-     mHdffCmdIf->CmdAvEnableSync(0, true);
-     mHdffCmdIf->CmdAvEnableVideoAfterStop(0, true);
+        ioctl(fd_video, VIDEO_SELECT_SOURCE, VIDEO_SOURCE_DEMUX);
+        mHdffCmdIf->CmdAvSetDecoderInput(0, 0);
+        mHdffCmdIf->CmdAvEnableSync(0, true);
+        mHdffCmdIf->CmdAvSetPlayMode(0, true);
+    }
+    else {
+        if (playMode == pmNone)
+            TurnOffLiveMode(true);
 
-     playVideoPid = -1;
-     playAudioPid = -1;
-     audioCounter = 0;
-     videoCounter = 0;
-     freezed = false;
-     trickMode = false;
+        if (PlayMode == pmExtern_THIS_SHOULD_BE_AVOIDED)
+        {
+            close(fd_video);
+            fd_video = -1;
+            close(fd_audio);
+            fd_audio = -1;
+        }
+        else
+        {
+            mHdffCmdIf->CmdAvSetPlayMode(1, Transferring() || (cTransferControl::ReceiverDevice() == this));
+            mHdffCmdIf->CmdAvSetStc(0, 100000);
+            mHdffCmdIf->CmdAvEnableSync(0, false);
+            mHdffCmdIf->CmdAvEnableVideoAfterStop(0, true);
 
-     mHdffCmdIf->CmdAvSetDecoderInput(0, 2);
-     ioctl(fd_video, VIDEO_SELECT_SOURCE, VIDEO_SOURCE_MEMORY);
-     }
-  playMode = PlayMode;
-  return true;
+            playVideoPid = -1;
+            playAudioPid = -1;
+            audioCounter = 0;
+            videoCounter = 0;
+            freezed = false;
+            trickMode = false;
+            isPlayingVideo = false;
+
+            mHdffCmdIf->CmdAvSetDecoderInput(0, 2);
+            ioctl(fd_video, VIDEO_SELECT_SOURCE, VIDEO_SOURCE_MEMORY);
+        }
+    }
+    playMode = PlayMode;
+    return true;
 }
 
 int64_t cDvbHdFfDevice::GetSTC(void)
 {
-  if (fd_video >= 0) {
-     uint64_t pts;
-     if (ioctl(fd_video, VIDEO_GET_PTS, &pts) == -1) {
-        esyslog("ERROR: pts %d: %m", CardIndex() + 1);
-        return -1;
+    if (isPlayingVideo)
+    {
+        if (fd_video >= 0) {
+            uint64_t pts;
+            if (ioctl(fd_video, VIDEO_GET_PTS, &pts) == -1) {
+                esyslog("ERROR: pts %d: %m", CardIndex() + 1);
+                return -1;
+            }
+            //printf("video PTS %lld\n", pts);
+            return pts;
         }
-     return pts;
-     }
-  if (fd_audio >= 0) {
-     uint64_t pts;
-     if (ioctl(fd_audio, AUDIO_GET_PTS, &pts) == -1) {
-        esyslog("ERROR: pts %d: %m", CardIndex() + 1);
-        return -1;
+    }
+    else
+    {
+        if (fd_audio >= 0) {
+            uint64_t pts;
+            if (ioctl(fd_audio, AUDIO_GET_PTS, &pts) == -1) {
+                esyslog("ERROR: pts %d: %m", CardIndex() + 1);
+                return -1;
+            }
+            //printf("audio PTS %lld\n", pts);
+            return pts;
         }
-     return pts;
-     }
-  return -1;
+    }
+    return -1;
 }
 
 void cDvbHdFfDevice::TrickSpeed(int Speed)
@@ -456,12 +585,13 @@ void cDvbHdFfDevice::Clear(void)
 
 void cDvbHdFfDevice::Play(void)
 {
-  freezed = false;
-  trickMode = false;
-  mHdffCmdIf->CmdAvEnableSync(0, true);
-  mHdffCmdIf->CmdAvSetVideoSpeed(0, 100);
-  mHdffCmdIf->CmdAvSetAudioSpeed(0, 100);
-  cDevice::Play();
+    freezed = false;
+    trickMode = false;
+    if (isPlayingVideo)
+        mHdffCmdIf->CmdAvEnableSync(0, true);
+    mHdffCmdIf->CmdAvSetVideoSpeed(0, 100);
+    mHdffCmdIf->CmdAvSetAudioSpeed(0, 100);
+    cDevice::Play();
 }
 
 void cDvbHdFfDevice::Freeze(void)
@@ -631,6 +761,11 @@ int cDvbHdFfDevice::PlayVideo(const uchar *Data, int Length)
 {
     if (freezed)
         return -1;
+    if (!isPlayingVideo)
+    {
+        mHdffCmdIf->CmdAvEnableSync(0, true);
+        isPlayingVideo = true;
+    }
     //TODO: support greater Length
     uint8_t tsBuffer[188 * 16];
     uint32_t tsLength;
@@ -651,8 +786,6 @@ int cDvbHdFfDevice::PlayAudio(const uchar *Data, int Length, uchar Id)
 {
     if (freezed)
         return -1;
-    if (trickMode)
-        return Length;
     uint8_t streamId;
     uint8_t tsBuffer[188 * 16];
     uint32_t tsLength;
@@ -702,17 +835,23 @@ int cDvbHdFfDevice::PlayAudio(const uchar *Data, int Length, uchar Id)
 
 int cDvbHdFfDevice::PlayTsVideo(const uchar *Data, int Length)
 {
-  if (freezed)
-    return -1;
-  int pid = TsPid(Data);
-  if (pid != playVideoPid) {
-     PatPmtParser();
-     if (pid == PatPmtParser()->Vpid()) {
-        playVideoPid = pid;
-        mHdffCmdIf->CmdAvSetVideoPid(0, playVideoPid, MapVideoStreamTypes(PatPmtParser()->Vtype()), true);
+    if (freezed)
+        return -1;
+    if (!isPlayingVideo)
+    {
+        mHdffCmdIf->CmdAvEnableSync(0, true);
+        isPlayingVideo = true;
+    }
+
+    int pid = TsPid(Data);
+    if (pid != playVideoPid) {
+        PatPmtParser();
+        if (pid == PatPmtParser()->Vpid()) {
+            playVideoPid = pid;
+            mHdffCmdIf->CmdAvSetVideoPid(0, playVideoPid, MapVideoStreamTypes(PatPmtParser()->Vtype()), true);
         }
-     }
-  return WriteAllOrNothing(fd_video, Data, Length, 1000, 10);
+    }
+    return WriteAllOrNothing(fd_video, Data, Length, 1000, 10);
 }
 
 static HdffAudioStreamType_t MapAudioStreamTypes(int Atype)
@@ -732,8 +871,6 @@ int cDvbHdFfDevice::PlayTsAudio(const uchar *Data, int Length)
 {
   if (freezed)
     return -1;
-  if (trickMode)
-    return Length;
   int pid = TsPid(Data);
   if (pid != playAudioPid) {
      playAudioPid = pid;
@@ -806,4 +943,105 @@ bool cDvbHdFfDeviceProbe::Probe(int Adapter, int Frontend)
          }
       }
   return false;
+}
+
+
+// --- YuvToJpeg -------------------------------------------------------------
+
+#include <jpeglib.h>
+
+#define JPEGCOMPRESSMEM 4000000
+
+struct tJpegCompressData {
+  int size;
+  uchar *mem;
+  };
+
+static void JpegCompressInitDestination(j_compress_ptr cinfo)
+{
+  tJpegCompressData *jcd = (tJpegCompressData *)cinfo->client_data;
+  if (jcd) {
+     cinfo->dest->free_in_buffer = jcd->size = JPEGCOMPRESSMEM;
+     cinfo->dest->next_output_byte = jcd->mem = MALLOC(uchar, jcd->size);
+     }
+}
+
+static boolean JpegCompressEmptyOutputBuffer(j_compress_ptr cinfo)
+{
+  tJpegCompressData *jcd = (tJpegCompressData *)cinfo->client_data;
+  if (jcd) {
+     int Used = jcd->size;
+     int NewSize = jcd->size + JPEGCOMPRESSMEM;
+     if (uchar *NewBuffer = (uchar *)realloc(jcd->mem, NewSize)) {
+        jcd->size = NewSize;
+        jcd->mem = NewBuffer;
+        }
+     else {
+        esyslog("ERROR: out of memory");
+        return false;
+        }
+     if (jcd->mem) {
+        cinfo->dest->next_output_byte = jcd->mem + Used;
+        cinfo->dest->free_in_buffer = jcd->size - Used;
+        return true;
+        }
+     }
+  return false;
+}
+
+static void JpegCompressTermDestination(j_compress_ptr cinfo)
+{
+  tJpegCompressData *jcd = (tJpegCompressData *)cinfo->client_data;
+  if (jcd) {
+     int Used = cinfo->dest->next_output_byte - jcd->mem;
+     if (Used < jcd->size) {
+        if (uchar *NewBuffer = (uchar *)realloc(jcd->mem, Used)) {
+           jcd->size = Used;
+           jcd->mem = NewBuffer;
+           }
+        else
+           esyslog("ERROR: out of memory");
+        }
+     }
+}
+
+static uchar *YuvToJpeg(uchar *Mem, int Width, int Height, int &Size, int Quality)
+{
+  if (Quality < 0)
+     Quality = 0;
+  else if (Quality > 100)
+     Quality = 100;
+
+  jpeg_destination_mgr jdm;
+
+  jdm.init_destination = JpegCompressInitDestination;
+  jdm.empty_output_buffer = JpegCompressEmptyOutputBuffer;
+  jdm.term_destination = JpegCompressTermDestination;
+
+  struct jpeg_compress_struct cinfo;
+  struct jpeg_error_mgr jerr;
+  cinfo.err = jpeg_std_error(&jerr);
+  jpeg_create_compress(&cinfo);
+  cinfo.dest = &jdm;
+  tJpegCompressData jcd;
+  cinfo.client_data = &jcd;
+  cinfo.image_width = Width;
+  cinfo.image_height = Height;
+  cinfo.input_components = 3;
+  cinfo.in_color_space = JCS_YCbCr;
+
+  jpeg_set_defaults(&cinfo);
+  jpeg_set_quality(&cinfo, Quality, true);
+  jpeg_start_compress(&cinfo, true);
+
+  int rs = Width * 3;
+  JSAMPROW rp[Height];
+  for (int k = 0; k < Height; k++)
+      rp[k] = &Mem[rs * k];
+  jpeg_write_scanlines(&cinfo, rp, Height);
+  jpeg_finish_compress(&cinfo);
+  jpeg_destroy_compress(&cinfo);
+
+  Size = jcd.size;
+  return jcd.mem;
 }

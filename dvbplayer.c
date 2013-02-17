@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: dvbplayer.c 2.27 2012/05/06 11:02:35 kls Exp $
+ * $Id: dvbplayer.c 2.30 2013/02/12 10:50:10 kls Exp $
  */
 
 #include "dvbplayer.h"
@@ -513,7 +513,7 @@ void cDvbPlayer::Action(void)
 
           if (dropFrame) {
              if (!eof || (playDir != pdForward && dropFrame->Index() > 0) || (playDir == pdForward && dropFrame->Index() < readIndex)) {
-                ringBuffer->Drop(dropFrame); // the very first and last frame are continously repeated to flush data through the device
+                ringBuffer->Drop(dropFrame); // the very first and last frame are continuously repeated to flush data through the device
                 dropFrame = NULL;
                 }
              }
@@ -548,10 +548,11 @@ void cDvbPlayer::Action(void)
                 }
              if (p) {
                 int w;
+                bool VideoOnly = (dropFrame || playMode != pmPlay && !(playMode == pmSlow && playDir == pdForward)) && DeviceIsPlayingVideo();
                 if (isPesRecording)
-                   w = PlayPes(p, pc, playMode != pmPlay && !(playMode == pmSlow && playDir == pdForward) && DeviceIsPlayingVideo());
+                   w = PlayPes(p, pc, VideoOnly);
                 else
-                   w = PlayTs(p, pc, playMode != pmPlay && !(playMode == pmSlow && playDir == pdForward) && DeviceIsPlayingVideo());
+                   w = PlayTs(p, pc, VideoOnly);
                 if (w > 0) {
                    p += w;
                    pc -= w;
@@ -575,7 +576,7 @@ void cDvbPlayer::Action(void)
           if (eof || SwitchToPlayFrame) {
              bool SwitchToPlay = false;
              uint32_t Stc = DeviceGetSTC();
-             if (Stc != LastStc)
+             if (Stc != LastStc || playMode == pmPause)
                 StuckAtEof = 0;
              else if (!StuckAtEof)
                 StuckAtEof = time(NULL);

@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: timers.c 2.9 2012/04/25 09:02:03 kls Exp $
+ * $Id: timers.c 2.16 2013/02/05 11:13:20 kls Exp $
  */
 
 #include "timers.h"
@@ -16,8 +16,6 @@
 #include "recording.h"
 #include "remote.h"
 #include "status.h"
-
-#define VFAT_MAX_FILENAME 40 // same as MAX_SUBTITLE_LENGTH in recording.c
 
 // IMPORTANT NOTE: in the 'sscanf()' calls there is a blank after the '%d'
 // format characters in order to allow any number of blanks after a numeric
@@ -32,6 +30,9 @@ cTimer::cTimer(bool Instant, bool Pause, cChannel *Channel)
   deferred = 0;
   recording = pending = inVpsMargin = false;
   flags = tfNone;
+  *file = 0;
+  aux = NULL;
+  event = NULL;
   if (Instant)
      SetFlags(tfActive | tfInstant);
   channel = Channel ? Channel : Channels.GetByNumber(cDevice::CurrentChannel());
@@ -41,22 +42,42 @@ cTimer::cTimer(bool Instant, bool Pause, cChannel *Channel)
   day = SetTime(t, 0);
   weekdays = 0;
   start = now->tm_hour * 100 + now->tm_min;
-  stop = now->tm_hour * 60 + now->tm_min + Setup.InstantRecordTime;
-  stop = (stop / 60) * 100 + (stop % 60);
+  stop = 0;
+  if (!Setup.InstantRecordTime && channel) {
+     cSchedulesLock SchedulesLock;
+     if (const cSchedules *Schedules = cSchedules::Schedules(SchedulesLock)) {
+        if (const cSchedule *Schedule = Schedules->GetSchedule(channel)) {
+           if (const cEvent *Event = Schedule->GetPresentEvent()) {
+              time_t tstart = Event->StartTime();
+              time_t tstop = Event->EndTime();
+              if (Event->Vps() && Setup.UseVps) {
+                 SetFlags(tfVps);
+                 tstart = Event->Vps();
+                 }
+              else {
+                 tstop  += Setup.MarginStop * 60;
+                 tstart -= Setup.MarginStart * 60;
+                 }
+              day = SetTime(tstart, 0);
+              struct tm *time = localtime_r(&tstart, &tm_r);
+              start = time->tm_hour * 100 + time->tm_min;
+              time = localtime_r(&tstop, &tm_r);
+              stop = time->tm_hour * 100 + time->tm_min;
+              SetEvent(Event);
+              }
+           }
+        }
+     }
+  if (!stop) {
+     stop = now->tm_hour * 60 + now->tm_min + (Setup.InstantRecordTime ? Setup.InstantRecordTime : DEFINSTRECTIME);
+     stop = (stop / 60) * 100 + (stop % 60);
+     }
   if (stop >= 2400)
      stop -= 2400;
   priority = Pause ? Setup.PausePriority : Setup.DefaultPriority;
   lifetime = Pause ? Setup.PauseLifetime : Setup.DefaultLifetime;
-  *file = 0;
-  aux = NULL;
-  event = NULL;
   if (Instant && channel)
      snprintf(file, sizeof(file), "%s%s", Setup.MarkInstantRecord ? "@" : "", *Setup.NameInstantRecord ? Setup.NameInstantRecord : channel->Name());
-  if (VfatFileSystem && (Utf8StrLen(file) > VFAT_MAX_FILENAME)) {
-     dsyslog("timer file name too long for VFAT file system: '%s'", file);
-     file[Utf8SymChars(file, VFAT_MAX_FILENAME)] = 0;
-     dsyslog("timer file name truncated to '%s'", file);
-     }
 }
 
 cTimer::cTimer(const cEvent *Event)
@@ -66,6 +87,9 @@ cTimer::cTimer(const cEvent *Event)
   deferred = 0;
   recording = pending = inVpsMargin = false;
   flags = tfActive;
+  *file = 0;
+  aux = NULL;
+  event = NULL;
   if (Event->Vps() && Setup.UseVps)
      SetFlags(tfVps);
   channel = Channels.GetByChannelID(Event->ChannelID(), true);
@@ -86,17 +110,10 @@ cTimer::cTimer(const cEvent *Event)
      stop -= 2400;
   priority = Setup.DefaultPriority;
   lifetime = Setup.DefaultLifetime;
-  *file = 0;
   const char *Title = Event->Title();
   if (!isempty(Title))
      Utf8Strn0Cpy(file, Event->Title(), sizeof(file));
-  if (VfatFileSystem && (Utf8StrLen(file) > VFAT_MAX_FILENAME)) {
-     dsyslog("timer file name too long for VFAT file system: '%s'", file);
-     file[Utf8SymChars(file, VFAT_MAX_FILENAME)] = 0;
-     dsyslog("timer file name truncated to '%s'", file);
-     }
-  aux = NULL;
-  event = NULL; // let SetEvent() be called to get a log message
+  SetEvent(Event);
 }
 
 cTimer::cTimer(const cTimer &Timer)
@@ -280,7 +297,7 @@ bool cTimer::Parse(const char *s)
   free(aux);
   aux = NULL;
   //XXX Apparently sscanf() doesn't work correctly if the last %a argument
-  //XXX results in an empty string (this first occured when the EIT gathering
+  //XXX results in an empty string (this first occurred when the EIT gathering
   //XXX was put into a separate thread - don't know why this happens...
   //XXX As a cure we copy the original string and add a blank.
   //XXX If anybody can shed some light on why sscanf() failes here, I'd love
@@ -303,18 +320,6 @@ bool cTimer::Parse(const char *s)
         }
      //TODO add more plausibility checks
      result = ParseDay(daybuffer, day, weekdays);
-     if (VfatFileSystem) {
-        char *p = strrchr(filebuffer, FOLDERDELIMCHAR);
-        if (p)
-           p++;
-        else
-           p = filebuffer;
-        if (Utf8StrLen(p) > VFAT_MAX_FILENAME) {
-           dsyslog("timer file name too long for VFAT file system: '%s'", p);
-           p[Utf8SymChars(p, VFAT_MAX_FILENAME)] = 0;
-           dsyslog("timer file name truncated to '%s'", p);
-           }
-        }
      Utf8Strn0Cpy(file, filebuffer, sizeof(file));
      strreplace(file, '|', ':');
      if (isnumber(channelbuffer))
@@ -436,10 +441,11 @@ bool cTimer::Matches(time_t t, bool Directly, int Margin) const
            startTime = event->StartTime();
            stopTime = event->EndTime();
            if (!Margin) { // this is an actual check
-              if (event->Schedule()->PresentSeenWithin(EITPRESENTFOLLOWINGRATE)) // VPS control can only work with up-to-date events...
-                 return event->IsRunning(true);
-              else
-                 return startTime <= t && t < stopTime; // ...otherwise we fall back to normal timer handling
+              if (event->Schedule()->PresentSeenWithin(EITPRESENTFOLLOWINGRATE)) { // VPS control can only work with up-to-date events...
+                 if (event->StartTime() > 0) // checks for "phased out" events
+                    return event->IsRunning(true);
+                 }
+              return startTime <= t && t < stopTime; // ...otherwise we fall back to normal timer handling
               }
            }
         }
@@ -450,7 +456,7 @@ bool cTimer::Matches(time_t t, bool Directly, int Margin) const
 
 #define FULLMATCH 1000
 
-int cTimer::Matches(const cEvent *Event, int *Overlap) const
+eTimerMatch cTimer::Matches(const cEvent *Event, int *Overlap) const
 {
   // Overlap is the percentage of the Event's duration that is covered by
   // this timer (based on FULLMATCH for finer granularity than just 100).
@@ -520,8 +526,12 @@ void cTimer::SetEventFromSchedule(const cSchedules *Schedules)
         lastSetEvent = now;
         const cEvent *Event = NULL;
         if (HasFlags(tfVps) && Schedule->Events()->First()->Vps()) {
-           if (event && Recording())
-              return; // let the recording end first
+           if (event && event->StartTime() > 0) { // checks for "phased out" events
+              if (Recording())
+                 return; // let the recording end first
+              if (now <= event->EndTime() || Matches(0, true))
+                 return; // stay with the old event until the timer has completely expired
+              }
            // VPS timers only match if their start time exactly matches the event's VPS time:
            for (const cEvent *e = Schedule->Events()->First(); e; e = Schedule->Events()->Next(e)) {
                if (e->StartTime() && e->RunningStatus() != SI::RunningStatusNotRunning) { // skip outdated events
@@ -533,8 +543,6 @@ void cTimer::SetEventFromSchedule(const cSchedules *Schedules)
                      }
                   }
                }
-           if (!Event && event && (now <= event->EndTime() || Matches(0, true)))
-              return; // stay with the old event until the timer has completely expired
            }
         else {
            // Normal timers match the event they have the most overlap with:
@@ -726,12 +734,12 @@ cTimer *cTimers::GetMatch(time_t t)
   return t0;
 }
 
-cTimer *cTimers::GetMatch(const cEvent *Event, int *Match)
+cTimer *cTimers::GetMatch(const cEvent *Event, eTimerMatch *Match)
 {
   cTimer *t = NULL;
-  int m = tmNone;
+  eTimerMatch m = tmNone;
   for (cTimer *ti = First(); ti; ti = Next(ti)) {
-      int tm = ti->Matches(Event);
+      eTimerMatch tm = ti->Matches(Event);
       if (tm > m) {
          t = ti;
          m = tm;
@@ -829,7 +837,7 @@ static int CompareTimers(const void *a, const void *b)
 }
 
 cSortedTimers::cSortedTimers(void)
-:cVector(Timers.Count())
+:cVector<const cTimer *>(Timers.Count())
 {
   for (const cTimer *Timer = Timers.First(); Timer; Timer = Timers.Next(Timer))
       Append(Timer);

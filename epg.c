@@ -7,7 +7,7 @@
  * Original version (as used in VDR before 1.3.0) written by
  * Robert Schneider <Robert.Schneider@web.de> and Rolf Hakenes <hakenes@hippomi.de>.
  *
- * $Id: epg.c 2.14 2012/06/02 14:08:12 kls Exp $
+ * $Id: epg.c 2.23 2013/02/17 14:12:07 kls Exp $
  */
 
 #include "epg.h"
@@ -18,6 +18,7 @@
 #include "timers.h"
 
 #define RUNNINGSTATUSTIMEOUT 30 // seconds before the running status is considered unknown
+#define EPGDATAWRITEDELTA   600 // seconds between writing the epg.data file
 
 // --- tComponent ------------------------------------------------------------
 
@@ -581,9 +582,20 @@ static void EpgBugFixStat(int Number, tChannelID ChannelID)
      }
 }
 
-void ReportEpgBugFixStats(bool Reset)
+void ReportEpgBugFixStats(bool Force)
 {
   if (Setup.EPGBugfixLevel > 0) {
+     static time_t LastReport = 0;
+     time_t now = time(NULL);
+     if (now - LastReport > 3600 || Force) {
+        LastReport = now;
+        struct tm tm_r;
+        struct tm *ptm = localtime_r(&now, &tm_r);
+        if (ptm->tm_hour != 5)
+           return;
+        }
+     else
+        return;
      bool GotHits = false;
      char buffer[1024];
      for (int i = 0; i < MAXEPGBUGFIXSTATS; i++) {
@@ -622,11 +634,30 @@ void ReportEpgBugFixStats(bool Reset)
             if (*buffer)
                dsyslog("%s", buffer);
             }
-         if (Reset)
-            p->hits = p->n = 0;
+         p->hits = p->n = 0;
          }
      if (GotHits)
         dsyslog("=====================");
+     }
+}
+
+static void StripControlCharacters(char *s)
+{
+  if (s) {
+     int len = strlen(s);
+     while (len > 0) {
+           int l = Utf8CharLen(s);
+           uchar *p = (uchar *)s;
+           if (l == 2 && *p == 0xC2) // UTF-8 sequence
+              p++;
+           if (*p == 0x86 || *p == 0x87) {
+              memmove(s, p + 1, len - l + 1); // we also copy the terminating 0!
+              len -= l;
+              l = 0;
+              }
+           s += l;
+           len -= l;
+           }
      }
 }
 
@@ -839,15 +870,10 @@ Final:
             strreplace(p->description, '\n', ' ');
          }
      }
-  /* TODO adapt to UTF-8
   // Same for control characters:
-  strreplace(title, '\x86', ' ');
-  strreplace(title, '\x87', ' ');
-  strreplace(shortText, '\x86', ' ');
-  strreplace(shortText, '\x87', ' ');
-  strreplace(description, '\x86', ' ');
-  strreplace(description, '\x87', ' ');
-  XXX*/
+  StripControlCharacters(title);
+  StripControlCharacters(shortText);
+  StripControlCharacters(description);
 }
 
 // --- cSchedule -------------------------------------------------------------
@@ -1109,6 +1135,45 @@ bool cSchedule::Read(FILE *f, cSchedules *Schedules)
   return false;
 }
 
+// --- cEpgDataWriter --------------------------------------------------------
+
+class cEpgDataWriter : public cThread {
+private:
+  cMutex mutex;
+protected:
+  virtual void Action(void);
+public:
+  cEpgDataWriter(void);
+  void Perform(void);
+  };
+
+cEpgDataWriter::cEpgDataWriter(void)
+:cThread("epg data writer", true)
+{
+}
+
+void cEpgDataWriter::Action(void)
+{
+  Perform();
+}
+
+void cEpgDataWriter::Perform(void)
+{
+  cMutexLock MutexLock(&mutex); // to make sure fore- and background calls don't cause parellel dumps!
+  {
+    cSchedulesLock SchedulesLock(true, 1000);
+    cSchedules *s = (cSchedules *)cSchedules::Schedules(SchedulesLock);
+    if (s) {
+       time_t now = time(NULL);
+       for (cSchedule *p = s->First(); p; p = s->Next(p))
+           p->Cleanup(now);
+       }
+  }
+  cSchedules::Dump();
+}
+
+static cEpgDataWriter EpgDataWriter;
+
 // --- cSchedulesLock --------------------------------------------------------
 
 cSchedulesLock::cSchedulesLock(bool WriteLock, int TimeoutMs)
@@ -1126,7 +1191,6 @@ cSchedulesLock::~cSchedulesLock()
 
 cSchedules cSchedules::schedules;
 char *cSchedules::epgDataFileName = NULL;
-time_t cSchedules::lastCleanup = time(NULL);
 time_t cSchedules::lastDump = time(NULL);
 time_t cSchedules::modified = 0;
 
@@ -1152,28 +1216,13 @@ void cSchedules::Cleanup(bool Force)
   if (Force)
      lastDump = 0;
   time_t now = time(NULL);
-  struct tm tm_r;
-  struct tm *ptm = localtime_r(&now, &tm_r);
-  if (now - lastCleanup > 3600) {
-     isyslog("cleaning up schedules data");
-     cSchedulesLock SchedulesLock(true, 1000);
-     cSchedules *s = (cSchedules *)Schedules(SchedulesLock);
-     if (s) {
-        for (cSchedule *p = s->First(); p; p = s->Next(p))
-            p->Cleanup(now);
+  if (now - lastDump > EPGDATAWRITEDELTA) {
+     if (epgDataFileName) {
+        if (Force)
+           EpgDataWriter.Perform();
+        else if (!EpgDataWriter.Active())
+           EpgDataWriter.Start();
         }
-     lastCleanup = now;
-     if (ptm->tm_hour == 5)
-        ReportEpgBugFixStats(true);
-     }
-  if (epgDataFileName && now - lastDump > 600) {
-     cSafeFile f(epgDataFileName);
-     if (f.Open()) {
-        Dump(f);
-        f.Close();
-        }
-     else
-        LOG_ERROR;
      lastDump = now;
      }
 }
@@ -1207,8 +1256,23 @@ bool cSchedules::Dump(FILE *f, const char *Prefix, eDumpMode DumpMode, time_t At
   cSchedulesLock SchedulesLock;
   cSchedules *s = (cSchedules *)Schedules(SchedulesLock);
   if (s) {
+     cSafeFile *sf = NULL;
+     if (!f) {
+        sf = new cSafeFile(epgDataFileName);
+        if (sf->Open())
+           f = *sf;
+        else {
+           LOG_ERROR;
+           delete sf;
+           return false;
+           }
+        }
      for (cSchedule *p = s->First(); p; p = s->Next(p))
          p->Dump(f, Prefix, DumpMode, AtTime);
+     if (sf) {
+        sf->Close();
+        delete sf;
+        }
      return true;
      }
   return false;
@@ -1331,6 +1395,24 @@ bool cEpgHandlers::HandleEitEvent(cSchedule *Schedule, const SI::EIT::Event *Eit
   return false;
 }
 
+bool cEpgHandlers::HandledExternally(const cChannel *Channel)
+{
+  for (cEpgHandler *eh = First(); eh; eh = Next(eh)) {
+      if (eh->HandledExternally(Channel))
+         return true;
+      }
+  return false;
+}
+
+bool cEpgHandlers::IsUpdate(tEventID EventID, time_t StartTime, uchar TableID, uchar Version)
+{
+  for (cEpgHandler *eh = First(); eh; eh = Next(eh)) {
+      if (eh->IsUpdate(EventID, StartTime, TableID, Version))
+         return true;
+      }
+  return false;
+}
+
 void cEpgHandlers::SetEventID(cEvent *Event, tEventID EventID)
 {
   for (cEpgHandler *eh = First(); eh; eh = Next(eh)) {
@@ -1412,6 +1494,15 @@ void cEpgHandlers::SetVps(cEvent *Event, time_t Vps)
   Event->SetVps(Vps);
 }
 
+void cEpgHandlers::SetComponents(cEvent *Event, cComponents *Components)
+{
+  for (cEpgHandler *eh = First(); eh; eh = Next(eh)) {
+      if (eh->SetComponents(Event, Components))
+         return;
+      }
+  Event->SetComponents(Components);
+}
+
 void cEpgHandlers::FixEpgBugs(cEvent *Event)
 {
   for (cEpgHandler *eh = First(); eh; eh = Next(eh)) {
@@ -1427,15 +1518,6 @@ void cEpgHandlers::HandleEvent(cEvent *Event)
       if (eh->HandleEvent(Event))
          break;
       }
-}
-
-bool cEpgHandlers::DeleteEvent(const cEvent *Event)
-{
-  for (cEpgHandler *eh = First(); eh; eh = Next(eh)) {
-      if (eh->DeleteEvent(Event))
-         return true;
-      }
-  return false;
 }
 
 void cEpgHandlers::SortSchedule(cSchedule *Schedule)

@@ -3,7 +3,7 @@
  *
  * See the README file for copyright information and how to reach the author.
  *
- * $Id: hdffosd.c 1.15 2012/05/17 13:29:50 kls Exp $
+ * $Id: hdffosd.c 1.20 2013/01/29 08:59:36 kls Exp $
  */
 
 #include "hdffosd.h"
@@ -38,7 +38,6 @@ private:
     int mTop;
     int mDispWidth;
     int mDispHeight;
-    bool shown;
     bool mChanged;
     uint32_t mDisplay;
     tFontFace mFontFaces[MAX_NUM_FONTFACES];
@@ -46,6 +45,8 @@ private:
     uint32_t mBitmapPalette;
     uint32_t mBitmapColors[256];
     uint32_t mBitmapNumColors;
+
+    bool mSupportsUtf8Text;
 
 protected:
     virtual void SetActive(bool On);
@@ -75,9 +76,14 @@ cHdffOsd::cHdffOsd(int Left, int Top, HDFF::cHdffCmdIf * pHdffCmdIf, uint Level)
     mHdffCmdIf = pHdffCmdIf;
     mLeft = Left;
     mTop = Top;
-    shown = false;
     mChanged = false;
     mBitmapPalette = HDFF_INVALID_HANDLE;
+
+    mSupportsUtf8Text = false;
+    if (mHdffCmdIf->CmdGetFirmwareVersion(NULL, 0) >= 0x309)
+        mSupportsUtf8Text = true;
+
+    memset(&config, 0, sizeof(config));
     config.FontKerning = true;
     config.FontAntialiasing = Setup.AntiAlias ? true : false;
     mHdffCmdIf->CmdOsdConfigure(&config);
@@ -146,11 +152,10 @@ eOsdError cHdffOsd::SetAreas(const tArea *Areas, int NumAreas)
     {
         //printf("SetAreas %d: %d %d %d %d %d\n", i, Areas[i].x1, Areas[i].y1, Areas[i].x2, Areas[i].y2, Areas[i].bpp);
     }
-    if (shown)
+    if (mDisplay != HDFF_INVALID_HANDLE)
     {
         mHdffCmdIf->CmdOsdDrawRectangle(mDisplay, 0, 0, mDispWidth, mDispHeight, 0);
         mHdffCmdIf->CmdOsdRenderDisplay(mDisplay);
-        shown = false;
     }
     error = cOsd::SetAreas(Areas, NumAreas);
 
@@ -172,11 +177,10 @@ void cHdffOsd::SetActive(bool On)
             if (GetBitmap(0)) // only flush here if there are already bitmaps
                 Flush();
         }
-        else if (shown)
+        else if (mDisplay != HDFF_INVALID_HANDLE)
         {
             mHdffCmdIf->CmdOsdDrawRectangle(mDisplay, 0, 0, mDispWidth, mDispHeight, 0);
             mHdffCmdIf->CmdOsdRenderDisplay(mDisplay);
-            shown = false;
         }
     }
 }
@@ -346,15 +350,19 @@ void cHdffOsd::DrawText(int x, int y, const char *s, tColor ColorFg, tColor Colo
         {
             if ((Alignment & taLeft) != 0)
             {
+#if (APIVERSNUM >= 10728)
                 if ((Alignment & taBorder) != 0)
                     x += max(h / TEXT_ALIGN_BORDER, 1);
+#endif
             }
             else if ((Alignment & taRight) != 0)
             {
                 if (w < Width)
                     x += Width - w;
+#if (APIVERSNUM >= 10728)
                 if ((Alignment & taBorder) != 0)
                     x -= max(h / TEXT_ALIGN_BORDER, 1);
+#endif
             }
             else
             { // taCentered
@@ -378,8 +386,13 @@ void cHdffOsd::DrawText(int x, int y, const char *s, tColor ColorFg, tColor Colo
             }
         }
     }
-    //x -= mLeft;
-    //y -= mTop;
+#if 0
+    if (mSupportsUtf8Text)
+    {
+        mHdffCmdIf->CmdOsdDrawUtf8Text(mDisplay, pFont->Handle, x + mLeft, y + mTop + h, s, ColorFg);
+    }
+    else
+#endif
     {
         uint16_t tmp[1000];
         uint16_t len = 0;
@@ -394,9 +407,7 @@ void cHdffOsd::DrawText(int x, int y, const char *s, tColor ColorFg, tColor Colo
         tmp[len] = 0;
         mHdffCmdIf->CmdOsdDrawTextW(mDisplay, pFont->Handle, x + mLeft, y + mTop + h, tmp, ColorFg);
     }
-    //mHdffCmdIf->CmdOsdDrawText(mDisplay, pFont->Handle, x + mLeft, y + mTop + h - 7, s, ColorFg);
     mHdffCmdIf->CmdOsdSetDisplayClippingArea(mDisplay, false, 0, 0, 0, 0);
-    //Font->DrawText(this, x, y, s, ColorFg, ColorBg, limit);
     mChanged = true;
 }
 
