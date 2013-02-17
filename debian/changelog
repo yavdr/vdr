@@ -6,6 +6,7 @@ vdr (1.7.38-1) unstable; urgency=low
   * Dropped fix-gcc-issue.patch - fixed upstream
   * Dropped fix-no-hddvbdevice-segfault.patch - fixed upstream
   * Refreshed all patches
+  * Dropped Added 16_channels.conf.terr-fix.patch - fixed upstream
 
  -- Tobias Grimm <etobi@debian.org>  Wed, 23 Jan 2013 22:47:45 +0100
 

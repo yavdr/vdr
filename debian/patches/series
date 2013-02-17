@@ -1,7 +1,6 @@
 04_newplugin.patch
 06_default_svdrp_port_0.patch
 12_osdbase-maxitems.patch
-16_channels.conf.terr-fix.patch
 
 81_Make_config.patch
 82_valgrind.patch

@@ -1,7 +1,6 @@
-debian/patches/12_osdbase-maxitems.patch:1d642929dad4862e048d708e06eb750b
-debian/patches/16_channels.conf.terr-fix.patch:933f8daa6bb6d26c711d0ae987a2b03e
+debian/patches/99_ncursesw-include.patch:b5d57e1aaabc4339f60cc031342d3333
 debian/patches/82_valgrind.patch:c9a06177aeeb1db794cba17ba57e22a0
 debian/patches/04_newplugin.patch:e9f5d4813e87b1bcebb5878409cac72d
 debian/patches/06_default_svdrp_port_0.patch:ec71e0702cd792605e67175aa542bfd6
-debian/patches/99_ncursesw-include.patch:b5d57e1aaabc4339f60cc031342d3333
 debian/patches/81_Make_config.patch:76dc4a78d1da16e3e524e41587d0c90d
+debian/patches/12_osdbase-maxitems.patch:1d642929dad4862e048d708e06eb750b
