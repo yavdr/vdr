@@ -63,7 +63,7 @@ build-indep-stamp: configure-stamp
 	touch $@
 
 patchinfo:
-	sh debian/extract-patchinfo >debian/patchinfo
+	debian/extract-patchinfo >debian/patchinfo
 
 clean:
 	dh_testdir
@@ -87,7 +87,6 @@ install: patchinfo build
 	dh_prep
 	dh_installdirs
 	dh_install
-	chmod +x $(CURDIR)/debian/vdr/usr/lib/vdr/vdr-*
 	for example in hello osddemo pictures servicedemo skincurses status svdrpdemo; do \
 	    install -D PLUGINS/src/$$example/README $(CURDIR)/debian/vdr-plugin-examples/usr/share/doc/vdr-plugin-examples/README.$$example; \
 	done
