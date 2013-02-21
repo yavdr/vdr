@@ -1,0 +1,1 @@
+vdr-plugin-examples: hardening-no-fortify-functions usr/lib/vdr/plugins/libvdr-pictures.so.*
