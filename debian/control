@@ -5,7 +5,7 @@ Maintainer: Debian VDR Team <pkg-vdr-dvb-devel@lists.alioth.debian.org>
 Uploaders: Thomas Schmidt <tschmidt@debian.org>, Tobias Grimm <etobi@debian.org>, Thomas Günther <tom@toms-cafe.de>
 Build-Depends: debhelper (>= 7.0.50~), libjpeg-dev, libcap-dev,
   libncursesw5-dev, libfreetype6-dev, libfontconfig-dev, gettext,
-  txt2man, python, linux-libc-dev (>= 3.0), libfribidi-dev
+  python, linux-libc-dev (>= 3.0), libfribidi-dev
 Standards-Version: 3.9.3
 Vcs-Git: git://git.debian.org/pkg-vdr-dvb/vdr.git
 Vcs-Browser: http://git.debian.org/?p=pkg-vdr-dvb/vdr.git
@@ -43,16 +43,6 @@ Description: Video Disk Recorder for DVB cards
  .
  This package contains the header files of VDR.
  You need this package to be able to build vdr-plugins!
-
-Package: vdr-dbg
-Section: debug
-Priority: extra
-Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, vdr (= ${binary:Version}), gdb
-Suggests: valgrind
-Description: Debuggable version of the VDR Video Disk Recorder
- This package installs an unoptimized VDR binary with debugging symbols as well
- as some helper scripts to debug VDR and its plugins.
 
 Package: vdr-plugin-dvbsddevice
 Architecture: any

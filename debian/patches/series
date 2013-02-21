@@ -2,7 +2,4 @@
 06_default_svdrp_port_0.patch
 12_osdbase-maxitems.patch
 
-81_Make_config.patch
-82_valgrind.patch
-
 99_ncursesw-include.patch

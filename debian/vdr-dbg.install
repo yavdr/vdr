@@ -1,4 +1,0 @@
-vdr-dbg               /usr/bin/
-debian/debugvdr       /usr/bin/
-debian/vdrleaktest    /usr/bin/
-debian/valgrind.supp  /usr/share/vdr/

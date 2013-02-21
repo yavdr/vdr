@@ -12,19 +12,8 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	INSTALL_PROGRAM += -s
 endif
 
-TXT2MANPAGES = debian/vdr-dbg.1
-MANPAGES = debian/vdrdbg-buildpackage.1 debian/debugvdr.1 debian/vdrleaktest.1
-
 MAKE_OPTIONS = REMOTE=LIRC CONFDIR=/var/lib/vdr LOCDIR=/usr/share/locale \
                VIDEODIR=/var/lib/video.00 PLUGINLIBDIR=/usr/lib/vdr/plugins
-
-$(MANPAGES): %.1: %
-	sh $< -h | \
-	  eval "`cat $< | grep "^### txt2man" | sed "s/### //"`" >$@
-
-$(TXT2MANPAGES): %.1: %.1.txt
-	cat $< | grep -v "^###" | \
-	  eval "`cat $< | grep "^### txt2man" | sed "s/### //"`" >$@
 
 ABIVERSION := debian/abi-version
 
@@ -49,17 +38,12 @@ configure-stamp: check-patches
 
 build: build-arch build-indep
 
-build-arch: build-arch-stamp $(MANPAGES) $(TXT2MANPAGES)
+build-arch: build-arch-stamp
 build-arch-stamp: configure-stamp
 	dh_testdir
 
 	# Backup po files
 	find PLUGINS po -name "*.po" -exec test ! -f {}.backup \; -exec cp {} {}.backup \;
-
-	# build unoptimized vdr with debugging symbols
-	$(MAKE) -j$(NJOBS) all $(MAKE_OPTIONS) VDRDEBUG=yes DEB_BUILD_OPTIONS=nostrip,noopt
-	cp vdr vdr-dbg
-	$(MAKE) -o .dependencies clean $(MAKE_OPTIONS)
 
 	# build "productive" vdr
 	$(MAKE) -j$(NJOBS) all $(MAKE_OPTIONS)
@@ -86,13 +70,11 @@ clean:
 	dh_testroot
 	rm -f build-stamp configure-stamp
 	$(MAKE) -o .dependencies clean-plugins clean $(MAKE_OPTIONS)
-	rm -f vdr-dbg
 	rm -f vdr
 	rm -rf PLUGINS/lib
 	rm -f vdr-newplugin
 	rm -f debian/vdr-shutdown.wrapper
 	rm -f debian/patchinfo
-	rm -f $(MANPAGES) $(TXT2MANPAGES)
 
 	# Restore po files
 	find PLUGINS po -name "*.po" -exec test -f {}.backup \; -exec mv {}.backup {} \;
@@ -148,7 +130,7 @@ binary-arch: build install
 	dh_testdir -a
 	dh_testroot -a
 	dh_installdebconf -a
-	dh_installdocs -a -Nvdr-dbg
+	dh_installdocs -a
 	dh_installexamples -a
 	dh_installmenu -a
 #	dh_installlogrotate -a
@@ -165,7 +147,7 @@ binary-arch: build install
 	dh_installchangelogs -pvdr-plugin-dvbhddevice PLUGINS/src/dvbhddevice/HISTORY
 	dh_installchangelogs -pvdr-plugin-examples
 	dh_link -a
-	dh_strip -a -Xvdr-dbg
+	dh_strip -a
 	dh_compress -a
 	dh_fixperms -a
 #	dh_makeshlibs -a
