@@ -1,4 +1,3 @@
-#!/bin/sh
 #
 # This script checks which groups the vdr user should belong to and adds
 # it to the necessary groups or removes it from groups which are not needed
