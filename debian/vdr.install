@@ -30,5 +30,4 @@ debian/commands.update-recordings.conf  usr/share/vdr/command-hooks/
 
 debian/themes/*.theme                   var/lib/vdr/themes/
 
-debian/lintian/vdr                      usr/share/lintian/overrides/
 locale                                  usr/share/
