@@ -1,1 +1,1 @@
-PLUGINS/lib/libvdr-dvbhddevice.so.*  usr/lib/vdr/plugins/
+usr/lib/vdr/libvdr-dvbhddevice.so.*  usr/lib/vdr/plugins/

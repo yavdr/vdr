@@ -1,161 +1,45 @@
 #!/usr/bin/make -f
-# Sample debian/rules that uses debhelper.
-# GNU copyright 1997 to 1999 by Joey Hess.
 
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -g
-endif
-ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
-	INSTALL_PROGRAM += -s
-endif
+CXXFLAGS = $(shell dpkg-buildflags --get CPPFLAGS)
+CXXFLAGS += $(shell dpkg-buildflags --get CXXFLAGS)
 
-MAKE_OPTIONS = REMOTE=LIRC CONFDIR=/var/lib/vdr LOCDIR=/usr/share/locale \
-               VIDEODIR=/var/lib/video.00 PLUGINLIBDIR=/usr/lib/vdr/plugins
+%:
+	dh $@
 
-ABIVERSION := debian/abi-version
+override_dh_auto_build:
+	dh_auto_build
+	gcc $(shell dpkg-buildflags --get CPPFLAGS ; dpkg-buildflags --get CFLAGS ; dpkg-buildflags --get LDFLAGS) \
+            -o debian/vdr-shutdown.wrapper debian/vdr-shutdown-wrapper.c
 
-# taken from the qemu package
-# Support multiple makes at once
-ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
-NJOBS := $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
-else
-NJOBS := 1
-endif
+override_dh_auto_clean:
+	dh_auto_clean
+	rm -f debian/vdr-shutdown.wrapper
+	rm -f debian/patchinfo
+
+override_dh_auto_install:
+	dh_auto_install -- PREFIX=/usr
+
+override_dh_install: patchinfo
+	dh_install
+	install -D -m 755 newplugin debian/vdr-dev/usr/bin/vdr-newplugin
+	echo -n "vdr:Provides=" >> debian/vdr.substvars
+	cat debian/abi-version >> debian/vdr.substvars
+
+override_dh_installchangelogs:
+	dh_installchangelogs -pvdr HISTORY
+	dh_installchangelogs -pvdr-plugin-dvbsddevice PLUGINS/src/dvbsddevice/HISTORY
+	dh_installchangelogs -pvdr-plugin-dvbhddevice PLUGINS/src/dvbhddevice/HISTORY
+	dh_installchangelogs -pvdr-plugin-examples
+	dh_installchangelogs -pvdr-dev
+
+patchinfo:
+	sh debian/extract-patchinfo >debian/patchinfo
 
 check-patches:
 	python debian/patchcheck.py -c $(PATCHCHECKOPTION)
 
 accept-patches:
 	python debian/patchcheck.py -u $(PATCHCHECKOPTION)
-
-configure: configure-stamp
-configure-stamp: check-patches
-	dh_testdir
-	touch configure-stamp
-
-build: build-arch build-indep
-
-build-arch: build-arch-stamp
-build-arch-stamp: configure-stamp
-	dh_testdir
-
-	# Backup po files
-	find PLUGINS po -name "*.po" -exec test ! -f {}.backup \; -exec cp {} {}.backup \;
-
-	# build "productive" vdr
-	$(MAKE) -j$(NJOBS) all $(MAKE_OPTIONS)
-
-	# plugins
-	mkdir -p PLUGINS/lib
-	$(MAKE) -j$(NJOBS) plugins $(MAKE_OPTIONS)
-
-	cp newplugin vdr-newplugin
-
-	gcc -o debian/vdr-shutdown.wrapper debian/vdr-shutdown-wrapper.c
-
-	touch $@
-
-build-indep: build-indep-stamp
-build-indep-stamp: configure-stamp
-	touch $@
-
-patchinfo:
-	debian/extract-patchinfo >debian/patchinfo
-
-clean:
-	dh_testdir
-	dh_testroot
-	rm -f build-stamp configure-stamp
-	$(MAKE) -o .dependencies clean-plugins clean $(MAKE_OPTIONS)
-	rm -f vdr
-	rm -rf PLUGINS/lib
-	rm -f vdr-newplugin
-	rm -f debian/vdr-shutdown.wrapper
-	rm -f debian/patchinfo
-
-	# Restore po files
-	find PLUGINS po -name "*.po" -exec test -f {}.backup \; -exec mv {}.backup {} \;
-
-	dh_clean
-
-install: patchinfo build
-	dh_testdir
-	dh_testroot
-	dh_prep
-	dh_installdirs
-	dh_install
-	for example in hello osddemo pictures servicedemo skincurses status svdrpdemo; do \
-	    install -D PLUGINS/src/$$example/README $(CURDIR)/debian/vdr-plugin-examples/usr/share/doc/vdr-plugin-examples/README.$$example; \
-	done
-	echo -n "vdr:Provides=" >> debian/vdr.substvars
-	cat $(ABIVERSION) >> debian/vdr.substvars
-	install -m644 $(ABIVERSION) $(CURDIR)/debian/vdr-dev/usr/share/vdr-dev/abi-version
-
-# Build architecture-independent files here.
-binary-indep: build install
-	dh_testdir -i
-	dh_testroot -i
-#	dh_installdebconf -i
-	dh_installdocs -i
-	dh_installexamples -i
-#	dh_installmenu -i
-#	dh_installlogrotate -i
-#	dh_installemacsen -i
-#	dh_installpam -i
-#	dh_installmime -i
-#	dh_installinit -i
-#	dh_installcron -i
-	dh_installman -i
-#	dh_installinfo -i
-#	dh_undocumented -i
-	dh_installchangelogs -i HISTORY
-	dh_link -i
-	dh_strip -i
-	dh_compress -i
-	dh_fixperms -i
-#	dh_makeshlibs -i
-	dh_installdeb -i
-	dh_perl -i
-	dh_shlibdeps -i
-	dh_gencontrol -i
-	dh_md5sums -i
-	dh_builddeb -i
-
-# Build architecture-dependent files here.
-binary-arch: build install
-	dh_testdir -a
-	dh_testroot -a
-	dh_installdebconf -a
-	dh_installdocs -a
-	dh_installexamples -a
-	dh_installmenu -a
-#	dh_installlogrotate -a
-#	dh_installemacsen -a
-#	dh_installpam -a
-#	dh_installmime -a
-	dh_installinit -a
-#	dh_installcron -a
-	dh_installman -a
-#	dh_installinfo -a
-#	dh_undocumented -a
-	dh_installchangelogs -pvdr HISTORY
-	dh_installchangelogs -pvdr-plugin-dvbsddevice PLUGINS/src/dvbsddevice/HISTORY
-	dh_installchangelogs -pvdr-plugin-dvbhddevice PLUGINS/src/dvbhddevice/HISTORY
-	dh_installchangelogs -pvdr-plugin-examples
-	dh_link -a
-	dh_strip -a
-	dh_compress -a
-	dh_fixperms -a
-#	dh_makeshlibs -a
-	dh_installdeb -a
-	dh_perl -a
-	dh_shlibdeps -a
-	dh_gencontrol -a
-	dh_md5sums -a
-	dh_builddeb -a
-
-binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install configure

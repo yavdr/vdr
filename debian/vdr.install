@@ -1,8 +1,17 @@
-vdr                                     usr/bin/
-svdrpsend                               usr/bin/
-debian/runvdr                           usr/sbin/
+usr/bin/
+usr/share/man/*/vdr*
+usr/share/locale/*/*/vdr.*
+
+var/lib/vdr/diseqc.conf                 etc/vdr/
+var/lib/vdr/keymacros.conf              etc/vdr/
+var/lib/vdr/scr.conf                    etc/vdr/
+var/lib/vdr/sources.conf                etc/vdr/
+var/lib/vdr/svdrphosts.conf             etc/vdr/
 
 epg2html                                usr/lib/vdr/
+
+debian/runvdr                           usr/sbin/
+
 debian/config-loader.sh                 usr/lib/vdr/
 debian/plugin-loader.sh                 usr/lib/vdr/
 debian/commands-loader.sh               usr/lib/vdr/
@@ -12,11 +21,6 @@ debian/vdr-shutdown                     usr/lib/vdr/
 debian/vdr-shutdown-message             usr/lib/vdr/
 debian/vdr-shutdown.wrapper             usr/lib/vdr/
 
-diseqc.conf                             etc/vdr/
-keymacros.conf                          etc/vdr/
-scr.conf                                etc/vdr/
-sources.conf                            etc/vdr/
-svdrphosts.conf                         etc/vdr/
 debian/vdr.groups                       etc/vdr/
 debian/R90.custom                       etc/vdr/recording-hooks/
 debian/S90.custom                       etc/vdr/shutdown-hooks/
@@ -29,5 +33,3 @@ debian/reccmds.custom.conf              etc/vdr/command-hooks/
 debian/commands.update-recordings.conf  usr/share/vdr/command-hooks/
 
 debian/themes/*.theme                   var/lib/vdr/themes/
-
-locale                                  usr/share/

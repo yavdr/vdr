@@ -1,13 +1,9 @@
-*.h                             usr/include/vdr/
-
-libsi/*.h                       usr/include/vdr/libsi/
+usr/include
+#Make.config                     usr/include/vdr/
+#Make.global                     usr/include/vdr/
 
 debian/debianize-vdrplugin      usr/bin/
+
 debian/plugin-template/         usr/share/vdr-dev/
-
-vdr-newplugin                   usr/bin/
-
 debian/dependencies.sh          usr/share/vdr-dev/
-
-Make.config                     usr/include/vdr/
-Make.global                     usr/include/vdr/
+debian/abi-version              usr/share/vdr-dev
