@@ -1,2 +1,1 @@
 vdr: package-contains-upstream-install-documentation usr/share/doc/vdr/INSTALL.gz
-vdr: package-contains-empty-directory usr/lib/vdr/plugins/
