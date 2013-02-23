@@ -7,6 +7,7 @@ var/lib/vdr/keymacros.conf              etc/vdr/
 var/lib/vdr/scr.conf                    etc/vdr/
 var/lib/vdr/sources.conf                etc/vdr/
 var/lib/vdr/svdrphosts.conf             etc/vdr/
+var/lib/vdr/*.conf                      usr/share/doc/vdr/examples/
 
 epg2html                                usr/lib/vdr/
 
