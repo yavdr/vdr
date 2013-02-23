@@ -14,8 +14,7 @@ export LIBDIR = /usr/lib/vdr/plugins
 
 override_dh_auto_build:
 	dh_auto_build
-	gcc $(shell dpkg-buildflags --get CPPFLAGS ; dpkg-buildflags --get CFLAGS ; dpkg-buildflags --get LDFLAGS) \
-            -o debian/vdr-shutdown.wrapper debian/vdr-shutdown-wrapper.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o debian/vdr-shutdown.wrapper debian/vdr-shutdown-wrapper.c
 
 override_dh_auto_clean:
 	dh_auto_clean
