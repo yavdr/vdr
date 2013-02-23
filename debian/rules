@@ -23,7 +23,7 @@ override_dh_auto_install:
 	dh_auto_install -- PREFIX=/usr
 
 override_dh_install: patchinfo
-	dh_install
+	dh_install --fail-missing
 	install -D -m 755 newplugin debian/vdr-dev/usr/bin/vdr-newplugin
 	echo -n "vdr:Provides=" >> debian/vdr.substvars
 	cat debian/abi-version >> debian/vdr.substvars
