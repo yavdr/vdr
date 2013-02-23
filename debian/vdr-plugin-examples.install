@@ -6,3 +6,7 @@ usr/lib/vdr/libvdr-skincurses.so.*      usr/lib/vdr/plugins/
 usr/lib/vdr/libvdr-status.so.*          usr/lib/vdr/plugins/
 usr/lib/vdr/libvdr-svdrpdemo.so.*       usr/lib/vdr/plugins/
 usr/lib/vdr/libvdr-pictures.so.*        usr/lib/vdr/plugins/
+
+usr/share/locale/*/*/vdr-hello.*
+usr/share/locale/*/*/vdr-skincurses.*
+usr/share/locale/*/*/vdr-pictures.*
