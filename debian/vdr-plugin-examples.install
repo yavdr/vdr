@@ -1,12 +1,12 @@
-usr/lib/vdr/libvdr-hello.so.*           usr/lib/vdr/plugins/
-usr/lib/vdr/libvdr-osddemo.so.*         usr/lib/vdr/plugins/
-usr/lib/vdr/libvdr-svccli.so.*          usr/lib/vdr/plugins/
-usr/lib/vdr/libvdr-svcsvr.so.*          usr/lib/vdr/plugins/
-usr/lib/vdr/libvdr-skincurses.so.*      usr/lib/vdr/plugins/
-usr/lib/vdr/libvdr-status.so.*          usr/lib/vdr/plugins/
-usr/lib/vdr/libvdr-svdrpdemo.so.*       usr/lib/vdr/plugins/
-usr/lib/vdr/libvdr-pictures.so.*        usr/lib/vdr/plugins/
-usr/lib/vdr/libvdr-rcu.so.*             usr/lib/vdr/plugins/
+usr/lib/vdr/plugins/libvdr-hello.so.*
+usr/lib/vdr/plugins/libvdr-osddemo.so.*
+usr/lib/vdr/plugins/libvdr-svccli.so.*
+usr/lib/vdr/plugins/libvdr-svcsvr.so.*
+usr/lib/vdr/plugins/libvdr-skincurses.so.*
+usr/lib/vdr/plugins/libvdr-status.so.*
+usr/lib/vdr/plugins/libvdr-svdrpdemo.so.*
+usr/lib/vdr/plugins/libvdr-pictures.so.*
+usr/lib/vdr/plugins/libvdr-rcu.so.*
 
 usr/share/locale/*/*/vdr-hello.*
 usr/share/locale/*/*/vdr-skincurses.*

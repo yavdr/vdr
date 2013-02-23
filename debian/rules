@@ -6,6 +6,9 @@
 CXXFLAGS = $(shell dpkg-buildflags --get CPPFLAGS)
 CXXFLAGS += $(shell dpkg-buildflags --get CXXFLAGS)
 
+export VIDEODIR = /var/lib/video
+export LIBDIR = /usr/lib/vdr/plugins
+
 %:
 	dh $@
 

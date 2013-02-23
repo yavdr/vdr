@@ -1,2 +1,2 @@
-usr/lib/vdr/libvdr-dvbhddevice.so.*  usr/lib/vdr/plugins/
+usr/lib/vdr/plugins/libvdr-dvbhddevice.so.*
 usr/share/locale/*/*/vdr-dvbhddevice.*
