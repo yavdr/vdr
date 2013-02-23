@@ -1,6 +1,5 @@
 usr/include
-#Make.config                     usr/include/vdr/
-#Make.global                     usr/include/vdr/
+usr/lib/pkgconfig/vdr.pc
 
 debian/debianize-vdrplugin      usr/bin/
 
