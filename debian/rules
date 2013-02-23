@@ -27,6 +27,10 @@ override_dh_install: patchinfo
 	install -D -m 755 newplugin debian/vdr-dev/usr/bin/vdr-newplugin
 	echo -n "vdr:Provides=" >> debian/vdr.substvars
 	cat debian/abi-version >> debian/vdr.substvars
+	for example in hello osddemo pictures servicedemo skincurses status svdrpdemo rcu; do \
+	    install -D PLUGINS/src/$$example/README debian/vdr-plugin-examples/usr/share/doc/vdr-plugin-examples/README.$$example; \
+	done
+
 
 override_dh_installchangelogs:
 	dh_installchangelogs -pvdr HISTORY
