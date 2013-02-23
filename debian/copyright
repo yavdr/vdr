@@ -1,7 +1,7 @@
 Upstream Homepage:
     http://www.tvdr.de/
 
-Upstream Author: 
+Upstream Author:
     Klaus Schmidinger <Klaus.Schmidinger@tvdr.de> and others
 
 Patch Authors:
@@ -13,11 +13,11 @@ Patch Authors:
 
 Theme Authors:
     Blue LCARS - (debian/themes/sttng-blue.theme) from Sascha Volkenandt
-                 <sascha@akv-soft.de> was downloaded from 
+                 <sascha@akv-soft.de> was downloaded from
                  http://www.magoa.net/sttng-blue.theme
 
-    Cool       - (debian/themes/sttng-cool.theme) from 
-                 clocker@vdrportal.de, downloaded from 
+    Cool       - (debian/themes/sttng-cool.theme) from
+                 clocker@vdrportal.de, downloaded from
                  http://vdrportal.de/board/thread.php?postid=260715#post260715
 
 Debian Maintainers:
@@ -26,14 +26,14 @@ Debian Maintainers:
     Thomas Schmidt <tschmidt@debian.org>
 
 Copyright:
-    (C) 2000 - 2010 Klaus Schmidinger
+    (C) 2000 - 2013 Klaus Schmidinger
     (C) 2001 - 2002 Andreas Schultz (SPU decoder for DVB devices)
     (C) 2003        Marcel Wiesweg, Rolf Hakenes (libsi)
 
 Copyright (Debian packaging):
     (C) 2001 - 2002 Eduard Bloch
     (C) 2003 - 2004 Andreas Müller
-    (C) 2002 - 2010 Tobias Grimm, Thomas Günther, Thomas Schmidt
+    (C) 2002 - 2013 Tobias Grimm, Thomas Günther, Thomas Schmidt
 
 License:
     This program is free software; you can redistribute it and/or modify
