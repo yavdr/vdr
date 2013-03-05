@@ -1,5 +1,5 @@
 usr/bin/
-usr/share/man/*/vdr*
+usr/share/man
 usr/share/locale/*/*/vdr.*
 
 var/lib/vdr/diseqc.conf                 etc/vdr/
