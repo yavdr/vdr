@@ -1,4 +1,4 @@
-vdr (1.7.38-1) unstable; urgency=low
+vdr (1.7.39-1) unstable; urgency=low
 
   * New upstream release
   * Dropped 11_sortrecordings.patch - The recording list sorting now is as it is
