@@ -3,17 +3,17 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-CXXFLAGS = $(shell dpkg-buildflags --get CPPFLAGS)
-CXXFLAGS += $(shell dpkg-buildflags --get CXXFLAGS)
-
-export VIDEODIR = /var/lib/video
-export LIBDIR = /usr/lib/vdr/plugins
+CXXFLAGS += $(CPPFLAGS)
+PREFIX = /usr
+VIDEODIR = /var/lib/video
+LIBDIR = /usr/lib/vdr/plugins
+MAKE_OPTIONS = PREFIX=$(PREFIX) VIDEODIR=$(VIDEODIR) LIBDIR=$(LIBDIR)
 
 %:
 	dh $@
 
 override_dh_auto_build:
-	dh_auto_build
+	dh_auto_build -- $(MAKE_OPTIONS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o debian/vdr-shutdown.wrapper debian/vdr-shutdown-wrapper.c
 
 override_dh_auto_clean:
@@ -22,7 +22,7 @@ override_dh_auto_clean:
 	rm -f debian/patchinfo
 
 override_dh_auto_install:
-	dh_auto_install -- PREFIX=/usr
+	dh_auto_install -- $(MAKE_OPTIONS)
 
 override_dh_install: patchinfo
 	dh_install --fail-missing -Xlibvdr-epgtableid0.so
