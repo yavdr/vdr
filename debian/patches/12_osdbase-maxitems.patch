@@ -4,8 +4,8 @@ Origin: http://vdrportal.de/board/thread.php?postid=343665#post343665
 
 Index: vdr/osdbase.c
 ===================================================================
---- vdr.orig/osdbase.c	2013-01-23 22:15:14.000000000 +0100
-+++ vdr/osdbase.c	2013-01-23 22:40:05.000000000 +0100
+--- vdr.orig/osdbase.c	2013-03-06 22:17:53.000000000 +0100
++++ vdr/osdbase.c	2013-03-10 18:36:53.000000000 +0100
 @@ -325,6 +325,7 @@
  
  void cOsdMenu::CursorUp(void)

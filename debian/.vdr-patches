@@ -1,4 +1,4 @@
-debian/patches/04_newplugin.patch:e9f5d4813e87b1bcebb5878409cac72d
-debian/patches/06_default_svdrp_port_0.patch:ec71e0702cd792605e67175aa542bfd6
-debian/patches/12_osdbase-maxitems.patch:1d642929dad4862e048d708e06eb750b
-debian/patches/99_ncursesw-include.patch:b5d57e1aaabc4339f60cc031342d3333
+debian/patches/04_newplugin.patch:be5169037184e60fe7265891bb8f9f94
+debian/patches/06_default_svdrp_port_0.patch:9c0f2bdcf5f05ae8f112bf2a31a63d91
+debian/patches/12_osdbase-maxitems.patch:2453ebb246e91f62943386e196a8233b
+debian/patches/99_ncursesw-include.patch:a1a84fdba449583cb1759209419a413a
