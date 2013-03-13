@@ -9,6 +9,7 @@ vdr (1.7.40-1) unstable; urgency=low
   * Dropped Added 16_channels.conf.terr-fix.patch - fixed upstream
   * Switch to debhelper/compat 9
   * Make use of dh and VDR's install target to simplify debian/rules
+  * Clean up /var/lib/vdr/themes when purging package
 
  -- Tobias Grimm <etobi@debian.org>  Wed, 23 Jan 2013 22:47:45 +0100
 
