@@ -27,8 +27,8 @@ Description: Video Disk Recorder for DVB cards
  PC keyboard or a IR remote control.
  .
  NOTE: You should install compatible DVB drivers before using these
- programs. Also the standard VDR (without special plugins) requires 
- a DVB-Card with an integrated mpeg-decoder, a so called 
+ programs. Also the standard VDR (without special plugins) requires
+ a DVB-Card with an integrated mpeg-decoder, a so called
  Full-Featured Card.
 
 Package: vdr-dev
@@ -44,6 +44,19 @@ Description: Video Disk Recorder for DVB cards
  This package contains the header files of VDR.
  You need this package to be able to build vdr-plugins!
 
+Package: vdr-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: ${misc:Depends}, vdr (= ${binary:Version})
+Description: Debug symbols for the VDR Video Disc Recorder
+ Video Disk Recorder (VDR) is a digital sat-receiver program using
+ Linux and DVB technologies. It allows one to record MPEG2 streams,
+ as well as output the stream to TV. It is also possible to watch DVDs
+ (hardware accelerated) with some comfort and use an IR remote control.
+ .
+ This package contains the debugging symbols for vdr.
+
 Package: vdr-plugin-dvbsddevice
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, vdr (= ${binary:Version})
@@ -56,6 +69,18 @@ Description: Plugin that adds support for full featured SD-DVB cards to VDR
  output device for the "Full Featured" DVB cards based on the
  TechnoTrend/Fujitsu-Siemens design.
 
+Package: vdr-plugin-dvbsddevice-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: ${misc:Depends}, vdr-plugin-dvbsddevice (= ${binary:Version})
+Description: Plugin that adds support for full featured SD-DVB cards to VDR
+ Video Disk Recorder (VDR) is a digital sat-receiver program using
+ Linux and DVB technologies. It allows one to record MPEG2 streams,
+ as well as output the stream to TV.
+ .
+ This package contains the debugging symbols for the dvbsddevice-plugin.
+
 Package: vdr-plugin-dvbhddevice
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, vdr (= ${binary:Version})
@@ -67,6 +92,18 @@ Description: Plugin that adds support for full featured HD-DVB cards to VDR
  This package contains the dvbhddevice-plugin, which implements the output
  device for the "Full Featured TechnoTrend S2-6400" DVB cards.
 
+Package: vdr-plugin-dvbhddevice-dbg
+Section: debug
+Priority: extra
+Architecture: any
+Depends: ${misc:Depends}, vdr-plugin-dvbhddevice (= ${binary:Version})
+Description: Plugin that adds support for full featured HD-DVB cards to VDR
+ Video Disk Recorder (VDR) is a digital sat-receiver program using
+ Linux and DVB technologies. It allows one to record MPEG2 streams,
+ as well as output the stream to TV.
+ .
+ This package contains the debugging symbols for the dvbhddevice-plugin.
+
 Package: vdr-plugin-examples
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, vdr (= ${binary:Version})
@@ -75,7 +112,7 @@ Description: Plugins for vdr to show some possible features
  Linux and DVB technologies. It allows one to record MPEG2 streams,
  as well as output the stream to TV.
  .
- This package contains the example-plugins hello, osddemo, svccli, 
- svcsvr, skincurses, status and svdrpdemo from the vdr-source. 
- These plugins do not have useful features, they only demonstrate 
+ This package contains the example-plugins hello, osddemo, svccli,
+ svcsvr, skincurses, status and svdrpdemo from the vdr-source.
+ These plugins do not have useful features, they only demonstrate
  how vdr-plugins work and what is possible to do with them.

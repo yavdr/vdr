@@ -10,6 +10,7 @@ vdr (1.7.40-1) unstable; urgency=low
   * Switch to debhelper/compat 9
   * Make use of dh and VDR's install target to simplify debian/rules
   * Clean up /var/lib/vdr/themes when purging package
+  * vdr-dbg and vdr-plugin-*-dbg now install the debug symbols
 
  -- Tobias Grimm <etobi@debian.org>  Wed, 23 Jan 2013 22:47:45 +0100
 
