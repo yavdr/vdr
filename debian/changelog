@@ -3,6 +3,9 @@ vdr (1.7.41-1) unstable; urgency=low
   * New upstream release
   * Improved plugin loading now allows to explicitly load specific plugins after
     all other plugins (based on suggestions by Lars Hanisch from yaVDR)
+  * Use `svdrpsend updr` to update recordings from the OSD command menu in order
+    to be independent of the video directory locaten (suggested by Frank Neumann
+    from yaVDR)
 
  -- Tobias Grimm <etobi@debian.org>  Sun, 17 Mar 2013 19:06:49 +0100
 
