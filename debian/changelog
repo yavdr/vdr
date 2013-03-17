@@ -1,8 +1,10 @@
 vdr (1.7.41-1) unstable; urgency=low
 
   * New upstream release
+  * Improved plugin loading now allows to explicitly load specific plugins after
+    all other plugins (based on suggestions by Lars Hanisch from yaVDR)
 
- -- Tobias Grimm <etobi@debian.org>  Sun, 17 Mar 2013 00:30:42 +0100
+ -- Tobias Grimm <etobi@debian.org>  Sun, 17 Mar 2013 19:06:49 +0100
 
 vdr (1.7.40-1) unstable; urgency=low
 

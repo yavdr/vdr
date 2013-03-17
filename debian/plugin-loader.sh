@@ -4,9 +4,10 @@
 
 getplugins ()
 {
-    local plugin_order
     local installed_plugins
     local ordered_plugins
+    local ordered_top_plugins
+    local ordered_bottom_plugins
     local plugin
     local i
     local arguments
@@ -71,12 +72,14 @@ getplugins ()
     fi
 
     if [ -r "$PLUGIN_CFG_DIR/order.conf" ]; then
-        # load plugin order
-        plugin_order=( `cat $PLUGIN_CFG_DIR/order.conf | sed "s/#.*$//"` )
-
-        # move ordered plugins to list of ordered plugins
-        for plugin in ${plugin_order[@]}; do
+        # extract top and bottom ordered plugins from config
+        while read plugin ; do
             for (( i=0 ; i<${#installed_plugins[@]} ; i++ )); do
+                if [ "$plugin" = "*" ]; then
+                    ordered_top_plugins=( "${ordered_plugins[@]}" )
+                    unset ordered_plugins
+                    break
+                fi
                 if [ "$plugin" = "-${installed_plugins[$i]}" ]; then
                     unset installed_plugins[$i]
                     installed_plugins=( "${installed_plugins[@]}" )
@@ -89,11 +92,12 @@ getplugins ()
                     break
                 fi
             done
-        done
+        done < <(egrep -v "(^\s*#|^\s*$)" $PLUGIN_CFG_DIR/order.conf)
+        ordered_bottom_plugins=( "${ordered_plugins[@]}" )
     fi
 
-    # append unordered to ordered plugins
-    ordered_plugins=( "${ordered_plugins[@]}" "${installed_plugins[@]}" )
+    # append top ordered unordered and bottom ordered plugins
+    ordered_plugins=( "${ordered_top_plugins[@]}" "${installed_plugins[@]}" "${ordered_bottom_plugins[@]}")
 
     # add the command line arguments for each plugin
     for plugin in ${ordered_plugins[@]}; do
