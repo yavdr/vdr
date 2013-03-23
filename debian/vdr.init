@@ -28,7 +28,7 @@ test -x $VDRPRG || exit 0
 
 # Set shutdown command
 test "$ENABLE_SHUTDOWN" = "1" && VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown.wrapper" \
-                              || VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown-message"
+                              || VDRSHUTDOWN=""
 
 . /usr/lib/vdr/plugin-loader.sh
 . /usr/lib/vdr/commands-loader.sh

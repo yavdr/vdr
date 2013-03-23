@@ -19,7 +19,6 @@ debian/commands-loader.sh               usr/lib/vdr/
 debian/vdr-groups.sh                    usr/lib/vdr/
 debian/vdr-recordingaction              usr/lib/vdr/
 debian/vdr-shutdown                     usr/lib/vdr/
-debian/vdr-shutdown-message             usr/lib/vdr/
 debian/vdr-shutdown.wrapper             usr/lib/vdr/
 
 debian/vdr.groups                       etc/vdr/
