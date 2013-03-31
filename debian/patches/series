@@ -3,5 +3,3 @@
 12_osdbase-maxitems.patch
 
 99_ncursesw-include.patch
-
-vdr-1.7.42-fixpendingtimers.diff

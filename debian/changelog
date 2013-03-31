@@ -1,3 +1,10 @@
+vdr (2.0.0-1) UNRELEASED; urgency=low
+
+  * New upstream release
+  * Dropped vdr-1.7.42-fixpendingtimers.diff - fixed upstream
+
+ -- Tobias Grimm <etobi@debian.org>  Sun, 31 Mar 2013 13:41:03 +0200
+
 vdr (1.7.42-2) unstable; urgency=low
 
   * Added vdr-1.7.42-fixpendingtimers.diff
