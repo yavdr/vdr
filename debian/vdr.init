@@ -83,7 +83,12 @@ startvdr()
                 OPTIONS="--vfat $OPTIONS"
             fi
 
-            start-stop-daemon --start --quiet --startas $DAEMON --background \
+            if [ "$ENABLE_CORE_DUMPS" == "1" ]; then
+                ulimit -c unlimited
+                OPTIONS="$OPTIONS --userdump"
+            fi
+
+            start-stop-daemon --start --quiet --startas $DAEMON --background -d /tmp \
                 --name $(basename $DAEMON) --pidfile $PIDFILE --make-pidfile -- \
                 -v $VIDEO_DIR -c $CFG_DIR -L $PLUGIN_DIR -r $REC_CMD \
                 -s $VDRSHUTDOWN -E $EPG_FILE -u $USER -g /tmp \

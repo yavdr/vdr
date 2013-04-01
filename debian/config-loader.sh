@@ -42,6 +42,9 @@ SVDRP_PORT=6419
 # Enable / Disable vdr daemon
 ENABLED=0
 
+# Enable / Disable core dumps
+ENABLE_CORE_DUMPS=0
+
 # Enable / Disable automatic shutdown
 ENABLE_SHUTDOWN=0
 
