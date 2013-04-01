@@ -4,6 +4,7 @@
 #export DH_VERBOSE=1
 
 CXXFLAGS += $(CPPFLAGS)
+CFLAGS += $(CPPFLAGS)
 PREFIX = /usr
 VIDEODIR = /var/lib/video
 LIBDIR = /usr/lib/vdr/plugins
