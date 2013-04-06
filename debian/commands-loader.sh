@@ -12,50 +12,17 @@ echo -e \
 "#\n\n\n"
 }
 
-# merges single <cmdtype>.<name>.conf files into one <cmdtype>.conf using
-# the order defined in order.<cmdtype>.conf
+# merges single <cmdtype>.<name>.conf files into one <cmdtype>.conf
+# in alphabetical order
 mergecommands ()
 {
-    local cmd
-    local cmds
-    local cmdsorder
-    local line
     local cmdtype
     local cmdfile
-    local ordered_cmds
 
     cmdtype=$1
     cmdfile="/var/cache/vdr/$cmdtype.conf"
 
     writewarning $cmdtype > "$cmdfile"
 
-    cmdsorder=( `cat /etc/vdr/command-hooks/order.$cmdtype.conf | sed "s/#.*$//"` )
-    cmds=( `find $CMDHOOKSDIR -maxdepth 1 -name "$cmdtype.*.conf" -printf "%f \n" | sed "s/$cmdtype\.\(.\+\)\.conf/\1/g"` )
-
-    # first the ordered commands:
-    for cmd in ${cmdsorder[@]}; do
-        for (( line=0 ; line<${#cmds[@]} ; line++ )); do
-            if [ "$cmd" = "-${cmds[$line]}" ]; then
-                unset cmds[$line]
-                cmds=( "${cmds[@]}" )
-                break
-            fi
-            if [ "$cmd" = "${cmds[$line]}" ]; then
-                ordered_cmds=( "${ordered_cmds[@]}" "${cmds[$line]}" )
-                unset cmds[$line]
-                cmds=( "${cmds[@]}" )
-                break
-            fi
-        done
-    done
-    # then the remaining unordered commands:
-    ordered_cmds=( "${ordered_cmds[@]}" "${cmds[@]}" )
-
-    # concatenate all commands
-    for cmd in ${ordered_cmds[@]}; do
-        if [ "$cmd" != "" ]; then
-            cat "$CMDHOOKSDIR/$cmdtype.$cmd.conf" >> "$cmdfile" || true
-            echo "" >> "$cmdfile"
-        fi
-    done
+    find $CMDHOOKSDIR -maxdepth 1 -name "$cmdtype.*.conf" | sort | xargs cat >> "$cmdfile"
 }

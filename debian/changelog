@@ -6,6 +6,8 @@ vdr (2.0.0-1) UNRELEASED; urgency=low
   * Append CPPFLAGS to CFLAGS, so this gets stored in vdr.pc
     and can be used by plugins
   * Added upstream fix vdr-2.0.0-fixkeeptracksinit.diff
+  * Simplified the commands loader and dropped the ordering via
+    order.reccmds.conf / order.commands.conf
 
  -- Tobias Grimm <etobi@debian.org>  Sun, 31 Mar 2013 13:41:03 +0200
 
