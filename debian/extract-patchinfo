@@ -2,9 +2,9 @@
 
 print_patch()
 {
-    author=`dpatch cat --author-only $1`
+    author=`quilt header $1 | grep -e '^Author' | cut -d : -f 2`
     patch_name=`echo $1 | sed 's/[^_]*_\(.*\)/\1/'`
-    patch_description=`dpatch cat --no-meta $patch` 
+    patch_description=`quilt header $1 | grep -e '^Description' | cut -d : -f 2`
     echo $patch_name:
     if [ ! -z "$author" ] ; then
        echo "    $author"
@@ -20,7 +20,7 @@ echo "Patches applied to vanilla vdr sources"
 echo "--------------------------------------"
 echo
 
-patches_applied=`dpatch list-all`
+patches_applied=`quilt series |  sed 's/\(.*\)\.patch/\1/'`
 for patch in $patches_applied ; do
     print_patch $patch
 done
@@ -30,7 +30,7 @@ echo "Patches available in source package, but not active"
 echo "---------------------------------------------------"
 echo
 
-patches_available=`find debian/patches -name *.dpatch -printf "%f\n" | sed 's/\(.*\)\.dpatch/\1/'`
+patches_available=`find debian/patches -name *.patch -printf "%f\n" | sed 's/\(.*\)\.patch/\1/'`
 for patch in $patches_available ; do
     is_applied="no"
 
