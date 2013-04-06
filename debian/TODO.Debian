@@ -3,3 +3,7 @@ TODO: When plugin could not be loaded, log stderr output somewhere
 TODO: Add option USE_LIRC=yes|no (see http://www.vdr-portal.de/board/thread.php?postid=829057#post829057)
 TODO: Get rid of bash in init script, debugvdr and vdrleaktest
 TODO: The runvdr module (re)loading stuff is weird - it was introduced to workaround driver bugs and can probably be removed
+
+PLUGIN_DIR, PLUGIN_CFG_DIR, PLUGIN_PREFIX, CMDHOOKSDIR und REC_CMD rausschmeissen
+
+order.recmds/commands.conf rausschmeissen.

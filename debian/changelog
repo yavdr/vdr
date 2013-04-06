@@ -5,6 +5,7 @@ vdr (2.0.0-1) UNRELEASED; urgency=low
   * Added new config option ENABLE_CORE_DUMPS in /etc/default/vdr
   * Append CPPFLAGS to CFLAGS, so this gets stored in vdr.pc
     and can be used by plugins
+  * Added upstream fix vdr-2.0.0-fixkeeptracksinit.diff
 
  -- Tobias Grimm <etobi@debian.org>  Sun, 31 Mar 2013 13:41:03 +0200
 

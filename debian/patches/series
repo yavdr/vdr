@@ -3,3 +3,5 @@
 12_osdbase-maxitems.patch
 
 99_ncursesw-include.patch
+
+vdr-2.0.0-fixkeeptracksinit.diff

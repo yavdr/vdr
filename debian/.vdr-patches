@@ -1,4 +1,5 @@
 debian/patches/04_newplugin.patch:be5169037184e60fe7265891bb8f9f94
 debian/patches/06_default_svdrp_port_0.patch:57814ddbe49c8dbdd22d14904de5051c
+debian/patches/vdr-2.0.0-fixkeeptracksinit.diff:88942ee1799af959433d5c47e0858cbb
 debian/patches/12_osdbase-maxitems.patch:2453ebb246e91f62943386e196a8233b
 debian/patches/99_ncursesw-include.patch:9312525e87bdbb7181329cf7ff6c9c0c
