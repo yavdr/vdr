@@ -1,3 +1,6 @@
+Description: Minor upstream bugfix
+Author: Klaus Schmidinger <Klaus.Schmidinger@tvdr.de>
+
 --- vdr/device.c	2013/03/07 13:18:35	3.0
 +++ vdr/device.c	2013/04/05 10:05:33
 @@ -94,11 +94,11 @@

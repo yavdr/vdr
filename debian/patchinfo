@@ -1,0 +1,30 @@
+Patches applied to vanilla vdr sources
+--------------------------------------
+
+04_newplugin.patch
+    Thomas Schmidt <tschmidt@debian.org>
+
+    Patch for the newplugin-script, to not require a normal vdr-source-dir
+
+06_default_svdrp_port_0.patch
+    Thomas Schmidt <tschmidt@debian.org>
+
+    This sets the default svdrp-port to 0, which means that SVDRP is disabled by
+    default unless someone specifies another port with the --port option when
+    starting vdr
+
+12_osdbase-maxitems.patch
+    Andreas Brugger <brougs78@gmx.net>
+
+    Fixes problems with text2skin skin enigma.
+
+99_ncursesw-include.patch
+    Tobias Grimm <tg@e-tobi.net>
+
+    Use ncursesw header file
+
+vdr-2.0.0-fixkeeptracksinit.diff
+    Klaus Schmidinger <Klaus.Schmidinger@tvdr.de>
+
+    Minor upstream bugfix
+
