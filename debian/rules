@@ -20,12 +20,11 @@ override_dh_auto_build:
 override_dh_auto_clean:
 	dh_auto_clean
 	rm -f debian/vdr-shutdown.wrapper
-	rm -f debian/patchinfo
 
 override_dh_auto_install:
 	dh_auto_install -- $(MAKE_OPTIONS)
 
-override_dh_install: patchinfo
+override_dh_install:
 	dh_install --fail-missing -Xlibvdr-epgtableid0.so
 	install -D -m 755 newplugin debian/vdr-dev/usr/bin/vdr-newplugin
 	echo -n "vdr:Provides=" >> debian/vdr.substvars
@@ -46,9 +45,6 @@ override_dh_installchangelogs:
 	dh_installchangelogs -pvdr-plugin-dvbhddevice PLUGINS/src/dvbhddevice/HISTORY
 	dh_installchangelogs -pvdr-plugin-examples
 	dh_installchangelogs
-
-patchinfo:
-	sh debian/extract-patchinfo >debian/patchinfo
 
 check-patches:
 	python debian/patchcheck.py -c $(PATCHCHECKOPTION)
