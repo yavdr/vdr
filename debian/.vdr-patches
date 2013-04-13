@@ -2,4 +2,3 @@
 06_default_svdrp_port_0.patch:57814ddbe49c8dbdd22d14904de5051c
 12_osdbase-maxitems.patch:2453ebb246e91f62943386e196a8233b
 99_ncursesw-include.patch:9312525e87bdbb7181329cf7ff6c9c0c
-vdr-2.0.0-fixkeeptracksinit.diff:011e9525ad119c5160367f5dd8db6023

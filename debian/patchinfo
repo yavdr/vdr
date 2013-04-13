@@ -23,8 +23,3 @@ Patches applied to vanilla vdr sources
 
     Use ncursesw header file
 
-vdr-2.0.0-fixkeeptracksinit.diff
-    Klaus Schmidinger <Klaus.Schmidinger@tvdr.de>
-
-    Minor upstream bugfix
-
