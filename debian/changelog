@@ -1,6 +1,6 @@
 vdr (2.0.1-1) unstable; urgency=low
 
-  * New upstream release
+  * New upstream release (Closes: #707413)
   * Added new config option ENABLE_CORE_DUMPS in /etc/default/vdr
   * Append CPPFLAGS to CFLAGS, so this gets stored in vdr.pc
     and can be used by plugins
@@ -25,7 +25,7 @@ vdr (2.0.1-1) unstable; urgency=low
   * Clean up /var/lib/vdr/themes when purging package
   * vdr-dbg and vdr-plugin-*-dbg now install the debug symbols
 
- -- Tobias Grimm <etobi@debian.org>  Sat, 11 May 2013 22:23:06 +0200
+ -- Tobias Grimm <etobi@debian.org>  Sat, 11 May 2013 22:45:58 +0200
 
 vdr (1.7.28-1) unstable; urgency=low
 
