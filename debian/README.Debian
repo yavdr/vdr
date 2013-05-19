@@ -88,6 +88,14 @@ USER=<USERNAME>
     Username under which vdr will run. All plugins and commands invoked by VDR
     will be executed with the rights of this user.
 
+LIRC=<lirc_device>
+
+    Default: /dev/lircd
+
+    Allows one to change the LIRC device or disable LIRC alltogether by
+    setting it to /dev/null which might be required if you use a
+    different frontend, like XBMC or xineliboutput.
+
 VDR_CHARSET_OVERRIDE=<CHARSET>
 
     Default: not set
