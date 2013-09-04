@@ -700,6 +700,8 @@ Oliver Endriss <o.endriss@gmx.de>
  for helping to debug a problem with reduced number of retries in Transfer Mode on
  SD-FF cards
  for reporting a problem with resuming replay of PES recordings
+ for suggesting to make all bonded devices (except for the master) turn off their LNB
+ power completely to avoid problems when receiving vertically polarized transponders
 
 Reinhard Walter Buchner <rw.buchner@freenet.de>
  for adding some satellites to 'sources.conf'
@@ -2017,6 +2019,8 @@ Ville Skyttä <ville.skytta@iki.fi>
  be escaped
  for changing the template for PLGCFG to $(CONFDIR)/plugins.mk
  for updating the help and man page entry about the location of the epg.data file
+ for reporting a possible crash when shutting down VDR while subtitles are being
+ displayed
 
 Steffen Beyer <cpunk@reactor.de>
  for fixing setting the colored button help after deleting a recording in case the next
@@ -2953,6 +2957,7 @@ Johan Andersson <jna@jna.pp.se>
 Dave Pickles <dave@pickles.me.uk>
  for adding support for "content identifier descriptor" and "default authority
  descriptor" to 'libsi'
+ for reporting that old EPG events are not cleaned up in case no epg data file is given
 
 Holger Dengler <holger.dengler@gmx.de>
  for making the isnumber() function check the given pointer for NULL
@@ -3154,3 +3159,7 @@ Jochen Dolze <vdr@dolze.de>
 
 Dominique Dumont <domi.dumont@free.fr>
  for reporting a crash in the LCARS skin's main menu in case there is no current channel
+
+Manfred Völkel <mvoelkel@digitaldevices.de>
+ for suggesting to make all bonded devices (except for the master) turn off their LNB
+ power completely to avoid problems when receiving vertically polarized transponders
