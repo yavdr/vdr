@@ -23,6 +23,7 @@ override_dh_auto_clean:
 
 override_dh_auto_install:
 	dh_auto_install -- $(MAKE_OPTIONS)
+	mv debian/tmp/var/lib/vdr/channels.conf debian/tmp/var/lib/vdr/channels.conf.sat
 
 override_dh_install:
 	dh_install --fail-missing -Xlibvdr-epgtableid0.so

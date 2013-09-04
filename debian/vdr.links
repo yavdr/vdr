@@ -19,3 +19,5 @@ var/lib/vdr/channels.conf    etc/vdr/channels.conf
 etc/default/vdr              etc/vdr/vdr.default
 
 etc/vdr/vdr.groups    usr/share/vdr/groups.d/vdr.groups
+
+usr/share/vdr/channels.conf-examples    usr/share/doc/vdr/examples/channels.conf-examples

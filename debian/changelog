@@ -1,3 +1,10 @@
+vdr (2.0.3-1) unstable; urgency=low
+
+  * New upstream release
+  * Install sample channels.conf's to /usr/share/vdr/examples/ (Closes: #709749)
+
+ -- Tobias Grimm <etobi@debian.org>  Wed, 04 Sep 2013 13:53:51 +0200
+
 vdr (2.0.2-1) unstable; urgency=low
 
   * New upstream release

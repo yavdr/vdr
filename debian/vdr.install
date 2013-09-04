@@ -31,3 +31,6 @@ debian/reccmds.custom.conf              etc/vdr/command-hooks/
 debian/commands.update-recordings.conf  usr/share/vdr/command-hooks/
 
 debian/themes/*.theme                   var/lib/vdr/themes/
+
+var/lib/vdr/channels.conf.sat           usr/share/vdr/channels.conf-examples/
+channels.conf.*                         usr/share/vdr/channels.conf-examples/
