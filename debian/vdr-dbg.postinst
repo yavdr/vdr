@@ -1,0 +1,7 @@
+#!/bin/sh
+
+set -e
+
+dpkg-maintscript-helper symlink_to_dir /usr/share/doc/vdr-dbg /usr/share/doc/vdr 2.0.1-1~ -- "$@"
+
+#DEBHELPER#
