@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: skinlcars.c 2.21.1.1 2013/05/19 12:08:52 kls Exp $
+ * $Id: skinlcars.c 2.21.1.4 2014/03/10 12:12:19 kls Exp $
  */
 
 // "Star Trek: The Next Generation"(R) is a registered trademark of Paramount Pictures,
@@ -837,6 +837,15 @@ cSkinLCARSDisplayMenu::cSkinLCARSDisplayMenu(void)
   ys03 = ys04 - Gap;
   ys05 = yb15;
 
+  // The item area (just to have them initialized, actual setting will be done in SetMenuCategory():
+
+  xi00 = 0;
+  xi01 = 0;
+  xi02 = 0;
+  xi03 = 1;
+  yi00 = 0;
+  yi01 = 1;
+
   // The color buttons in submenus:
   xb00 = xa06;
   xb15 = xa07;
@@ -1289,7 +1298,7 @@ void cSkinLCARSDisplayMenu::DrawLiveIndicator(void)
   if (initial || y != lastLiveIndicatorY || Transferring != lastLiveIndicatorTransferring) {
      if (lastLiveIndicatorY >= 0)
         osd->DrawRectangle(xs12, lastLiveIndicatorY, xs13 - 1, lastLiveIndicatorY + lineHeight - 1, Theme.Color(clrBackground));
-     if (y >= 0) {
+     if (y > 0) {
         tColor ColorBg = Theme.Color(clrChannelFrameBg);
         osd->DrawRectangle(xs12, y, xs12 + lineHeight / 2 - 1, y + lineHeight - 1, ColorBg);
         osd->DrawEllipse  (xs12 + lineHeight / 2, y, xs13 - 1, y + lineHeight - 1, ColorBg, 5);
@@ -1710,6 +1719,7 @@ cSkinLCARSDisplayReplay::cSkinLCARSDisplayReplay(bool ModeOnly)
   frameColor = Theme.Color(clrReplayFrameBg);
   lastCurrentWidth = 0;
   lastTotalWidth = 0;
+  memset(&lastTrackId, 0, sizeof(lastTrackId));
   int d = 5 * lineHeight;
   xp00 = 0;
   xp01 = xp00 + d / 2;
