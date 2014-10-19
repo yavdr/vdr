@@ -1,3 +1,9 @@
+vdr (2.0.6-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Tobias Grimm <etobi@debian.org>  Sun, 19 Oct 2014 12:54:37 +0200
+
 vdr (2.0.3-2) unstable; urgency=medium
 
   * Fix "unhandled symlink to directory conversion of vdr-dbg (Closes: #736297)
