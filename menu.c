@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: menu.c 2.82.1.2 2013/04/27 10:32:28 kls Exp $
+ * $Id: menu.c 2.82.1.8 2014/02/26 11:42:28 kls Exp $
  */
 
 #include "menu.h"
@@ -181,9 +181,13 @@ cMenuEditChannel::cMenuEditChannel(cChannel *Channel, bool New)
      strn0cpy(name, data.name, sizeof(name));
      if (New) {
         channel = NULL;
+        // clear non-editable members:
         data.nid = 0;
         data.tid = 0;
         data.rid = 0;
+        *data.shortName  = 0;
+        *data.provider   = 0;
+        *data.portalName = 0;
         }
      }
   Setup();
@@ -2185,6 +2189,7 @@ public:
   const char *Name(void) { return name; }
   cRecording *Recording(void) { return recording; }
   bool IsDirectory(void) { return name != NULL; }
+  void SetRecording(cRecording *Recording) { recording = Recording; }
   virtual void SetMenuItem(cSkinDisplayMenu *DisplayMenu, int Index, bool Current, bool Selectable);
   };
 
@@ -2416,6 +2421,7 @@ eOSState cMenuRecordings::Delete(void)
            Display();
            if (!Count())
               return osBack;
+           return osUser2;
            }
         else
            Skins.Message(mtError, tr("Error while deleting recording!"));
@@ -2480,6 +2486,14 @@ eOSState cMenuRecordings::ProcessKey(eKeys Key)
                      break;
        default: break;
        }
+     }
+  else if (state == osUser2) {
+     // a recording in a sub folder was deleted, so update the current item
+     cOsdMenu *m = HasSubMenu() ? SubMenu() : this;
+     if (cMenuRecordingItem *ri = (cMenuRecordingItem *)Get(Current())) {
+        if (cMenuRecordingItem *riSub = (cMenuRecordingItem *)m->Get(m->Current()))
+           ri->SetRecording(riSub->Recording());
+        }
      }
   if (Key == kYellow && HadSubMenu && !HasSubMenu()) {
      // the last recording in a subdirectory was deleted, so let's go back up
@@ -2648,7 +2662,7 @@ eOSState cMenuSetupOSD::ProcessKey(eKeys Key)
         ModifiedAppearance = true;
      if (strcmp(data.FontFix, Setup.FontFix) || !DoubleEqual(data.FontFixSizeP, Setup.FontFixSizeP))
         ModifiedAppearance = true;
-     if (data.AlwaysSortFoldersFirst != Setup.AlwaysSortFoldersFirst)
+     if (data.AlwaysSortFoldersFirst != Setup.AlwaysSortFoldersFirst || data.RecordingDirs != Setup.RecordingDirs)
         Recordings.ClearSortNames();
      }
 
@@ -3364,7 +3378,7 @@ cMenuPluginItem::cMenuPluginItem(const char *Name, int Index)
 
 cOsdObject *cMenuMain::pluginOsdObject = NULL;
 
-cMenuMain::cMenuMain(eOSState State)
+cMenuMain::cMenuMain(eOSState State, bool OpenSubMenus)
 :cOsdMenu("")
 {
   SetMenuCategory(mcMain);
@@ -3381,7 +3395,7 @@ cMenuMain::cMenuMain(eOSState State)
     case osSchedule:   AddSubMenu(new cMenuSchedule); break;
     case osChannels:   AddSubMenu(new cMenuChannels); break;
     case osTimers:     AddSubMenu(new cMenuTimers); break;
-    case osRecordings: AddSubMenu(new cMenuRecordings(NULL, 0, true)); break;
+    case osRecordings: AddSubMenu(new cMenuRecordings(NULL, 0, OpenSubMenus)); break;
     case osSetup:      AddSubMenu(new cMenuSetup); break;
     case osCommands:   AddSubMenu(new cMenuCommands(tr("Commands"), &Commands)); break;
     default: break;
@@ -3448,7 +3462,7 @@ bool cMenuMain::Update(bool Force)
         stopReplayItem = NULL;
         }
      // Color buttons:
-     SetHelp(!replaying ? tr("Button$Record") : NULL, tr("Button$Audio"), replaying ? NULL : tr("Button$Pause"), replaying ? tr("Button$Stop") : cReplayControl::LastReplayed() ? tr("Button$Resume") : tr("Button$Play"));
+     SetHelp(!replaying ? tr("Button$Record") : NULL, tr("Button$Audio"), replaying || !Setup.PauseKeyHandling ? NULL : tr("Button$Pause"), replaying ? tr("Button$Stop") : cReplayControl::LastReplayed() ? tr("Button$Resume") : tr("Button$Play"));
      result = true;
      }
 
@@ -3543,7 +3557,7 @@ eOSState cMenuMain::ProcessKey(eKeys Key)
                                 }
                              break;
                case kYellow: if (!HadSubMenu)
-                                state = replaying ? osContinue : osPause;
+                                state = replaying || !Setup.PauseKeyHandling ? osContinue : osPause;
                              break;
                case kBlue:   if (!HadSubMenu)
                                 state = replaying ? osStopReplay : cReplayControl::LastReplayed() ? osReplay : osRecordings;
@@ -4968,10 +4982,8 @@ eOSState cReplayControl::ProcessKey(eKeys Key)
                            else
                               Show();
                            break;
-            case kBack:    if (Setup.DelTimeshiftRec) {
-                              cRecordControl* rc = cRecordControls::GetRecordControl(fileName);
-                              return rc && rc->InstantId() ? osEnd : osRecordings;
-                              }
+            case kBack:    Hide();
+                           Stop();
                            return osRecordings;
             default:       return osUnknown;
             }

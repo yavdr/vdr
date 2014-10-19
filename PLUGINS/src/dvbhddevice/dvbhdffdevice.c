@@ -377,8 +377,8 @@ bool cDvbHdFfDevice::SetChannelDevice(const cChannel *Channel, bool LiveView)
 
   bool DoTune = !IsTunedToTransponder(Channel);
 
-  bool pidHandlesVideo = pidHandles[ptVideo].pid == vpid;
-  bool pidHandlesAudio = pidHandles[ptAudio].pid == apid;
+  bool pidHandlesVideo = vpid && pidHandles[ptVideo].pid == vpid;
+  bool pidHandlesAudio = apid && pidHandles[ptAudio].pid == apid;
 
   bool TurnOffLivePIDs = DoTune
                          || !IsPrimaryDevice()

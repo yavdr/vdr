@@ -7831,3 +7831,87 @@ Video Disk Recorder Revision History
   Manfred Völkel and Oliver Endriss).
 - Fixed cleaning up old EPG events in case no epg data file is given (reported by
   Dave Pickles).
+
+2013-10-23: Version 2.0.4
+
+- Unified the internal sequence of actions when pressing the Blue and the Back key,
+  respectively, during replay (reported by Thomas Maass).
+- The Yellow button in the main menu no longer acts as "Pause" if "Pause key handling"
+  is set to "do not pause live video" (suggested by Ulf Kiener).
+- Fixed writing group separators to channels.conf that contain a comma (reported by
+  Eike Edener).
+- Now also checking the source (in addition to the transponder) when setting the
+  system time from the TDT, which avoids problems in case devices are tuned to the
+  same transponder on different sources, and these broadcast different time data
+  (reported by Torsten Lang).
+- Changed cRecorder::Action() to use cTimeMs instead of time() to avoid problems with
+  unjustified "video data stream broken" errors in case the system time is changed
+  while a recording is active (reported by Torsten Lang).
+- Fixed an inconsistent behavior between opening the Recordings menu manually via the
+  main menu and by pressing the Recordings key. In the latter case it automatically
+  opened all sub folders to position the cursor to the last replayed recording, which
+  is unexpected at this point (reported by Helmut Auer). You can still navigate to
+  the last replayed recording (if any) by pressing Ok repeatedly in the Recordings
+  menu.
+
+2014-01-07: Version 2.0.5
+
+- The LIRC remote control now connects to the socket even if it doesn't yet exist when
+  VDR is started (thanks to Lars Hanisch).
+- Fixed a missing initialization in the c'tor of cSkinLCARSDisplayChannel (thanks to
+  Marko Mäkelä).
+- Fixed uninitialized item area coordinates in cSkinLCARSDisplayMenu (reported by
+  Marko Mäkelä).
+- Fixed a possible crash if the recordings list is updated externally while the
+  Recordings menu is open (reported by Lars Hanisch).
+- Added a missing closing ')' in the help and man page entry of the --vfat option
+  (reported by Lars Hanisch).
+- Fixed setting the name of the video directory to avoid a crash when using --genindex,
+  and also to use the correct directory with --edit (the latter reported by Marko
+  Mäkelä).
+
+2014-03-16: Version 2.0.6
+
+- Updated 'sources.conf' (thanks to Antti Hartikainen).
+- cFont::CreateFont() now returns a dummy font in case there are no fonts installed.
+  This prevents a crash with the LCARS skin on a system that has no fonts.
+- Fixed detecting frame borders in MPEG-2 streams that have "bottom fields" or varying
+  GOP structures (reported by Christian Paulick, with help from Helmut Auer).
+- Fixed a wrong alignment in cCiDateTime::SendDateTime().
+- Now checking whether the primary device actually has a decoder before retuning the
+  current channel after a change in its parameters. This fixes broken recordings on
+  the primary device on "headless" systems.
+- Increased MIN_TS_PACKETS_FOR_FRAME_DETECTOR to 100 and introduced counting the number
+  of actual video TS packets in cTsPayload in order to be able to record channels that
+  sometimes need even more than 10 TS packets for detecting frame borders (reported by
+  Eike Sauer and Oliver Endriss).
+- Fixed sorting recordings by time in the Recordings menu if "Setup/OSD/Recording
+  directories" is set to "no".
+- Fixed clearing non-editable members in the channel editor (thanks to Rolf Ahrenberg).
+- Fixed flickering if subtitles are active while the OSD demo is running.
+- Fixed a possible crash in the OSD demo (reported by Christopher Reimer).
+- Fixed learning keyboard remote control codes (thanks to Lars Hanisch).
+- Fixed the replay progress display for very long recordings.
+- Improved PAT/PMT scanning to speed up initial tuning to encrypted channels on
+  transponders with many PAT entries (reported by Mariusz Bialonczyk).
+- Fixed detecting broken video data streams when recording.
+- Fixed handling frame detection buffer length (reported by Eike Sauer).
+- Fixed keeping the current position in the Recordings menu if a recording was
+  deleted in a sub folder.
+- Fixed handling transfer mode on full featured DVB cards for encrypted channels
+  that have no audio pid (reported by Christian Winkler).
+- Fixed a possible endless loop in cH264Parser::GetGolombUe(), which caused recordings
+  on some HD channels to get stuck and resulted in buffer overflows.
+- Fixed handling PAT packets when detecting frames, so that they can be properly
+  taken into account when regenerating the index of a recording.
+- Fixed adding new source types in case they are already registered (reported by Rolf
+  Ahrenberg).
+- Fixed drawing the live indicator in the LCARS skin in case there are no devices.
+- The SDT is now only parsed *after* the NIT has been read, and it explicitly uses
+  the source value derived from the NIT. This should prevent new channels from being
+  created with the wrong source.
+- Now initializing the isOnVideoDirectoryFileSystem member of cRecording when
+  scanning the video directory, so that it won't cause a delay when opening the menu
+  on a system with a large number of recordings.
+- The APIVERSION has been increased to 2.0.6 due to the changes to pat.h, sdt.h and
+  the functional modification to cFont::CreateFont().

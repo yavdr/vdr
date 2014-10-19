@@ -22,7 +22,7 @@
  *
  * The project's page is at http://www.tvdr.de
  *
- * $Id: vdr.c 2.57 2013/03/15 10:44:54 kls Exp $
+ * $Id: vdr.c 2.57.1.5 2014/01/26 12:45:00 kls Exp $
  */
 
 #include <getopt.h>
@@ -223,6 +223,7 @@ int main(int argc, char *argv[])
   VdrUser = VDR_USER;
 #endif
 
+  SetVideoDirectory(VideoDirectory);
   cPluginManager PluginManager(DEFAULTPLUGINDIR);
 
   static struct option long_options[] = {
@@ -443,6 +444,7 @@ int main(int argc, char *argv[])
           case 'v': VideoDirectory = optarg;
                     while (optarg && *optarg && optarg[strlen(optarg) - 1] == '/')
                           optarg[strlen(optarg) - 1] = 0;
+                    SetVideoDirectory(VideoDirectory);
                     break;
           case 'w': if (isnumber(optarg)) {
                        int t = atoi(optarg);
@@ -540,7 +542,7 @@ int main(int argc, char *argv[])
                "  -v DIR,   --video=DIR    use DIR as video directory (default: %s)\n"
                "  -V,       --version      print version information and exit\n"
                "            --vfat         for backwards compatibility (same as\n"
-               "                           --dirnames=250,40,1\n"
+               "                           --dirnames=250,40,1)\n"
                "  -w SEC,   --watchdog=SEC activate the watchdog timer with a timeout of SEC\n"
                "                           seconds (default: %d); '0' disables the watchdog\n"
                "\n",
@@ -663,7 +665,6 @@ int main(int argc, char *argv[])
 
   // Directories:
 
-  SetVideoDirectory(VideoDirectory);
   if (!ConfigDirectory)
      ConfigDirectory = DEFAULTCONFDIR;
   cPlugin::SetConfigDirectory(ConfigDirectory);
@@ -908,7 +909,7 @@ int main(int argc, char *argv[])
               for (cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel)) {
                   if (Channel->Modification(CHANNELMOD_RETUNE)) {
                      cRecordControls::ChannelDataModified(Channel);
-                     if (Channel->Number() == cDevice::CurrentChannel()) {
+                     if (Channel->Number() == cDevice::CurrentChannel() && cDevice::PrimaryDevice()->HasDecoder()) {
                         if (!cDevice::PrimaryDevice()->Replaying() || cDevice::PrimaryDevice()->Transferring()) {
                            if (cDevice::ActualDevice()->ProvidesTransponder(Channel)) { // avoids retune on devices that don't really access the transponder
                               isyslog("retuning due to modification of channel %d", Channel->Number());
@@ -1234,7 +1235,7 @@ int main(int argc, char *argv[])
              case osRecordings:
                             DELETE_MENU;
                             cControl::Shutdown();
-                            Menu = new cMenuMain(osRecordings);
+                            Menu = new cMenuMain(osRecordings, true);
                             break;
              case osReplay: DELETE_MENU;
                             cControl::Shutdown();
@@ -1360,6 +1361,7 @@ int main(int argc, char *argv[])
 
            // Disk housekeeping:
            RemoveDeletedRecordings();
+           ClearVanishedRecordings();
            cSchedules::Cleanup();
            // Plugins housekeeping:
            PluginManager.Housekeeping();
