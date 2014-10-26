@@ -2,6 +2,7 @@ vdr (2.0.6-1) unstable; urgency=medium
 
   * New upstream release
   * Standards-Version: 3.9.5
+  * Source /lib/lsb/init-functions in init script
 
  -- Tobias Grimm <etobi@debian.org>  Sun, 19 Oct 2014 12:54:37 +0200
 

@@ -13,6 +13,8 @@
 #                    if it is enabled in /etc/default/vdr.
 ### END INIT INFO
 
+. /lib/lsb/init-functions
+
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 NAME=vdr
 DESC="Linux Video Disk Recorder"
