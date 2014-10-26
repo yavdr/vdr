@@ -3,8 +3,9 @@ vdr (2.0.6-1) unstable; urgency=medium
   * New upstream release
   * Standards-Version: 3.9.5
   * Source /lib/lsb/init-functions in init script
+  * Replaced ttf-freefont by fonts-freefont-ttf (Closes: #738254)
 
- -- Tobias Grimm <etobi@debian.org>  Sun, 19 Oct 2014 12:54:37 +0200
+ -- Tobias Grimm <etobi@debian.org>  Sun, 26 Oct 2014 12:01:40 +0100
 
 vdr (2.0.3-2) unstable; urgency=medium
 

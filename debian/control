@@ -14,7 +14,7 @@ Homepage: http://www.tvdr.de/
 Package: vdr
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, psmisc
-Recommends: lirc, ttf-bitstream-vera | ttf-freefont
+Recommends: lirc, ttf-bitstream-vera | fonts-freefont-ttf
 Suggests: vdr-plugin-dvbsddevice
 Provides: ${vdr:Provides}
 Description: Video Disk Recorder for DVB cards
