@@ -1,3 +1,10 @@
+vdr (2.0.3-3) testing; urgency=medium
+
+  * Fixed use of getent in postinst script for detecting existing vdr user and
+    group (Closes: #770773)
+
+ -- Tobias Grimm <etobi@debian.org>  Mon, 08 Dec 2014 00:20:19 +0100
+
 vdr (2.0.3-2) unstable; urgency=medium
 
   * Fix "unhandled symlink to directory conversion of vdr-dbg (Closes: #736297)

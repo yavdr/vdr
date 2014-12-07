@@ -75,12 +75,12 @@ case "$1" in
         # ensure that user and group 'vdr' exist
         USER=vdr
         GROUP=vdr
-        if ! getent group | grep -q "^$GROUP:" ; then
+        if ! getent group "$GROUP"| grep -q "^$GROUP:" ; then
                 echo -n "Adding group $GROUP.."
                 addgroup --quiet --system $GROUP
                 echo "..done"
         fi
-        if ! getent passwd | grep -q "^$USER:"; then
+        if ! getent passwd "$USER"| grep -q "^$USER:"; then
                 echo -n "Adding user $USER.."
                 adduser --system --home /var/lib/vdr --shell /bin/false \
                         --gecos "VDR user" --no-create-home \
