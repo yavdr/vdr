@@ -1,10 +1,10 @@
-vdr (2.0.6-2) UNRELEASED; urgency=medium
+vdr (2.0.6-2) unstable; urgency=medium
 
   * Merged from Jessie-version 2.0.3-3: Fixed use of getent in postinst script
     for detecting existing vdr user and group (Closes: #770773)
   * Standards-Version: 3.9.6
 
- -- Tobias Grimm <etobi@debian.org>  Mon, 08 Dec 2014 22:39:51 +0100
+ -- Tobias Grimm <etobi@debian.org>  Mon, 08 Dec 2014 22:48:55 +0100
 
 vdr (2.0.6-1) unstable; urgency=medium
 
