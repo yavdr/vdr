@@ -1,3 +1,10 @@
+vdr (2.0.6-2) UNRELEASED; urgency=medium
+
+  * Merged from Jessie-version 2.0.3-3: Fixed use of getent in postinst script
+    for detecting existing vdr user and group (Closes: #770773)
+
+ -- Tobias Grimm <etobi@debian.org>  Mon, 08 Dec 2014 22:39:51 +0100
+
 vdr (2.0.6-1) unstable; urgency=medium
 
   * New upstream release
@@ -6,6 +13,13 @@ vdr (2.0.6-1) unstable; urgency=medium
   * Replaced ttf-freefont by fonts-freefont-ttf (Closes: #738254)
 
  -- Tobias Grimm <etobi@debian.org>  Sun, 26 Oct 2014 12:01:40 +0100
+
+vdr (2.0.3-3) testing; urgency=medium
+
+  * Fixed use of getent in postinst script for detecting existing vdr user and
+    group (Closes: #770773)
+
+ -- Tobias Grimm <etobi@debian.org>  Mon, 08 Dec 2014 00:20:19 +0100
 
 vdr (2.0.3-2) unstable; urgency=medium
 
