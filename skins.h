@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: skins.h 2.9.1.1 2014/02/18 14:06:50 kls Exp $
+ * $Id: skins.h 3.4 2015/01/15 10:45:47 kls Exp $
  */
 
 #ifndef __SKINS_H
@@ -14,6 +14,7 @@
 #include "epg.h"
 #include "keys.h"
 #include "osd.h"
+#include "positioner.h"
 #include "recording.h"
 #include "themes.h"
 #include "thread.h"
@@ -52,7 +53,10 @@ class cSkinDisplayChannel : public cSkinDisplay {
        ///< This class is used to display the current channel, together with
        ///< the present and following EPG event. How and to what extent this
        ///< is done is totally up to the derived class.
+private:
+  const cPositioner *positioner;
 public:
+  cSkinDisplayChannel(void);
   virtual void SetChannel(const cChannel *Channel, int Number) = 0;
        ///< Sets the current channel to Channel. If Number is not 0, the
        ///< user is in the process of entering a channel number, which must
@@ -65,6 +69,17 @@ public:
        ///< to determine, e.g., the colors for displaying the Text.
        ///< If Text is NULL, any previously displayed message must be removed, and
        ///< any previous contents overwritten by the message must be restored.
+  virtual void SetPositioner(const cPositioner *Positioner);
+       ///< Sets the Positioner used to move the satellite dish. The skin may use the
+       ///< data provided by Positioner to implement some form of progress display,
+       ///< since moving the dish may take a while. This function will only be called
+       ///< if the device receiving the current live channel actually uses a positioner,
+       ///< and it will be called with NULL once the dish has reached its target
+       ///< position (or the user switches to a channel that doesn't require positioning
+       ///< the dish). While the dish is moving, SetPositioner() is called repeatedly,
+       ///< so the skin has a chance to update the progress display.
+       ///< The default implementation calls SetMessage() with a text that indicates
+       ///< that the dish is being moved to a new position.
   /*TODO
   SetButtons
     Red    = Video options
@@ -86,6 +101,7 @@ enum eMenuCategory {
   mcTimerEdit,
   mcRecording,
   mcRecordingInfo,
+  mcRecordingEdit,
   mcPlugin,
   mcPluginSetup,
   mcSetup,
@@ -103,6 +119,14 @@ enum eMenuCategory {
   mcText,
   mcFolder,
   mcCam
+  };
+
+enum eMenuSortMode {
+  msmUnknown = 0,
+  msmNumber,
+  msmName,
+  msmTime,
+  msmProvider
   };
 
 class cSkinDisplayMenu : public cSkinDisplay {
@@ -151,6 +175,10 @@ public:
   virtual void SetTabs(int Tab1, int Tab2 = 0, int Tab3 = 0, int Tab4 = 0, int Tab5 = 0);
        ///< Sets the tab columns to the given values, which are the number of
        ///< characters in each column.
+  virtual void SetMenuSortMode(eMenuSortMode MenuSortMode) {}
+       ///< Sets the mode by which the items in this menu are sorted.
+       ///< This is purely informative and may be used by a skin to display the
+       ///< current sort mode by means of some text or symbol.
   virtual void Scroll(bool Up, bool Page);
        ///< If this menu contains a text area that can be scrolled, this function
        ///< will be called to actually scroll the text. Up indicates whether the

@@ -3,7 +3,7 @@
  *
  * See the README file for copyright information and how to reach the author.
  *
- * $Id: dvbsdffdevice.h 2.16 2013/02/17 13:16:29 kls Exp $
+ * $Id: dvbsdffdevice.h 3.2 2014/03/15 12:36:35 kls Exp $
  */
 
 #ifndef __DVBSDFFDEVICE_H
@@ -63,7 +63,6 @@ public:
 public:
   virtual void SetVideoDisplayFormat(eVideoDisplayFormat VideoDisplayFormat);
   virtual void SetVideoFormat(bool VideoFormat16_9);
-  virtual eVideoSystem GetVideoSystem(void);
   virtual void GetVideoSize(int &Width, int &Height, double &VideoAspect);
   virtual void GetOsdSize(int &Width, int &Height, double &PixelAspect);
 
@@ -94,7 +93,7 @@ protected:
   virtual int PlayTsAudio(const uchar *Data, int Length);
 public:
   virtual int64_t GetSTC(void);
-  virtual void TrickSpeed(int Speed);
+  virtual void TrickSpeed(int Speed, bool Forward);
   virtual void Clear(void);
   virtual void Play(void);
   virtual void Freeze(void);

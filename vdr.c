@@ -22,7 +22,7 @@
  *
  * The project's page is at http://www.tvdr.de
  *
- * $Id: vdr.c 2.57.1.5 2014/01/26 12:45:00 kls Exp $
+ * $Id: vdr.c 3.15 2015/01/17 14:48:09 kls Exp $
  */
 
 #include <getopt.h>
@@ -34,8 +34,12 @@
 #include <stdlib.h>
 #include <sys/capability.h>
 #include <sys/prctl.h>
+#ifdef SDNOTIFY
+#include <systemd/sd-daemon.h>
+#endif
 #include <termios.h>
 #include <unistd.h>
+#include "args.h"
 #include "audio.h"
 #include "channels.h"
 #include "config.h"
@@ -60,6 +64,7 @@
 #include "skinsttng.h"
 #include "sourceparams.h"
 #include "sources.h"
+#include "status.h"
 #include "themes.h"
 #include "timers.h"
 #include "tools.h"
@@ -186,6 +191,7 @@ int main(int argc, char *argv[])
 #define DEFAULTWATCHDOG     0 // seconds
 #define DEFAULTVIDEODIR VIDEODIR
 #define DEFAULTCONFDIR dd(CONFDIR, VideoDirectory)
+#define DEFAULTARGSDIR dd(ARGSDIR, "/etc/vdr/conf.d")
 #define DEFAULTCACHEDIR dd(CACHEDIR, VideoDirectory)
 #define DEFAULTRESDIR dd(RESDIR, ConfigDirectory)
 #define DEFAULTPLUGINDIR PLUGINDIR
@@ -223,7 +229,16 @@ int main(int argc, char *argv[])
   VdrUser = VDR_USER;
 #endif
 
-  SetVideoDirectory(VideoDirectory);
+  cArgs *Args = NULL;
+  if (argc == 1) {
+     Args = new cArgs(argv[0]);
+     if (Args->ReadDirectory(DEFAULTARGSDIR)) {
+        argc = Args->GetArgc();
+        argv = Args->GetArgv();
+        }
+     }
+
+  cVideoDirectory::SetName(VideoDirectory);
   cPluginManager PluginManager(DEFAULTPLUGINDIR);
 
   static struct option long_options[] = {
@@ -250,9 +265,11 @@ int main(int argc, char *argv[])
       { "port",     required_argument, NULL, 'p' },
       { "record",   required_argument, NULL, 'r' },
       { "resdir",   required_argument, NULL, 'r' | 0x100 },
+      { "showargs", optional_argument, NULL, 's' | 0x200 },
       { "shutdown", required_argument, NULL, 's' },
       { "split",    no_argument,       NULL, 's' | 0x100 },
       { "terminal", required_argument, NULL, 't' },
+      { "updindex", required_argument, NULL, 'u' | 0x200 },
       { "user",     required_argument, NULL, 'u' },
       { "userdump", no_argument,       NULL, 'u' | 0x100 },
       { "version",  no_argument,       NULL, 'V' },
@@ -422,6 +439,19 @@ int main(int argc, char *argv[])
           case 's' | 0x100:
                     Setup.SplitEditedFiles = 1;
                     break;
+          case 's' | 0x200: {
+                    const char *ArgsDir = optarg ? optarg : DEFAULTARGSDIR;
+                    cArgs Args(argv[0]);
+                    if (!Args.ReadDirectory(ArgsDir)) {
+                       fprintf(stderr, "vdr: can't read arguments from directory: %s\n", ArgsDir);
+                       return 2;
+                       }
+                    int c = Args.GetArgc();
+                    char **v = Args.GetArgv();
+                    for (int i = 1; i < c; i++)
+                        printf("%s\n", v[i]);
+                    return 0;
+                    }
           case 't': Terminal = optarg;
                     if (access(Terminal, R_OK | W_OK) < 0) {
                        fprintf(stderr, "vdr: can't access terminal: %s\n", Terminal);
@@ -434,6 +464,8 @@ int main(int argc, char *argv[])
           case 'u' | 0x100:
                     UserDump = true;
                     break;
+          case 'u' | 0x200:
+                    return GenerateIndex(optarg, true) ? 0 : 2;
           case 'V': DisplayVersion = true;
                     break;
           case 'v' | 0x100:
@@ -444,7 +476,7 @@ int main(int argc, char *argv[])
           case 'v': VideoDirectory = optarg;
                     while (optarg && *optarg && optarg[strlen(optarg) - 1] == '/')
                           optarg[strlen(optarg) - 1] = 0;
-                    SetVideoDirectory(VideoDirectory);
+                    cVideoDirectory::SetName(VideoDirectory);
                     break;
           case 'w': if (isnumber(optarg)) {
                        int t = atoi(optarg);
@@ -535,9 +567,12 @@ int main(int argc, char *argv[])
                "  -s CMD,   --shutdown=CMD call CMD to shutdown the computer\n"
                "            --split        split edited files at the editing marks (only\n"
                "                           useful in conjunction with --edit)\n"
+               "            --showargs[=DIR] print the arguments read from DIR and exit\n"
+               "                           (default: %s)\n"
                "  -t TTY,   --terminal=TTY controlling tty\n"
                "  -u USER,  --user=USER    run as user USER; only applicable if started as\n"
                "                           root\n"
+               "            --updindex=REC update index for recording REC and exit\n"
                "            --userdump     allow coredumps if -u is given (debugging)\n"
                "  -v DIR,   --video=DIR    use DIR as video directory (default: %s)\n"
                "  -V,       --version      print version information and exit\n"
@@ -557,6 +592,7 @@ int main(int argc, char *argv[])
                DEFAULTLOCDIR,
                DEFAULTSVDRPPORT,
                DEFAULTRESDIR,
+               DEFAULTARGSDIR,
                DEFAULTVIDEODIR,
                DEFAULTWATCHDOG
                );
@@ -801,10 +837,17 @@ int main(int argc, char *argv[])
   if (AudioCommand)
      new cExternalAudio(AudioCommand);
 
+  // Positioner:
+
+  if (!cPositioner::GetPositioner()) // no plugin has created a positioner
+     new cDiseqcPositioner;
+
   // Channel:
 
   if (!cDevice::WaitForAllDevicesReady(DEVICEREADYTIMEOUT))
      dsyslog("not all devices ready after %d seconds", DEVICEREADYTIMEOUT);
+  if (!CamSlots.WaitForAllCamSlotsReady(DEVICEREADYTIMEOUT))
+     dsyslog("not all CAM slots ready after %d seconds", DEVICEREADYTIMEOUT);
   if (*Setup.InitialChannel) {
      if (isnumber(Setup.InitialChannel)) { // for compatibility with old setup.conf files
         if (cChannel *Channel = Channels.GetByNumber(atoi(Setup.InitialChannel)))
@@ -836,6 +879,10 @@ int main(int argc, char *argv[])
      dsyslog("setting watchdog timer to %d seconds", WatchdogTimeout);
      alarm(WatchdogTimeout); // Initial watchdog timer start
      }
+
+#ifdef SDNOTIFY
+  sd_notify(0, "READY=1\nSTATUS=Ready");
+#endif
 
   // Main program loop:
 
@@ -912,11 +959,12 @@ int main(int argc, char *argv[])
                      if (Channel->Number() == cDevice::CurrentChannel() && cDevice::PrimaryDevice()->HasDecoder()) {
                         if (!cDevice::PrimaryDevice()->Replaying() || cDevice::PrimaryDevice()->Transferring()) {
                            if (cDevice::ActualDevice()->ProvidesTransponder(Channel)) { // avoids retune on devices that don't really access the transponder
-                              isyslog("retuning due to modification of channel %d", Channel->Number());
+                              isyslog("retuning due to modification of channel %d (%s)", Channel->Number(), Channel->Name());
                               Channels.SwitchTo(Channel->Number());
                               }
                            }
                         }
+                     cStatus::MsgChannelChange(Channel);
                      }
                   }
               Channels.Unlock();
@@ -988,7 +1036,7 @@ int main(int argc, char *argv[])
                         if (!Device->IsTunedToTransponder(Timer->Channel())) {
                            if (Device == cDevice::ActualDevice() && !Device->IsPrimaryDevice())
                               cDevice::PrimaryDevice()->StopReplay(); // stop transfer mode
-                           dsyslog("switching device %d to channel %d", Device->DeviceNumber() + 1, Timer->Channel()->Number());
+                           dsyslog("switching device %d to channel %d (%s)", Device->DeviceNumber() + 1, Timer->Channel()->Number(), Timer->Channel()->Name());
                            if (Device->SwitchChannel(Timer->Channel(), false))
                               Device->SetOccupied(TIMERDEVICETIMEOUT);
                            }
@@ -1316,8 +1364,9 @@ int main(int argc, char *argv[])
         if (!Menu) {
            if (!InhibitEpgScan)
               EITScanner.Process();
-           if (!cCutter::Active() && cCutter::Ended()) {
-              if (cCutter::Error())
+           bool Error = false;
+           if (RecordingsHandler.Finished(Error)) {
+              if (Error)
                  Skins.Message(mtError, tr("Editing process failed!"));
               else
                  Skins.Message(mtInfo, tr("Editing process finished"));
@@ -1337,7 +1386,10 @@ int main(int argc, char *argv[])
               ShutdownHandler.countdown.Cancel();
            }
 
-        if ((Now - LastInteract) > ACTIVITYTIMEOUT && !cRecordControls::Active() && !cCutter::Active() && !Interface->HasSVDRPConnection() && (Now - cRemote::LastActivity()) > ACTIVITYTIMEOUT) {
+        // Keep the recordings handler alive:
+        RecordingsHandler.Active();
+
+        if ((Now - LastInteract) > ACTIVITYTIMEOUT && !cRecordControls::Active() && !RecordingsHandler.Active() && !Interface->HasSVDRPConnection() && (Now - cRemote::LastActivity()) > ACTIVITYTIMEOUT) {
            // Handle housekeeping tasks
 
            // Shutdown:
@@ -1387,7 +1439,7 @@ Exit:
 
   PluginManager.StopPlugins();
   cRecordControls::Shutdown();
-  cCutter::Stop();
+  RecordingsHandler.DelAll();
   delete Menu;
   cControl::Shutdown();
   delete Interface;
@@ -1402,6 +1454,8 @@ Exit:
      Setup.Save();
      }
   cDevice::Shutdown();
+  cPositioner::DestroyPositioner();
+  cVideoDirectory::Destroy();
   EpgHandlers.Clear();
   PluginManager.Shutdown(true);
   cSchedules::Cleanup(true);

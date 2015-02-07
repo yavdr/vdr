@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: dvbdevice.h 2.29.1.1 2013/04/09 13:43:33 kls Exp $
+ * $Id: dvbdevice.h 3.5 2014/03/16 10:38:31 kls Exp $
  */
 
 #ifndef __DVBDEVICE_H
@@ -67,7 +67,6 @@ enum {
 
 // --- End of definitions for older DVB API versions -------------------------
 
-#define MAXDVBDEVICES  8
 #define MAXDELIVERYSYSTEMS 8
 
 #define DEV_VIDEO         "/dev/video"
@@ -93,6 +92,7 @@ int MapToDriver(int Value, const tDvbParameterMap *Map);
 int UserIndex(int Value, const tDvbParameterMap *Map);
 int DriverIndex(int Value, const tDvbParameterMap *Map);
 
+extern const tDvbParameterMap PilotValues[];
 extern const tDvbParameterMap InversionValues[];
 extern const tDvbParameterMap BandwidthValues[];
 extern const tDvbParameterMap CoderateValues[];
@@ -119,6 +119,9 @@ private:
   int hierarchy;
   int rollOff;
   int streamId;
+  int t2systemId;
+  int sisoMiso;
+  int pilot;
   int PrintParameter(char *p, char Name, int Value) const;
   const char *ParseParameter(const char *s, int &Value, const tDvbParameterMap *Map = NULL);
 public:
@@ -135,6 +138,9 @@ public:
   int Hierarchy(void) const { return hierarchy; }
   int RollOff(void) const { return rollOff; }
   int StreamId(void) const { return streamId; }
+  int T2SystemId(void) const { return t2systemId; }
+  int SisoMiso(void) const { return sisoMiso; }
+  int Pilot(void) const { return pilot; }
   void SetPolarization(char Polarization) { polarization = Polarization; }
   void SetInversion(int Inversion) { inversion = Inversion; }
   void SetBandwidth(int Bandwidth) { bandwidth = Bandwidth; }
@@ -147,6 +153,9 @@ public:
   void SetHierarchy(int Hierarchy) { hierarchy = Hierarchy; }
   void SetRollOff(int RollOff) { rollOff = RollOff; }
   void SetStreamId(int StreamId) { streamId = StreamId; }
+  void SetT2SystemId(int T2SystemId) { t2systemId = T2SystemId; }
+  void SetSisoMiso(int SisoMiso) { sisoMiso = SisoMiso; }
+  void SetPilot(int Pilot) { pilot = Pilot; }
   cString ToString(char Type) const;
   bool Parse(const char *s);
   };
@@ -186,7 +195,6 @@ public:
   virtual ~cDvbDevice();
   int Adapter(void) const { return adapter; }
   int Frontend(void) const { return frontend; }
-  virtual bool Ready(void);
   virtual cString DeviceType(void) const;
   virtual cString DeviceName(void) const;
   static bool BondDevices(const char *Bondings);
@@ -233,6 +241,7 @@ public:
   virtual bool ProvidesChannel(const cChannel *Channel, int Priority = IDLEPRIORITY, bool *NeedsDetachReceivers = NULL) const;
   virtual bool ProvidesEIT(void) const;
   virtual int NumProvidedSystems(void) const;
+  virtual const cPositioner *Positioner(void) const;
   virtual int SignalStrength(void) const;
   virtual int SignalQuality(void) const;
   virtual const cChannel *GetCurrentlyTunedTransponder(void) const;

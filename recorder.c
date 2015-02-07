@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: recorder.c 2.17.1.2 2014/02/21 09:21:30 kls Exp $
+ * $Id: recorder.c 3.3 2014/02/21 09:19:52 kls Exp $
  */
 
 #include "recorder.h"
@@ -139,6 +139,7 @@ void cRecorder::Action(void)
                           }
                        }
                     InfoWritten = true;
+                    cRecordingUserCommand::InvokeCommand(RUC_STARTRECORDING, recordingName);
                     }
                  if (FirstIframeSeen || frameDetector->IndependentFrame()) {
                     FirstIframeSeen = true; // start recording with the first I-frame

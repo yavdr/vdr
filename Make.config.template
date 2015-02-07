@@ -6,7 +6,7 @@
 # See the main source file 'vdr.c' for copyright information and
 # how to reach the author.
 #
-# $Id: Make.config.template 2.19 2013/02/18 10:55:39 kls Exp $
+# $Id: Make.config.template 3.2 2015/01/30 15:18:47 kls Exp $
 
 ### The C compiler and options:
 
@@ -38,6 +38,7 @@ endif
 
 #VIDEODIR  = /srv/vdr/video
 #CONFDIR   = /var/lib/vdr
+#ARGSDIR   = /etc/vdr/conf.d
 #CACHEDIR  = /var/cache/vdr
 
 # Overrides for preset/legacy configurations:
@@ -57,6 +58,7 @@ ifdef ONEDIR
 VIDEODIR     = /video
 CACHEDIR     = $(VIDEODIR)
 CONFDIR      = $(VIDEODIR)
+ARGSDIR      = $(VIDEODIR)/conf.d
 RESDIR       = $(VIDEODIR)
 endif
 

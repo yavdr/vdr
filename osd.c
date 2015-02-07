@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: osd.c 2.38.1.1 2013/05/18 12:41:48 kls Exp $
+ * $Id: osd.c 3.4 2015/01/15 11:20:56 kls Exp $
  */
 
 #include "osd.h"
@@ -512,6 +512,17 @@ void cBitmap::SetIndex(int x, int y, tIndex Index)
      }
 }
 
+void cBitmap::Fill(tIndex Index)
+{
+  if (bitmap) {
+     memset(bitmap, Index, width * height);
+     dirtyX1 = 0;
+     dirtyY1 = 0;
+     dirtyX2 = width - 1;
+     dirtyY2 = height - 1;
+     }
+}
+
 void cBitmap::DrawPixel(int x, int y, tColor Color)
 {
   x -= x0;
@@ -824,7 +835,7 @@ void cBitmap::ShrinkBpp(int NewBpp)
      }
 }
 
-cBitmap *cBitmap::Scaled(double FactorX, double FactorY, bool AntiAlias)
+cBitmap *cBitmap::Scaled(double FactorX, double FactorY, bool AntiAlias) const
 {
   // Fixed point scaling code based on www.inversereality.org/files/bitmapscaling.pdf
   // by deltener@mindtremors.com
@@ -1906,6 +1917,16 @@ void cOsd::DrawBitmap(int x, int y, const cBitmap &Bitmap, tColor ColorFg, tColo
      }
 }
 
+void cOsd::DrawScaledBitmap(int x, int y, const cBitmap &Bitmap, double FactorX, double FactorY, bool AntiAlias)
+{
+  const cBitmap *b = &Bitmap;
+  if (!DoubleEqual(FactorX, 1.0) || !DoubleEqual(FactorY, 1.0))
+     b = b->Scaled(FactorX, FactorY, AntiAlias);
+  DrawBitmap(x, y, *b);
+  if (b != &Bitmap)
+     delete b;
+}
+
 void cOsd::DrawText(int x, int y, const char *s, tColor ColorFg, tColor ColorBg, const cFont *Font, int Width, int Height, int Alignment)
 {
   if (isTrueColor)
@@ -1957,6 +1978,7 @@ int cOsdProvider::oldWidth = 0;
 int cOsdProvider::oldHeight = 0;
 double cOsdProvider::oldAspect = 1.0;
 cImage *cOsdProvider::images[MAXOSDIMAGES] = { NULL };
+int cOsdProvider::osdState = 0;
 
 cOsdProvider::cOsdProvider(void)
 {
@@ -1994,6 +2016,7 @@ void cOsdProvider::UpdateOsdSize(bool Force)
   int Width;
   int Height;
   double Aspect;
+  cMutexLock MutexLock(&cOsd::mutex);
   cDevice::PrimaryDevice()->GetOsdSize(Width, Height, Aspect);
   if (Width != oldWidth || Height != oldHeight || !DoubleEqual(Aspect, oldAspect) || Force) {
      Setup.OSDLeft = int(round(Width * Setup.OSDLeftP));
@@ -2011,7 +2034,16 @@ void cOsdProvider::UpdateOsdSize(bool Force)
      oldHeight = Height;
      oldAspect = Aspect;
      dsyslog("OSD size changed to %dx%d @ %g", Width, Height, Aspect);
+     osdState++;
      }
+}
+
+bool cOsdProvider::OsdSizeChanged(int &State)
+{
+  cMutexLock MutexLock(&cOsd::mutex);
+  bool Result = osdState != State;
+  State = osdState;
+  return Result;
 }
 
 bool cOsdProvider::SupportsTrueColor(void)

@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: nit.c 2.10.1.1 2014/03/11 09:29:59 kls Exp $
+ * $Id: nit.c 3.4 2015/02/01 13:46:00 kls Exp $
  */
 
 #include "nit.h"
@@ -245,7 +245,7 @@ void cNitFilter::Process(u_short Pid, u_char Tid, const u_char *Data, int Length
                            }
                         }
                     if (!found || forceTransponderUpdate) {
-                        for (int n = 0; n < NumFrequencies; n++) {
+                       for (int n = 0; n < NumFrequencies; n++) {
                            cChannel *Channel = new cChannel;
                            Channel->SetId(ts.getOriginalNetworkId(), ts.getTransportStreamId(), 0, 0);
                            if (Channel->SetTransponderData(Source, Frequencies[n], SymbolRate, dtp.ToString('C')))
@@ -317,7 +317,7 @@ void cNitFilter::Process(u_short Pid, u_char Tid, const u_char *Data, int Length
                            else
                               delete Channel;
                            }
-                        }
+                       }
                     }
                  sdtFilter->Trigger(Source);
                  }
@@ -333,11 +333,12 @@ void cNitFilter::Process(u_short Pid, u_char Tid, const u_char *Data, int Length
                                   SI::T2DeliverySystemDescriptor *td = (SI::T2DeliverySystemDescriptor *)d;
                                   int Frequency = Channel->Frequency();
                                   int SymbolRate = Channel->Srate();
-                                  //int SystemId = td->getSystemId();
                                   cDvbTransponderParameters dtp(Channel->Parameters());
                                   dtp.SetSystem(DVB_SYSTEM_2);
                                   dtp.SetStreamId(td->getPlpId());
+                                  dtp.SetT2SystemId(td->getT2SystemId());
                                   if (td->getExtendedDataFlag()) {
+                                     dtp.SetSisoMiso(td->getSisoMiso());
                                      static int T2Bandwidths[] = { 8000000, 7000000, 6000000, 5000000, 10000000, 1712000, 0, 0 };
                                      dtp.SetBandwidth(T2Bandwidths[td->getBandwidth()]);
                                      static int T2GuardIntervals[] = { GUARD_INTERVAL_1_32, GUARD_INTERVAL_1_16, GUARD_INTERVAL_1_8, GUARD_INTERVAL_1_4, GUARD_INTERVAL_1_128, GUARD_INTERVAL_19_128, GUARD_INTERVAL_19_256, 0 };
@@ -354,6 +355,40 @@ void cNitFilter::Process(u_short Pid, u_char Tid, const u_char *Data, int Length
                         break;
                    default: ;
                    }
+                 }
+                 break;
+            case SI::LogicalChannelDescriptorTag: {
+                 SI::LogicalChannelDescriptor *lcd = (SI::LogicalChannelDescriptor *)d;
+                 SI::LogicalChannelDescriptor::LogicalChannel LogicalChannel;
+                 for (SI::Loop::Iterator it4; lcd->logicalChannelLoop.getNext(LogicalChannel, it4); ) {
+                     int lcn = LogicalChannel.getLogicalChannelNumber();
+                     int sid = LogicalChannel.getServiceId();
+                     if (LogicalChannel.getVisibleServiceFlag()) {
+                        for (cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel)) {
+                            if (!Channel->GroupSep() && Channel->Sid() == sid && Channel->Nid() == ts.getOriginalNetworkId() && Channel->Tid() == ts.getTransportStreamId()) {
+                               Channel->SetLcn(lcn);
+                               break;
+                               }
+                            }
+                        }
+                     }
+                 }
+                 break;
+            case SI::HdSimulcastLogicalChannelDescriptorTag: {
+                 SI::HdSimulcastLogicalChannelDescriptor *lcd = (SI::HdSimulcastLogicalChannelDescriptor *)d;
+                 SI::HdSimulcastLogicalChannelDescriptor::HdSimulcastLogicalChannel HdSimulcastLogicalChannel;
+                 for (SI::Loop::Iterator it4; lcd->hdSimulcastLogicalChannelLoop.getNext(HdSimulcastLogicalChannel, it4); ) {
+                     int lcn = HdSimulcastLogicalChannel.getLogicalChannelNumber();
+                     int sid = HdSimulcastLogicalChannel.getServiceId();
+                     if (HdSimulcastLogicalChannel.getVisibleServiceFlag()) {
+                        for (cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel)) {
+                            if (!Channel->GroupSep() && Channel->Sid() == sid && Channel->Nid() == ts.getOriginalNetworkId() && Channel->Tid() == ts.getTransportStreamId()) {
+                               Channel->SetLcn(lcn);
+                               break;
+                               }
+                            }
+                        }
+                     }
                  }
                  break;
             default: ;

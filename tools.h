@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: tools.h 2.24 2013/02/17 13:18:06 kls Exp $
+ * $Id: tools.h 3.6 2015/01/14 09:09:06 kls Exp $
  */
 
 #ifndef __TOOLS_H
@@ -31,9 +31,9 @@ typedef unsigned char uchar;
 
 extern int SysLogLevel;
 
-#define esyslog(a...) void( (SysLogLevel > 0) ? syslog_with_tid(LOG_ERR, a) : void() )
-#define isyslog(a...) void( (SysLogLevel > 1) ? syslog_with_tid(LOG_ERR, a) : void() )
-#define dsyslog(a...) void( (SysLogLevel > 2) ? syslog_with_tid(LOG_ERR, a) : void() )
+#define esyslog(a...) void( (SysLogLevel > 0) ? syslog_with_tid(LOG_ERR,   a) : void() )
+#define isyslog(a...) void( (SysLogLevel > 1) ? syslog_with_tid(LOG_INFO,  a) : void() )
+#define dsyslog(a...) void( (SysLogLevel > 2) ? syslog_with_tid(LOG_DEBUG, a) : void() )
 
 #define LOG_ERROR         esyslog("ERROR (%s,%d): %m", __FILE__, __LINE__)
 #define LOG_ERROR_STR(s)  esyslog("ERROR (%s,%d): %s: %m", __FILE__, __LINE__, s)
@@ -63,6 +63,8 @@ void syslog_with_tid(int priority, const char *format, ...) __attribute__ ((form
 
 #define BCDCHARTOINT(x) (10 * ((x & 0xF0) >> 4) + (x & 0xF))
 int BCD2INT(int x);
+
+#define IsBitSet(v, b) ((v) & (1 << (b))) // checks if the bit at index b is set in v, where the least significant bit has index 0
 
 // Unfortunately there are no platform independent macros for unaligned
 // access, so we do it this way:
@@ -168,6 +170,7 @@ private:
   char *s;
 public:
   cString(const char *S = NULL, bool TakePointer = false);
+  cString(const char *S, const char *To); ///< Copies S up to To (exclusive). To must be a valid pointer into S. If To is NULL, everything is copied.
   cString(const cString &String);
   virtual ~cString();
   operator const void * () const { return s; } // to catch cases where operator*() should be used
@@ -176,6 +179,7 @@ public:
   cString &operator=(const cString &String);
   cString &operator=(const char *String);
   cString &Truncate(int Index); ///< Truncate the string at the given Index (if Index is < 0 it is counted from the end of the string).
+  cString &CompactChars(char c); ///< Compact any sequence of characters 'c' to a single character, and strip all of them from the beginning and end of this string.
   static cString sprintf(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
   static cString vsprintf(const char *fmt, va_list &ap);
   };
@@ -191,6 +195,8 @@ char *strcpyrealloc(char *dest, const char *src);
 char *strn0cpy(char *dest, const char *src, size_t n);
 char *strreplace(char *s, char c1, char c2);
 char *strreplace(char *s, const char *s1, const char *s2); ///< re-allocates 's' and deletes the original string if necessary!
+const char *strchrn(const char *s, char c, size_t n); ///< returns a pointer to the n'th occurrence (counting from 1) of c in s, or NULL if no such character was found. If n is 0, s is returned.
+int strcountchr(const char *s, char c); ///< returns the number of occurrences of 'c' in 's'.
 inline char *skipspace(const char *s)
 {
   if ((uchar)*s > ' ') // most strings don't have any leading space, so handle this case as fast as possible
@@ -201,6 +207,7 @@ inline char *skipspace(const char *s)
 }
 char *stripspace(char *s);
 char *compactspace(char *s);
+char *compactchars(char *s, char c); ///< removes all occurrences of 'c' from the beginning an end of 's' and replaces sequences of multiple 'c's with a single 'c'.
 cString strescape(const char *s, const char *chars);
 bool startswith(const char *s, const char *p);
 bool endswith(const char *s, const char *p);
@@ -330,8 +337,8 @@ public:
       ///< time.
   static uint64_t Now(void);
   void Set(int Ms = 0);
-  bool TimedOut(void);
-  uint64_t Elapsed(void);
+  bool TimedOut(void) const;
+  uint64_t Elapsed(void) const;
   };
 
 class cReadLine {
@@ -530,6 +537,14 @@ public:
   {
     return At(Index);
   }
+  int IndexOf(const T &Data) // returns the index of Data, or -1 if not found
+  {
+    for (int i = 0; i < size; i++) {
+        if (data[i] == Data)
+           return i;
+        }
+    return -1;
+  }
   int Size(void) const { return size; }
   virtual void Insert(T Data, int Before = 0)
   {
@@ -542,17 +557,44 @@ public:
     else
        Append(Data);
   }
+  bool InsertUnique(T Data, int Before = 0)
+  {
+    if (IndexOf(Data) < 0) {
+       Insert(Data, Before);
+       return true;
+       }
+    return false;
+  }
   virtual void Append(T Data)
   {
     if (size >= allocated)
        Realloc(allocated * 3 / 2); // increase size by 50%
     data[size++] = Data;
   }
+  bool AppendUnique(T Data)
+  {
+    if (IndexOf(Data) < 0) {
+       Append(Data);
+       return true;
+       }
+    return false;
+  }
   virtual void Remove(int Index)
   {
+    if (Index < 0)
+       return; // prevents out-of-bounds access
     if (Index < size - 1)
        memmove(&data[Index], &data[Index + 1], (size - Index) * sizeof(T));
     size--;
+  }
+  bool RemoveElement(const T &Data)
+  {
+    int i = IndexOf(Data);
+    if (i >= 0) {
+       Remove(i);
+       return true;
+       }
+    return false;
   }
   virtual void Clear(void)
   {

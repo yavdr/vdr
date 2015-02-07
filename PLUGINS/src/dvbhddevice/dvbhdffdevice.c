@@ -51,6 +51,12 @@ cDvbHdFfDevice::cDvbHdFfDevice(int Adapter, int Frontend)
      isHdffPrimary = true;
      mHdffCmdIf = new HDFF::cHdffCmdIf(fd_osd);
 
+     uint32_t firmwareVersion = mHdffCmdIf->CmdGetFirmwareVersion(NULL, 0);
+     if (firmwareVersion < 0x401)
+        supportsPcrInTransferMode = false;
+     else
+        supportsPcrInTransferMode = true;
+
      /* reset some stuff in case the VDR was killed before and had no chance
         to clean up. */
      mHdffCmdIf->CmdOsdReset();
@@ -102,9 +108,12 @@ cDvbHdFfDevice::~cDvbHdFfDevice()
 
 void cDvbHdFfDevice::MakePrimaryDevice(bool On)
 {
-  if (On)
-     new cHdffOsdProvider(mHdffCmdIf);
-  cDvbDevice::MakePrimaryDevice(On);
+    if (On) {
+        new cHdffOsdProvider(mHdffCmdIf);
+
+        gHdffSetup.SetVideoFormat(mHdffCmdIf);
+    }
+    cDvbDevice::MakePrimaryDevice(On);
 }
 
 bool cDvbHdFfDevice::HasDecoder(void) const
@@ -231,33 +240,22 @@ uchar *cDvbHdFfDevice::GrabImage(int &Size, bool Jpeg, int Quality, int SizeX, i
 
 void cDvbHdFfDevice::SetVideoDisplayFormat(eVideoDisplayFormat VideoDisplayFormat)
 {
-  //TODO???
-  cDevice::SetVideoDisplayFormat(VideoDisplayFormat);
-}
+    if (gHdffSetup.TvFormat == HDFF_TV_FORMAT_4_BY_3)
+    {
+        switch (VideoDisplayFormat)
+        {
+            case vdfPanAndScan:
+            case vdfCenterCutOut:
+                gHdffSetup.VideoConversion = HDFF_VIDEO_CONVERSION_CENTRE_CUT_OUT;
+                break;
 
-void cDvbHdFfDevice::SetVideoFormat(bool VideoFormat16_9)
-{
-  HdffVideoFormat_t videoFormat;
-  videoFormat.AutomaticEnabled = true;
-  videoFormat.AfdEnabled = false;
-  videoFormat.TvFormat = (HdffTvFormat_t) gHdffSetup.TvFormat;
-  videoFormat.VideoConversion = (HdffVideoConversion_t) gHdffSetup.VideoConversion;
-  mHdffCmdIf->CmdAvSetVideoFormat(0, &videoFormat);
-}
-
-eVideoSystem cDvbHdFfDevice::GetVideoSystem(void)
-{
-  eVideoSystem VideoSystem = vsPAL;
-  if (fd_video >= 0) {
-     video_size_t vs;
-     if (ioctl(fd_video, VIDEO_GET_SIZE, &vs) == 0) {
-        if (vs.h == 480 || vs.h == 240)
-           VideoSystem = vsNTSC;
+            case vdfLetterBox:
+                gHdffSetup.VideoConversion = HDFF_VIDEO_CONVERSION_LETTERBOX_16_BY_9;
+                break;
         }
-     else
-        LOG_ERROR;
-     }
-  return VideoSystem;
+        gHdffSetup.SetVideoFormat(mHdffCmdIf);
+    }
+    cDevice::SetVideoDisplayFormat(VideoDisplayFormat);
 }
 
 void cDvbHdFfDevice::GetVideoSize(int &Width, int &Height, double &VideoAspect)
@@ -437,11 +435,6 @@ void cDvbHdFfDevice::SetVolumeDevice(int Volume)
   mHdffCmdIf->CmdMuxSetVolume(Volume * 100 / 255);
 }
 
-void cDvbHdFfDevice::SetDigitalAudioDevice(bool On)
-{
-  // not needed
-}
-
 void cDvbHdFfDevice::SetAudioTrackDevice(eTrackType Type)
 {
     //printf("SetAudioTrackDevice %d\n", Type);
@@ -511,13 +504,15 @@ bool cDvbHdFfDevice::SetPlayMode(ePlayMode PlayMode)
         }
         else
         {
-            mHdffCmdIf->CmdAvSetPlayMode(1, Transferring() || (cTransferControl::ReceiverDevice() == this));
+            isTransferMode = Transferring() || (cTransferControl::ReceiverDevice() == this);
+            mHdffCmdIf->CmdAvSetPlayMode(1, isTransferMode);
             mHdffCmdIf->CmdAvSetStc(0, 100000);
             mHdffCmdIf->CmdAvEnableSync(0, false);
             mHdffCmdIf->CmdAvEnableVideoAfterStop(0, true);
 
             playVideoPid = -1;
             playAudioPid = -1;
+            playPcrPid = -1;
             audioCounter = 0;
             videoCounter = 0;
             freezed = false;
@@ -606,7 +601,11 @@ void cDvbHdFfDevice::ScaleVideo(const cRect &Rect)
     }
 }
 
+#if (APIVERSNUM >= 20103)
+void cDvbHdFfDevice::TrickSpeed(int Speed, bool Forward)
+#else
 void cDvbHdFfDevice::TrickSpeed(int Speed)
+#endif
 {
   freezed = false;
   mHdffCmdIf->CmdAvEnableSync(0, false);
@@ -811,6 +810,11 @@ int cDvbHdFfDevice::PlayVideo(const uchar *Data, int Length)
         mHdffCmdIf->CmdAvEnableSync(0, true);
         isPlayingVideo = true;
     }
+
+    // ignore padding PES packets
+    if (Data[3] == 0xBE)
+        return Length;
+
     //TODO: support greater Length
     uint8_t tsBuffer[188 * 16];
     uint32_t tsLength;
@@ -894,6 +898,14 @@ int cDvbHdFfDevice::PlayTsVideo(const uchar *Data, int Length)
         if (pid == PatPmtParser()->Vpid()) {
             playVideoPid = pid;
             mHdffCmdIf->CmdAvSetVideoPid(0, playVideoPid, MapVideoStreamTypes(PatPmtParser()->Vtype()), true);
+        }
+    }
+    if (isTransferMode && supportsPcrInTransferMode) {
+        if (pid != playPcrPid) {
+            if (pid == PatPmtParser()->Ppid()) {
+                playPcrPid = pid;
+                mHdffCmdIf->CmdAvSetPcrPid(0, playPcrPid);
+            }
         }
     }
     return WriteAllOrNothing(fd_video, Data, Length, 1000, 10);

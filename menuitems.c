@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: menuitems.c 2.16 2013/02/15 14:20:29 kls Exp $
+ * $Id: menuitems.c 3.2 2013/11/03 14:48:21 kls Exp $
  */
 
 #include "menuitems.h"
@@ -51,14 +51,14 @@ void cMenuEditItem::SetHelp(const char *Red, const char *Green, const char *Yell
   helpDisplayed = false;
 }
 
-bool cMenuEditItem::DisplayHelp(void)
+bool cMenuEditItem::DisplayHelp(bool Current)
 {
   bool HasHelp = helpRed || helpGreen || helpYellow || helpBlue;
-  if (HasHelp && !helpDisplayed) {
+  if (HasHelp && !helpDisplayed && Current) {
      cSkinDisplay::Current()->SetButtons(helpRed, helpGreen, helpYellow, helpBlue);
      cStatus::MsgOsdHelpKeys(helpRed, helpGreen, helpYellow, helpBlue);
-     helpDisplayed = true;
      }
+  helpDisplayed = Current;
   return HasHelp;
 }
 
@@ -219,6 +219,50 @@ eOSState cMenuEditNumItem::ProcessKey(eKeys Key)
        }
      Set();
      state = osContinue;
+     }
+  return state;
+}
+
+// --- cMenuEditIntxItem -----------------------------------------------------
+
+cMenuEditIntxItem::cMenuEditIntxItem(const char *Name, int *Value, int Min, int Max, int Factor, const char *NegString, const char *PosString)
+:cMenuEditIntItem(Name, Value, Min, Max)
+{
+  factor = ::max(Factor, 1);
+  negString = NegString;
+  posString = PosString;
+  Set();
+}
+
+void cMenuEditIntxItem::SetHelpKeys(void)
+{
+  if (negString && posString)
+     SetHelp(NULL, (*value < 0) ? posString : negString);
+}
+
+void cMenuEditIntxItem::Set(void)
+{
+  const char *s = (*value < 0) ? negString : posString;
+  int v = *value;
+  if (negString && posString)
+     v = abs(v);
+  SetValue(cString::sprintf(s ? "%.*f %s" : "%.*f", factor / 10, double(v) / factor, s));
+  SetHelpKeys();
+}
+
+eOSState cMenuEditIntxItem::ProcessKey(eKeys Key)
+{
+  eOSState state = cMenuEditIntItem::ProcessKey(Key);
+  if (state == osUnknown) {
+     switch (Key) {
+       case kGreen: if (negString && posString) {
+                       *value = -*value;
+                       Set();
+                       state = osContinue;
+                       }
+                    break;
+       default: ;
+       }
      }
   return state;
 }
@@ -443,12 +487,12 @@ void cMenuEditStrItem::Set(void)
   if (InEditMode()) {
      // This is an ugly hack to make editing strings work with the 'skincurses' plugin.
      const cFont *font = dynamic_cast<cSkinDisplayMenu *>(cSkinDisplay::Current())->GetTextAreaFont(false);
-     if (!font || font->Width("W") != 1) // all characters have with == 1 in the font used by 'skincurses'
+     if (!font || font->Width("W") != 1) // all characters have width == 1 in the font used by 'skincurses'
         font = cFont::GetFont(fontOsd);
 
      int width = cSkinDisplay::Current()->EditableWidth();
      width -= font->Width("[]");
-     width -= font->Width("<>"); // reserving this anyway make the whole thing simpler
+     width -= font->Width("<>"); // reserving this anyway makes the whole thing simpler
 
      if (pos < offset)
         offset = pos;

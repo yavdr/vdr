@@ -363,15 +363,29 @@ Version 2.0
   - 0       Toggles an editing mark. If the mark indicator shows a red triangle,
             the current mark is deleted. Otherwise a new mark is set at the
             current position.
-  - 4, 6    Move an editing mark back and forward. You need to first jump to
-            an editing mark for this to work.
+  - 1, 3    Move an editing mark back and forward in "binary" mode. Pressing
+            either of these keys for the first time moves the mark 120 seconds
+            in the given direction (configurable via "Setup/Replay/Binary skip
+            initial value"). Further presses of the same key keep moving
+            the mark by the same value. Once the other key is pressed, the value
+            is divided by 2 (hence the name "binary") with every further press
+            of either key. Pressing '1' and '3' alternatingly divides the
+            distance all the way down to a single I-frame. That way a particular
+            place in a recording (for instance the beginning or end of a
+            commercial break) can be found very quickly. If none of these two
+            keys is pressed for a while (configurable via "Setup/Replay/Binary
+            skip timeout") the distance falls back to the initial value.
+            If replay is not in Pause mode, or if there is no mark at the
+            current position, the skip is performed without moving any mark.
+  - 4, 6    Move an editing mark back and forward by one I-frame. You need to
+            first jump to an editing mark for this to work.
   - 7, 9    Jump back and forward between editing marks. Replay goes into still
             mode after jumping to a mark. If the current position is at the
             first or last mark, or if there are no marks at all, these keys
             jump to the very beginning or end, respectively, of the recording.
   - 8       Positions replay at a point 3 seconds before the current or next
             "begin" mark and starts replay.
-  - 2       Start the actual cutting process.
+  - 2       Starts the actual cutting process.
 
   Editing marks are represented by black, vertical lines in the progress display.
   A small black triangle at the top of the mark means that this is a "begin"
@@ -500,9 +514,34 @@ Version 2.0
   folder name in the list). The "Yellow" key deletes the current folder (note
   that this will merely delete the folder definition stored in 'folders.conf'
   and has no effect on existing timers or recordings). The "Blue" key can be
-  used to edit an existing folder definition. The "Red" key selects the current
-  folder, or enters a sub folder. Once a folder has been selected, the entire
-  path of the timer's file name will be replaced with the selected folder.
+  used to edit an existing folder definition. The "Red" key opens a folder that
+  contains sub folders, while pressing Ok selects the current folder. Once a
+  folder has been selected, the entire path of the timer's file name will be
+  replaced with the selected folder.
+
+  In the "Recordings" menu the folders of existing recordings can be renamed or
+  moved by pressing the "Blue" key ("Edit") while the cursor is positioned on
+  a folder. This will open a menu in which the folder's name and location (the
+  "parent" folder) can be edited. If such an operation will result in moving
+  more than one recording, you will be asked for confirmation.
+  The name, folder, priority and lifetime of an individual recording can be
+  changed by pressing the "Blue" key ("Info") while the cursor is positioned
+  on a recording, and in the resulting Info menu pressing the "Blue" key again
+  to bring up the "Edit recording" menu.
+  In the "Edit recording" menu the Red button ("Folder") allows you to select one
+  of your predefined folders. The Green button has multiple functions, depending
+  on what is currently going on with the recording. It can either stop or cancel
+  a cut, move or copy operation. If the button reads "Stop..." it means that the
+  respective operation is already happening, while "Cancel..." means that the
+  operation is still pending execution. If no operation is currently happening
+  and the recording has editing marks, the Button will read "Cut" and triggers
+  cutting the recording (same as pressing '2' while replaying the recording).
+  The Yellow button ("Delete marks") allows you to delete all editing marks from
+  the selected recording (if there are any and the recording is not currently
+  being cut). To directly edit the folder or name of the recording, position the
+  cursor to the respective line and press the Right key to start editing (press
+  Ok to confirm the edit, or Back to return to the previous value). Once you are
+  finished with editing the recording properties, press Ok to confirm the changes.
 
 * Parameters in the "Setup" menu
 
@@ -706,13 +745,13 @@ Version 2.0
                          1 = ANSI/SCTE
 
   Video format = 4:3     The video format (or aspect ratio) of the tv set in use
-                         (4:3 or 16:9).
+                         (4:3 or 16:9). Applies only to SD output devices.
 
   Video display format = letterbox
                          The display format to use for playing wide screen video on
                          a 4:3 tv set ("pan & scan", "letterbox" or "center cut out").
                          This option is only available if "Video format" is set to
-                         4:3.
+                         4:3. Applies only to SD output devices.
 
   Use Dolby Digital = yes
                          Controls whether Dolby Digital tracks appear in the "Audio"
@@ -776,6 +815,28 @@ Version 2.0
                          are connected to the same sat cable must be set to the same
                          number here.
 
+  Use dish positioner = no
+                         By default, the 'P' command code in DiSEqC command sequences
+                         is ignored. Set this parameter to 'yes' if you are using a
+                         satellite dish positioner.
+
+  Site latitude (degrees) = 0
+  Site longitude (degrees) = 0
+                         Set these to the latitude and longitude of your dish's
+                         location if you use a satellite dish positioner. Use the
+                         "Green" key to switch between north/south and east/west,
+                         respectively.
+
+  Max. positioner swing (degrees) = 65
+                         Defines the maximum angle by which the positioner can move
+                         the dish away from due south (or north) in either direction.
+                         The valid range is 0...90.
+
+  Positioner speed (degrees/s) = 1.5
+                         Defines the speed at which the positioner moves the dish.
+                         The valid range is 0.1...180. This value is used to calculate
+                         how long it takes the positioner to reach the target position.
+
   CAM:
 
   n CAM Name             Shows the CAM slots that are present in this system, where
@@ -784,7 +845,19 @@ Version 2.0
                          if it is in the process of being reset, its current status
                          is displayed.  The "Red" key can be pressed to enter the CAM
                          menu, and the "Green" key triggers a reset of the selected
-                         slot. The "Ok" key also opens the CAM menu.
+                         slot. The "Ok" key also opens the CAM menu. The "Yellow" key
+                         assigns the selected CAM to a device and switches it to the
+                         current channel. The CAM/device combination remains tuned to
+                         the current channel until the smart card in the CAM has been
+                         activated and thus starts to descramble, or until a recording
+                         needs this device. Pressing the "Yellow" key while a CAM is
+                         in activation mode cancels the activation. The activation mode
+                         remains in effect even if you switch to a different channel
+                         (provided there is more than one device in the system) or
+                         watch a recording. To activate your smart card simply switch
+                         to the channel you want to watch, open the "Setup/CAM" menu,
+                         select the CAM that contains the smart card (in case you
+                         have more than one CAM) and press the "Yellow" key.
 
   Recording:
 
@@ -896,6 +969,43 @@ Version 2.0
                          Defines whether the player automatically goes into Pause
                          mode when setting an editing mark.
 
+  Pause replay when jumping to a mark = yes
+                         By default replay is automatically paused whenever you jump
+                         to an editing mark with the '7' or '9' key in order to allow
+                         you to easily adjust those marks. If this option is set to
+                         'no', the '9' key will not pause if you are in Play mode and
+                         the mark you jump to is not within 3 seconds of the end of
+                         the recording.
+
+  Skip edited parts = no Defines whether the edited parts of a recording are
+                         automatically skipped during replay. This includes jumping
+                         to the first mark if replay starts at the beginning of the
+                         recording, and stopping at the last mark.
+                         In order to work, this option must be enabled before starting
+                         replay.
+
+  Pause replay at last mark = no
+                         If enabled, replay of a recording will go into Pause mode
+                         when it has reached the last "end" mark (if any). Note that
+                         the actual position at which the pause occurs may be a couple
+                         of frames before the last "end" mark, depending on how much
+                         data is buffered by your output device.
+                         In order to work, this option must be enabled before starting
+                         replay.
+
+  Binary skip initial value (s) = 120
+                         Defines the number of seconds to jump from the current replay
+                         position in either direction, when pressing the '1' or '3'
+                         key for the first time after the "Binary skip timeout".
+                         The valid range is 10...600.
+
+  Binary skip timeout (s) = 3
+                         Defines the number of seconds after which pressing the
+                         '1' or '3' key falls back to the "Binary skip initial value".
+                         The valid range is 0...10. Setting the timeout to 0 disables
+                         the binary mode and makes '1' and '3' always skip the number
+                         of seconds configured as the initial value.
+
   Resume ID = 0          Defines an additional ID that can be used in a multi user
                          environment, so that every user has his/her own resume
                          files for each recording. The valid range is 0...99, with
@@ -951,6 +1061,17 @@ Version 2.0
                          is -1, which means that the same volume as before
                          VDR was stopped will be used. The valid range is from
                          0 (silent) to 255 (loudest).
+
+  Volume steps = 51      The number of steps the volume will use when moving from
+                         the lowest to the highest value. The valid range is from
+                         5 to 255.
+
+  Volume linearize = 0   How to linearize the volume control. The valid range is
+                         from -20 to 20. A value of 0 results in no linearization.
+                         The higher this value is, the more fine grained the control
+                         of the volume is for low sound levels. Lower values do the
+                         same for high sound levels. This allows you to adjust the
+                         more or less linear volume control of your sound card.
 
   Channels wrap = no     During zapping with the "Up" and "Down" keys (or the
                          "Channel+" and "Channel-" keys) the current channel will

@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: config.h 2.76.1.7 2014/03/22 11:00:00 kls Exp $
+ * $Id: config.h 3.13 2015/01/27 10:50:11 kls Exp $
  */
 
 #ifndef __CONFIG_H
@@ -22,13 +22,13 @@
 
 // VDR's own version number:
 
-#define VDRVERSION  "2.0.6"
-#define VDRVERSNUM   20006  // Version * 10000 + Major * 100 + Minor
+#define VDRVERSION  "2.1.8"
+#define VDRVERSNUM   20108  // Version * 10000 + Major * 100 + Minor
 
 // The plugin API's version number:
 
-#define APIVERSION  "2.0.6"
-#define APIVERSNUM   20006  // Version * 10000 + Major * 100 + Minor
+#define APIVERSION  "2.1.8"
+#define APIVERSNUM   20108  // Version * 10000 + Major * 100 + Minor
 
 // When loading plugins, VDR searches them by their APIVERSION, which
 // may be smaller than VDRVERSION in case there have been no changes to
@@ -266,6 +266,12 @@ public:
   int LnbFrequLo;
   int LnbFrequHi;
   int DiSEqC;
+  int UsePositioner;
+  int SiteLat;
+  int SiteLon;
+  int PositionerSpeed;
+  int PositionerSwing;
+  int PositionerLastLon;
   int SetSystemTime;
   int TimeSource;
   int TimeTransponder;
@@ -327,9 +333,16 @@ public:
   int ShowRemainingTime;
   int ProgressDisplayTime;
   int PauseOnMarkSet;
+  int PauseOnMarkJump;
+  int SkipEdited;
+  int PauseAtLastMark;
+  int BinarySkipInitial;
+  int BinarySkipTimeout;
   int ResumeID;
   int CurrentChannel;
   int CurrentVolume;
+  int VolumeSteps;
+  int VolumeLinearize;
   int CurrentDolby;
   int InitialVolume;
   int ChannelsWrap;

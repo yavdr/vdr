@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: channels.c 2.24.1.1 2013/10/11 11:40:02 kls Exp $
+ * $Id: channels.c 3.8 2015/02/01 13:47:05 kls Exp $
  */
 
 #include "channels.h"
@@ -29,7 +29,7 @@ tChannelID tChannelID::FromString(const char *s)
   int tid;
   int sid;
   int rid = 0;
-  int fields = sscanf(s, "%a[^-]-%d-%d-%d-%d", &sourcebuf, &nid, &tid, &sid, &rid);
+  int fields = sscanf(s, "%m[^-]-%d-%d-%d-%d", &sourcebuf, &nid, &tid, &sid, &rid);
   if (fields == 4 || fields == 5) {
      int source = cSource::FromString(sourcebuf);
      free(sourcebuf);
@@ -64,6 +64,7 @@ cChannel::cChannel(void)
   memset(&__BeginData__, 0, (char *)&__EndData__ - (char *)&__BeginData__);
   parameters = "";
   modification = CHANNELMOD_NONE;
+  seen         = 0;
   schedule     = NULL;
   linkChannels = NULL;
   refChannel   = NULL;
@@ -220,7 +221,7 @@ bool cChannel::SetTransponderData(int Source, int Frequency, int Srate, const ch
      nameSource = NULL;
      shortNameSource = NULL;
      if (Number() && !Quiet) {
-        dsyslog("changing transponder data of channel %d from %s to %s", Number(), *OldTransponderData, *TransponderDataToString());
+        dsyslog("changing transponder data of channel %d (%s) from %s to %s", Number(), name, *OldTransponderData, *TransponderDataToString());
         modification |= CHANNELMOD_TRANSP;
         Channels.SetModified();
         }
@@ -232,7 +233,7 @@ void cChannel::SetId(int Nid, int Tid, int Sid, int Rid)
 {
   if (nid != Nid || tid != Tid || sid != Sid || rid != Rid) {
      if (Number()) {
-        dsyslog("changing id of channel %d from %d-%d-%d-%d to %d-%d-%d-%d", Number(), nid, tid, sid, rid, Nid, Tid, Sid, Rid);
+        dsyslog("changing id of channel %d (%s) from %d-%d-%d-%d to %d-%d-%d-%d", Number(), name, nid, tid, sid, rid, Nid, Tid, Sid, Rid);
         modification |= CHANNELMOD_ID;
         Channels.SetModified();
         Channels.UnhashChannel(this);
@@ -244,6 +245,15 @@ void cChannel::SetId(int Nid, int Tid, int Sid, int Rid)
      if (Number())
         Channels.HashChannel(this);
      schedule = NULL;
+     }
+}
+
+void cChannel::SetLcn(int Lcn)
+{
+  if (lcn != Lcn) {
+     if (Number())
+        dsyslog("changing lcn of channel %d (%s) from %d to %d\n", Number(), name, lcn, Lcn);
+     lcn = Lcn;
      }
 }
 
@@ -277,7 +287,7 @@ void cChannel::SetPortalName(const char *PortalName)
 {
   if (!isempty(PortalName) && strcmp(portalName, PortalName) != 0) {
      if (Number()) {
-        dsyslog("changing portal name of channel %d from '%s' to '%s'", Number(), portalName, PortalName);
+        dsyslog("changing portal name of channel %d (%s) from '%s' to '%s'", Number(), name, portalName, PortalName);
         modification |= CHANNELMOD_NAME;
         Channels.SetModified();
         }
@@ -330,8 +340,10 @@ static int IntArrayToString(char *s, const int *a, int Base = 10, const char n[]
 void cChannel::SetPids(int Vpid, int Ppid, int Vtype, int *Apids, int *Atypes, char ALangs[][MAXLANGCODE2], int *Dpids, int *Dtypes, char DLangs[][MAXLANGCODE2], int *Spids, char SLangs[][MAXLANGCODE2], int Tpid)
 {
   int mod = CHANNELMOD_NONE;
-  if (vpid != Vpid || ppid != Ppid || vtype != Vtype || tpid != Tpid)
+  if (vpid != Vpid || ppid != Ppid || vtype != Vtype)
      mod |= CHANNELMOD_PIDS;
+  if (tpid != Tpid)
+     mod |= CHANNELMOD_AUX;
   int m = IntArraysDiffer(apids, Apids, alangs, ALangs) | IntArraysDiffer(atypes, Atypes) | IntArraysDiffer(dpids, Dpids, dlangs, DLangs) | IntArraysDiffer(dtypes, Dtypes) | IntArraysDiffer(spids, Spids, slangs, SLangs);
   if (m & STRDIFF)
      mod |= CHANNELMOD_LANGS;
@@ -365,7 +377,7 @@ void cChannel::SetPids(int Vpid, int Ppid, int Vtype, int *Apids, int *Atypes, c
      q += IntArrayToString(q, Spids, 10, SLangs);
      *q = 0;
      if (Number())
-        dsyslog("changing pids of channel %d from %d+%d=%d:%s:%s:%d to %d+%d=%d:%s:%s:%d", Number(), vpid, ppid, vtype, OldApidsBuf, OldSpidsBuf, tpid, Vpid, Ppid, Vtype, NewApidsBuf, NewSpidsBuf, Tpid);
+        dsyslog("changing pids of channel %d (%s) from %d+%d=%d:%s:%s:%d to %d+%d=%d:%s:%s:%d", Number(), name, vpid, ppid, vtype, OldApidsBuf, OldSpidsBuf, tpid, Vpid, Ppid, Vtype, NewApidsBuf, NewSpidsBuf, Tpid);
      vpid = Vpid;
      ppid = Ppid;
      vtype = Vtype;
@@ -388,7 +400,8 @@ void cChannel::SetPids(int Vpid, int Ppid, int Vtype, int *Apids, int *Atypes, c
      spids[MAXSPIDS] = 0;
      tpid = Tpid;
      modification |= mod;
-     Channels.SetModified();
+     if (Number())
+        Channels.SetModified();
      }
 }
 
@@ -408,6 +421,11 @@ void cChannel::SetSubtitlingDescriptors(uchar *SubtitlingTypes, uint16_t *Compos
      }
 }
 
+void cChannel::SetSeen(void)
+{
+  seen = time(NULL);
+}
+
 void cChannel::SetCaIds(const int *CaIds)
 {
   if (caids[0] && caids[0] <= CA_USER_MAX)
@@ -418,7 +436,7 @@ void cChannel::SetCaIds(const int *CaIds)
      IntArrayToString(OldCaIdsBuf, caids, 16);
      IntArrayToString(NewCaIdsBuf, CaIds, 16);
      if (Number())
-        dsyslog("changing caids of channel %d from %s to %s", Number(), OldCaIdsBuf, NewCaIdsBuf);
+        dsyslog("changing caids of channel %d (%s) from %s to %s", Number(), name, OldCaIdsBuf, NewCaIdsBuf);
      for (int i = 0; i <= MAXCAIDS; i++) { // <= to copy the terminating 0
          caids[i] = CaIds[i];
          if (!CaIds[i])
@@ -435,7 +453,7 @@ void cChannel::SetCaDescriptors(int Level)
      modification |= CHANNELMOD_CA;
      Channels.SetModified();
      if (Number() && Level > 1)
-        dsyslog("changing ca descriptors of channel %d", Number());
+        dsyslog("changing ca descriptors of channel %d (%s)", Number(), name);
      }
 }
 
@@ -461,7 +479,7 @@ void cChannel::SetLinkChannels(cLinkChannels *LinkChannels)
      }
   char buffer[((linkChannels ? linkChannels->Count() : 0) + (LinkChannels ? LinkChannels->Count() : 0)) * 6 + 256]; // 6: 5 digit channel number plus blank, 256: other texts (see below) plus reserve
   char *q = buffer;
-  q += sprintf(q, "linking channel %d from", Number());
+  q += sprintf(q, "linking channel %d (%s) from", Number(), name);
   if (linkChannels) {
      for (cLinkChannel *lc = linkChannels->First(); lc; lc = linkChannels->Next(lc)) {
          lc->Channel()->SetRefChannel(NULL);
@@ -586,7 +604,7 @@ bool cChannel::Parse(const char *s)
      char *apidbuf = NULL;
      char *tpidbuf = NULL;
      char *caidbuf = NULL;
-     int fields = sscanf(s, "%a[^:]:%d :%a[^:]:%a[^:] :%d :%a[^:]:%a[^:]:%a[^:]:%a[^:]:%d :%d :%d :%d ", &namebuf, &frequency, &parambuf, &sourcebuf, &srate, &vpidbuf, &apidbuf, &tpidbuf, &caidbuf, &sid, &nid, &tid, &rid);
+     int fields = sscanf(s, "%m[^:]:%d :%m[^:]:%m[^:] :%d :%m[^:]:%m[^:]:%m[^:]:%m[^:]:%d :%d :%d :%d ", &namebuf, &frequency, &parambuf, &sourcebuf, &srate, &vpidbuf, &apidbuf, &tpidbuf, &caidbuf, &sid, &nid, &tid, &rid);
      if (fields >= 9) {
         if (fields == 9) {
            // allow reading of old format
@@ -1016,11 +1034,28 @@ cChannel *cChannels::NewChannel(const cChannel *Transponder, const char *Name, c
      NewChannel->CopyTransponderData(Transponder);
      NewChannel->SetId(Nid, Tid, Sid, Rid);
      NewChannel->SetName(Name, ShortName, Provider);
+     NewChannel->SetSeen();
      Add(NewChannel);
      ReNumber();
      return NewChannel;
      }
   return NULL;
+}
+
+#define CHANNELMARKOBSOLETE "OBSOLETE"
+#define CHANNELTIMEOBSOLETE 3600 // seconds to wait before declaring a channel obsolete (in case it has actually been seen before)
+
+void cChannels::MarkObsoleteChannels(int Source, int Nid, int Tid)
+{
+  for (cChannel *channel = First(); channel; channel = Next(channel)) {
+      if (time(NULL) - channel->Seen() > CHANNELTIMEOBSOLETE && channel->Source() == Source && channel->Nid() == Nid && channel->Tid() == Tid && channel->Rid() == 0) {
+         bool OldShowChannelNamesWithSource = Setup.ShowChannelNamesWithSource;
+         Setup.ShowChannelNamesWithSource = false;
+         if (!endswith(channel->Name(), CHANNELMARKOBSOLETE))
+            channel->SetName(cString::sprintf("%s %s", channel->Name(), CHANNELMARKOBSOLETE), channel->ShortName(), cString::sprintf("%s %s", CHANNELMARKOBSOLETE, channel->Provider()));
+         Setup.ShowChannelNamesWithSource = OldShowChannelNamesWithSource;
+         }
+      }
 }
 
 cString ChannelString(const cChannel *Channel, int Number)

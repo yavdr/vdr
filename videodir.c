@@ -1,10 +1,10 @@
 /*
- * videodir.c: Functions to maintain a distributed video directory
+ * videodir.c: Functions to maintain the video directory
  *
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: videodir.c 2.4 2012/09/30 12:06:33 kls Exp $
+ * $Id: videodir.c 3.4 2013/10/11 09:38:07 kls Exp $
  */
 
 #include "videodir.h"
@@ -19,185 +19,129 @@
 #include "recording.h"
 #include "tools.h"
 
-const char *VideoDirectory = VIDEODIR;
-
-void SetVideoDirectory(const char *Directory)
-{
-  VideoDirectory = strdup(Directory);
-}
-
-class cVideoDirectory {
-private:
-  char *name, *stored, *adjusted;
-  int length, number, digits;
-public:
-  cVideoDirectory(void);
-  ~cVideoDirectory();
-  int FreeMB(int *UsedMB = NULL);
-  const char *Name(void) { return name ? name : VideoDirectory; }
-  const char *Stored(void) { return stored; }
-  int Length(void) { return length; }
-  bool IsDistributed(void) { return name != NULL; }
-  bool Next(void);
-  void Store(void);
-  const char *Adjust(const char *FileName);
-  };
+cString cVideoDirectory::name;
+cVideoDirectory *cVideoDirectory::current = NULL;
 
 cVideoDirectory::cVideoDirectory(void)
 {
-  length = strlen(VideoDirectory);
-  name = (VideoDirectory[length - 1] == '0') ? strdup(VideoDirectory) : NULL;
-  stored = adjusted = NULL;
-  number = -1;
-  digits = 0;
+  delete current;
+  current = this;
 }
 
 cVideoDirectory::~cVideoDirectory()
 {
-  free(name);
-  free(stored);
-  free(adjusted);
+  current = NULL;
+}
+
+cVideoDirectory *cVideoDirectory::Current(void)
+{
+  if (!current)
+     current = new cVideoDirectory;
+  return current;
+}
+
+void cVideoDirectory::Destroy(void)
+{
+  delete current;
 }
 
 int cVideoDirectory::FreeMB(int *UsedMB)
 {
-  return FreeDiskSpaceMB(name ? name : VideoDirectory, UsedMB);
+  return FreeDiskSpaceMB(Name(), UsedMB);
 }
 
-bool cVideoDirectory::Next(void)
+const char *cVideoDirectory::Name(void)
 {
-  if (name) {
-     if (number < 0) {
-        int l = length;
-        while (l-- > 0 && isdigit(name[l]))
-              ;
-        l++;
-        digits = length - l;
-        int n = atoi(&name[l]);
-        if (n == 0)
-           number = n;
-        else
-           return false; // base video directory must end with zero
-        }
-     if (++number > 0) {
-        char buf[16];
-        if (sprintf(buf, "%0*d", digits, number) == digits) {
-           strcpy(&name[length - digits], buf);
-           return DirectoryOk(name);
-           }
-        }
-     }
-  return false;
+  return name;
 }
 
-void cVideoDirectory::Store(void)
+void cVideoDirectory::SetName(const char *Name)
 {
-  if (name) {
-     free(stored);
-     stored = strdup(name);
-     }
+  name = Name;
 }
 
-const char *cVideoDirectory::Adjust(const char *FileName)
+bool cVideoDirectory::Register(const char *FileName)
 {
-  if (stored) {
-     free(adjusted);
-     adjusted = strdup(FileName);
-     return strncpy(adjusted, stored, length);
-     }
-  return NULL;
-}
-
-cUnbufferedFile *OpenVideoFile(const char *FileName, int Flags)
-{
-  const char *ActualFileName = FileName;
-
   // Incoming name must be in base video directory:
-  if (strstr(FileName, VideoDirectory) != FileName) {
-     esyslog("ERROR: %s not in %s", FileName, VideoDirectory);
+  if (strstr(FileName, Name()) != FileName) {
+     esyslog("ERROR: %s not in %s", FileName, Name());
      errno = ENOENT; // must set 'errno' - any ideas for a better value?
-     return NULL;
-     }
-  // Are we going to create a new file?
-  if ((Flags & O_CREAT) != 0) {
-     cVideoDirectory Dir;
-     if (Dir.IsDistributed()) {
-        // Find the directory with the most free space:
-        int MaxFree = Dir.FreeMB();
-        while (Dir.Next()) {
-              int Free = FreeDiskSpaceMB(Dir.Name());
-              if (Free > MaxFree) {
-                 Dir.Store();
-                 MaxFree = Free;
-                 }
-              }
-        if (Dir.Stored()) {
-           ActualFileName = Dir.Adjust(FileName);
-           if (!MakeDirs(ActualFileName, false))
-              return NULL; // errno has been set by MakeDirs()
-           if (symlink(ActualFileName, FileName) < 0) {
-              LOG_ERROR_STR(FileName);
-              return NULL;
-              }
-           ActualFileName = strdup(ActualFileName); // must survive Dir!
-           }
-        }
-     }
-  cUnbufferedFile *File = cUnbufferedFile::Create(ActualFileName, Flags, DEFFILEMODE);
-  if (ActualFileName != FileName)
-     free((char *)ActualFileName);
-  return File;
-}
-
-int CloseVideoFile(cUnbufferedFile *File)
-{
-  int Result = File->Close();
-  delete File;
-  return Result;
-}
-
-bool RenameVideoFile(const char *OldName, const char *NewName)
-{
-  // Only the base video directory entry will be renamed, leaving the
-  // possible symlinks untouched. Going through all the symlinks and disks
-  // would be unnecessary work - maybe later...
-  if (rename(OldName, NewName) == -1) {
-     LOG_ERROR_STR(OldName);
      return false;
      }
   return true;
 }
 
-bool RemoveVideoFile(const char *FileName)
+bool cVideoDirectory::Rename(const char *OldName, const char *NewName)
 {
-  return RemoveFileOrDir(FileName, true);
-}
-
-bool VideoFileSpaceAvailable(int SizeMB)
-{
-  cVideoDirectory Dir;
-  if (Dir.IsDistributed()) {
-     if (Dir.FreeMB() >= SizeMB * 2) // base directory needs additional space
-        return true;
-     while (Dir.Next()) {
-           if (Dir.FreeMB() >= SizeMB)
-              return true;
-           }
+  dsyslog("renaming '%s' to '%s'", OldName, NewName);
+  if (rename(OldName, NewName) == -1) {
+     LOG_ERROR_STR(NewName);
      return false;
      }
-  return Dir.FreeMB() >= SizeMB;
+  return true;
 }
 
-int VideoDiskSpace(int *FreeMB, int *UsedMB)
+bool cVideoDirectory::Move(const char *FromName, const char *ToName)
 {
-  int free = 0, used = 0;
+  dsyslog("moving '%s' to '%s'", FromName, ToName);
+  if (EntriesOnSameFileSystem(FromName, ToName)) {
+     if (rename(FromName, ToName) == -1) {
+        LOG_ERROR_STR(ToName);
+        return false;
+        }
+     }
+  else
+     return RecordingsHandler.Add(ruMove, FromName, ToName);
+  return true;
+}
+
+bool cVideoDirectory::Remove(const char *Name)
+{
+  return RemoveFileOrDir(Name);
+}
+
+void cVideoDirectory::Cleanup(const char *IgnoreFiles[])
+{
+  RemoveEmptyDirectories(Name(), false, IgnoreFiles);
+}
+
+bool cVideoDirectory::Contains(const char *Name)
+{
+  return EntriesOnSameFileSystem(this->Name(), Name);
+}
+
+cUnbufferedFile *cVideoDirectory::OpenVideoFile(const char *FileName, int Flags)
+{
+  if (Current()->Register(FileName))
+     return cUnbufferedFile::Create(FileName, Flags, DEFFILEMODE);
+  return NULL;
+}
+
+bool cVideoDirectory::RenameVideoFile(const char *OldName, const char *NewName)
+{
+  return Current()->Rename(OldName, NewName);
+}
+
+bool cVideoDirectory::MoveVideoFile(const char *FromName, const char *ToName)
+{
+  return Current()->Move(FromName, ToName);
+}
+
+bool cVideoDirectory::RemoveVideoFile(const char *FileName)
+{
+  return Current()->Remove(FileName);
+}
+
+bool cVideoDirectory::VideoFileSpaceAvailable(int SizeMB)
+{
+  return Current()->FreeMB() >= SizeMB;
+}
+
+int cVideoDirectory::VideoDiskSpace(int *FreeMB, int *UsedMB)
+{
+  int used = 0;
+  int free = Current()->FreeMB(&used);
   int deleted = DeletedRecordings.TotalFileSizeMB();
-  cVideoDirectory Dir;
-  do {
-     int u;
-     free += Dir.FreeMB(&u);
-     used += u;
-     } while (Dir.Next());
   if (deleted > used)
      deleted = used; // let's not get beyond 100%
   free += deleted;
@@ -209,7 +153,7 @@ int VideoDiskSpace(int *FreeMB, int *UsedMB)
   return (free + used) ? used * 100 / (free + used) : 0;
 }
 
-cString PrefixVideoFileName(const char *FileName, char Prefix)
+cString cVideoDirectory::PrefixVideoFileName(const char *FileName, char Prefix)
 {
   char PrefixedName[strlen(FileName) + 2];
 
@@ -229,22 +173,14 @@ cString PrefixVideoFileName(const char *FileName, char Prefix)
   return NULL;
 }
 
-void RemoveEmptyVideoDirectories(const char *IgnoreFiles[])
+void cVideoDirectory::RemoveEmptyVideoDirectories(const char *IgnoreFiles[])
 {
-  cVideoDirectory Dir;
-  do {
-     RemoveEmptyDirectories(Dir.Name(), false, IgnoreFiles);
-     } while (Dir.Next());
+  Current()->Cleanup(IgnoreFiles);
 }
 
-bool IsOnVideoDirectoryFileSystem(const char *FileName)
+bool cVideoDirectory::IsOnVideoDirectoryFileSystem(const char *FileName)
 {
-  cVideoDirectory Dir;
-  do {
-     if (EntriesOnSameFileSystem(Dir.Name(), FileName))
-        return true;
-     } while (Dir.Next());
-  return false;
+  return Current()->Contains(FileName);
 }
 
 // --- cVideoDiskUsage -------------------------------------------------------
@@ -262,7 +198,7 @@ bool cVideoDiskUsage::HasChanged(int &State)
 {
   if (time(NULL) - lastChecked > DISKSPACECHEK) {
      int FreeMB;
-     int UsedPercent = VideoDiskSpace(&FreeMB);
+     int UsedPercent = cVideoDirectory::VideoDiskSpace(&FreeMB);
      if (FreeMB != freeMB) {
         usedPercent = UsedPercent;
         freeMB = FreeMB;

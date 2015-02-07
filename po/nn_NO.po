@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: VDR 2.0.0\n"
 "Report-Msgid-Bugs-To: <vdr-bugs@tvdr.de>\n"
-"POT-Creation-Date: 2013-03-04 14:46+0100\n"
+"POT-Creation-Date: 2015-01-30 13:14+0100\n"
 "PO-Revision-Date: 2007-08-12 14:17+0200\n"
 "Last-Translator: Truls Slevigen <truls@slevigen.no>\n"
 "Language-Team: Norwegian Nynorsk <vdr@linuxtv.org>\n"
@@ -19,6 +19,9 @@ msgstr ""
 
 msgid "*** Invalid Channel ***"
 msgstr "*** Ugyldig Kanal! ***"
+
+msgid "CAM activated!"
+msgstr ""
 
 msgid "Channel not available!"
 msgstr ""
@@ -75,6 +78,15 @@ msgid "Rolloff"
 msgstr ""
 
 msgid "StreamId"
+msgstr ""
+
+msgid "Pilot"
+msgstr ""
+
+msgid "T2SystemId"
+msgstr ""
+
+msgid "SISO/MISO"
 msgstr ""
 
 msgid "Starting EPG scan"
@@ -564,6 +576,12 @@ msgstr "Kortleser"
 msgid "Sid"
 msgstr "Sid"
 
+msgid "Nid"
+msgstr ""
+
+msgid "Tid"
+msgstr ""
+
 msgid "Channel settings are not unique!"
 msgstr ""
 
@@ -604,8 +622,8 @@ msgstr ""
 msgid "Folder name must not contain '%c'!"
 msgstr ""
 
-msgid "Button$Select"
-msgstr ""
+msgid "Button$Open"
+msgstr "Åpne"
 
 msgid "Delete folder and all sub folders?"
 msgstr ""
@@ -724,6 +742,73 @@ msgstr ""
 msgid "CAM not responding!"
 msgstr ""
 
+msgid "Edit path"
+msgstr ""
+
+msgid "Folder"
+msgstr ""
+
+msgid "This folder is currently in use - no changes are possible!"
+msgstr ""
+
+#, c-format
+msgid "Move entire folder containing %d recordings?"
+msgstr ""
+
+msgid "Error while moving folder!"
+msgstr ""
+
+msgid "Edit recording"
+msgstr ""
+
+msgid "This recording is currently in use - no changes are possible!"
+msgstr ""
+
+msgid "Button$Cancel cutting"
+msgstr ""
+
+msgid "Button$Stop cutting"
+msgstr ""
+
+msgid "Button$Cancel moving"
+msgstr ""
+
+msgid "Button$Stop moving"
+msgstr ""
+
+msgid "Button$Cancel copying"
+msgstr ""
+
+msgid "Button$Stop copying"
+msgstr ""
+
+msgid "Button$Cut"
+msgstr ""
+
+msgid "Button$Delete marks"
+msgstr ""
+
+msgid "Recording vanished!"
+msgstr ""
+
+msgid "Edited version already exists - overwrite?"
+msgstr ""
+
+msgid "Error while queueing recording for cutting!"
+msgstr ""
+
+msgid "Delete editing marks for this recording?"
+msgstr ""
+
+msgid "Error while deleting editing marks!"
+msgstr ""
+
+msgid "Error while changing priority/lifetime!"
+msgstr ""
+
+msgid "Error while changing folder/name!"
+msgstr ""
+
 msgid "Recording info"
 msgstr ""
 
@@ -735,9 +820,6 @@ msgstr "Spol tilbake"
 
 msgid "Recordings"
 msgstr "Opptak"
-
-msgid "Button$Open"
-msgstr "Åpne"
 
 msgid "Commands"
 msgstr "Kommandoer"
@@ -994,6 +1076,33 @@ msgstr ""
 msgid "Setup.LNB$own"
 msgstr ""
 
+msgid "Setup.LNB$Use dish positioner"
+msgstr ""
+
+msgid "Setup.LNB$Site latitude (degrees)"
+msgstr ""
+
+msgid "South"
+msgstr ""
+
+msgid "North"
+msgstr ""
+
+msgid "Setup.LNB$Site longitude (degrees)"
+msgstr ""
+
+msgid "West"
+msgstr ""
+
+msgid "East"
+msgstr ""
+
+msgid "Setup.LNB$Max. positioner swing (degrees)"
+msgstr ""
+
+msgid "Setup.LNB$Positioner speed (degrees/s)"
+msgstr ""
+
 msgid "CAM reset"
 msgstr ""
 
@@ -1003,8 +1112,18 @@ msgstr ""
 msgid "CAM ready"
 msgstr ""
 
+#. TRANSLATORS: note the leading blank!
+msgid " (activating)"
+msgstr ""
+
 msgid "CAM"
 msgstr "CAM"
+
+msgid "Button$Cancel activation"
+msgstr ""
+
+msgid "Button$Activate"
+msgstr ""
 
 msgid "Button$Menu"
 msgstr "Meny"
@@ -1016,6 +1135,9 @@ msgid "Opening CAM menu..."
 msgstr ""
 
 msgid "Can't open CAM menu!"
+msgstr ""
+
+msgid "Can't activate CAM!"
 msgstr ""
 
 msgid "CAM is in use - really reset?"
@@ -1111,6 +1233,21 @@ msgstr ""
 msgid "Setup.Replay$Pause replay when setting mark"
 msgstr ""
 
+msgid "Setup.Replay$Pause replay when jumping to a mark"
+msgstr ""
+
+msgid "Setup.Replay$Skip edited parts"
+msgstr ""
+
+msgid "Setup.Replay$Pause replay at last mark"
+msgstr ""
+
+msgid "Setup.Replay$Binary skip initial value (s)"
+msgstr ""
+
+msgid "Setup.Replay$Binary skip timeout (s)"
+msgstr ""
+
 msgid "Setup.Replay$Resume ID"
 msgstr "Resume ID"
 
@@ -1145,6 +1282,12 @@ msgid "Setup.Miscellaneous$as before"
 msgstr ""
 
 msgid "Setup.Miscellaneous$Initial volume"
+msgstr ""
+
+msgid "Setup.Miscellaneous$Volume steps"
+msgstr ""
+
+msgid "Setup.Miscellaneous$Volume linearize"
 msgstr ""
 
 msgid "Setup.Miscellaneous$Channels wrap"
@@ -1329,6 +1472,10 @@ msgid "LIVE"
 msgstr ""
 
 msgid "PLAY"
+msgstr ""
+
+#, c-format
+msgid "Moving dish to %.1f..."
 msgstr ""
 
 msgid "ST:TNG Panels"

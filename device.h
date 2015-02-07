@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: device.h 2.47.1.1 2013/08/22 12:01:48 kls Exp $
+ * $Id: device.h 3.10 2015/01/12 14:39:09 kls Exp $
  */
 
 #ifndef __DEVICE_H
@@ -17,6 +17,7 @@
 #include "filter.h"
 #include "nit.h"
 #include "pat.h"
+#include "positioner.h"
 #include "remux.h"
 #include "ringbuffer.h"
 #include "sdt.h"
@@ -29,11 +30,12 @@
 #define MAXPIDHANDLES      64 // the maximum number of different PIDs per device
 #define MAXRECEIVERS       16 // the maximum number of receivers per device
 #define MAXVOLUME         255
-#define VOLUMEDELTA         5 // used to increase/decrease the volume
+#define VOLUMEDELTA       (MAXVOLUME / Setup.VolumeSteps) // used to increase/decrease the volume
 #define MAXOCCUPIEDTIMEOUT 99 // max. time (in seconds) a device may be occupied
 
 enum eSetChannelResult { scrOk, scrNotAvailable, scrNoTransfer, scrFailed };
 
+// Note that VDR itself always uses pmAudioVideo when replaying a recording!
 enum ePlayMode { pmNone,           // audio/video from decoder
                  pmAudioVideo,     // audio/video from player
                  pmAudioOnly,      // audio only from player, video from decoder
@@ -53,9 +55,12 @@ enum ePlayMode { pmNone,           // audio/video from decoder
                  // KNOWN TO YOUR PLAYER.
                };
 
+#define DEPRECATED_VIDEOSYSTEM
+#ifdef DEPRECATED_VIDEOSYSTEM
 enum eVideoSystem { vsPAL,
                     vsNTSC
                   };
+#endif
 
 enum eVideoDisplayFormat { vdfPanAndScan,
                            vdfLetterBox,
@@ -200,7 +205,7 @@ public:
   int CardIndex(void) const { return cardIndex; }
          ///< Returns the card index of this device (0 ... MAXDEVICES - 1).
   int DeviceNumber(void) const;
-         ///< Returns the number of this device (0 ... numDevices).
+         ///< Returns the number of this device (0 ... numDevices - 1).
   virtual cString DeviceType(void) const;
          ///< Returns a string identifying the type of this device (like "DVB-S").
          ///< If this device can receive different delivery systems, the returned
@@ -273,6 +278,11 @@ public:
          ///< actually provide channels must implement this function.
          ///< The result of this function is used when selecting a device, in order
          ///< to avoid devices that provide more than one system.
+  virtual const cPositioner *Positioner(void) const;
+         ///< Returns a pointer to the positioner (if any) this device has used to
+         ///< move the satellite dish to the requested position (only applies to DVB-S
+         ///< devices). If no positioner is involved, or this is not a DVB-S device,
+         ///< NULL will be returned.
   virtual int SignalStrength(void) const;
          ///< Returns the "strength" of the currently received signal.
          ///< This is a value in the range 0 (no signal at all) through
@@ -455,12 +465,19 @@ public:
          ///< Sets the video display format to the given one (only useful
          ///< if this device has an MPEG decoder).
          ///< A derived class must first call the base class function!
+         ///< NOTE: this is only for SD devices. HD devices shall implement their
+         ///< own setup menu with the necessary parameters for controlling output.
   virtual void SetVideoFormat(bool VideoFormat16_9);
          ///< Sets the output video format to either 16:9 or 4:3 (only useful
          ///< if this device has an MPEG decoder).
-  virtual eVideoSystem GetVideoSystem(void);
+         ///< NOTE: this is only for SD devices. HD devices shall implement their
+         ///< own setup menu with the necessary parameters for controlling output.
+#ifdef DEPRECATED_VIDEOSYSTEM
+  virtual eVideoSystem GetVideoSystem(void) { return vsPAL; }
          ///< Returns the video system of the currently displayed material
          ///< (default is PAL).
+         ///< This function is deprecated and will be removed in a future version!
+#endif
   virtual void GetVideoSize(int &Width, int &Height, double &VideoAspect);
          ///< Returns the Width, Height and VideoAspect ratio of the currently
          ///< displayed video material. Width and Height are given in pixel
@@ -559,8 +576,9 @@ protected:
   virtual void SetVolumeDevice(int Volume);
        ///< Sets the audio volume on this device (Volume = 0...255).
   virtual void SetDigitalAudioDevice(bool On);
-       ///< Tells the actual device that digital audio output shall be switched
-       ///< on or off.
+       ///< Tells the output device that the current audio track is Dolby Digital.
+       ///< Only used by the original "full featured" DVB cards - do not use for new
+       ///< developments!
 public:
   bool IsMute(void) const { return mute; }
   bool ToggleMute(void);
@@ -692,10 +710,11 @@ public:
   virtual bool HasIBPTrickSpeed(void) { return false; }
        ///< Returns true if this device can handle all frames in 'fast forward'
        ///< trick speeds.
-  virtual void TrickSpeed(int Speed);
+  virtual void TrickSpeed(int Speed, bool Forward);
        ///< Sets the device into a mode where replay is done slower.
        ///< Every single frame shall then be displayed the given number of
-       ///< times.
+       ///< times. Forward is true if replay is done in the normal (forward)
+       ///< direction, false if it is done reverse.
        ///< The cDvbPlayer uses the following values for the various speeds:
        ///<                   1x   2x   3x
        ///< Fast Forward       6    3    1
@@ -717,7 +736,7 @@ public:
        ///< all registered cAudio objects are notified.
   virtual void StillPicture(const uchar *Data, int Length);
        ///< Displays the given I-frame as a still picture.
-       ///< Data points either to TS (first byte is 0x47) or PES (first byte
+       ///< Data points either to a series of TS (first byte is 0x47) or PES (first byte
        ///< is 0x00) data of the given Length. The default implementation
        ///< converts TS to PES and calls itself again, allowing a derived class
        ///< to display PES if it can't handle TS directly.
@@ -821,8 +840,21 @@ private:
   virtual void Action(void);
 public:
   cTSBuffer(int File, int Size, int CardIndex);
-  ~cTSBuffer();
-  uchar *Get(void);
+  virtual ~cTSBuffer();
+  uchar *Get(int *Available = NULL);
+     ///< Returns a pointer to the first TS packet in the buffer. If Available is given,
+     ///< it will return the total number of consecutive bytes pointed to in the buffer.
+     ///< It is guaranteed that the returned pointer points to a TS_SYNC_BYTE and that
+     ///< there are at least TS_SIZE bytes in the buffer. Otherwise NULL will be
+     ///< returned and the value in Available (if given) is undefined.
+     ///< Each call to Get() returns a pointer to the next TS packet in the buffer.
+  void Skip(int Count);
+     ///< If after a call to Get() more or less than TS_SIZE of the available data
+     ///< has been processed, a call to Skip() with the number of processed bytes
+     ///< will disable the automatic incrementing of the data pointer as described
+     ///< in Get() and skip the given number of bytes instead. Count may be 0 if the
+     ///< caller wants the previous TS packet to be delivered again in the next call
+     ///< to Get().
   };
 
 #endif //__DEVICE_H

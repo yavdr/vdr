@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: VDR 2.0.0\n"
 "Report-Msgid-Bugs-To: <vdr-bugs@tvdr.de>\n"
-"POT-Creation-Date: 2013-02-03 16:46+0100\n"
+"POT-Creation-Date: 2015-01-30 13:14+0100\n"
 "PO-Revision-Date: 2013-03-04 14:52+0800\n"
 "Last-Translator: NFVDR <nfvdr@live.com>\n"
 "Language-Team: Chinese (simplified) <nfvdr@live.com>\n"
@@ -20,6 +20,9 @@ msgstr ""
 
 msgid "*** Invalid Channel ***"
 msgstr "***无效的频道 ***"
+
+msgid "CAM activated!"
+msgstr ""
 
 msgid "Channel not available!"
 msgstr "频道不可用!"
@@ -77,6 +80,15 @@ msgstr "越零率"
 
 msgid "StreamId"
 msgstr "StreamId"
+
+msgid "Pilot"
+msgstr ""
+
+msgid "T2SystemId"
+msgstr ""
+
+msgid "SISO/MISO"
+msgstr ""
 
 msgid "Starting EPG scan"
 msgstr "开始节目单扫描"
@@ -565,6 +577,12 @@ msgstr "CA"
 msgid "Sid"
 msgstr "Sid"
 
+msgid "Nid"
+msgstr ""
+
+msgid "Tid"
+msgstr ""
+
 msgid "Channel settings are not unique!"
 msgstr "频道设置不是唯一的！"
 
@@ -605,8 +623,8 @@ msgstr "文件夹名称已经存在！"
 msgid "Folder name must not contain '%c'!"
 msgstr "文件夹名称不能包含 '%c'!"
 
-msgid "Button$Select"
-msgstr "选择"
+msgid "Button$Open"
+msgstr "打开"
 
 msgid "Delete folder and all sub folders?"
 msgstr "删除文件夹和所有子文件夹吗？"
@@ -725,6 +743,73 @@ msgstr "请输入 %d 数字!"
 msgid "CAM not responding!"
 msgstr "CAM 没有响应！"
 
+msgid "Edit path"
+msgstr ""
+
+msgid "Folder"
+msgstr ""
+
+msgid "This folder is currently in use - no changes are possible!"
+msgstr ""
+
+#, c-format
+msgid "Move entire folder containing %d recordings?"
+msgstr ""
+
+msgid "Error while moving folder!"
+msgstr ""
+
+msgid "Edit recording"
+msgstr ""
+
+msgid "This recording is currently in use - no changes are possible!"
+msgstr ""
+
+msgid "Button$Cancel cutting"
+msgstr ""
+
+msgid "Button$Stop cutting"
+msgstr ""
+
+msgid "Button$Cancel moving"
+msgstr ""
+
+msgid "Button$Stop moving"
+msgstr ""
+
+msgid "Button$Cancel copying"
+msgstr ""
+
+msgid "Button$Stop copying"
+msgstr ""
+
+msgid "Button$Cut"
+msgstr ""
+
+msgid "Button$Delete marks"
+msgstr ""
+
+msgid "Recording vanished!"
+msgstr ""
+
+msgid "Edited version already exists - overwrite?"
+msgstr ""
+
+msgid "Error while queueing recording for cutting!"
+msgstr ""
+
+msgid "Delete editing marks for this recording?"
+msgstr ""
+
+msgid "Error while deleting editing marks!"
+msgstr ""
+
+msgid "Error while changing priority/lifetime!"
+msgstr ""
+
+msgid "Error while changing folder/name!"
+msgstr ""
+
 msgid "Recording info"
 msgstr "录像信息"
 
@@ -736,9 +821,6 @@ msgstr "重放"
 
 msgid "Recordings"
 msgstr "录像回放列表"
-
-msgid "Button$Open"
-msgstr "打开"
 
 msgid "Commands"
 msgstr "常用操作命令"
@@ -995,6 +1077,33 @@ msgstr "设备%d卫星连接线"
 msgid "Setup.LNB$own"
 msgstr "所有"
 
+msgid "Setup.LNB$Use dish positioner"
+msgstr ""
+
+msgid "Setup.LNB$Site latitude (degrees)"
+msgstr ""
+
+msgid "South"
+msgstr ""
+
+msgid "North"
+msgstr ""
+
+msgid "Setup.LNB$Site longitude (degrees)"
+msgstr ""
+
+msgid "West"
+msgstr ""
+
+msgid "East"
+msgstr ""
+
+msgid "Setup.LNB$Max. positioner swing (degrees)"
+msgstr ""
+
+msgid "Setup.LNB$Positioner speed (degrees/s)"
+msgstr ""
+
 msgid "CAM reset"
 msgstr "CAM重置"
 
@@ -1004,8 +1113,18 @@ msgstr "存在的CAM"
 msgid "CAM ready"
 msgstr "CAM准备"
 
+#. TRANSLATORS: note the leading blank!
+msgid " (activating)"
+msgstr ""
+
 msgid "CAM"
 msgstr "CAM设置"
+
+msgid "Button$Cancel activation"
+msgstr ""
+
+msgid "Button$Activate"
+msgstr ""
 
 msgid "Button$Menu"
 msgstr "菜单"
@@ -1018,6 +1137,9 @@ msgstr "打开CAM菜单..."
 
 msgid "Can't open CAM menu!"
 msgstr "不能打开CAM菜单"
+
+msgid "Can't activate CAM!"
+msgstr ""
 
 msgid "CAM is in use - really reset?"
 msgstr "CAM正在使用-是否重启？"
@@ -1112,6 +1234,21 @@ msgstr "处理显示时间(s)"
 msgid "Setup.Replay$Pause replay when setting mark"
 msgstr "暂停回放时，设置标志"
 
+msgid "Setup.Replay$Pause replay when jumping to a mark"
+msgstr ""
+
+msgid "Setup.Replay$Skip edited parts"
+msgstr ""
+
+msgid "Setup.Replay$Pause replay at last mark"
+msgstr ""
+
+msgid "Setup.Replay$Binary skip initial value (s)"
+msgstr ""
+
+msgid "Setup.Replay$Binary skip timeout (s)"
+msgstr ""
+
 msgid "Setup.Replay$Resume ID"
 msgstr "恢复 ID"
 
@@ -1147,6 +1284,12 @@ msgstr "之前"
 
 msgid "Setup.Miscellaneous$Initial volume"
 msgstr "初始化声音"
+
+msgid "Setup.Miscellaneous$Volume steps"
+msgstr ""
+
+msgid "Setup.Miscellaneous$Volume linearize"
+msgstr ""
 
 msgid "Setup.Miscellaneous$Channels wrap"
 msgstr "频道排序"
@@ -1331,6 +1474,10 @@ msgstr "现场"
 
 msgid "PLAY"
 msgstr "播放"
+
+#, c-format
+msgid "Moving dish to %.1f..."
+msgstr ""
 
 msgid "ST:TNG Panels"
 msgstr "ST:TNG 面板"
