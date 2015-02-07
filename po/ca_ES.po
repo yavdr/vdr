@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: VDR 2.0.0\n"
 "Report-Msgid-Bugs-To: <vdr-bugs@tvdr.de>\n"
-"POT-Creation-Date: 2013-03-04 14:46+0100\n"
+"POT-Creation-Date: 2015-01-30 13:14+0100\n"
 "PO-Revision-Date: 2008-03-02 19:02+0100\n"
 "Last-Translator: Luca Olivetti <luca@ventoso.org>\n"
 "Language-Team: Catalan <vdr@linuxtv.org>\n"
@@ -21,6 +21,9 @@ msgstr ""
 
 msgid "*** Invalid Channel ***"
 msgstr "*** Canal incorrecte ***"
+
+msgid "CAM activated!"
+msgstr ""
 
 msgid "Channel not available!"
 msgstr "Canal no disponible!"
@@ -78,6 +81,15 @@ msgstr "Rolloff"
 
 msgid "StreamId"
 msgstr "StreamId"
+
+msgid "Pilot"
+msgstr ""
+
+msgid "T2SystemId"
+msgstr ""
+
+msgid "SISO/MISO"
+msgstr ""
 
 msgid "Starting EPG scan"
 msgstr "Iniciant exploració EPG"
@@ -566,6 +578,12 @@ msgstr "Accés Condicional"
 msgid "Sid"
 msgstr "Sid"
 
+msgid "Nid"
+msgstr ""
+
+msgid "Tid"
+msgstr ""
+
 msgid "Channel settings are not unique!"
 msgstr "Propietats del canal duplicades!"
 
@@ -606,8 +624,8 @@ msgstr "La carpeta ja existeix!"
 msgid "Folder name must not contain '%c'!"
 msgstr "El nom de la carpeta no pot contenir '%c'"
 
-msgid "Button$Select"
-msgstr "Seleccionar"
+msgid "Button$Open"
+msgstr "Obrir"
 
 msgid "Delete folder and all sub folders?"
 msgstr "Esborrar carpetas i totes les sub carpetes?"
@@ -726,6 +744,73 @@ msgstr "Si us plau introdueixi %d digitos"
 msgid "CAM not responding!"
 msgstr "CAM no respon"
 
+msgid "Edit path"
+msgstr ""
+
+msgid "Folder"
+msgstr ""
+
+msgid "This folder is currently in use - no changes are possible!"
+msgstr ""
+
+#, c-format
+msgid "Move entire folder containing %d recordings?"
+msgstr ""
+
+msgid "Error while moving folder!"
+msgstr ""
+
+msgid "Edit recording"
+msgstr ""
+
+msgid "This recording is currently in use - no changes are possible!"
+msgstr ""
+
+msgid "Button$Cancel cutting"
+msgstr ""
+
+msgid "Button$Stop cutting"
+msgstr ""
+
+msgid "Button$Cancel moving"
+msgstr ""
+
+msgid "Button$Stop moving"
+msgstr ""
+
+msgid "Button$Cancel copying"
+msgstr ""
+
+msgid "Button$Stop copying"
+msgstr ""
+
+msgid "Button$Cut"
+msgstr ""
+
+msgid "Button$Delete marks"
+msgstr ""
+
+msgid "Recording vanished!"
+msgstr ""
+
+msgid "Edited version already exists - overwrite?"
+msgstr ""
+
+msgid "Error while queueing recording for cutting!"
+msgstr ""
+
+msgid "Delete editing marks for this recording?"
+msgstr ""
+
+msgid "Error while deleting editing marks!"
+msgstr ""
+
+msgid "Error while changing priority/lifetime!"
+msgstr ""
+
+msgid "Error while changing folder/name!"
+msgstr ""
+
 msgid "Recording info"
 msgstr "Informació de la gravació"
 
@@ -737,9 +822,6 @@ msgstr "Enrera"
 
 msgid "Recordings"
 msgstr "Veure programes gravats"
-
-msgid "Button$Open"
-msgstr "Obrir"
 
 msgid "Commands"
 msgstr "Ordres"
@@ -996,6 +1078,33 @@ msgstr "Dispositiu %d connectat a cable satèl·lit"
 msgid "Setup.LNB$own"
 msgstr "propi"
 
+msgid "Setup.LNB$Use dish positioner"
+msgstr ""
+
+msgid "Setup.LNB$Site latitude (degrees)"
+msgstr ""
+
+msgid "South"
+msgstr ""
+
+msgid "North"
+msgstr ""
+
+msgid "Setup.LNB$Site longitude (degrees)"
+msgstr ""
+
+msgid "West"
+msgstr ""
+
+msgid "East"
+msgstr ""
+
+msgid "Setup.LNB$Max. positioner swing (degrees)"
+msgstr ""
+
+msgid "Setup.LNB$Positioner speed (degrees/s)"
+msgstr ""
+
 msgid "CAM reset"
 msgstr "Reiniciar CAM"
 
@@ -1005,8 +1114,18 @@ msgstr "CAM present"
 msgid "CAM ready"
 msgstr "CAM preparat"
 
+#. TRANSLATORS: note the leading blank!
+msgid " (activating)"
+msgstr ""
+
 msgid "CAM"
 msgstr "CAM"
+
+msgid "Button$Cancel activation"
+msgstr ""
+
+msgid "Button$Activate"
+msgstr ""
 
 msgid "Button$Menu"
 msgstr "Menú"
@@ -1019,6 +1138,9 @@ msgstr "Obrint menu CAM..."
 
 msgid "Can't open CAM menu!"
 msgstr "No puc obrir el menú de la CAM!"
+
+msgid "Can't activate CAM!"
+msgstr ""
 
 msgid "CAM is in use - really reset?"
 msgstr "CAM en ús - reiniciar?"
@@ -1113,6 +1235,21 @@ msgstr "Visualització temps avanç (s)"
 msgid "Setup.Replay$Pause replay when setting mark"
 msgstr "Pausar reproducció en establir marca"
 
+msgid "Setup.Replay$Pause replay when jumping to a mark"
+msgstr ""
+
+msgid "Setup.Replay$Skip edited parts"
+msgstr ""
+
+msgid "Setup.Replay$Pause replay at last mark"
+msgstr ""
+
+msgid "Setup.Replay$Binary skip initial value (s)"
+msgstr ""
+
+msgid "Setup.Replay$Binary skip timeout (s)"
+msgstr ""
+
 msgid "Setup.Replay$Resume ID"
 msgstr "ID de Continuar"
 
@@ -1148,6 +1285,12 @@ msgstr "anterior"
 
 msgid "Setup.Miscellaneous$Initial volume"
 msgstr "Volum inicial"
+
+msgid "Setup.Miscellaneous$Volume steps"
+msgstr ""
+
+msgid "Setup.Miscellaneous$Volume linearize"
+msgstr ""
 
 msgid "Setup.Miscellaneous$Channels wrap"
 msgstr "Primer canal després de l'ultim"
@@ -1332,6 +1475,10 @@ msgstr "EN DIRECTE"
 
 msgid "PLAY"
 msgstr "REPRODUIR"
+
+#, c-format
+msgid "Moving dish to %.1f..."
+msgstr ""
 
 msgid "ST:TNG Panels"
 msgstr "Quadres ST:TNG"

@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: receiver.h 2.9 2012/09/02 09:27:20 kls Exp $
+ * $Id: receiver.h 3.3 2015/01/12 14:03:22 kls Exp $
  */
 
 #ifndef __RECEIVER_H
@@ -24,6 +24,7 @@ private:
   int numPids;
   bool WantsPid(int Pid);
 protected:
+  cDevice *Device(void) { return device; }
   void Detach(void);
   virtual void Activate(bool On) {}
                ///< This function is called just before the cReceiver gets attached to
@@ -48,6 +49,8 @@ public:
                ///< that this cReceiver may be detached at any time in favor of a timer recording
                ///< or live viewing (without blocking the cDevice it is attached to).
   virtual ~cReceiver();
+  int Priority(void) { return priority; }
+  void SetPriority(int Priority);
   bool AddPid(int Pid);
                ///< Adds the given Pid to the list of PIDs of this receiver.
   bool AddPids(const int *Pids);
@@ -64,7 +67,13 @@ public:
                ///< through ChannelID(). The ChannelID is necessary to allow the device
                ///< that will be used for this receiver to detect and store whether the
                ///< channel can be decrypted in case this is an encrypted channel.
+  void DelPid(int Pid);
+               ///< Deletes the given Pid from the list of PIDs of this receiver.
+  void DelPids(const int *Pids);
+               ///< Deletes the given zero terminated list of Pids from the list of PIDs of this
+               ///< receiver.
   tChannelID ChannelID(void) { return channelID; }
+  int NumPids(void) const { return numPids; }
   bool IsAttached(void) { return device != NULL; }
                ///< Returns true if this receiver is (still) attached to a device.
                ///< A receiver may be automatically detached from its device in

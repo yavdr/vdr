@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: osdbase.h 2.5 2012/12/07 09:49:35 kls Exp $
+ * $Id: osdbase.h 3.2 2015/01/15 10:09:18 kls Exp $
  */
 
 #ifndef __OSDBASE_H
@@ -92,6 +92,7 @@ private:
   int cols[cSkinDisplayMenu::MaxTabs];
   int first, current, marked;
   eMenuCategory menuCategory;
+  eMenuSortMode menuSortMode;
   cOsdMenu *subMenu;
   const char *helpRed, *helpGreen, *helpYellow, *helpBlue;
   bool helpDisplayed;
@@ -119,7 +120,7 @@ protected:
   void Mark(void);
   eOSState HotKey(eKeys Key);
   eOSState AddSubMenu(cOsdMenu *SubMenu);
-  eOSState CloseSubMenu();
+  eOSState CloseSubMenu(bool ReDisplay = true);
   bool HasSubMenu(void) { return subMenu; }
   cOsdMenu *SubMenu(void) { return subMenu; }
   void SetStatus(const char *s);
@@ -131,6 +132,7 @@ public:
   virtual ~cOsdMenu();
   virtual bool NeedsFastResponse(void) { return subMenu ? subMenu->NeedsFastResponse() : cOsdObject::NeedsFastResponse(); }
   void SetMenuCategory(eMenuCategory MenuCategory);
+  void SetMenuSortMode(eMenuSortMode MenuSortMode);
   int Current(void) const { return current; }
   void Add(cOsdItem *Item, bool Current = false, cOsdItem *After = NULL);
   void Ins(cOsdItem *Item, bool Current = false, cOsdItem *Before = NULL);

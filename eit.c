@@ -8,7 +8,7 @@
  * Robert Schneider <Robert.Schneider@web.de> and Rolf Hakenes <hakenes@hippomi.de>.
  * Adapted to 'libsi' for VDR 1.3.0 by Marcel Wiesweg <marcel.wiesweg@gmx.de>.
  *
- * $Id: eit.c 2.23.1.1 2013/10/12 11:24:51 kls Exp $
+ * $Id: eit.c 3.5 2014/02/08 14:20:27 kls Exp $
  */
 
 #include "eit.h"
@@ -46,6 +46,7 @@ cEIT::cEIT(cSchedules *Schedules, int Source, u_char Tid, const u_char *Data, bo
      return;
      }
 
+  EpgHandlers.BeginSegmentTransfer(channel, OnlyRunningStatus);
   bool handledExternally = EpgHandlers.HandledExternally(channel);
   cSchedule *pSchedule = (cSchedule *)Schedules->GetSchedule(channel, true);
 
@@ -53,8 +54,8 @@ cEIT::cEIT(cSchedules *Schedules, int Source, u_char Tid, const u_char *Data, bo
   bool Modified = false;
   time_t SegmentStart = 0;
   time_t SegmentEnd = 0;
-  struct tm tm_r;
-  struct tm t = *localtime_r(&Now, &tm_r); // this initializes the time zone in 't'
+  struct tm t = { 0 };
+  localtime_r(&Now, &t); // this initializes the time zone in 't'
 
   SI::EIT::Event SiEitEvent;
   for (SI::Loop::Iterator it; eventLoop.getNext(SiEitEvent, it); ) {
@@ -219,7 +220,7 @@ cEIT::cEIT(cSchedules *Schedules, int Source, u_char Tid, const u_char *Data, bo
             case SI::LinkageDescriptorTag: {
                  SI::LinkageDescriptor *ld = (SI::LinkageDescriptor *)d;
                  tChannelID linkID(Source, ld->getOriginalNetworkId(), ld->getTransportStreamId(), ld->getServiceId());
-                 if (ld->getLinkageType() == 0xB0) { // Premiere World
+                 if (ld->getLinkageType() == SI::LinkageTypePremiere) { // Premiere World
                     bool hit = StartTime <= Now && Now < StartTime + Duration;
                     if (hit) {
                        char linkName[ld->privateData.getLength() + 1];
@@ -310,6 +311,7 @@ cEIT::cEIT(cSchedules *Schedules, int Source, u_char Tid, const u_char *Data, bo
      Schedules->SetModified(pSchedule);
      }
   Channels.Unlock();
+  EpgHandlers.EndSegmentTransfer(Modified, OnlyRunningStatus);
 }
 
 // --- cTDT ------------------------------------------------------------------

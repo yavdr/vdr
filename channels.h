@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: channels.h 2.16 2012/06/17 11:21:33 kls Exp $
+ * $Id: channels.h 3.3 2015/02/01 13:30:26 kls Exp $
  */
 
 #ifndef __CHANNELS_H
@@ -22,6 +22,7 @@
 #define CHANNELMOD_NAME     0x01
 #define CHANNELMOD_PIDS     0x02
 #define CHANNELMOD_ID       0x04
+#define CHANNELMOD_AUX      0x08
 #define CHANNELMOD_CA       0x10
 #define CHANNELMOD_TRANSP   0x20
 #define CHANNELMOD_LANGS    0x40
@@ -120,6 +121,7 @@ private:
   int tid;
   int sid;
   int rid;
+  int lcn;       // Logical channel number assigned by data stream (or -1 if not available)
   int number;    // Sequence number assigned on load
   bool groupSep;
   int __EndData__;
@@ -127,6 +129,7 @@ private:
   mutable cString shortNameSource;
   cString parameters;
   int modification;
+  time_t seen; // When this channel was last seen in the SDT of its transponder
   mutable const cSchedule *schedule;
   cLinkChannels *linkChannels;
   cChannel *refChannel;
@@ -172,6 +175,7 @@ public:
   int Tid(void) const { return tid; }
   int Sid(void) const { return sid; }
   int Rid(void) const { return rid; }
+  int Lcn(void) const { return lcn; }
   int Number(void) const { return number; }
   void SetNumber(int Number) { number = Number; }
   bool GroupSep(void) const { return groupSep; }
@@ -186,9 +190,11 @@ public:
   tChannelID GetChannelID(void) const { return tChannelID(source, nid, (nid || tid) ? tid : Transponder(), sid, rid); }
   bool HasTimer(void) const;
   int Modification(int Mask = CHANNELMOD_ALL);
+  time_t Seen(void) { return seen; }
   void CopyTransponderData(const cChannel *Channel);
   bool SetTransponderData(int Source, int Frequency, int Srate, const char *Parameters, bool Quiet = false);
   void SetId(int Nid, int Tid, int Sid, int Rid = 0);
+  void SetLcn(int Lcn);
   void SetName(const char *Name, const char *ShortName, const char *Provider);
   void SetPortalName(const char *PortalName);
   void SetPids(int Vpid, int Ppid, int Vtype, int *Apids, int *Atypes, char ALangs[][MAXLANGCODE2], int *Dpids, int *Dtypes, char DLangs[][MAXLANGCODE2], int *Spids, char SLangs[][MAXLANGCODE2], int Tpid);
@@ -197,6 +203,7 @@ public:
   void SetLinkChannels(cLinkChannels *LinkChannels);
   void SetRefChannel(cChannel *RefChannel);
   void SetSubtitlingDescriptors(uchar *SubtitlingTypes, uint16_t *CompositionPageIds, uint16_t *AncillaryPageIds);
+  void SetSeen(void);
   };
 
 class cChannels : public cRwLock, public cConfig<cChannel> {
@@ -236,6 +243,7 @@ public:
       ///< modification has been made, and 2 if the user has made a modification.
       ///< Calling this function resets the 'modified' flag to 0.
   cChannel *NewChannel(const cChannel *Transponder, const char *Name, const char *ShortName, const char *Provider, int Nid, int Tid, int Sid, int Rid = 0);
+  void MarkObsoleteChannels(int Source, int Nid, int Tid);
   };
 
 extern cChannels Channels;

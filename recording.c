@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: recording.c 2.91.1.7 2014/03/16 11:03:18 kls Exp $
+ * $Id: recording.c 3.24 2015/01/25 15:39:24 kls Exp $
  */
 
 #include "recording.h"
@@ -20,8 +20,10 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include "channels.h"
+#include "cutter.h"
 #include "i18n.h"
 #include "interface.h"
+#include "menu.h"
 #include "remux.h"
 #include "ringbuffer.h"
 #include "skins.h"
@@ -63,8 +65,11 @@
 #define REMOVELATENCY      10 // seconds to wait until next check after removing a file
 #define MARKSUPDATEDELTA   10 // seconds between checks for updating editing marks
 #define MININDEXAGE      3600 // seconds before an index file is considered no longer to be written
+#define MAXREMOVETIME      10 // seconds after which to return from removing deleted recordings
 
 #define MAX_LINK_LEVEL  6
+
+#define LIMIT_SECS_PER_MB_RADIO 5 // radio recordings typically have more than this
 
 int DirectoryPathMax = PATH_MAX - 1;
 int DirectoryNameMax = NAME_MAX;
@@ -91,13 +96,18 @@ cRemoveDeletedRecordingsThread::cRemoveDeletedRecordingsThread(void)
 void cRemoveDeletedRecordingsThread::Action(void)
 {
   // Make sure only one instance of VDR does this:
-  cLockFile LockFile(VideoDirectory);
+  cLockFile LockFile(cVideoDirectory::Name());
   if (LockFile.Lock()) {
+     time_t StartTime = time(NULL);
      bool deleted = false;
      cThreadLock DeletedRecordingsLock(&DeletedRecordings);
      for (cRecording *r = DeletedRecordings.First(); r; ) {
          if (cIoThrottle::Engaged())
             return;
+         if (time(NULL) - StartTime > MAXREMOVETIME)
+            return; // don't stay here too long
+         if (cRemote::HasKeys())
+            return; // react immediately on user input
          if (r->Deleted() && time(NULL) - r->Deleted() > DELETEDLIFETIME) {
             cRecording *next = DeletedRecordings.Next(r);
             r->Remove();
@@ -110,7 +120,7 @@ void cRemoveDeletedRecordingsThread::Action(void)
          }
      if (deleted) {
         const char *IgnoreFiles[] = { SORTMODEFILE, NULL };
-        RemoveEmptyVideoDirectories(IgnoreFiles);
+        cVideoDirectory::RemoveEmptyVideoDirectories(IgnoreFiles);
         }
      }
 }
@@ -146,9 +156,9 @@ void AssertFreeDiskSpace(int Priority, bool Force)
   static time_t LastFreeDiskCheck = 0;
   int Factor = (Priority == -1) ? 10 : 1;
   if (Force || time(NULL) - LastFreeDiskCheck > DISKCHECKDELTA / Factor) {
-     if (!VideoFileSpaceAvailable(MINDISKSPACE)) {
+     if (!cVideoDirectory::VideoFileSpaceAvailable(MINDISKSPACE)) {
         // Make sure only one instance of VDR does this:
-        cLockFile LockFile(VideoDirectory);
+        cLockFile LockFile(cVideoDirectory::Name());
         if (!LockFile.Lock())
            return;
         // Remove the oldest file that has been "deleted":
@@ -429,6 +439,13 @@ void cRecordingInfo::SetAux(const char *Aux)
 void cRecordingInfo::SetFramesPerSecond(double FramesPerSecond)
 {
   framesPerSecond = FramesPerSecond;
+}
+
+void cRecordingInfo::SetFileName(const char *FileName)
+{
+  bool IsPesRecording = fileName && endswith(fileName, ".vdr");
+  free(fileName);
+  fileName = strdup(cString::sprintf("%s%s", FileName, IsPesRecording ? INFOFILESUFFIX ".vdr" : INFOFILESUFFIX));
 }
 
 bool cRecordingInfo::Read(FILE *f)
@@ -778,7 +795,7 @@ cRecording::cRecording(cTimer *Timer, const cEvent *Event)
   else if (Timer->IsSingleEvent() || !Setup.UseSubtitle)
      name = strdup(Timer->File());
   else
-     name = strdup(cString::sprintf("%s~%s", Timer->File(), Subtitle));
+     name = strdup(cString::sprintf("%s%c%s", Timer->File(), FOLDERDELIMCHAR, Subtitle));
   // substitute characters that would cause problems in file names:
   strreplace(name, '\n', ' ');
   start = Timer->StartTime();
@@ -809,8 +826,8 @@ cRecording::cRecording(const char *FileName)
   FileName = fileName = strdup(FileName);
   if (*(fileName + strlen(fileName) - 1) == '/')
      *(fileName + strlen(fileName) - 1) = 0;
-  if (strstr(FileName, VideoDirectory) == FileName)
-     FileName += strlen(VideoDirectory) + 1;
+  if (strstr(FileName, cVideoDirectory::Name()) == FileName)
+     FileName += strlen(cVideoDirectory::Name()) + 1;
   const char *p = strrchr(FileName, '/');
 
   name = NULL;
@@ -965,7 +982,7 @@ char *cRecording::SortName(void) const
         *sb = strdup(buf);
         }
      else {
-        char *s = strdup(FileName() + strlen(VideoDirectory));
+        char *s = strdup(FileName() + strlen(cVideoDirectory::Name()));
         if (RecordingsSortMode != rsmName || Setup.AlwaysSortFoldersFirst)
            s = StripEpisodeName(s, RecordingsSortMode != rsmName);
         strreplace(s, '/', '0'); // some locales ignore '/' when sorting
@@ -980,8 +997,9 @@ char *cRecording::SortName(void) const
 
 void cRecording::ClearSortName(void)
 {
-  DELETENULL(sortBufferName);
-  DELETENULL(sortBufferTime);
+  free(sortBufferName);
+  free(sortBufferTime);
+  sortBufferName = sortBufferTime = NULL;
 }
 
 int cRecording::GetResume(void) const
@@ -999,6 +1017,28 @@ int cRecording::Compare(const cListObject &ListObject) const
   return strcasecmp(SortName(), r->SortName());
 }
 
+bool cRecording::IsInPath(const char *Path)
+{
+  if (isempty(Path))
+     return true;
+  int l = strlen(Path);
+  return strncmp(Path, name, l) == 0 && (name[l] == FOLDERDELIMCHAR);
+}
+
+cString cRecording::Folder(void) const
+{
+  if (char *s = strrchr(name, FOLDERDELIMCHAR))
+     return cString(name, s);
+  return "";
+}
+
+cString cRecording::BaseName(void) const
+{
+  if (char *s = strrchr(name, FOLDERDELIMCHAR))
+     return cString(s + 1);
+  return name;
+}
+
 const char *cRecording::FileName(void) const
 {
   if (!fileName) {
@@ -1007,11 +1047,11 @@ const char *cRecording::FileName(void) const
      const char *fmt = isPesRecording ? NAMEFORMATPES : NAMEFORMATTS;
      int ch = isPesRecording ? priority : channel;
      int ri = isPesRecording ? lifetime : instanceId;
-     char *Name = LimitNameLengths(strdup(name), DirectoryPathMax - strlen(VideoDirectory) - 1 - 42, DirectoryNameMax); // 42 = length of an actual recording directory name (generated with DATAFORMATTS) plus some reserve
+     char *Name = LimitNameLengths(strdup(name), DirectoryPathMax - strlen(cVideoDirectory::Name()) - 1 - 42, DirectoryNameMax); // 42 = length of an actual recording directory name (generated with DATAFORMATTS) plus some reserve
      if (strcmp(Name, name) != 0)
         dsyslog("recording file name '%s' truncated to '%s'", name, Name);
      Name = ExchangeChars(Name, true);
-     fileName = strdup(cString::sprintf(fmt, VideoDirectory, Name, t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, ch, ri));
+     fileName = strdup(cString::sprintf(fmt, cVideoDirectory::Name(), Name, t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, ch, ri));
      free(Name);
      }
   return fileName;
@@ -1080,7 +1120,7 @@ const char *cRecording::Title(char Delimiter, bool NewIndicator, int Level) cons
 
 const char *cRecording::PrefixFileName(char Prefix)
 {
-  cString p = PrefixVideoFileName(FileName(), Prefix);
+  cString p = cVideoDirectory::PrefixVideoFileName(FileName(), Prefix);
   if (*p) {
      free(fileName);
      fileName = strdup(p);
@@ -1110,8 +1150,24 @@ bool cRecording::IsEdited(void) const
 bool cRecording::IsOnVideoDirectoryFileSystem(void) const
 {
   if (isOnVideoDirectoryFileSystem < 0)
-     isOnVideoDirectoryFileSystem = ::IsOnVideoDirectoryFileSystem(FileName());
+     isOnVideoDirectoryFileSystem = cVideoDirectory::IsOnVideoDirectoryFileSystem(FileName());
   return isOnVideoDirectoryFileSystem;
+}
+
+bool cRecording::HasMarks(void)
+{
+  return access(cMarks::MarksFileName(this), F_OK) == 0;
+}
+
+bool cRecording::DeleteMarks(void)
+{
+  if (remove(cMarks::MarksFileName(this)) < 0) {
+     if (errno != ENOENT) {
+        LOG_ERROR_STR(fileName);
+        return false;
+        }
+     }
+  return true;
 }
 
 void cRecording::ReadInfo(void)
@@ -1122,13 +1178,13 @@ void cRecording::ReadInfo(void)
   framesPerSecond = info->framesPerSecond;
 }
 
-bool cRecording::WriteInfo(void)
+bool cRecording::WriteInfo(const char *OtherFileName)
 {
-  cString InfoFileName = cString::sprintf("%s%s", fileName, isPesRecording ? INFOFILESUFFIX ".vdr" : INFOFILESUFFIX);
-  FILE *f = fopen(InfoFileName, "w");
-  if (f) {
+  cString InfoFileName = cString::sprintf("%s%s", OtherFileName ? OtherFileName : FileName(), isPesRecording ? INFOFILESUFFIX ".vdr" : INFOFILESUFFIX);
+  cSafeFile f(InfoFileName);
+  if (f.Open()) {
      info->Write(f);
-     fclose(f);
+     f.Close();
      }
   else
      LOG_ERROR_STR(*InfoFileName);
@@ -1142,6 +1198,59 @@ void cRecording::SetStartTime(time_t Start)
   fileName = NULL;
 }
 
+bool cRecording::ChangePriorityLifetime(int NewPriority, int NewLifetime)
+{
+  if (NewPriority != Priority() || NewLifetime != Lifetime()) {
+     dsyslog("changing priority/lifetime of '%s' to %d/%d", Name(), NewPriority, NewLifetime);
+     if (IsPesRecording()) {
+        cString OldFileName = FileName();
+        priority = NewPriority;
+        lifetime = NewLifetime;
+        free(fileName);
+        fileName = NULL;
+        cString NewFileName = FileName();
+        if (!cVideoDirectory::RenameVideoFile(OldFileName, NewFileName))
+           return false;
+        info->SetFileName(NewFileName);
+        }
+     else {
+        priority = info->priority = NewPriority;
+        lifetime = info->lifetime = NewLifetime;
+        if (!WriteInfo())
+           return false;
+        }
+     Recordings.ChangeState();
+     Recordings.TouchUpdate();
+     }
+  return true;
+}
+
+bool cRecording::ChangeName(const char *NewName)
+{
+  if (strcmp(NewName, Name())) {
+     dsyslog("changing name of '%s' to '%s'", Name(), NewName);
+     cString OldName = Name();
+     cString OldFileName = FileName();
+     free(fileName);
+     fileName = NULL;
+     free(name);
+     name = strdup(NewName);
+     cString NewFileName = FileName();
+     if (!(MakeDirs(NewFileName, true) && cVideoDirectory::MoveVideoFile(OldFileName, NewFileName))) {
+        free(name);
+        name = strdup(OldName);
+        free(fileName);
+        fileName = strdup(OldFileName);
+        return false;
+        }
+     isOnVideoDirectoryFileSystem = -1; // it might have been moved to a different file system
+     ClearSortName();
+     Recordings.ChangeState();
+     Recordings.TouchUpdate();
+     }
+  return true;
+}
+
 bool cRecording::Delete(void)
 {
   bool result = true;
@@ -1152,11 +1261,11 @@ bool cRecording::Delete(void)
      if (access(NewName, F_OK) == 0) {
         // the new name already exists, so let's remove that one first:
         isyslog("removing recording '%s'", NewName);
-        RemoveVideoFile(NewName);
+        cVideoDirectory::RemoveVideoFile(NewName);
         }
      isyslog("deleting recording '%s'", FileName());
      if (access(FileName(), F_OK) == 0) {
-        result = RenameVideoFile(FileName(), NewName);
+        result = cVideoDirectory::RenameVideoFile(FileName(), NewName);
         cRecordingUserCommand::InvokeCommand(RUC_DELETERECORDING, NewName);
         }
      else {
@@ -1176,7 +1285,7 @@ bool cRecording::Remove(void)
      return false;
      }
   isyslog("removing recording %s", FileName());
-  return RemoveVideoFile(FileName());
+  return cVideoDirectory::RemoveVideoFile(FileName());
 }
 
 bool cRecording::Undelete(void)
@@ -1194,7 +1303,7 @@ bool cRecording::Undelete(void)
      else {
         isyslog("undeleting recording '%s'", FileName());
         if (access(FileName(), F_OK) == 0)
-           result = RenameVideoFile(FileName(), NewName);
+           result = cVideoDirectory::RenameVideoFile(FileName(), NewName);
         else {
            isyslog("deleted recording '%s' vanished", FileName());
            result = false;
@@ -1203,6 +1312,17 @@ bool cRecording::Undelete(void)
      }
   free(NewName);
   return result;
+}
+
+int cRecording::IsInUse(void) const
+{
+  int Use = ruNone;
+  if (cRecordControls::GetRecordControl(FileName()))
+     Use |= ruTimer;
+  if (cReplayControl::NowReplaying() && strcmp(cReplayControl::NowReplaying(), FileName()) == 0)
+     Use |= ruReplay;
+  Use |= RecordingsHandler.GetUsage(FileName());
+  return Use;
 }
 
 void cRecording::ResetResume(void) const
@@ -1268,22 +1388,26 @@ void cRecordings::Action(void)
 const char *cRecordings::UpdateFileName(void)
 {
   if (!updateFileName)
-     updateFileName = strdup(AddDirectory(VideoDirectory, ".update"));
+     updateFileName = strdup(AddDirectory(cVideoDirectory::Name(), ".update"));
   return updateFileName;
 }
 
 void cRecordings::Refresh(bool Foreground)
 {
   lastUpdate = time(NULL); // doing this first to make sure we don't miss anything
-  Lock();
-  Clear();
-  ChangeState();
-  Unlock();
-  ScanVideoDir(VideoDirectory, Foreground);
+  initial = Count() == 0; // no name checking if the list is initially empty
+  if (deleted) {
+     Lock();
+     Clear();
+     ChangeState();
+     Unlock();
+     }
+  ScanVideoDir(cVideoDirectory::Name(), Foreground);
 }
 
-void cRecordings::ScanVideoDir(const char *DirName, bool Foreground, int LinkLevel, int DirLevel)
+bool cRecordings::ScanVideoDir(const char *DirName, bool Foreground, int LinkLevel, int DirLevel)
 {
+  bool DoChangeState = false;
   // Find any new recordings:
   cReadDir d(DirName);
   struct dirent *e;
@@ -1313,7 +1437,10 @@ void cRecordings::ScanVideoDir(const char *DirName, bool Foreground, int LinkLev
                           r->deleted = time(NULL);
                        Lock();
                        Add(r);
-                       ChangeState();
+                       if (initial)
+                          ChangeState();
+                       else
+                          DoChangeState = true;
                        Unlock();
                        }
                     else
@@ -1321,7 +1448,7 @@ void cRecordings::ScanVideoDir(const char *DirName, bool Foreground, int LinkLev
                     }
                  }
               else
-                 ScanVideoDir(buffer, Foreground, LinkLevel + Link, DirLevel + 1);
+                 DoChangeState |= ScanVideoDir(buffer, Foreground, LinkLevel + Link, DirLevel + 1);
               }
            }
         }
@@ -1334,11 +1461,14 @@ void cRecordings::ScanVideoDir(const char *DirName, bool Foreground, int LinkLev
             Lock();
             Del(r, false);
             VanishedRecordings.Add(r);
-            ChangeState();
+            DoChangeState = true;
             Unlock();
             }
          }
      }
+  if (DoChangeState && DirLevel == 0)
+     ChangeState();
+  return DoChangeState;
 }
 
 bool cRecordings::StateChanged(int &State)
@@ -1405,22 +1535,24 @@ void cRecordings::DelByName(const char *FileName)
 {
   LOCK_THREAD;
   cRecording *recording = GetByName(FileName);
-  if (recording) {
-     cThreadLock DeletedRecordingsLock(&DeletedRecordings);
+  cRecording *dummy = NULL;
+  if (!recording)
+     recording = dummy = new cRecording(FileName); // allows us to use a FileName that is not in the Recordings list
+  cThreadLock DeletedRecordingsLock(&DeletedRecordings);
+  if (!dummy)
      Del(recording, false);
-     char *ext = strrchr(recording->fileName, '.');
-     if (ext) {
-        strncpy(ext, DELEXT, strlen(ext));
-        if (access(recording->FileName(), F_OK) == 0) {
-           recording->deleted = time(NULL);
-           DeletedRecordings.Add(recording);
-           recording = NULL; // to prevent it from being deleted below
-           }
+  char *ext = strrchr(recording->fileName, '.');
+  if (ext) {
+     strncpy(ext, DELEXT, strlen(ext));
+     if (access(recording->FileName(), F_OK) == 0) {
+        recording->deleted = time(NULL);
+        DeletedRecordings.Add(recording);
+        recording = NULL; // to prevent it from being deleted below
         }
-     delete recording;
-     ChangeState();
-     TouchUpdate();
      }
+  delete recording;
+  ChangeState();
+  TouchUpdate();
 }
 
 void cRecordings::UpdateByName(const char *FileName)
@@ -1454,13 +1586,55 @@ double cRecordings::MBperMinute(void)
          if (FileSizeMB > 0) {
             int LengthInSeconds = recording->LengthInSeconds();
             if (LengthInSeconds > 0) {
-               size += FileSizeMB;
-               length += LengthInSeconds;
+               if (LengthInSeconds / FileSizeMB < LIMIT_SECS_PER_MB_RADIO) { // don't count radio recordings
+                  size += FileSizeMB;
+                  length += LengthInSeconds;
+                  }
                }
             }
          }
       }
   return (size && length) ? double(size) * 60 / length : -1;
+}
+
+int cRecordings::PathIsInUse(const char *Path)
+{
+  LOCK_THREAD;
+  int Use = ruNone;
+  for (cRecording *recording = First(); recording; recording = Next(recording)) {
+      if (recording->IsInPath(Path))
+         Use |= recording->IsInUse();
+      }
+  return Use;
+}
+
+int cRecordings::GetNumRecordingsInPath(const char *Path)
+{
+  LOCK_THREAD;
+  int n = 0;
+  for (cRecording *recording = First(); recording; recording = Next(recording)) {
+      if (recording->IsInPath(Path))
+         n++;
+      }
+  return n;
+}
+
+bool cRecordings::MoveRecordings(const char *OldPath, const char *NewPath)
+{
+  if (OldPath && NewPath && strcmp(OldPath, NewPath)) {
+     LOCK_THREAD;
+     dsyslog("moving '%s' to '%s'", OldPath, NewPath);
+     for (cRecording *recording = First(); recording; recording = Next(recording)) {
+         if (recording->IsInPath(OldPath)) {
+            const char *p = recording->Name() + strlen(OldPath);
+            cString NewName = cString::sprintf("%s%s", NewPath, p);
+            if (!recording->ChangeName(NewName))
+               return false;
+            ChangeState();
+            }
+         }
+     }
+  return true;
 }
 
 void cRecordings::ResetResume(const char *ResumeFileName)
@@ -1478,6 +1652,362 @@ void cRecordings::ClearSortNames(void)
   LOCK_THREAD;
   for (cRecording *recording = First(); recording; recording = Next(recording))
       recording->ClearSortName();
+}
+
+// --- cDirCopier ------------------------------------------------------------
+
+class cDirCopier : public cThread {
+private:
+  cString dirNameSrc;
+  cString dirNameDst;
+  bool error;
+  bool suspensionLogged;
+  bool Throttled(void);
+  virtual void Action(void);
+public:
+  cDirCopier(const char *DirNameSrc, const char *DirNameDst);
+  virtual ~cDirCopier();
+  void Stop(void);
+  bool Error(void) { return error; }
+  };
+
+cDirCopier::cDirCopier(const char *DirNameSrc, const char *DirNameDst)
+:cThread("file copier", true)
+{
+  dirNameSrc = DirNameSrc;
+  dirNameDst = DirNameDst;
+  error = false;
+  suspensionLogged = false;
+}
+
+cDirCopier::~cDirCopier()
+{
+  Stop();
+}
+
+bool cDirCopier::Throttled(void)
+{
+  if (cIoThrottle::Engaged()) {
+     if (!suspensionLogged) {
+        dsyslog("suspending copy thread");
+        suspensionLogged = true;
+        }
+     return true;
+     }
+  else if (suspensionLogged) {
+     dsyslog("resuming copy thread");
+     suspensionLogged = false;
+     }
+  return false;
+}
+
+void cDirCopier::Action(void)
+{
+  if (DirectoryOk(dirNameDst, true)) {
+     cReadDir d(dirNameSrc);
+     if (d.Ok()) {
+        dsyslog("copying directory '%s' to '%s'", *dirNameSrc, *dirNameDst);
+        dirent *e = NULL;
+        cString FileNameSrc;
+        cString FileNameDst;
+        int From = -1;
+        int To = -1;
+        size_t BufferSize = BUFSIZ;
+        while (Running()) {
+              // Suspend cutting if we have severe throughput problems:
+              if (Throttled()) {
+                 cCondWait::SleepMs(100);
+                 continue;
+                 }
+              // Copy all files in the source directory to the destination directory:
+              if (e) {
+                 // We're currently copying a file:
+                 uchar Buffer[BufferSize];
+                 size_t Read = safe_read(From, Buffer, sizeof(Buffer));
+                 if (Read > 0) {
+                    size_t Written = safe_write(To, Buffer, Read);
+                    if (Written != Read) {
+                       esyslog("ERROR: can't write to destination file '%s': %m", *FileNameDst);
+                       break;
+                       }
+                    }
+                 else if (Read == 0) { // EOF on From
+                    e = NULL; // triggers switch to next entry
+                    if (fsync(To) < 0) {
+                       esyslog("ERROR: can't sync destination file '%s': %m", *FileNameDst);
+                       break;
+                       }
+                    if (close(From) < 0) {
+                       esyslog("ERROR: can't close source file '%s': %m", *FileNameSrc);
+                       break;
+                       }
+                    if (close(To) < 0) {
+                       esyslog("ERROR: can't close destination file '%s': %m", *FileNameDst);
+                       break;
+                       }
+                    // Plausibility check:
+                    off_t FileSizeSrc = FileSize(FileNameSrc);
+                    off_t FileSizeDst = FileSize(FileNameDst);
+                    if (FileSizeSrc != FileSizeDst) {
+                       esyslog("ERROR: file size discrepancy: %" PRId64 " != %" PRId64, FileSizeSrc, FileSizeDst);
+                       break;
+                       }
+                    }
+                 else {
+                    esyslog("ERROR: can't read from source file '%s': %m", *FileNameSrc);
+                    break;
+                    }
+                 }
+              else if ((e = d.Next()) != NULL) {
+                 // We're switching to the next directory entry:
+                 FileNameSrc = AddDirectory(dirNameSrc, e->d_name);
+                 FileNameDst = AddDirectory(dirNameDst, e->d_name);
+                 struct stat st;
+                 if (stat(FileNameSrc, &st) < 0) {
+                    esyslog("ERROR: can't access source file '%s': %m", *FileNameSrc);
+                    break;
+                    }
+                 if (!(S_ISREG(st.st_mode) || S_ISLNK(st.st_mode))) {
+                    esyslog("ERROR: source file '%s' is neither a regular file nor a symbolic link", *FileNameSrc);
+                    break;
+                    }
+                 dsyslog("copying file '%s' to '%s'", *FileNameSrc, *FileNameDst);
+                 BufferSize = max(size_t(st.st_blksize * 10), size_t(BUFSIZ));
+                 if (access(FileNameDst, F_OK) == 0) {
+                    esyslog("ERROR: destination file '%s' already exists", *FileNameDst);
+                    break;
+                    }
+                 if ((From = open(FileNameSrc, O_RDONLY)) < 0) {
+                    esyslog("ERROR: can't open source file '%s': %m", *FileNameSrc);
+                    break;
+                    }
+                 if ((To = open(FileNameDst, O_WRONLY | O_CREAT | O_EXCL, DEFFILEMODE)) < 0) {
+                    esyslog("ERROR: can't open destination file '%s': %m", *FileNameDst);
+                    close(From);
+                    break;
+                    }
+                 }
+              else {
+                 // We're done:
+                 dsyslog("done copying directory '%s' to '%s'", *dirNameSrc, *dirNameDst);
+                 return;
+                 }
+              }
+        close(From); // just to be absolutely sure
+        close(To);
+        esyslog("ERROR: copying directory '%s' to '%s' ended prematurely", *dirNameSrc, *dirNameDst);
+        }
+     else
+        esyslog("ERROR: can't open '%s'", *dirNameSrc);
+     }
+  else
+     esyslog("ERROR: can't access '%s'", *dirNameDst);
+  error = true;
+}
+
+void cDirCopier::Stop(void)
+{
+  Cancel(3);
+  if (error) {
+     cVideoDirectory::RemoveVideoFile(dirNameDst);
+     Recordings.AddByName(dirNameSrc);
+     Recordings.DelByName(dirNameDst);
+     }
+}
+
+// --- cRecordingsHandlerEntry -----------------------------------------------
+
+class cRecordingsHandlerEntry : public cListObject {
+private:
+  int usage;
+  cString fileNameSrc;
+  cString fileNameDst;
+  cCutter *cutter;
+  cDirCopier *copier;
+  void ClearPending(void) { usage &= ~ruPending; }
+public:
+  cRecordingsHandlerEntry(int Usage, const char *FileNameSrc, const char *FileNameDst);
+  ~cRecordingsHandlerEntry();
+  int Usage(const char *FileName = NULL) const;
+  const char *FileNameSrc(void) const { return fileNameSrc; }
+  const char *FileNameDst(void) const { return fileNameDst; }
+  bool Active(bool &Error);
+  };
+
+cRecordingsHandlerEntry::cRecordingsHandlerEntry(int Usage, const char *FileNameSrc, const char *FileNameDst)
+{
+  usage = Usage;
+  fileNameSrc = FileNameSrc;
+  fileNameDst = FileNameDst;
+  cutter = NULL;
+  copier = NULL;
+}
+
+cRecordingsHandlerEntry::~cRecordingsHandlerEntry()
+{
+  delete cutter;
+  delete copier;
+}
+
+int cRecordingsHandlerEntry::Usage(const char *FileName) const
+{
+  int u = usage;
+  if (FileName && *FileName) {
+     if (strcmp(FileName, fileNameSrc) == 0)
+        u |= ruSrc;
+     else if (strcmp(FileName, fileNameDst) == 0)
+        u |= ruDst;
+     }
+  return u;
+}
+
+bool cRecordingsHandlerEntry::Active(bool &Error)
+{
+  bool CopierFinishedOk = false;
+  // First test whether there is an ongoing operation:
+  if (cutter) {
+     if (cutter->Active())
+        return true;
+     Error |= cutter->Error();
+     delete cutter;
+     cutter = NULL;
+     }
+  else if (copier) {
+     if (copier->Active())
+        return true;
+     Error |= copier->Error();
+     CopierFinishedOk = !copier->Error();
+     delete copier;
+     copier = NULL;
+     }
+  // Now check if there is something to start:
+  if ((Usage() & ruPending) != 0) {
+     if ((Usage() & ruCut) != 0) {
+        cutter = new cCutter(FileNameSrc());
+        cutter->Start();
+        }
+     else if ((Usage() & (ruMove | ruCopy)) != 0) {
+        copier = new cDirCopier(FileNameSrc(), FileNameDst());
+        copier->Start();
+        }
+     ClearPending();
+     Recordings.ChangeState();
+     return true;
+     }
+  // Clean up:
+  if (CopierFinishedOk && (Usage() & ruMove) != 0) {
+     cRecording Recording(FileNameSrc());
+     if (Recording.Delete())
+        Recordings.DelByName(Recording.FileName());
+     }
+  Recordings.ChangeState();
+  Recordings.TouchUpdate();
+  return false;
+}
+
+// --- cRecordingsHandler ----------------------------------------------------
+
+cRecordingsHandler RecordingsHandler;
+
+cRecordingsHandler::cRecordingsHandler(void)
+{
+  finished = true;
+  error = false;
+}
+
+cRecordingsHandler::~cRecordingsHandler()
+{
+}
+
+cRecordingsHandlerEntry *cRecordingsHandler::Get(const char *FileName)
+{
+  if (FileName && *FileName) {
+     for (cRecordingsHandlerEntry *r = operations.First(); r; r = operations.Next(r)) {
+         if (strcmp(FileName, r->FileNameSrc()) == 0 || strcmp(FileName, r->FileNameDst()) == 0)
+            return r;
+         }
+     }
+  return NULL;
+}
+
+bool cRecordingsHandler::Add(int Usage, const char *FileNameSrc, const char *FileNameDst)
+{
+  dsyslog("recordings handler add %d '%s' '%s'", Usage, FileNameSrc, FileNameDst);
+  cMutexLock MutexLock(&mutex);
+  if (Usage == ruCut || Usage == ruMove || Usage == ruCopy) {
+     if (FileNameSrc && *FileNameSrc) {
+        if (Usage == ruCut || FileNameDst && *FileNameDst) {
+           cString fnd;
+           if (Usage == ruCut && !FileNameDst)
+              FileNameDst = fnd = cCutter::EditedFileName(FileNameSrc);
+           if (!Get(FileNameSrc) && !Get(FileNameDst)) {
+              Usage |= ruPending;
+              operations.Add(new cRecordingsHandlerEntry(Usage, FileNameSrc, FileNameDst));
+              finished = false;
+              Active(); // start it right away if possible
+              Recordings.ChangeState();
+              return true;
+              }
+           else
+              esyslog("ERROR: file name already present in recordings handler add %d '%s' '%s'", Usage, FileNameSrc, FileNameDst);
+           }
+        else
+           esyslog("ERROR: missing dst file name in recordings handler add %d '%s' '%s'", Usage, FileNameSrc, FileNameDst);
+        }
+     else
+        esyslog("ERROR: missing src file name in recordings handler add %d '%s' '%s'", Usage, FileNameSrc, FileNameDst);
+     }
+  else
+     esyslog("ERROR: invalid usage in recordings handler add %d '%s' '%s'", Usage, FileNameSrc, FileNameDst);
+  return false;
+}
+
+void cRecordingsHandler::Del(const char *FileName)
+{
+  cMutexLock MutexLock(&mutex);
+  if (cRecordingsHandlerEntry *r = Get(FileName)) {
+     operations.Del(r);
+     Recordings.ChangeState();
+     }
+}
+
+void cRecordingsHandler::DelAll(void)
+{
+  cMutexLock MutexLock(&mutex);
+  operations.Clear();
+  Recordings.ChangeState();
+}
+
+int cRecordingsHandler::GetUsage(const char *FileName)
+{
+  cMutexLock MutexLock(&mutex);
+  if (cRecordingsHandlerEntry *r = Get(FileName))
+     return r->Usage(FileName);
+  return ruNone;
+}
+
+bool cRecordingsHandler::Active(void)
+{
+  cMutexLock MutexLock(&mutex);
+  while (cRecordingsHandlerEntry *r = operations.First()) {
+        if (r->Active(error))
+           return true;
+        else
+           operations.Del(r);
+        }
+  return false;
+}
+
+bool cRecordingsHandler::Finished(bool &Error)
+{
+  cMutexLock MutexLock(&mutex);
+  if (!finished && operations.Count() == 0) {
+     finished = true;
+     Error = error;
+     error = false;
+     return true;
+     }
+  return false;
 }
 
 // --- cMark -----------------------------------------------------------------
@@ -1522,6 +2052,11 @@ bool cMark::Save(FILE *f)
 
 // --- cMarks ----------------------------------------------------------------
 
+cString cMarks::MarksFileName(const cRecording *Recording)
+{
+  return AddDirectory(Recording->FileName(), Recording->IsPesRecording() ? MARKSFILESUFFIX ".vdr" : MARKSFILESUFFIX);
+}
+
 bool cMarks::Load(const char *RecordingFileName, double FramesPerSecond, bool IsPesRecording)
 {
   recordingFileName = RecordingFileName;
@@ -1537,7 +2072,7 @@ bool cMarks::Load(const char *RecordingFileName, double FramesPerSecond, bool Is
 bool cMarks::Update(void)
 {
   time_t t = time(NULL);
-  if (t > nextUpdate) {
+  if (t > nextUpdate && *fileName) {
      time_t LastModified = LastModifiedTime(fileName);
      if (LastModified != lastFileTime) // change detected, or first run
         lastChange = LastModified > 0 ? LastModified : t;
@@ -1706,17 +2241,19 @@ void cRecordingUserCommand::InvokeCommand(const char *State, const char *Recordi
 class cIndexFileGenerator : public cThread {
 private:
   cString recordingName;
+  bool update;
 protected:
   virtual void Action(void);
 public:
-  cIndexFileGenerator(const char *RecordingName);
+  cIndexFileGenerator(const char *RecordingName, bool Update = false);
   ~cIndexFileGenerator();
   };
 
-cIndexFileGenerator::cIndexFileGenerator(const char *RecordingName)
+cIndexFileGenerator::cIndexFileGenerator(const char *RecordingName, bool Update)
 :cThread("index file generator")
 ,recordingName(RecordingName)
 {
+  update = Update;
   Start();
 }
 
@@ -1735,15 +2272,34 @@ void cIndexFileGenerator::Action(void)
   cRingBufferLinear Buffer(IFG_BUFFER_SIZE, MIN_TS_PACKETS_FOR_FRAME_DETECTOR * TS_SIZE);
   cPatPmtParser PatPmtParser;
   cFrameDetector FrameDetector;
-  cIndexFile IndexFile(recordingName, true);
+  cIndexFile IndexFile(recordingName, true, false, false, true);
   int BufferChunks = KILOBYTE(1); // no need to read a lot at the beginning when parsing PAT/PMT
   off_t FileSize = 0;
   off_t FrameOffset = -1;
+  uint16_t FileNumber = 1;
+  off_t FileOffset = 0;
+  int Last = -1;
+  if (update) {
+     // Look for current index and position to end of it if present:
+     bool Independent;
+     int Length;
+     Last = IndexFile.Last();
+     if (Last >= 0 && !IndexFile.Get(Last, &FileNumber, &FileOffset, &Independent, &Length))
+        Last = -1; // reset Last if an error occurred
+     if (Last >= 0) {
+        Rewind = true;
+        isyslog("updating index file");
+        }
+     else
+        isyslog("generating index file");
+     }
   Skins.QueueMessage(mtInfo, tr("Regenerating index file"));
+  bool Stuffed = false;
   while (Running()) {
         // Rewind input file:
         if (Rewind) {
-           ReplayFile = FileName.SetOffset(1);
+           ReplayFile = FileName.SetOffset(FileNumber, FileOffset);
+           FileSize = FileOffset;
            Buffer.Clear();
            Rewind = false;
            }
@@ -1758,7 +2314,8 @@ void cIndexFileGenerator::Action(void)
               int Processed = FrameDetector.Analyze(Data, Length);
               if (Processed > 0) {
                  if (FrameDetector.NewFrame()) {
-                    IndexFile.Write(FrameDetector.IndependentFrame(), FileName.Number(), FrameOffset >= 0 ? FrameOffset : FileSize);
+                    if (IndexFileWritten || Last < 0) // check for first frame and do not write if in update mode
+                       IndexFile.Write(FrameDetector.IndependentFrame(), FileName.Number(), FrameOffset >= 0 ? FrameOffset : FileSize);
                     FrameOffset = -1;
                     IndexFileWritten = true;
                     }
@@ -1803,10 +2360,25 @@ void cIndexFileGenerator::Action(void)
         else if (ReplayFile) {
            int Result = Buffer.Read(ReplayFile, BufferChunks);
            if (Result == 0) { // EOF
-              ReplayFile = FileName.NextFile();
-              FileSize = 0;
-              FrameOffset = -1;
-              Buffer.Clear();
+              if (Buffer.Available() > 0 && !Stuffed) {
+                 // So the last call to Buffer.Get() returned NULL, but there is still
+                 // data in the buffer, and we're at the end of the current TS file.
+                 // The remaining data in the buffer is less than what's needed for the
+                 // frame detector to analyze frames, so we need to put some stuffing
+                 // packets into the buffer to flush out the rest of the data (otherwise
+                 // any frames within the remaining data would not be seen here):
+                 uchar StuffingPacket[TS_SIZE] = { TS_SYNC_BYTE, 0xFF };
+                 for (int i = 0; i <= MIN_TS_PACKETS_FOR_FRAME_DETECTOR; i++)
+                     Buffer.Put(StuffingPacket, sizeof(StuffingPacket));
+                 Stuffed = true;
+                 }
+              else {
+                 ReplayFile = FileName.NextFile();
+                 FileSize = 0;
+                 FrameOffset = -1;
+                 Buffer.Clear();
+                 Stuffed = false;
+                 }
               }
            }
         // Recording has been processed:
@@ -1868,7 +2440,7 @@ struct tIndexTs {
 #define INDEXFILECHECKINTERVAL 500 // ms between checks for existence of the regenerated index file
 #define INDEXFILETESTINTERVAL   10 // ms between tests for the size of the index file in case of pausing live video
 
-cIndexFile::cIndexFile(const char *FileName, bool Record, bool IsPesRecording, bool PauseLive)
+cIndexFile::cIndexFile(const char *FileName, bool Record, bool IsPesRecording, bool PauseLive, bool Update)
 :resumeFile(FileName, IsPesRecording)
 {
   f = -1;
@@ -1904,10 +2476,10 @@ cIndexFile::cIndexFile(const char *FileName, bool Record, bool IsPesRecording, b
            delta = int(buf.st_size % sizeof(tIndexTs));
            if (delta) {
               delta = sizeof(tIndexTs) - delta;
-              esyslog("ERROR: invalid file size (%"PRId64") in '%s'", buf.st_size, *fileName);
+              esyslog("ERROR: invalid file size (%" PRId64 ") in '%s'", buf.st_size, *fileName);
               }
            last = int((buf.st_size + delta) / sizeof(tIndexTs) - 1);
-           if (!Record && last >= 0) {
+           if ((!Record || Update) && last >= 0) {
               size = last + 1;
               index = MALLOC(tIndexTs, size);
               if (index) {
@@ -2169,7 +2741,7 @@ int cIndexFile::Get(uint16_t FileNumber, off_t FileOffset)
   return -1;
 }
 
-bool cIndexFile::IsStillRecording()
+bool cIndexFile::IsStillRecording(void)
 {
   return f >= 0;
 }
@@ -2195,15 +2767,16 @@ int cIndexFile::GetLength(const char *FileName, bool IsPesRecording)
   return -1;
 }
 
-bool GenerateIndex(const char *FileName)
+bool GenerateIndex(const char *FileName, bool Update)
 {
   if (DirectoryOk(FileName)) {
      cRecording Recording(FileName);
      if (Recording.Name()) {
         if (!Recording.IsPesRecording()) {
            cString IndexFileName = AddDirectory(FileName, INDEXFILESUFFIX);
-           unlink(IndexFileName);
-           cIndexFileGenerator *IndexFileGenerator = new cIndexFileGenerator(FileName);
+           if (!Update)
+              unlink(IndexFileName);
+           cIndexFileGenerator *IndexFileGenerator = new cIndexFileGenerator(FileName, Update);
            while (IndexFileGenerator->Active())
                  cCondWait::SleepMs(INDEXFILECHECKINTERVAL);
            if (access(IndexFileName, R_OK) == 0)
@@ -2311,7 +2884,7 @@ cUnbufferedFile *cFileName::Open(void)
      int BlockingFlag = blocking ? 0 : O_NONBLOCK;
      if (record) {
         dsyslog("recording to '%s'", fileName);
-        file = OpenVideoFile(fileName, O_RDWR | O_CREAT | O_LARGEFILE | BlockingFlag);
+        file = cVideoDirectory::OpenVideoFile(fileName, O_RDWR | O_CREAT | O_LARGEFILE | BlockingFlag);
         if (!file)
            LOG_ERROR_STR(fileName);
         }
@@ -2332,8 +2905,9 @@ cUnbufferedFile *cFileName::Open(void)
 void cFileName::Close(void)
 {
   if (file) {
-     if (CloseVideoFile(file) < 0)
+     if (file->Close() < 0)
         LOG_ERROR_STR(fileName);
+     delete file;
      file = NULL;
      }
 }
@@ -2395,7 +2969,7 @@ cString IndexToHMSF(int Index, bool WithFrame, double FramesPerSecond)
      Sign = "-";
      }
   double Seconds;
-  int f = int(modf((Index + 0.5) / FramesPerSecond, &Seconds) * FramesPerSecond + 1);
+  int f = int(modf((Index + 0.5) / FramesPerSecond, &Seconds) * FramesPerSecond);
   int s = int(Seconds);
   int m = s / 60 % 60;
   int h = s / 3600;
@@ -2405,12 +2979,12 @@ cString IndexToHMSF(int Index, bool WithFrame, double FramesPerSecond)
 
 int HMSFToIndex(const char *HMSF, double FramesPerSecond)
 {
-  int h, m, s, f = 1;
+  int h, m, s, f = 0;
   int n = sscanf(HMSF, "%d:%d:%d.%d", &h, &m, &s, &f);
   if (n == 1)
-     return h - 1; // plain frame number
+     return h; // plain frame number
   if (n >= 3)
-     return int(round((h * 3600 + m * 60 + s) * FramesPerSecond)) + f - 1;
+     return int(round((h * 3600 + m * 60 + s) * FramesPerSecond)) + f;
   return 0;
 }
 

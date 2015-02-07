@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: sdt.c 2.5.1.2 2014/03/11 09:30:59 kls Exp $
+ * $Id: sdt.c 3.4 2015/01/04 14:33:35 kls Exp $
  */
 
 #include "sdt.h"
@@ -54,6 +54,8 @@ void cSdtFilter::Process(u_short Pid, u_char Tid, const u_char *Data, int Length
       cChannel *channel = Channels.GetByChannelID(tChannelID(source, sdt.getOriginalNetworkId(), sdt.getTransportStreamId(), SiSdtService.getServiceId()));
       if (!channel)
          channel = Channels.GetByChannelID(tChannelID(source, 0, Transponder(), SiSdtService.getServiceId()));
+      if (channel)
+         channel->SetSeen();
 
       cLinkChannels *LinkChannels = NULL;
       SI::Descriptor *d;
@@ -150,5 +152,9 @@ void cSdtFilter::Process(u_short Pid, u_char Tid, const u_char *Data, int Length
             delete LinkChannels;
          }
       }
+  if (sdt.getSectionNumber() == sdt.getLastSectionNumber()) {
+     if (Setup.UpdateChannels == 1 || Setup.UpdateChannels >= 3)
+        Channels.MarkObsoleteChannels(Source(), sdt.getOriginalNetworkId(), sdt.getTransportStreamId());
+     }
   Channels.Unlock();
 }

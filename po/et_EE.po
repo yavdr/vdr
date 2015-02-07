@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: VDR 2.0.0\n"
 "Report-Msgid-Bugs-To: <vdr-bugs@tvdr.de>\n"
-"POT-Creation-Date: 2013-03-04 14:46+0100\n"
+"POT-Creation-Date: 2015-01-30 13:14+0100\n"
 "PO-Revision-Date: 2007-08-12 14:17+0200\n"
 "Last-Translator: Arthur Konovalov <artlov@gmail.com>\n"
 "Language-Team: Estonian <vdr@linuxtv.org>\n"
@@ -17,7 +17,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 msgid "*** Invalid Channel ***"
-msgstr "*** Vigane kanal ***"
+msgstr "*** Kehtetu kanal ***"
+
+msgid "CAM activated!"
+msgstr ""
 
 msgid "Channel not available!"
 msgstr "Kanal ei ole kättesaadav!"
@@ -74,7 +77,16 @@ msgid "Rolloff"
 msgstr "Rolloff"
 
 msgid "StreamId"
-msgstr "Stream-tunnus"
+msgstr "Vootunnus"
+
+msgid "Pilot"
+msgstr "Piloot"
+
+msgid "T2SystemId"
+msgstr "T2 tunnus"
+
+msgid "SISO/MISO"
+msgstr "SISO/MISO"
 
 msgid "Starting EPG scan"
 msgstr "EPG skaneerimine käivitatud"
@@ -563,6 +575,12 @@ msgstr "CA"
 msgid "Sid"
 msgstr "Sid"
 
+msgid "Nid"
+msgstr "Nid"
+
+msgid "Tid"
+msgstr "Tid"
+
 msgid "Channel settings are not unique!"
 msgstr "Kanaliseaded ei ole unikaalsed!"
 
@@ -582,7 +600,7 @@ msgid "Button$Mark"
 msgstr "Märkimine"
 
 msgid "Channel is being used by a timer!"
-msgstr "Kanal on taimeri kasutuses!"
+msgstr "Kanal on taimeris kasutusel!"
 
 msgid "Delete channel?"
 msgstr "Kustutada kanal?"
@@ -603,8 +621,8 @@ msgstr "Sellenimeline kaust juba olemas!"
 msgid "Folder name must not contain '%c'!"
 msgstr "Kausta nimi ei saa sisaldada '%c' sümbolit!"
 
-msgid "Button$Select"
-msgstr "Vali"
+msgid "Button$Open"
+msgstr "Avada"
 
 msgid "Delete folder and all sub folders?"
 msgstr "Kustutada kaust ja kõik alamkaustad?"
@@ -697,14 +715,14 @@ msgid "Button$Now"
 msgstr "Hetkel"
 
 msgid "Button$Schedule"
-msgstr "Ajakava"
+msgstr "Kava"
 
 msgid "Can't switch channel!"
 msgstr "Kanali vahetus ei ole võimalik!"
 
 #, c-format
 msgid "Schedule - %s"
-msgstr "Ajakava - %s"
+msgstr "Kava - %s"
 
 #, c-format
 msgid "This event - %s"
@@ -723,6 +741,73 @@ msgstr "Palun sisestada %d numbrit!"
 msgid "CAM not responding!"
 msgstr "CAM ei vasta"
 
+msgid "Edit path"
+msgstr "Muuda teed"
+
+msgid "Folder"
+msgstr "Kaust"
+
+msgid "This folder is currently in use - no changes are possible!"
+msgstr "Kaust on juba kasutusel - muutmine ei ole võimalik!"
+
+#, c-format
+msgid "Move entire folder containing %d recordings?"
+msgstr "Teisaldada kaust mis sisaldab %d salvestust?"
+
+msgid "Error while moving folder!"
+msgstr "Kausta teisaldamise viga!"
+
+msgid "Edit recording"
+msgstr "Salvestuse redigeerimine"
+
+msgid "This recording is currently in use - no changes are possible!"
+msgstr "Salvestus hetkel kasutusel - muutmine ei ole võimalik!"
+
+msgid "Button$Cancel cutting"
+msgstr "Lõikamise tühistamine"
+
+msgid "Button$Stop cutting"
+msgstr "Lõikamise peatamine"
+
+msgid "Button$Cancel moving"
+msgstr "Teisaldamise tühistamine"
+
+msgid "Button$Stop moving"
+msgstr "Teisaldamise peatamine"
+
+msgid "Button$Cancel copying"
+msgstr "Kopeerimise tühistamine"
+
+msgid "Button$Stop copying"
+msgstr "Kopeerimise peatamine"
+
+msgid "Button$Cut"
+msgstr "Lõika"
+
+msgid "Button$Delete marks"
+msgstr "Markerite kustutamine"
+
+msgid "Recording vanished!"
+msgstr "Salvestus kadunud!"
+
+msgid "Edited version already exists - overwrite?"
+msgstr "Redigeeritud versioon juba olemas - kirjutada üle?"
+
+msgid "Error while queueing recording for cutting!"
+msgstr "Salvestuse lõikamiseks lisamine ebaõnnestus!"
+
+msgid "Delete editing marks for this recording?"
+msgstr "Kustutada selle salvestuse markerid?"
+
+msgid "Error while deleting editing marks!"
+msgstr "Markerite kustutamine ebaõnnestus!"
+
+msgid "Error while changing priority/lifetime!"
+msgstr "Prioriteedi/eluea muutmine ebaõnnestus!"
+
+msgid "Error while changing folder/name!"
+msgstr "Kausta/nime muutmine ebaõnnestus!"
+
 msgid "Recording info"
 msgstr "Salvestuse info"
 
@@ -734,9 +819,6 @@ msgstr "Algusesse"
 
 msgid "Recordings"
 msgstr "Salvestused"
-
-msgid "Button$Open"
-msgstr "Avada"
 
 msgid "Commands"
 msgstr "Käsud"
@@ -993,6 +1075,33 @@ msgstr "DVB seade %d ühendatud SAT-kaabliga"
 msgid "Setup.LNB$own"
 msgstr "oma"
 
+msgid "Setup.LNB$Use dish positioner"
+msgstr "Antenni positsioneerija kasutamine"
+
+msgid "Setup.LNB$Site latitude (degrees)"
+msgstr "Asukoha laiuskraad (°)"
+
+msgid "South"
+msgstr "lõunasse (S)"
+
+msgid "North"
+msgstr "põhja (N)"
+
+msgid "Setup.LNB$Site longitude (degrees)"
+msgstr "Asukoha pikkuskraad (°)"
+
+msgid "West"
+msgstr "läände (W)"
+
+msgid "East"
+msgstr "itta (E)"
+
+msgid "Setup.LNB$Max. positioner swing (degrees)"
+msgstr "Positsioneerija max pöördeulatus (°)"
+
+msgid "Setup.LNB$Positioner speed (degrees/s)"
+msgstr "Positsioneerija kiirus (°/s)"
+
 msgid "CAM reset"
 msgstr "CAM taaskäivitamine"
 
@@ -1002,8 +1111,18 @@ msgstr "CAM esitletud"
 msgid "CAM ready"
 msgstr "CAM töövalmis"
 
+#. TRANSLATORS: note the leading blank!
+msgid " (activating)"
+msgstr ""
+
 msgid "CAM"
 msgstr "CAM"
+
+msgid "Button$Cancel activation"
+msgstr ""
+
+msgid "Button$Activate"
+msgstr ""
 
 msgid "Button$Menu"
 msgstr "Menüü"
@@ -1016,6 +1135,9 @@ msgstr "CAM-menüü avamine..."
 
 msgid "Can't open CAM menu!"
 msgstr "Ei saa avada CAM menüüd!"
+
+msgid "Can't activate CAM!"
+msgstr ""
 
 msgid "CAM is in use - really reset?"
 msgstr "CAM on kasutuses - taaskäivitada?"
@@ -1110,6 +1232,21 @@ msgstr "Edenemiseriba kuvamise aeg (s)"
 msgid "Setup.Replay$Pause replay when setting mark"
 msgstr "Taasesituse peatamine markeri seadmisel"
 
+msgid "Setup.Replay$Pause replay when jumping to a mark"
+msgstr ""
+
+msgid "Setup.Replay$Skip edited parts"
+msgstr ""
+
+msgid "Setup.Replay$Pause replay at last mark"
+msgstr ""
+
+msgid "Setup.Replay$Binary skip initial value (s)"
+msgstr ""
+
+msgid "Setup.Replay$Binary skip timeout (s)"
+msgstr ""
+
 msgid "Setup.Replay$Resume ID"
 msgstr "Jätkamise ID"
 
@@ -1145,6 +1282,12 @@ msgstr "endine"
 
 msgid "Setup.Miscellaneous$Initial volume"
 msgstr "Helitugevus käivitamisel"
+
+msgid "Setup.Miscellaneous$Volume steps"
+msgstr "Helitugevuse samm"
+
+msgid "Setup.Miscellaneous$Volume linearize"
+msgstr "Helitugevuse lineariseerimine"
 
 msgid "Setup.Miscellaneous$Channels wrap"
 msgstr "Kanalite ringkerimine"
@@ -1192,13 +1335,13 @@ msgstr "Jätkata"
 
 #. TRANSLATORS: note the leading blank!
 msgid " Cancel editing"
-msgstr " Katkestada redigeerimine"
+msgstr " Tühistada töötlemine"
 
 msgid "Stop recording?"
 msgstr "Lõpetada salvestamine?"
 
 msgid "Cancel editing?"
-msgstr "Tühistada redigeermine?"
+msgstr "Tühistada töötlemine?"
 
 msgid "No audio available!"
 msgstr "Audio kättesaamatu!"
@@ -1280,7 +1423,7 @@ msgid "Can't shutdown - option '-s' not given!"
 msgstr "Väljalülitamine ebaõnnestus - '-s' parameeter puudub!"
 
 msgid "Editing - shut down anyway?"
-msgstr "Redigeerimine aktiive - lülitada välja?"
+msgstr "Töötlemine aktiive - lülitada välja?"
 
 msgid "Recording - shut down anyway?"
 msgstr "Salvestamine aktiivne - lülitada välja?"
@@ -1297,7 +1440,7 @@ msgid "Plugin %s wakes up in %ld min, continue?"
 msgstr "Laiendusmoodul %s ärkab %ld minuti pärast, jätkata?"
 
 msgid "Editing - restart anyway?"
-msgstr "Redigeerimine aktiivne - restart?"
+msgstr "Töötlemine aktiivne - restart?"
 
 msgid "Recording - restart anyway?"
 msgstr "Salvestamine aktiivne - restart?"
@@ -1329,6 +1472,10 @@ msgstr "LIVE"
 
 msgid "PLAY"
 msgstr "ESITUS"
+
+#, c-format
+msgid "Moving dish to %.1f..."
+msgstr "Liikumine positsioonile %.1f..."
 
 msgid "ST:TNG Panels"
 msgstr "ST:TNG Panels"
@@ -1381,10 +1528,10 @@ msgid "Switching primary DVB..."
 msgstr "Esmase DVB seadme ümberlülitus..."
 
 msgid "Editing process failed!"
-msgstr "Redigeerimine ebaõnnestus!"
+msgstr "Töötlemine ebaõnnestus!"
 
 msgid "Editing process finished"
-msgstr "Redigeerimine lõpetatud"
+msgstr "Töötlemine lõpetatud"
 
 msgid "Press any key to cancel restart"
 msgstr "Restardi katkestamiseks vajuta suvalist klahvi"

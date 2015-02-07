@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: VDR 2.0.0\n"
 "Report-Msgid-Bugs-To: <vdr-bugs@tvdr.de>\n"
-"POT-Creation-Date: 2013-03-04 14:46+0100\n"
+"POT-Creation-Date: 2015-01-30 13:14+0100\n"
 "PO-Revision-Date: 2007-08-15 15:52+0200\n"
 "Last-Translator: Matti Lehtimäki <matti.lehtimaki@gmail.com>\n"
 "Language-Team: Finnish <vdr@linuxtv.org>\n"
@@ -22,6 +22,9 @@ msgstr ""
 
 msgid "*** Invalid Channel ***"
 msgstr "*** Virheellinen kanavavalinta ***"
+
+msgid "CAM activated!"
+msgstr "CA-moduuli aktivoitu!"
 
 msgid "Channel not available!"
 msgstr "Kanava ei ole käytettävissä!"
@@ -79,6 +82,15 @@ msgstr "Rolloff"
 
 msgid "StreamId"
 msgstr "Lähetetunniste"
+
+msgid "Pilot"
+msgstr "Pilotti"
+
+msgid "T2SystemId"
+msgstr "T2-tunniste"
+
+msgid "SISO/MISO"
+msgstr "SISO/MISO"
 
 msgid "Starting EPG scan"
 msgstr "Ohjelmaoppaan päivitys aloitettu"
@@ -567,6 +579,12 @@ msgstr "Salaus (CA)"
 msgid "Sid"
 msgstr "Palvelu-ID"
 
+msgid "Nid"
+msgstr "Verkko-ID"
+
+msgid "Tid"
+msgstr "Lähete-ID"
+
 msgid "Channel settings are not unique!"
 msgstr "Kanava-asetukset eivät ole yksilölliset!"
 
@@ -607,8 +625,8 @@ msgstr "Kansio on jo olemassa!"
 msgid "Folder name must not contain '%c'!"
 msgstr "Kansion nimessä ei saa olla '%c'-merkkiä!"
 
-msgid "Button$Select"
-msgstr "Valitse"
+msgid "Button$Open"
+msgstr "Avaa"
 
 msgid "Delete folder and all sub folders?"
 msgstr "Poistetaanko kansio alikansioineen?"
@@ -727,6 +745,73 @@ msgstr "Syötä %d numeroa!"
 msgid "CAM not responding!"
 msgstr "CA-moduuli ei vastaa!"
 
+msgid "Edit path"
+msgstr "Muokkaa polkua"
+
+msgid "Folder"
+msgstr "Kansio"
+
+msgid "This folder is currently in use - no changes are possible!"
+msgstr "Kansio on käytössä - muokkaukset eivät mahdollisia!"
+
+#, c-format
+msgid "Move entire folder containing %d recordings?"
+msgstr "Siirrä koko kansio sisältäen %d tallennetta?"
+
+msgid "Error while moving folder!"
+msgstr "Kansion siirto epäonnistui!"
+
+msgid "Edit recording"
+msgstr "Muokkaa tallennetta"
+
+msgid "This recording is currently in use - no changes are possible!"
+msgstr "Tallenne on käytössä - muokkaus ei mahdollista!"
+
+msgid "Button$Cancel cutting"
+msgstr "Peru leikkaus"
+
+msgid "Button$Stop cutting"
+msgstr "Lopeta leikkaus"
+
+msgid "Button$Cancel moving"
+msgstr "Peru siirto"
+
+msgid "Button$Stop moving"
+msgstr "Lopeta siirto"
+
+msgid "Button$Cancel copying"
+msgstr "Peru kopiointi"
+
+msgid "Button$Stop copying"
+msgstr "Lopeta kopiointi"
+
+msgid "Button$Cut"
+msgstr "Leikkaa"
+
+msgid "Button$Delete marks"
+msgstr "Poista merkinnät"
+
+msgid "Recording vanished!"
+msgstr "Tallenne katosi!"
+
+msgid "Edited version already exists - overwrite?"
+msgstr "Muokattava versio on jo olemassa - ylikirjoitetaanko?"
+
+msgid "Error while queueing recording for cutting!"
+msgstr "Tallenteen lisääminen leikkausjonoon epäonnistui!"
+
+msgid "Delete editing marks for this recording?"
+msgstr "Poistetaanko muokkausmerkinnät tallenteelta?"
+
+msgid "Error while deleting editing marks!"
+msgstr "Muokkausmerkintöjen poistaminen epäonnistui!"
+
+msgid "Error while changing priority/lifetime!"
+msgstr "Prioriteetin/elinajan vaihtaminen epäonnistui!"
+
+msgid "Error while changing folder/name!"
+msgstr "Kansion/nimen vaihtaminen epäonnistui!"
+
 msgid "Recording info"
 msgstr "Tallenteen tiedot"
 
@@ -738,9 +823,6 @@ msgstr "Alkuun"
 
 msgid "Recordings"
 msgstr "Tallenteet"
-
-msgid "Button$Open"
-msgstr "Avaa"
 
 msgid "Commands"
 msgstr "Komennot"
@@ -997,6 +1079,33 @@ msgstr "DVB-sovitin %d kytketty SAT-kaapeliin"
 msgid "Setup.LNB$own"
 msgstr "oma"
 
+msgid "Setup.LNB$Use dish positioner"
+msgstr "Käytä kääntömoottoria lautaselle"
+
+msgid "Setup.LNB$Site latitude (degrees)"
+msgstr "Paikkakunnan leveysaste (°)"
+
+msgid "South"
+msgstr "etelään"
+
+msgid "North"
+msgstr "pohjoiseen"
+
+msgid "Setup.LNB$Site longitude (degrees)"
+msgstr "Paikkakunnan pituusaste (°)"
+
+msgid "West"
+msgstr "länteen"
+
+msgid "East"
+msgstr "itään"
+
+msgid "Setup.LNB$Max. positioner swing (degrees)"
+msgstr "Laajin kääntömoottorin pyyhkäisy (°)"
+
+msgid "Setup.LNB$Positioner speed (degrees/s)"
+msgstr "Kääntömoottorin nopeus (°/s)"
+
 msgid "CAM reset"
 msgstr "CAM nollaus"
 
@@ -1006,8 +1115,18 @@ msgstr "CAM havaittu"
 msgid "CAM ready"
 msgstr "CAM valmis"
 
+#. TRANSLATORS: note the leading blank!
+msgid " (activating)"
+msgstr " (aktivoidaan)"
+
 msgid "CAM"
 msgstr "CAM"
+
+msgid "Button$Cancel activation"
+msgstr "Peruuta aktivointi"
+
+msgid "Button$Activate"
+msgstr "Aktivoi"
 
 msgid "Button$Menu"
 msgstr "Valikko"
@@ -1020,6 +1139,9 @@ msgstr "Avataan CA-moduulin valikkoa..."
 
 msgid "Can't open CAM menu!"
 msgstr "CA-moduulin valikko ei saatavilla"
+
+msgid "Can't activate CAM!"
+msgstr "CA-moduulin aktivointi epäonnistui!"
 
 msgid "CAM is in use - really reset?"
 msgstr "CA-moduuli käytössä - nollataanko?"
@@ -1114,6 +1236,21 @@ msgstr "Näytä toiston kontrollit (s)"
 msgid "Setup.Replay$Pause replay when setting mark"
 msgstr "Pysäytä toisto asetettaessa merkki"
 
+msgid "Setup.Replay$Pause replay when jumping to a mark"
+msgstr "Pysäytä toisto hypätessä merkkiin"
+
+msgid "Setup.Replay$Skip edited parts"
+msgstr "Ohita muokatut kohdat"
+
+msgid "Setup.Replay$Pause replay at last mark"
+msgstr "Pysäytä toisto viimeiseen merkkiin"
+
+msgid "Setup.Replay$Binary skip initial value (s)"
+msgstr "Binäärihypyn oletuspituus (s)"
+
+msgid "Setup.Replay$Binary skip timeout (s)"
+msgstr "Binäärihypyn odotusaika (ms)"
+
 msgid "Setup.Replay$Resume ID"
 msgstr "Tallenteen paluutunniste"
 
@@ -1149,6 +1286,12 @@ msgstr "edellinen"
 
 msgid "Setup.Miscellaneous$Initial volume"
 msgstr "Äänenvoimakkuus käynnistettäessä"
+
+msgid "Setup.Miscellaneous$Volume steps"
+msgstr "Äänenvoimakkuuden askellus"
+
+msgid "Setup.Miscellaneous$Volume linearize"
+msgstr "Äänenvoimakkuuden lineaarisuus"
 
 msgid "Setup.Miscellaneous$Channels wrap"
 msgstr "Kanavien rullaus"
@@ -1333,6 +1476,10 @@ msgstr "LIVE"
 
 msgid "PLAY"
 msgstr "TOISTO"
+
+#, c-format
+msgid "Moving dish to %.1f..."
+msgstr "Käännetään lautasta %.1f..."
 
 msgid "ST:TNG Panels"
 msgstr "ST:TNG konsoli"

@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: receiver.c 2.7 2012/06/02 13:20:38 kls Exp $
+ * $Id: receiver.c 3.3 2015/01/12 14:04:31 kls Exp $
  */
 
 #include "receiver.h"
@@ -14,7 +14,7 @@
 cReceiver::cReceiver(const cChannel *Channel, int Priority)
 {
   device = NULL;
-  priority = constrain(Priority, MINPRIORITY, MAXPRIORITY);
+  SetPriority(Priority);
   numPids = 0;
   SetPids(Channel);
 }
@@ -22,11 +22,16 @@ cReceiver::cReceiver(const cChannel *Channel, int Priority)
 cReceiver::~cReceiver()
 {
   if (device) {
-     const char *msg = "ERROR: cReceiver has not been detached yet! This is a design fault and VDR will segfault now!";
+     const char *msg = "ERROR: cReceiver has not been detached yet! This is a design fault and VDR will abort now!";
      esyslog("%s", msg);
      fprintf(stderr, "%s\n", msg);
-     *(char *)0 = 0; // cause a segfault
+     abort();
      }
+}
+
+void cReceiver::SetPriority(int Priority)
+{
+  priority = constrain(Priority, MINPRIORITY, MAXPRIORITY);
 }
 
 bool cReceiver::AddPid(int Pid)
@@ -70,6 +75,28 @@ bool cReceiver::SetPids(const cChannel *Channel)
             AddPids(Channel->Spids());
      }
   return true;
+}
+
+void cReceiver::DelPid(int Pid)
+{
+  if (Pid) {
+     for (int i = 0; i < numPids; i++) {
+         if (pids[i] == Pid) {
+            for ( ; i < numPids; i++) // we also copy the terminating 0!
+                pids[i] = pids[i + 1];
+            numPids--;
+            return;
+            }
+         }
+     }
+}
+
+void cReceiver::DelPids(const int *Pids)
+{
+  if (Pids) {
+     while (*Pids)
+           DelPid(*Pids++);
+     }
 }
 
 bool cReceiver::WantsPid(int Pid)

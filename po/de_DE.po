@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: VDR 2.0.0\n"
 "Report-Msgid-Bugs-To: <vdr-bugs@tvdr.de>\n"
-"POT-Creation-Date: 2013-03-04 14:46+0100\n"
+"POT-Creation-Date: 2015-01-30 13:14+0100\n"
 "PO-Revision-Date: 2010-01-16 16:46+0100\n"
 "Last-Translator: Klaus Schmidinger <vdr@tvdr.de>\n"
 "Language-Team: German <vdr@linuxtv.org>\n"
@@ -18,6 +18,9 @@ msgstr ""
 
 msgid "*** Invalid Channel ***"
 msgstr "*** Ungültiger Kanal ***"
+
+msgid "CAM activated!"
+msgstr "CAM aktiviert!"
 
 msgid "Channel not available!"
 msgstr "Kanal nicht verfügbar!"
@@ -75,6 +78,15 @@ msgstr "Rolloff"
 
 msgid "StreamId"
 msgstr "StreamId"
+
+msgid "Pilot"
+msgstr "Pilot"
+
+msgid "T2SystemId"
+msgstr "T2-Systemkennung"
+
+msgid "SISO/MISO"
+msgstr "SISO/MISO"
 
 msgid "Starting EPG scan"
 msgstr "Aktualisiere EPG-Daten"
@@ -563,6 +575,12 @@ msgstr "CA"
 msgid "Sid"
 msgstr "Sid"
 
+msgid "Nid"
+msgstr "Nid"
+
+msgid "Tid"
+msgstr "Tid"
+
 msgid "Channel settings are not unique!"
 msgstr "Kanaleinstellungen sind nicht eindeutig!"
 
@@ -603,8 +621,8 @@ msgstr "Verzeichnisname existiert bereits!"
 msgid "Folder name must not contain '%c'!"
 msgstr "Verzeichnisname darf kein '%c' enthalten!"
 
-msgid "Button$Select"
-msgstr "Auswählen"
+msgid "Button$Open"
+msgstr "Öffnen"
 
 msgid "Delete folder and all sub folders?"
 msgstr "Verzeichnis und alle Unterverzeichnisse löschen?"
@@ -723,6 +741,73 @@ msgstr "Bitte geben Sie %d Ziffern ein!"
 msgid "CAM not responding!"
 msgstr "CAM antwortet nicht!"
 
+msgid "Edit path"
+msgstr "Pfad editieren"
+
+msgid "Folder"
+msgstr "Ordner"
+
+msgid "This folder is currently in use - no changes are possible!"
+msgstr "Dieser Ordner ist zur Zeit in Verwendung - es sind keine Änderungen möglich!"
+
+#, c-format
+msgid "Move entire folder containing %d recordings?"
+msgstr "Ganzen Ordner mit %d Aufnahmen verschieben?"
+
+msgid "Error while moving folder!"
+msgstr "Fehler beim Verschieben des Ordners!"
+
+msgid "Edit recording"
+msgstr "Aufnahme editieren"
+
+msgid "This recording is currently in use - no changes are possible!"
+msgstr "Diese Aufnahme ist zur Zeit in Verwendung - es sind keine Änderungen möglich!"
+
+msgid "Button$Cancel cutting"
+msgstr "Schnitt abbrechen"
+
+msgid "Button$Stop cutting"
+msgstr "Schnitt beenden"
+
+msgid "Button$Cancel moving"
+msgstr "Verschieben abbrechen"
+
+msgid "Button$Stop moving"
+msgstr "Verschieben beenden"
+
+msgid "Button$Cancel copying"
+msgstr "Kopieren abbrechen"
+
+msgid "Button$Stop copying"
+msgstr "Kopieren beenden"
+
+msgid "Button$Cut"
+msgstr "Schneiden"
+
+msgid "Button$Delete marks"
+msgstr "Marken löschen"
+
+msgid "Recording vanished!"
+msgstr "Aufnahme verschwunden!"
+
+msgid "Edited version already exists - overwrite?"
+msgstr "Geschnittene Version existiert bereits - überschreiben?"
+
+msgid "Error while queueing recording for cutting!"
+msgstr "Fehler beim Hinzufügen der Aufnahme zur Schnittwarteschlange"
+
+msgid "Delete editing marks for this recording?"
+msgstr "Schnittmarken für diese Aufnahme löschen?"
+
+msgid "Error while deleting editing marks!"
+msgstr "Fehler beim Löschen der Schnittmarken!"
+
+msgid "Error while changing priority/lifetime!"
+msgstr "Fehler beim Ändern der Priorität bzw. Lebensdauer!"
+
+msgid "Error while changing folder/name!"
+msgstr "Fehler beim Ändern des Ordners bzw. Namens!"
+
 msgid "Recording info"
 msgstr "Aufzeichnung"
 
@@ -735,9 +820,6 @@ msgstr "Anfang"
 msgid "Recordings"
 msgstr "Aufzeichnungen"
 
-msgid "Button$Open"
-msgstr "Öffnen"
-
 msgid "Commands"
 msgstr "Befehle"
 
@@ -745,7 +827,7 @@ msgid "Delete recording?"
 msgstr "Aufzeichnung löschen?"
 
 msgid "Recording is being edited - really delete?"
-msgstr "Aufzeichnung wird geschnitten - trotzdem löschen?"
+msgstr "Aufzeichnung wird bearbeitet - trotzdem löschen?"
 
 msgid "Error while deleting recording!"
 msgstr "Fehler beim Löschen der Aufzeichnung!"
@@ -993,6 +1075,33 @@ msgstr "Device %d angeschlossen an Sat-Kabel"
 msgid "Setup.LNB$own"
 msgstr "eigenes"
 
+msgid "Setup.LNB$Use dish positioner"
+msgstr "Antennen-Positionierer benutzen"
+
+msgid "Setup.LNB$Site latitude (degrees)"
+msgstr "Standort Längengrad"
+
+msgid "South"
+msgstr "Süd"
+
+msgid "North"
+msgstr "Nord"
+
+msgid "Setup.LNB$Site longitude (degrees)"
+msgstr "Standort Breitengrad"
+
+msgid "West"
+msgstr "West"
+
+msgid "East"
+msgstr "Ost"
+
+msgid "Setup.LNB$Max. positioner swing (degrees)"
+msgstr "Max. Positionier-Winkel (Grad)"
+
+msgid "Setup.LNB$Positioner speed (degrees/s)"
+msgstr "Max. Positionier-Geschwindigkeit (Grad/s)"
+
 msgid "CAM reset"
 msgstr "CAM zurückgesetzt"
 
@@ -1002,8 +1111,18 @@ msgstr "CAM vorhanden"
 msgid "CAM ready"
 msgstr "CAM bereit"
 
+#. TRANSLATORS: note the leading blank!
+msgid " (activating)"
+msgstr " (wird aktiviert)"
+
 msgid "CAM"
 msgstr "CAM"
+
+msgid "Button$Cancel activation"
+msgstr "Aktivierung abbrechen"
+
+msgid "Button$Activate"
+msgstr "Aktivieren"
 
 msgid "Button$Menu"
 msgstr "Menü"
@@ -1016,6 +1135,9 @@ msgstr "CAM-Menü wird geöffnet..."
 
 msgid "Can't open CAM menu!"
 msgstr "CAM-Menü kann nicht geöffnet werden!"
+
+msgid "Can't activate CAM!"
+msgstr "CAM kann nicht aktiviert werden!"
 
 msgid "CAM is in use - really reset?"
 msgstr "CAM wird benutzt - wirklich zurücksetzen?"
@@ -1110,6 +1232,21 @@ msgstr "Anzeigedauer für Fortschrittsanzeige (s)"
 msgid "Setup.Replay$Pause replay when setting mark"
 msgstr "Pause beim Setzen einer Schnittmarke"
 
+msgid "Setup.Replay$Pause replay when jumping to a mark"
+msgstr "Pause beim Sprung auf eine Schnittmarke"
+
+msgid "Setup.Replay$Skip edited parts"
+msgstr "Herausgeschnittene Teile überspringen"
+
+msgid "Setup.Replay$Pause replay at last mark"
+msgstr "Pause an der letzten Schnittmarke"
+
+msgid "Setup.Replay$Binary skip initial value (s)"
+msgstr "Anfangswert für binäres Springen (s)"
+
+msgid "Setup.Replay$Binary skip timeout (s)"
+msgstr "Zeitlimit für binäres Springen (ms)"
+
 msgid "Setup.Replay$Resume ID"
 msgstr "Wiedergabe-ID"
 
@@ -1145,6 +1282,12 @@ msgstr "wie vorher"
 
 msgid "Setup.Miscellaneous$Initial volume"
 msgstr "Lautstärke beim Einschalten"
+
+msgid "Setup.Miscellaneous$Volume steps"
+msgstr "Anzahl Lautstärke Schritte"
+
+msgid "Setup.Miscellaneous$Volume linearize"
+msgstr "Lautstärke Kurve korrigieren"
 
 msgid "Setup.Miscellaneous$Channels wrap"
 msgstr "Rundum zappen"
@@ -1192,13 +1335,13 @@ msgstr "Weiter"
 
 #. TRANSLATORS: note the leading blank!
 msgid " Cancel editing"
-msgstr " Schneiden abbrechen"
+msgstr " Bearbeitung abbrechen"
 
 msgid "Stop recording?"
 msgstr "Aufzeichnung beenden?"
 
 msgid "Cancel editing?"
-msgstr "Schneiden abbrechen?"
+msgstr "Bearbeitung abbrechen?"
 
 msgid "No audio available!"
 msgstr "Kein Audio verfügbar!"
@@ -1280,7 +1423,7 @@ msgid "Can't shutdown - option '-s' not given!"
 msgstr "Ausschalten unmöglich - Option '-s' fehlt!"
 
 msgid "Editing - shut down anyway?"
-msgstr "Schnitt läuft - trotzdem ausschalten?"
+msgstr "Bearbeitung läuft - trotzdem ausschalten?"
 
 msgid "Recording - shut down anyway?"
 msgstr "Aufnahme läuft - trotzdem ausschalten?"
@@ -1297,7 +1440,7 @@ msgid "Plugin %s wakes up in %ld min, continue?"
 msgstr "Plugin %s wacht in %ld Min auf, weiter?"
 
 msgid "Editing - restart anyway?"
-msgstr "Schnitt läuft - trotzdem neu starten?"
+msgstr "Bearbeitung läuft - trotzdem neu starten?"
 
 msgid "Recording - restart anyway?"
 msgstr "Aufnahme läuft - trotzdem neu starten?"
@@ -1330,6 +1473,10 @@ msgstr "LIVE"
 msgid "PLAY"
 msgstr "WIEDERGABE"
 
+#, c-format
+msgid "Moving dish to %.1f..."
+msgstr "Antenne wird auf %.1f gedreht..."
+
 msgid "ST:TNG Panels"
 msgstr "ST:TNG-Konsolen"
 
@@ -1339,7 +1486,7 @@ msgstr "MDMDFSS"
 
 #. TRANSLATORS: abbreviated weekdays, beginning with monday (must all be 3 letters!)
 msgid "MonTueWedThuFriSatSun"
-msgstr "MonDieMitDonFreSamSon"
+msgstr "Mo.Di.Mi.Do.Fr.Sa.So."
 
 msgid "Monday"
 msgstr "Montag"
@@ -1381,10 +1528,10 @@ msgid "Switching primary DVB..."
 msgstr "Primäres Interface wird umgeschaltet..."
 
 msgid "Editing process failed!"
-msgstr "Schnitt gescheitert!"
+msgstr "Bearbeitung gescheitert!"
 
 msgid "Editing process finished"
-msgstr "Schnitt beendet"
+msgstr "Bearbeitung beendet"
 
 msgid "Press any key to cancel restart"
 msgstr "Taste drücken, um Neustart abzubrechen"

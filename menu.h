@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: menu.h 2.13.1.1 2013/10/16 09:46:15 kls Exp $
+ * $Id: menu.h 3.7 2015/01/27 11:38:20 kls Exp $
  */
 
 #ifndef __MENU_H
@@ -38,11 +38,12 @@ private:
   cString dir;
   cOsdItem *firstFolder;
   bool editing;
+  int helpKeys;
   void SetHelpKeys(void);
   void Set(const char *CurrentFolder = NULL);
   void DescendPath(const char *Path);
   eOSState SetFolder(void);
-  eOSState Select(void);
+  eOSState Select(bool Open);
   eOSState New(void);
   eOSState Delete(void);
   eOSState Edit(void);
@@ -120,6 +121,8 @@ private:
   cTimeMs lastTime;
   int number;
   bool timeout;
+  int osdState;
+  const cPositioner *positioner;
   cChannel *channel;
   const cEvent *lastPresent;
   const cEvent *lastFollowing;
@@ -189,6 +192,13 @@ public:
 cOsdObject *CamControl(void);
 bool CamMenuActive(void);
 
+class cRecordingFilter {
+public:
+  virtual ~cRecordingFilter(void) {};
+  virtual bool Filter(const cRecording *Recording) const = 0;
+      ///< Returns true if the given Recording shall be displayed in the Recordings menu.
+  };
+
 class cMenuRecordingItem;
 
 class cMenuRecordings : public cOsdMenu {
@@ -197,6 +207,9 @@ private:
   int level;
   int recordingsState;
   int helpKeys;
+  const cRecordingFilter *filter;
+  static cString path;
+  static cString fileName;
   void SetHelpKeys(void);
   void Set(bool Refresh = false);
   bool Open(bool OpenSubMenus = false);
@@ -209,9 +222,11 @@ private:
 protected:
   cString DirectoryName(void);
 public:
-  cMenuRecordings(const char *Base = NULL, int Level = 0, bool OpenSubMenus = false);
+  cMenuRecordings(const char *Base = NULL, int Level = 0, bool OpenSubMenus = false, const cRecordingFilter *Filter = NULL);
   ~cMenuRecordings();
   virtual eOSState ProcessKey(eKeys Key);
+  static void SetPath(const char *Path);
+  static void SetRecording(const char *FileName);
   };
 
 class cRecordControl {
@@ -255,9 +270,23 @@ public:
   static bool StateChanged(int &State);
   };
 
+class cBinarySkipper {
+private:
+  int *initialValue;
+  int currentValue;
+  double framesPerSecond;
+  eKeys lastKey;
+  cTimeMs timeout;
+public:
+  cBinarySkipper(void);
+  void Initialize(int *InitialValue, double FramesPerSecond);
+  int GetValue(eKeys Key);
+  };
+
 class cReplayControl : public cDvbPlayerControl {
 private:
   cSkinDisplayReplay *displayReplay;
+  cBinarySkipper binarySkipper;
   cMarks marks;
   bool marksModified;
   bool visible, modeOnly, shown, displayFrames;
@@ -277,7 +306,7 @@ private:
   bool ShowProgress(bool Initial);
   void MarkToggle(void);
   void MarkJump(bool Forward);
-  void MarkMove(bool Forward);
+  void MarkMove(int Frames, bool MarkRequired);
   void EditCut(void);
   void EditTest(void);
 public:

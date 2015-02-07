@@ -254,6 +254,7 @@ The program will be called with two or three (in case of "edited") string
 parameters. The first parameter is one of
 
   before      if this is *before* a recording starts
+  started     if this is after a recording has *started*
   after       if this is *after* a recording has finished
   edited      if this is after a recording has been *edited*
   deleted     if this is after a recording has been *deleted*
@@ -278,6 +279,9 @@ An example script for use with the '-r' option could look like this:
 case "$1" in
      before)
             echo "Before recording $2"
+            ;;
+     started)
+            echo "Started recording $2"
             ;;
      after)
             echo "After recording $2"
@@ -325,38 +329,9 @@ Note that the file system need not be 64-bit proof, since the 'vdr'
 program splits video files into chunks of about 2GB. You should use
 a disk with several gigabytes of free space. One GB can store roughly
 half an hour of SD video data, or 10 minutes of HD video.
-
-If you have more than one disk and don't want to combine them to form
-one large logical volume, you can set up several video directories as
-mount points for these disks. All of these directories must have the
-same basic name and must end with a numeric part, which starts at 0 for
-the main directory and has increasing values for the rest of the
-directories. For example
-
-   /srv/vdr/video0
-   /srv/vdr/video1
-   /srv/vdr/video2
-
-would be a setup with three directories. You can use more than one
-numeric digit:
-
-   /mnt/MyVideos/vdr.00
-   /mnt/MyVideos/vdr.01
-   /mnt/MyVideos/vdr.02
-   ...
-   /mnt/MyVideos/vdr.11
-
-would set up twelve disks (wow, what a machine that would be!).
-
-To use such a multi directory setup, you need to add the '-v' option
-with the name of the basic directory when running 'vdr':
-
-   vdr -v /srv/vdr/video0
-
-WARNING: Using multiple disks to form one large video directory this way
-is deprecated and will be removed from VDR in a future version! Either
-use one of today's large terabyte disks (preferably with a backup disk
-in a RAID-1 array), or use something like "mhddfs".
+Either use one of today's large terabyte disks (preferably with a backup disk
+in a RAID-1 array), or use something like "mhddfs" to group several disks
+into one large volume.
 
 Note that you should not copy any non-VDR files into the video directory,
 since this might cause a lot of unnecessary disk access when VDR cleans up those
@@ -416,8 +391,9 @@ access your DiSEqC equipment (see man vdr(5) for details).
 A special form of DiSEqC is used to connect several receivers to one signal
 source using only a single cable. This method, known as "Satellite Channel Routing"
 according to EN50494 (aka "Unicable(TM)", "OLT(TM)", "SatCR", "Single Cable
-Distribution", "Channel Stacking System" or "Single Cable Interface") uses
-the file "scr.conf" to specify which SCR channels use which user band frequency.
+Distribution", "Channel Stacking System" or "Single Cable Interface") or
+EN50607 (aka "JESS") uses the file "scr.conf" to specify which SCR channels
+use which user band frequency.
 
 If DVB-S devices need to be connected to the same satellite cable, but no
 "Satellite Channel Routing" is available, they can be set to be "bonded" in
@@ -468,19 +444,17 @@ for a detailed description).
 
 The recommended PC key assignments are:
 
-  Up, Down, Left, Right     Crsr keys in numeric block
-  Menu                      'Home' in numeric block
+  Up, Down, Left, Right     Cursor keys
+  Menu                      'Home'
   Ok                        'Enter'
-  Back                      'End' in numeric block
+  Back                      'Backspace'
   Red, Green, Yellow, Blue  'F1'..'F4'
-  0..9                      '0'..'9' in top row
-  Power                     'P'
-  Volume+/-                 '+', '-'
-  Mute                      'm'
+  0..9                      '0'..'9'
+  Volume+/-                 'PgUp', 'PgDn'
+  Mute                      'F10'
 
-If you prefer different key assignments, or if the default doesn't work for
-your keyboard, simply delete the file 'remote.conf' and restart 'vdr' to get
-into learning mode.
+If you want to change your key assignments later, simply delete the file
+'remote.conf' and restart 'vdr' to get into learning mode.
 
 Generating source code documentation:
 -------------------------------------

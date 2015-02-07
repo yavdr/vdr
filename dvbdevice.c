@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: dvbdevice.c 2.88.1.4 2013/10/21 09:01:21 kls Exp $
+ * $Id: dvbdevice.c 3.14 2015/01/14 12:09:19 kls Exp $
  */
 
 #include "dvbdevice.h"
@@ -35,6 +35,13 @@ static int DvbApiVersion = 0x0000; // the version of the DVB driver actually in 
 #define SCR_RANDOM_TIMEOUT  500 // ms (add random value up to this when tuning SCR device to avoid lockups)
 
 // --- DVB Parameter Maps ----------------------------------------------------
+
+const tDvbParameterMap PilotValues[] = {
+  {   0, PILOT_OFF,  trNOOP("off") },
+  {   1, PILOT_ON,   trNOOP("on") },
+  { 999, PILOT_AUTO, trNOOP("auto") },
+  {  -1, 0, NULL }
+  };
 
 const tDvbParameterMap InversionValues[] = {
   {   0, INVERSION_OFF,  trNOOP("off") },
@@ -206,6 +213,9 @@ cDvbTransponderParameters::cDvbTransponderParameters(const char *Parameters)
   hierarchy    = HIERARCHY_AUTO;
   rollOff      = ROLLOFF_AUTO;
   streamId     = 0;
+  t2systemId   = 0;
+  sisoMiso     = 0;
+  pilot        = PILOT_AUTO;
   Parse(Parameters);
 }
 
@@ -227,10 +237,13 @@ cString cDvbTransponderParameters::ToString(char Type) const
   ST("   T*")  q += PrintParameter(q, 'G', MapToUser(guard, GuardValues));
   ST("ACST*")  q += PrintParameter(q, 'I', MapToUser(inversion, InversionValues));
   ST("ACST*")  q += PrintParameter(q, 'M', MapToUser(modulation, ModulationValues));
+  ST("  S 2")  q += PrintParameter(q, 'N', MapToUser(pilot, PilotValues));
   ST("  S 2")  q += PrintParameter(q, 'O', MapToUser(rollOff, RollOffValues));
   ST("  ST2")  q += PrintParameter(q, 'P', streamId);
+  ST("   T2")  q += PrintParameter(q, 'Q', t2systemId);
   ST("  ST*")  q += PrintParameter(q, 'S', MapToUser(system, SystemValuesSat)); // we only need the numerical value, so Sat or Terr doesn't matter
   ST("   T*")  q += PrintParameter(q, 'T', MapToUser(transmission, TransmissionValues));
+  ST("   T2")  q += PrintParameter(q, 'X', sisoMiso);
   ST("   T*")  q += PrintParameter(q, 'Y', MapToUser(hierarchy, HierarchyValues));
   return buffer;
 }
@@ -263,12 +276,15 @@ bool cDvbTransponderParameters::Parse(const char *s)
           case 'I': s = ParseParameter(s, inversion, InversionValues); break;
           case 'L': polarization = 'L'; s++; break;
           case 'M': s = ParseParameter(s, modulation, ModulationValues); break;
+          case 'N': s = ParseParameter(s, pilot, PilotValues); break;
           case 'O': s = ParseParameter(s, rollOff, RollOffValues); break;
           case 'P': s = ParseParameter(s, streamId); break;
+          case 'Q': s = ParseParameter(s, t2systemId); break;
           case 'R': polarization = 'R'; s++; break;
           case 'S': s = ParseParameter(s, system, SystemValuesSat); break; // we only need the numerical value, so Sat or Terr doesn't matter
           case 'T': s = ParseParameter(s, transmission, TransmissionValues); break;
           case 'V': polarization = 'V'; s++; break;
+          case 'X': s = ParseParameter(s, sisoMiso); break;
           case 'Y': s = ParseParameter(s, hierarchy, HierarchyValues); break;
           default: esyslog("ERROR: unknown parameter key '%c'", *s);
                    return false;
@@ -284,7 +300,7 @@ bool cDvbTransponderParameters::Parse(const char *s)
 class cDvbTuner : public cThread {
 private:
   static cMutex bondMutex;
-  enum eTunerStatus { tsIdle, tsSet, tsTuned, tsLocked };
+  enum eTunerStatus { tsIdle, tsSet, tsPositioning, tsTuned, tsLocked };
   int frontendType;
   const cDvbDevice *device;
   int fd_frontend;
@@ -295,6 +311,9 @@ private:
   time_t lastTimeoutReport;
   cChannel channel;
   const cDiseqc *lastDiseqc;
+  int diseqcOffset;
+  int lastSource;
+  cPositioner *positioner;
   const cScr *scr;
   bool lnbPowerTurnedOn;
   eTunerStatus tunerStatus;
@@ -309,6 +328,7 @@ private:
   bool IsBondedMaster(void) const { return !bondedTuner || bondedMaster; }
   void ClearEventQueue(void) const;
   bool GetFrontendStatus(fe_status_t &Status) const;
+  cPositioner *GetPositioner(void);
   void ExecuteDiseqc(const cDiseqc *Diseqc, unsigned int *Frequency);
   void ResetToneAndVoltage(void);
   bool SetFrontend(void);
@@ -325,6 +345,7 @@ public:
   bool IsTunedTo(const cChannel *Channel) const;
   void SetChannel(const cChannel *Channel);
   bool Locked(int TimeoutMs = 0);
+  const cPositioner *Positioner(void) const { return positioner; }
   int GetSignalStrength(void) const;
   int GetSignalQuality(void) const;
   };
@@ -343,12 +364,15 @@ cDvbTuner::cDvbTuner(const cDvbDevice *Device, int Fd_Frontend, int Adapter, int
   lockTimeout = 0;
   lastTimeoutReport = 0;
   lastDiseqc = NULL;
+  diseqcOffset = 0;
+  lastSource = 0;
+  positioner = NULL;
   scr = NULL;
   lnbPowerTurnedOn = false;
   tunerStatus = tsIdle;
   bondedTuner = NULL;
   bondedMaster = false;
-  SetDescription("tuner on frontend %d/%d", adapter, frontend);
+  SetDescription("frontend %d/%d tuner", adapter, frontend);
   Start();
 }
 
@@ -482,6 +506,7 @@ void cDvbTuner::SetChannel(const cChannel *Channel)
      cMutexLock MutexLock(&mutex);
      if (!IsTunedTo(Channel))
         tunerStatus = tsSet;
+     diseqcOffset = 0;
      channel = *Channel;
      lastTimeoutReport = 0;
      newSet.Broadcast();
@@ -662,6 +687,15 @@ static unsigned int FrequencyToHz(unsigned int f)
   return f;
 }
 
+cPositioner *cDvbTuner::GetPositioner(void)
+{
+  if (!positioner) {
+     positioner = cPositioner::GetPositioner();
+     positioner->SetFrontend(fd_frontend);
+     }
+  return positioner;
+}
+
 void cDvbTuner::ExecuteDiseqc(const cDiseqc *Diseqc, unsigned int *Frequency)
 {
   if (!lnbPowerTurnedOn) {
@@ -673,23 +707,47 @@ void cDvbTuner::ExecuteDiseqc(const cDiseqc *Diseqc, unsigned int *Frequency)
      Mutex.Lock();
   struct dvb_diseqc_master_cmd cmd;
   const char *CurrentAction = NULL;
-  for (;;) {
+  cPositioner *Positioner = NULL;
+  bool Break = false;
+  for (int i = 0; !Break; i++) {
       cmd.msg_len = sizeof(cmd.msg);
       cDiseqc::eDiseqcActions da = Diseqc->Execute(&CurrentAction, cmd.msg, &cmd.msg_len, scr, Frequency);
-      if (da == cDiseqc::daNone)
+      if (da == cDiseqc::daNone) {
+         diseqcOffset = 0;
          break;
+         }
+      bool d = i >= diseqcOffset;
       switch (da) {
-        case cDiseqc::daToneOff:   CHECK(ioctl(fd_frontend, FE_SET_TONE, SEC_TONE_OFF)); break;
-        case cDiseqc::daToneOn:    CHECK(ioctl(fd_frontend, FE_SET_TONE, SEC_TONE_ON)); break;
-        case cDiseqc::daVoltage13: CHECK(ioctl(fd_frontend, FE_SET_VOLTAGE, SEC_VOLTAGE_13)); break;
-        case cDiseqc::daVoltage18: CHECK(ioctl(fd_frontend, FE_SET_VOLTAGE, SEC_VOLTAGE_18)); break;
-        case cDiseqc::daMiniA:     CHECK(ioctl(fd_frontend, FE_DISEQC_SEND_BURST, SEC_MINI_A)); break;
-        case cDiseqc::daMiniB:     CHECK(ioctl(fd_frontend, FE_DISEQC_SEND_BURST, SEC_MINI_B)); break;
-        case cDiseqc::daCodes:     CHECK(ioctl(fd_frontend, FE_DISEQC_SEND_MASTER_CMD, &cmd)); break;
+        case cDiseqc::daToneOff:   if (d) CHECK(ioctl(fd_frontend, FE_SET_TONE, SEC_TONE_OFF)); break;
+        case cDiseqc::daToneOn:    if (d) CHECK(ioctl(fd_frontend, FE_SET_TONE, SEC_TONE_ON)); break;
+        case cDiseqc::daVoltage13: if (d) CHECK(ioctl(fd_frontend, FE_SET_VOLTAGE, SEC_VOLTAGE_13)); break;
+        case cDiseqc::daVoltage18: if (d) CHECK(ioctl(fd_frontend, FE_SET_VOLTAGE, SEC_VOLTAGE_18)); break;
+        case cDiseqc::daMiniA:     if (d) CHECK(ioctl(fd_frontend, FE_DISEQC_SEND_BURST, SEC_MINI_A)); break;
+        case cDiseqc::daMiniB:     if (d) CHECK(ioctl(fd_frontend, FE_DISEQC_SEND_BURST, SEC_MINI_B)); break;
+        case cDiseqc::daCodes:     if (d) CHECK(ioctl(fd_frontend, FE_DISEQC_SEND_MASTER_CMD, &cmd)); break;
+        case cDiseqc::daPositionN: if ((Positioner = GetPositioner()) != NULL) {
+                                      if (d) {
+                                         Positioner->GotoPosition(Diseqc->Position(), cSource::Position(channel.Source()));
+                                         Break = Positioner->IsMoving();
+                                         }
+                                      }
+                                   break;
+        case cDiseqc::daPositionA: if ((Positioner = GetPositioner()) != NULL) {
+                                      if (d) {
+                                         Positioner->GotoAngle(cSource::Position(channel.Source()));
+                                         Break = Positioner->IsMoving();
+                                         }
+                                      }
+                                   break;
+        case cDiseqc::daScr:
+        case cDiseqc::daWait:      break;
         default: esyslog("ERROR: unknown diseqc command %d", da);
         }
+      if (Break)
+         diseqcOffset = i + 1;
       }
-  if (scr)
+  positioner = Positioner;
+  if (scr && !Break)
      ResetToneAndVoltage(); // makes sure we don't block the bus!
   if (Diseqc->IsScr())
      Mutex.Unlock();
@@ -713,7 +771,7 @@ static int GetRequiredDeliverySystem(const cChannel *Channel, const cDvbTranspon
   else if (Channel->IsTerr())
      ds = Dtp->System() == DVB_SYSTEM_1 ? SYS_DVBT : SYS_DVBT2;
   else
-     esyslog("ERROR: can't determine frontend type for channel %d", Channel->Number());
+     esyslog("ERROR: can't determine frontend type for channel %d (%s)", Channel->Number(), Channel->Name());
   return ds;
 }
 
@@ -752,7 +810,7 @@ bool cDvbTuner::SetFrontend(void)
      if (Setup.DiSEqC) {
         if (const cDiseqc *diseqc = Diseqcs.Get(device->CardIndex() + 1, channel.Source(), frequency, dtp.Polarization(), &scr)) {
            frequency -= diseqc->Lof();
-           if (diseqc != lastDiseqc || diseqc->IsScr()) {
+           if (diseqc != lastDiseqc || diseqc->IsScr() || diseqc->Position() >= 0 && channel.Source() != lastSource) {
               if (IsBondedMaster()) {
                  ExecuteDiseqc(diseqc, &frequency);
                  if (frequency == 0)
@@ -761,10 +819,11 @@ bool cDvbTuner::SetFrontend(void)
               else
                  ResetToneAndVoltage();
               lastDiseqc = diseqc;
+              lastSource = channel.Source();
               }
            }
         else {
-           esyslog("ERROR: no DiSEqC parameters found for channel %d", channel.Number());
+           esyslog("ERROR: no DiSEqC parameters found for channel %d (%s)", channel.Number(), channel.Name());
            return false;
            }
         }
@@ -796,7 +855,7 @@ bool cDvbTuner::SetFrontend(void)
      SETCMD(DTV_INVERSION, dtp.Inversion());
      if (frontendType == SYS_DVBS2) {
         // DVB-S2
-        SETCMD(DTV_PILOT, PILOT_AUTO);
+        SETCMD(DTV_PILOT, dtp.Pilot());
         SETCMD(DTV_ROLLOFF, dtp.RollOff());
         if (DvbApiVersion >= 0x0508)
            SETCMD(DTV_STREAM_ID, dtp.StreamId());
@@ -877,33 +936,50 @@ void cDvbTuner::Action(void)
         int WaitTime = 1000;
         switch (tunerStatus) {
           case tsIdle:
-               break;
+               break; // we want the TimedWait() below!
           case tsSet:
-               tunerStatus = SetFrontend() ? tsTuned : tsIdle;
-               Timer.Set(tuneTimeout + (scr ? rand() % SCR_RANDOM_TIMEOUT : 0));
+               tunerStatus = SetFrontend() ? tsPositioning : tsIdle;
                continue;
+          case tsPositioning:
+               if (positioner) {
+                  if (positioner->IsMoving())
+                     break; // we want the TimedWait() below!
+                  else if (diseqcOffset) {
+                     lastDiseqc = NULL;
+                     tunerStatus = tsSet; // have it process the rest of the DiSEqC sequence
+                     continue;
+                     }
+                  }
+               tunerStatus = tsTuned;
+               Timer.Set(tuneTimeout + (scr ? rand() % SCR_RANDOM_TIMEOUT : 0));
+               if (positioner)
+                  continue;
+               // otherwise run directly into tsTuned...
           case tsTuned:
                if (Timer.TimedOut()) {
                   tunerStatus = tsSet;
                   lastDiseqc = NULL;
+                  lastSource = 0;
                   if (time(NULL) - lastTimeoutReport > 60) { // let's not get too many of these
-                     isyslog("frontend %d/%d timed out while tuning to channel %d, tp %d", adapter, frontend, channel.Number(), channel.Transponder());
+                     isyslog("frontend %d/%d timed out while tuning to channel %d (%s), tp %d", adapter, frontend, channel.Number(), channel.Name(), channel.Transponder());
                      lastTimeoutReport = time(NULL);
                      }
                   continue;
                   }
                WaitTime = 100; // allows for a quick change from tsTuned to tsLocked
+               // run into tsLocked...
           case tsLocked:
                if (Status & FE_REINIT) {
                   tunerStatus = tsSet;
                   lastDiseqc = NULL;
+                  lastSource = 0;
                   isyslog("frontend %d/%d was reinitialized", adapter, frontend);
                   lastTimeoutReport = 0;
                   continue;
                   }
                else if (Status & FE_HAS_LOCK) {
                   if (LostLock) {
-                     isyslog("frontend %d/%d regained lock on channel %d, tp %d", adapter, frontend, channel.Number(), channel.Transponder());
+                     isyslog("frontend %d/%d regained lock on channel %d (%s), tp %d", adapter, frontend, channel.Number(), channel.Name(), channel.Transponder());
                      LostLock = false;
                      }
                   tunerStatus = tsLocked;
@@ -912,7 +988,7 @@ void cDvbTuner::Action(void)
                   }
                else if (tunerStatus == tsLocked) {
                   LostLock = true;
-                  isyslog("frontend %d/%d lost lock on channel %d, tp %d", adapter, frontend, channel.Number(), channel.Transponder());
+                  isyslog("frontend %d/%d lost lock on channel %d (%s), tp %d", adapter, frontend, channel.Number(), channel.Name(), channel.Transponder());
                   tunerStatus = tsTuned;
                   Timer.Set(lockTimeout);
                   lastTimeoutReport = 0;
@@ -978,6 +1054,9 @@ cOsdItem *cDvbSourceParam::GetOsdItem(void)
     case 10: ST("   T")  return new cMenuEditMapItem( tr("Hierarchy"),    &dtp.hierarchy,    HierarchyValues);    else return GetOsdItem();
     case 11: ST("  S ")  return new cMenuEditMapItem( tr("Rolloff"),      &dtp.rollOff,      RollOffValues);      else return GetOsdItem();
     case 12: ST("  ST")  return new cMenuEditIntItem( tr("StreamId"),     &dtp.streamId,     0, 255);             else return GetOsdItem();
+    case 13: ST("  S ")  return new cMenuEditMapItem( tr("Pilot"),        &dtp.pilot,        PilotValues);        else return GetOsdItem();
+    case 14: ST("   T")  return new cMenuEditIntItem( tr("T2SystemId"),   &dtp.t2systemId,   0, 65535);           else return GetOsdItem();
+    case 15: ST("   T")  return new cMenuEditIntItem( tr("SISO/MISO"),    &dtp.sisoMiso,     0, 1);               else return GetOsdItem();
     default: return NULL;
     }
   return NULL;
@@ -1144,8 +1223,8 @@ bool cDvbDevice::Initialize(void)
               }
            }
      }
-  int Checked = 0;
   int Found = 0;
+  int Used = 0;
   if (Nodes.Size() > 0) {
      Nodes.Sort();
      for (int i = 0; i < Nodes.Size(); i++) {
@@ -1153,10 +1232,11 @@ bool cDvbDevice::Initialize(void)
          int Frontend;
          if (2 == sscanf(Nodes[i], "%d %d", &Adapter, &Frontend)) {
             if (Exists(Adapter, Frontend)) {
-               if (Checked++ < MAXDVBDEVICES) {
+               if (Found < MAXDEVICES) {
+                  Found++;
                   if (UseDevice(NextCardIndex())) {
                      if (Probe(Adapter, Frontend))
-                        Found++;
+                        Used++;
                      }
                   else
                      NextCardIndex(1); // skips this one
@@ -1165,9 +1245,11 @@ bool cDvbDevice::Initialize(void)
             }
          }
      }
-  NextCardIndex(MAXDVBDEVICES - Checked); // skips the rest
-  if (Found > 0)
+  if (Found > 0) {
      isyslog("found %d DVB device%s", Found, Found > 1 ? "s" : "");
+     if (Used != Found)
+        isyslog("using only %d DVB device%s", Used, Used > 1 ? "s" : "");
+     }
   else
      isyslog("no DVB device found");
   return Found > 0;
@@ -1255,13 +1337,6 @@ bool cDvbDevice::QueryDeliverySystems(int fd_frontend)
   else
      esyslog("ERROR: frontend %d/%d doesn't provide any delivery systems", adapter, frontend);
   return false;
-}
-
-bool cDvbDevice::Ready(void)
-{
-  if (ciAdapter)
-     return ciAdapter->Ready();
-  return true;
 }
 
 bool cDvbDevice::BondDevices(const char *Bondings)
@@ -1357,7 +1432,7 @@ void cDvbDevice::UnBond(void)
 bool cDvbDevice::BondingOk(const cChannel *Channel, bool ConsiderOccupied) const
 {
   cMutexLock MutexLock(&bondMutex);
-  if (bondedDevice)
+  if (bondedDevice || Positioner())
      return dvbTuner && dvbTuner->BondingOk(Channel, ConsiderOccupied);
   return true;
 }
@@ -1539,6 +1614,11 @@ int cDvbDevice::NumProvidedSystems(void) const
   return numDeliverySystems + numModulations;
 }
 
+const cPositioner *cDvbDevice::Positioner(void) const
+{
+  return dvbTuner ? dvbTuner->Positioner() : NULL;
+}
+
 int cDvbDevice::SignalStrength(void) const
 {
   return dvbTuner ? dvbTuner->GetSignalStrength() : -1;
@@ -1603,6 +1683,17 @@ void cDvbDevice::CloseDvr(void)
 bool cDvbDevice::GetTSPacket(uchar *&Data)
 {
   if (tsBuffer) {
+     if (cCamSlot *cs = CamSlot()) {
+        if (cs->WantsTsData()) {
+           int Available;
+           Data = tsBuffer->Get(&Available);
+           if (Data) {
+              Data = cs->Decrypt(Data, Available);
+              tsBuffer->Skip(Available);
+              }
+           return true;
+           }
+        }
      Data = tsBuffer->Get();
      return true;
      }
@@ -1660,11 +1751,27 @@ uint32_t cDvbDeviceProbe::GetSubsystemId(int Adapter, int Frontend)
                                 SubsystemId = strtoul(s, NULL, 0) << 16;
                              fclose(f);
                              }
+                          else {
+                             FileName = cString::sprintf("/sys/class/dvb/%s/device/idVendor", e->d_name);
+                             if ((f = fopen(FileName, "r")) != NULL) {
+                                if (char *s = ReadLine.Read(f))
+                                   SubsystemId = strtoul(s, NULL, 16) << 16;
+                                fclose(f);
+                                }
+                             }
                           FileName = cString::sprintf("/sys/class/dvb/%s/device/subsystem_device", e->d_name);
                           if ((f = fopen(FileName, "r")) != NULL) {
                              if (char *s = ReadLine.Read(f))
                                 SubsystemId |= strtoul(s, NULL, 0);
                              fclose(f);
+                             }
+                          else {
+                             FileName = cString::sprintf("/sys/class/dvb/%s/device/idProduct", e->d_name);
+                             if ((f = fopen(FileName, "r")) != NULL) {
+                                if (char *s = ReadLine.Read(f))
+                                   SubsystemId |= strtoul(s, NULL, 16);
+                                fclose(f);
+                                }
                              }
                           break;
                           }

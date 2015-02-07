@@ -6,7 +6,7 @@
  *
  * BiDi support by Osama Alrawab <alrawab@hotmail.com> @2008 Tripoli-Libya.
  *
- * $Id: font.c 2.13.1.2 2014/01/25 14:25:29 kls Exp $
+ * $Id: font.c 3.2 2014/01/07 12:19:45 kls Exp $
  */
 
 #include "font.h"

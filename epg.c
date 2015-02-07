@@ -7,7 +7,7 @@
  * Original version (as used in VDR before 1.3.0) written by
  * Robert Schneider <Robert.Schneider@web.de> and Rolf Hakenes <hakenes@hippomi.de>.
  *
- * $Id: epg.c 2.23.1.1 2013/09/01 09:16:53 kls Exp $
+ * $Id: epg.c 3.3 2013/12/28 11:33:08 kls Exp $
  */
 
 #include "epg.h"
@@ -32,7 +32,7 @@ cString tComponent::ToString(void)
 bool tComponent::FromString(const char *s)
 {
   unsigned int Stream, Type;
-  int n = sscanf(s, "%X %02X %7s %a[^\n]", &Stream, &Type, language, &description); // 7 = MAXLANGCODE2 - 1
+  int n = sscanf(s, "%X %02X %7s %m[^\n]", &Stream, &Type, language, &description); // 7 = MAXLANGCODE2 - 1
   if (n != 4 || isempty(description)) {
      free(description);
      description = NULL;
@@ -1539,4 +1539,20 @@ void cEpgHandlers::DropOutdated(cSchedule *Schedule, time_t SegmentStart, time_t
          return;
       }
   Schedule->DropOutdated(SegmentStart, SegmentEnd, TableID, Version);
+}
+
+void cEpgHandlers::BeginSegmentTransfer(const cChannel *Channel, bool OnlyRunningStatus)
+{
+  for (cEpgHandler *eh = First(); eh; eh = Next(eh)) {
+      if (eh->BeginSegmentTransfer(Channel, OnlyRunningStatus))
+         return;
+      }
+}
+
+void cEpgHandlers::EndSegmentTransfer(bool Modified, bool OnlyRunningStatus)
+{
+  for (cEpgHandler *eh = First(); eh; eh = Next(eh)) {
+      if (eh->EndSegmentTransfer(Modified, OnlyRunningStatus))
+         return;
+      }
 }

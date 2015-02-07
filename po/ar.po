@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: VDR 2.0.0\n"
 "Report-Msgid-Bugs-To: <vdr-bugs@tvdr.de>\n"
-"POT-Creation-Date: 2013-02-03 16:46+0100\n"
+"POT-Creation-Date: 2015-01-30 13:14+0100\n"
 "PO-Revision-Date: 2008-10-16 11:16-0400\n"
 "Last-Translator: Osama Alrawab <alrawab@hotmail.com>\n"
 "Language-Team: Arabic <ar@li.org>\n"
@@ -22,6 +22,9 @@ msgstr ""
 
 msgid "*** Invalid Channel ***"
 msgstr "*** قناة خاطئة ***"
+
+msgid "CAM activated!"
+msgstr ""
 
 msgid "Channel not available!"
 msgstr "القناة غير متاحة"
@@ -79,6 +82,15 @@ msgstr "Rolloff"
 
 msgid "StreamId"
 msgstr "StreamId"
+
+msgid "Pilot"
+msgstr ""
+
+msgid "T2SystemId"
+msgstr ""
+
+msgid "SISO/MISO"
+msgstr ""
 
 msgid "Starting EPG scan"
 msgstr "EPG ا لبدء بالبحث على دليل القنوات الالكترونى "
@@ -567,6 +579,12 @@ msgstr "الكامة"
 msgid "Sid"
 msgstr "Sid"
 
+msgid "Nid"
+msgstr ""
+
+msgid "Tid"
+msgstr ""
+
 msgid "Channel settings are not unique!"
 msgstr "اعدادات القناة غبر موحد"
 
@@ -607,8 +625,8 @@ msgstr "المجلد موجود بالفعل"
 msgid "Folder name must not contain '%c'!"
 msgstr "'%c'! اسم المجلد لا يجب ان يحتوى على"
 
-msgid "Button$Select"
-msgstr "الزر"
+msgid "Button$Open"
+msgstr "افتح"
 
 msgid "Delete folder and all sub folders?"
 msgstr "حذف المجلد وكل المجلدات الفرعية"
@@ -727,6 +745,73 @@ msgstr "الرجاء ادخال %d رقم!"
 msgid "CAM not responding!"
 msgstr "الكامة لا تستجيب"
 
+msgid "Edit path"
+msgstr ""
+
+msgid "Folder"
+msgstr ""
+
+msgid "This folder is currently in use - no changes are possible!"
+msgstr ""
+
+#, c-format
+msgid "Move entire folder containing %d recordings?"
+msgstr ""
+
+msgid "Error while moving folder!"
+msgstr ""
+
+msgid "Edit recording"
+msgstr ""
+
+msgid "This recording is currently in use - no changes are possible!"
+msgstr ""
+
+msgid "Button$Cancel cutting"
+msgstr ""
+
+msgid "Button$Stop cutting"
+msgstr ""
+
+msgid "Button$Cancel moving"
+msgstr ""
+
+msgid "Button$Stop moving"
+msgstr ""
+
+msgid "Button$Cancel copying"
+msgstr ""
+
+msgid "Button$Stop copying"
+msgstr ""
+
+msgid "Button$Cut"
+msgstr ""
+
+msgid "Button$Delete marks"
+msgstr ""
+
+msgid "Recording vanished!"
+msgstr ""
+
+msgid "Edited version already exists - overwrite?"
+msgstr ""
+
+msgid "Error while queueing recording for cutting!"
+msgstr ""
+
+msgid "Delete editing marks for this recording?"
+msgstr ""
+
+msgid "Error while deleting editing marks!"
+msgstr ""
+
+msgid "Error while changing priority/lifetime!"
+msgstr ""
+
+msgid "Error while changing folder/name!"
+msgstr ""
+
 msgid "Recording info"
 msgstr "معلومات التسجبل"
 
@@ -738,9 +823,6 @@ msgstr "اعادة"
 
 msgid "Recordings"
 msgstr "التسجيلات"
-
-msgid "Button$Open"
-msgstr "افتح"
 
 msgid "Commands"
 msgstr "الاوامر"
@@ -997,6 +1079,33 @@ msgstr "Device %d connected to sat cable"
 msgid "Setup.LNB$own"
 msgstr "own"
 
+msgid "Setup.LNB$Use dish positioner"
+msgstr ""
+
+msgid "Setup.LNB$Site latitude (degrees)"
+msgstr ""
+
+msgid "South"
+msgstr ""
+
+msgid "North"
+msgstr ""
+
+msgid "Setup.LNB$Site longitude (degrees)"
+msgstr ""
+
+msgid "West"
+msgstr ""
+
+msgid "East"
+msgstr ""
+
+msgid "Setup.LNB$Max. positioner swing (degrees)"
+msgstr ""
+
+msgid "Setup.LNB$Positioner speed (degrees/s)"
+msgstr ""
+
 msgid "CAM reset"
 msgstr "اعادة تشغيل الكامة"
 
@@ -1006,8 +1115,18 @@ msgstr "الكامة موجودة"
 msgid "CAM ready"
 msgstr "الكامة جاهزة"
 
+#. TRANSLATORS: note the leading blank!
+msgid " (activating)"
+msgstr ""
+
 msgid "CAM"
 msgstr "الكامة "
+
+msgid "Button$Cancel activation"
+msgstr ""
+
+msgid "Button$Activate"
+msgstr ""
 
 msgid "Button$Menu"
 msgstr "القائمة"
@@ -1020,6 +1139,9 @@ msgstr "فتح قائمة الكامة"
 
 msgid "Can't open CAM menu!"
 msgstr "تعذر فتح قائمة الكامة"
+
+msgid "Can't activate CAM!"
+msgstr ""
 
 msgid "CAM is in use - really reset?"
 msgstr "الكامة مستخدمة الان هل تريد اعادة تشغيلها"
@@ -1114,6 +1236,21 @@ msgstr "Progress display time (s)"
 msgid "Setup.Replay$Pause replay when setting mark"
 msgstr "Pause replay when setting mark"
 
+msgid "Setup.Replay$Pause replay when jumping to a mark"
+msgstr ""
+
+msgid "Setup.Replay$Skip edited parts"
+msgstr ""
+
+msgid "Setup.Replay$Pause replay at last mark"
+msgstr ""
+
+msgid "Setup.Replay$Binary skip initial value (s)"
+msgstr ""
+
+msgid "Setup.Replay$Binary skip timeout (s)"
+msgstr ""
+
 msgid "Setup.Replay$Resume ID"
 msgstr "رقم المواصلة"
 
@@ -1149,6 +1286,12 @@ msgstr "كسابق"
 
 msgid "Setup.Miscellaneous$Initial volume"
 msgstr "فعل الصوت"
+
+msgid "Setup.Miscellaneous$Volume steps"
+msgstr ""
+
+msgid "Setup.Miscellaneous$Volume linearize"
+msgstr ""
 
 msgid "Setup.Miscellaneous$Channels wrap"
 msgstr "Channels wrap"
@@ -1333,6 +1476,10 @@ msgstr "بث حى"
 
 msgid "PLAY"
 msgstr "عرض"
+
+#, c-format
+msgid "Moving dish to %.1f..."
+msgstr ""
 
 msgid "ST:TNG Panels"
 msgstr "ST:TNG شاشة "

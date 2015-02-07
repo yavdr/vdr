@@ -7144,7 +7144,7 @@ Video Disk Recorder Revision History
   Christian Richter).
 - Added DeleteEvent() to the EPG handler interface, so that an EPG handler can trigger
   deleting of an event (thanks to Christian Kaiser).
-- Speeded up opening menus on systems with many (several thousands) of recordings, by
+- Speeded up opening menus on systems with many (several thousands of) recordings, by
   caching the information whether a recording is stored on the video directory file
   system within the cRecording data (based on a patch from Torsten Lang).
 
@@ -7782,7 +7782,7 @@ Video Disk Recorder Revision History
 - Bumped all version numbers to 2.0.0.
 - Official release.
 
-2013-04-13: Version 2.0.1
+2013-04-11: Version 2.0.1
 
 - Fixed initializing cDevice::keepTracks.
 - Fixed an endless loop in cTextWrapper::Set() in case the given Width is smaller than
@@ -7805,13 +7805,101 @@ Video Disk Recorder Revision History
 - Fixed displaying the frame number when setting an editing mark (thanks to Thomas
   Günther).
 - Fixed no longer generating any editing marks if the edited recording results in just
-  one single sequence.
+  one single sequence (reported by Halim Sahin).
 - Fixed an error message when parsing SCR values in diseqc.conf.
 - Fixed an unexpected RCS version tag in the newplugin script.
 - Fixed an endless loop in the DrawEllipse() functions for very small ellipses (reported
   by Stefan Braun).
 - Fixed a crash in the LCARS skin's main menu in case there is no current channel
   (reported by Dominique Dumont).
+
+2013-08-25: Version 2.1.1
+
+- Fixed initializing cDevice::keepTracks.
+- Fixed an endless loop in cTextWrapper::Set() in case the given Width is smaller than
+  one character (reported by Stefan Braun).
+- Removed all "modified since version 1.6" markers from PLUGINS.html.
+- Added definitions for older DVB API versions, back until 5.0 (based on a patch from
+  Udo Richter).
+- Changed cThread::SetIOPriority() from "best effort class" to "idle class" in order to
+  improve overall performance when an editing process is running (thanks to Jochen
+  Dolze).
+- Fixed handling '/' and '~' in recording file names in case DirectoryEncoding is
+  used (thanks to Lars Hanisch).
+- Changed the sign of the satellite position value in cSource to reflect the standard
+  of western values being negative. The new member function cSource::Position() can be
+  used to retrieve the orbital position of a satellite.
+- Fixed multiple occurrences of the same directory in the recordings list in case there
+  are directories that only differ in non-alphanumeric characters (was broken by
+  "Fixed selecting the last replayed recording in the Recordings menu in case there
+  are folders and plain recordings with names that differ only in non-alphanumeric
+  characters" in version 1.7.36).
+- Fixed displaying the frame number when setting an editing mark (thanks to Thomas
+  Günther).
+- Fixed no longer generating any editing marks if the edited recording results in just
+  one single sequence (reported by Halim Sahin).
+- Fixed an error message when parsing SCR values in diseqc.conf.
+- Fixed an unexpected RCS version tag in the newplugin script.
+- Fixed an endless loop in the DrawEllipse() functions for very small ellipses (reported
+  by Stefan Braun).
+- Fixed a crash in the LCARS skin's main menu in case there is no current channel
+  (reported by Dominique Dumont).
+- Added basic support for positioners to control steerable satellite dishes (based on
+  a patch from Seppo Ingalsuo and Ales Jurik, which in turn used code from Thomas
+  Bergwinkl's Rotor plugin).
+  + Supports GotoN (aka "DiSEqC 1.2") and GotoX (aka "USALS").
+  + The new DiSEqC command code 'P' can be used to instruct a positioner to move the
+    dish to the required satellite position. When a 'P' code is processed, further
+    execution of the remaining DiSEqC sequence (if any) is postponed until the positioner
+    has reached the new satellite position.
+  + The new special source value of "S360E" can be used in diseqc.conf to indicate that
+    an entry using a positioner can move the dish to any requested position within its
+    range. Think of it as "full circle".
+  + The devices a particular cDiseqc or cScr applies to are now stored directly in each
+    cDiseqc or cScr, respectively.
+  + A plugin can implement a custom positioner control (see PLUGINS.html, section "Positioners").
+  + The new function cSkinDisplayChannel::SetPositioner() can be implemented by skins to
+    show the user a progress display when the dish is being moved. The default implementation
+    calls SetMessage() with a string indicating the new position the dish is being moved to.
+    The LCARS skin shows a progress bar indicating the movement of the dish.
+  + The new parameters "Site latitude", "Site longitude", "Positioner speed", and
+    "Positioner swing" in the "Setup/LNB" menu can be used to configure the necessary
+    values for a steerable dish.
+  + The cDvbTuner now has a new status tsPositioning, in which it waits until a steerable
+    dish has reached its target position. Parsing SI data is paused until the target
+    position has been reached.
+- The LCARS skin now shows the source value of the current channel in its channel display.
+- Fixed asserting free disk space in the cutter.
+- No longer trying to delete old recordings in AssertFreeDiskSpace() if the given
+  Priority is less than 1.
+- Fixed handling LIRC events in case repeated events are lost.
+- Fixed a possible crash when shutting down VDR while subtitles are being displayed
+  (reported by Ville Skyttä).
+- cDevice::IsPrimaryDevice() now also checks whether the primary device actually has
+  a decoder and returns false otherwise. This should improve device allocation on
+  systems that are only used as a receiver and don't actually display anything.
+- Increased the value of MAXRETRIES to 20 to reduce the probability of disturbances
+  in transfer mode.
+- All bonded devices (except for the master) now turn off their LNB power completely
+  to avoid problems when receiving vertically polarized transponders (suggested by
+  Manfred Völkel and Oliver Endriss).
+- Reverted the change from version 1.5.7 that made all logging go to LOG_ERR (thanks
+  to Christopher Reimer).
+- Added Begin/EndSegmentTransfer() to the EPG handler interface (thanks to Jörg Wendel).
+- The code for distributing recordings over several video directories is now
+  deprecated and disabled by default.
+  You can re-enable this feature by removing the comment sign ('//') from the beginning
+  of the line
+  //#define DEPRECATED_DISTRIBUTED_VIDEODIR // Code enclosed with this macro is ...
+  in the file videodir.c. Note, though, that this can only be a temporary workaround.
+  This feature will be completely removed in one of the next developer versions.
+  Distributing the video directory over several disks was a useful feature in times
+  when disks were still relatively small, but it also caused serious problems in case
+  one of the disks failed. Nowadays hard disks come in sizes measured in terabytes,
+  and tools like "mhddfs" can be used to combine several disks to form one large volume.
+  A recommended method for a relatively safe disk setup in a VDR system is to use two
+  1TB (or larger) disks and use them as a RAID-1 (mirrored). That way, if one disk
+  fails, you can replace it without data loss.
 
 2013-09-01: Version 2.0.3
 
@@ -7831,6 +7919,96 @@ Video Disk Recorder Revision History
   Manfred Völkel and Oliver Endriss).
 - Fixed cleaning up old EPG events in case no epg data file is given (reported by
   Dave Pickles).
+
+2013-10-19: Version 2.1.2
+
+- Updated the Finnish OSD texts (thanks to Rolf Ahrenberg).
+- Fixed displaying DVB subtitles (thanks to Rolf Ahrenberg for helping to debug and
+  understand subtitle page refreshes):
+  + Fixed handling DVB subtitle fill region codes for 2 and 8 bpp.
+  + Fixed handling pages without an explicit END_OF_DISPLAY_SET_SEGMENT.
+    The FINISHPAGE_HACK is no longer necessary.
+  + Fixed handling "page refreshes". The data is now parsed and stored closer to the
+    DVB standard specs, introducing "object refs" and "region refs".
+  + The debug output now goes into an HTML file named dbg-log.htm and shows the actual
+    bitmaps (dbg-nnn.jpg) used to display the subtitles. That way it is much easier to
+    see what's actually going on.
+  + Fixed handling subtitles encoded as a string of characters (the very first
+    character was always skipped).
+- Fixed wrong initialization of Setup.PositionerSwing (reported by Arthur Konovalov).
+- Updated the Estonian OSD texts (thanks to Arthur Konovalov).
+- Fixed cleaning up old EPG events in case no epg data file is given (reported by
+  Dave Pickles).
+- Unified the internal sequence of actions when pressing the Blue and the Back key,
+  respectively, during replay (reported by Thomas Maass).
+- The Yellow button in the main menu no longer acts as "Pause" if "Pause key handling"
+  is set to "do not pause live video" (suggested by Ulf Kiener).
+- The code for distributing recordings over several video directories has been
+  removed. VDR now by default assumes that the video directory is one big disk.
+  If you absolutely need to use several separate disks to store recordings, you can
+  write a plugin that uses the new cVideoDirectory API to implement the necessary
+  functionality (see PLUGINS.html, section "The video directory"). You can copy the
+  respective code from previous versions of videodir.c.
+  IMPORTANT NOTE: If you write a plugin that implements a distributed video directory,
+  =============== be sure to make cVideoDirectory::Rename() follow symbolic links!
+                  This functionality was never implemented in VDR and it therefore
+                  used a workaround in cutter.c. See the section marked with
+                  // XXX this can be removed once RenameVideoFile() follows symlinks
+                  in previous versions of cutter.c.
+  + CloseVideoFile() is obsolete and has been removed.
+  + The functions OpenVideoFile(), RenameVideoFile(), RemoveVideoFile(), VideoFileSpaceAvailable(),
+    VideoDiskSpace(), RemoveEmptyVideoDirectories(), IsOnVideoDirectoryFileSystem() and
+    PrefixVideoFileName() are now static members of cVideoDirectory and need to be called
+    with the proper prefix.
+  + The name of the video directory is now available through cVideoDirectory::Name().
+- Added renaming and moving recordings and folders, editing a recording's priority and
+  lifetime, and queueing cutting jobs (inspired by the "extrecmenu" plugin from Martin
+  Prochnow).
+  + The "Recording info" menu now has a new Blue button named "Edit", which opens a
+    dialog in which several properties of the selected recording can be changed. It can
+    be renamed or moved into another folder and its priority and lifetime can be
+    modified (inspired by the "extrecmenu" plugin from Martin Prochnow).
+    The new blue "Edit" button in the "Recordings" menu opens a dialog in which a folder
+    can be renamed or moved. See MANUAL, section "Managing folders".
+  + In the "Edit recording" menu the Yellow button ("Delete marks") allows you to delete
+    all editing marks of the selected recording.
+  + cCutter is no longer a static class. Cutting requests should now be invoked by
+    calling RecordingsHandler.Add(ruCut, FileName). See the new cRecordingsHandler
+    class in recording.h.
+  + Cutting jobs are now placed in a queue (together with any move or copy jobs) and
+    are processed one by one.
+  + The new SVDRP command RENR can be used to rename a recording (suggested by Rolf
+    Ahrenberg).
+  + Note that in several places in the source code a "copy" operation is mentioned,
+    however there is no user interface for this, yet.
+- Changed some variable names in positioner.c to match the names used in the page with
+  the explanation on vdr-portal.de.
+- Updated the Italian OSD texts (thanks to Diego Pierotto).
+- Fixed writing group separators to channels.conf that contain a comma (reported by
+  Eike Edener).
+- Now also checking the source (in addition to the transponder) when setting the
+  system time from the TDT, which avoids problems in case devices are tuned to the
+  same transponder on different sources, and these broadcast different time data
+  (reported by Torsten Lang).
+- Changed cRecorder::Action() to use cTimeMs instead of time() to avoid problems with
+  unjustified "video data stream broken" errors in case the system time is changed
+  while a recording is active (reported by Torsten Lang).
+- Revised the section on "Learning the remote control keys" in the INSTALL file to
+  avoid the impression that there actually is a default remote.conf file, and to
+  not use any alphabetic keys for special functions, so that they remain available
+  for textual input.
+- The function cRecordings::MBperMinute() now only takes into account recordings with
+  less than 5 seconds per megabyte, in an attempt to filter out radio recordings
+  (thanks to Harald Koenig). The result of this function was way off any realistic
+  value in case there are many radio recordings in the video directory.
+- Added maximum signal strength value for TechniSat SkyStar 2 DVB-S rev 2.3P (thanks
+  to Guido Cordaro).
+- Fixed an inconsistent behavior between opening the Recordings menu manually via the
+  main menu and by pressing the Recordings key. In the latter case it automatically
+  opened all sub folders to position the cursor to the last replayed recording, which
+  is unexpected at this point (reported by Helmut Auer). You can still navigate to
+  the last replayed recording (if any) by pressing Ok repeatedly in the Recordings
+  menu.
 
 2013-10-23: Version 2.0.4
 
@@ -7854,6 +8032,90 @@ Video Disk Recorder Revision History
   the last replayed recording (if any) by pressing Ok repeatedly in the Recordings
   menu.
 
+2014-01-05: Version 2.1.3
+
+- Changed the return value of cPositioner::HorizonLongitude() to 0 in case the
+  latitude of the antenna location is beyond +/-81 degrees.
+- Updated the Finnish OSD texts (thanks to Rolf Ahrenberg).
+- Fixed some compiler warnings with gcc-4.6.3 (thanks to Rolf Ahrenberg).
+- Changed the name of the SVDRP command RENR to MOVR (suggested by Rolf Ahrenberg).
+- When cutting a recording it is now checked whether there is already an edited
+  version of this recording (with the same name, but starting with '%'), and the
+  user is prompted for confirmation to overwrite it (suggested by Rolf Ahrenberg).
+- Revoked "Added maximum signal strength value for TechniSat SkyStar 2 DVB-S rev 2.3P"
+  because it broke things for the "TechniSat AirStar 2" DVB-T card.
+- The LIRC remote control now connects to the socket even if it doesn't yet exist when
+  VDR is started (thanks to Lars Hanisch).
+- Changed the absolute latitude limit for visible satellites to 81.2 degrees.
+- Added code for parsing LCN and AVC descriptors to libsi (thanks to Rolf Ahrenberg).
+- In the "Select folder" menu pressing Ok now selects the folder, even if this is a
+  folder that contains sub folders (marked with "..."). To open such a folder you
+  can press the Red key.
+- Fixed a possible access to uninitialized data in cEIT::cEIT() (reported by Dominik
+  Strasser).
+- The new menu category mcRecordingEdit is now used to mark menus that edit recording
+  properties (suggested by Stefan Braun).
+- Changes in the teletext PID no longer cause retuning (and thus interrupting a
+  recording).
+- Removed '_' from the FileNameChars and CharMap translations in uk_UA.po.
+- Updated the Italian OSD texts (thanks to Diego Pierotto).
+- Fixed a missing initialization in the c'tor of cSkinLCARSDisplayChannel (thanks to
+  Marko Mäkelä).
+- Simplified some conditional expressions in skinlcars.c and skinsttng.c (suggested
+  by Marko Mäkelä).
+- Fixed uninitialized item area coordinates in cSkinLCARSDisplayMenu (reported by
+  Marko Mäkelä).
+- Fixed a possible crash if the recordings list is updated externally while the
+  Recordings menu is open (reported by Lars Hanisch).
+- Added a missing closing ')' in the help and man page entry of the --vfat option
+  (reported by Lars Hanisch).
+- Fixed setting the name of the video directory to avoid a crash when using --genindex,
+  and also to use the correct directory with --edit (the latter reported by Marko
+  Mäkelä).
+- The Recordings menu can now be called with a cRecordingFilter, which allows the
+  caller to have it display only a certain subset of the recordings (thanks to Lars
+  Hanisch).
+- Added handling UTF-8 'umlaut' characters to cKbdRemote (thanks to Lars Hanisch).
+- Made it clear that the Data parameter in cDevice::StillPicture() may point to a
+  series of packets, not just a single one (thanks to Thomas Reufer).
+- cDevice::TrickSpeed() now has an additional parameter named Forward, which indicates
+  the direction in which replay is being done (suggested by Thomas Reufer). This
+  information may be necessary for some output devices in order to properly implement
+  trick modes. Authors of plugins that implement output devices will need to add this
+  parameter to their derived cDevice class, regardless of whether they will make use
+  of it or not.
+- Added a note to ePlayMode in device.h that VDR itself always uses pmAudioVideo when
+  replaying a recording (suggested by Thomas Reufer).
+- Fixed some spellings in positioner.h and Doxyfile (thanks to Ville Skyttä).
+- Changed '%a' to the POSIX compliant '%m' in all scanf() calls (thanks to Ville
+  Skyttä).
+- The new function cCamSlot::Decrypt() can be used by derived classes to implement a
+  CAM slot that can be freely assigned to any device, without being directly inserted
+  into the full TS data stream in hardware. A derived class that implements Decrypt()
+  will also need to set the new parameter ReceiveCaPids in the call to the cCamSlot
+  base class constructor to true, in order to receive the CA pid TS packets that
+  contain data necessary for decrypting.
+- Many member functions of cCamSlot have been made virtual to allow for easier
+  implementation of derived classes.
+- cTSBuffer now provides the number of available bytes in its Get() function.
+- cDvbDevice::GetTSPacket() now calls CamSlot()->Decrypt() in order to allow CAM slots
+  that can be freely assigned to any device access to the TS data stream.
+- Added a check to avoid a possible NULL pointer dereference in cCiSession::SendData()
+  (reported by Ville Skyttä).
+- Deleted a superfluous assignment in cPipe::Open() (reported by Ville Skyttä).
+- The script given to VDR with the '-r' option is now also called after the recording
+  process has actually started (thanks to Christian Kaiser).
+- Avoiding unnecessary pkg-config warnings in plugin Makefiles (thanks to Ville Skyttä).
+  Plugin authors may want to apply the following change to their Makefile:
+  -PKGCFG = $(if $(VDRDIR),$(shell pkg-config --variable=$(1) $(VDRDIR)/vdr.pc),$(shell pkg-config --variable=$(1) vdr || pkg-config --variable=$(1) ../../../vdr.pc))
+  +PKGCFG = $(if $(VDRDIR),$(shell pkg-config --variable=$(1) $(VDRDIR)/vdr.pc),$(shell PKG_CONFIG_PATH="$$PKG_CONFIG_PATH:../../.." pkg-config --variable=$(1) vdr))
+- Eliminated MAXDVBDEVICES (suggested by Oliver Endriss).
+- Channels that are no longer contained in the current SDT of a transponder are now
+  marked with the keyword OBSOLETE in their name and provider fields. That way you can
+  identify obsolete channels when you switch to them, and you can get the complete
+  overview of all obsolete channels by sorting the Channels list by provider (by
+  pressing the 0 key twice). Automatic deletion of obsolete channels may follow later.
+
 2014-01-07: Version 2.0.5
 
 - The LIRC remote control now connects to the socket even if it doesn't yet exist when
@@ -7870,7 +8132,136 @@ Video Disk Recorder Revision History
   and also to use the correct directory with --edit (the latter reported by Marko
   Mäkelä).
 
-2014-03-16: Version 2.0.6
+2014-01-26: Version 2.1.4
+
+- Updated 'sources.conf' (thanks to Antti Hartikainen).
+- cFont::CreateFont() now returns a dummy font in case there are no fonts installed.
+  This prevents a crash with the LCARS skin on a system that has no fonts.
+- Improved locking for CAM slots and made the pure functions of cCiAdapter have
+  default implementations, to fix a possible crash with CI adapters and CAM slots
+  that are implemented in a plugin.
+- Added logging the supported system ids of a CAM.
+- Increased MIN_TS_PACKETS_FOR_FRAME_DETECTOR to 10 in order to be able to record
+  channels that need more than 5 TS packets for detecting frame borders (reported by
+  Eike Sauer).
+- Fixed deleting the source recording after moving it to a different volume (reported
+  by Christoph Haubrich).
+- Now waiting explicitly until all CAM slots are ready before switching to the
+  initial channel when VDR is started. This is necessary in case CI adapters are
+  used that are not physically connected to a dedicated device. The respective checks
+  in cDvbDevice have been removed to avoid redundancy.
+- Fixed detecting frame borders in MPEG-2 streams that have "bottom fields" or varying
+  GOP structures (reported by Christian Paulick, with help from Helmut Auer).
+- Now unassigning CAMs from their devices when they are no longer used.
+- Now making sure the primary device goes into transfer mode for live viewing if the
+  CAM wants to receive the TS data.
+- Fixed a wrong alignment in cCiDateTime::SendDateTime().
+- Since the new cRecordingsHandler that was introduced in version 2.1.2 not only
+  handles "cutting", but also "moving" and "copying" recordings, the German word
+  "Schnitt" has been replaced with the more generic "Bearbeitung", which covers all
+  three variations of "editing" a recording (suggested by Christoph Haubrich).
+  Maintainers of translations for other languages may want to change their *.po files
+  accordingly.
+- The new function cStatus::ChannelChange() can be implemented by plugins to be
+  informed about changes to the parameters of a channel that may require a retune.
+  This may, for instance, be useful for plugins that implement live streaming, so that
+  they can react on changes to a channel's PIDs or CA descriptors (problem reported
+  by Mariusz Bialonczyk).
+- Fixed a superfluous call to the skin's SetRecording() function after renaming a
+  recording (reported by Christoph Haubrich).
+
+2014-02-23: Version 2.1.5
+
+- Now checking whether the primary device actually has a decoder before retuning the
+  current channel after a change in its parameters. This fixes broken recordings on
+  the primary device on "headless" systems.
+- Increased MIN_TS_PACKETS_FOR_FRAME_DETECTOR to 100 and introduced counting the number
+  of actual video TS packets in cTsPayload in order to be able to record channels that
+  sometimes need even more than 10 TS packets for detecting frame borders (reported by
+  Oliver Endriss).
+- Fixed sorting recordings by time in the Recordings menu if "Setup/OSD/Recording
+  directories" is set to "no".
+- Fixed clearing non-editable members in the channel editor (thanks to Rolf Ahrenberg).
+- Updated the Estonian OSD texts (thanks to Arthur Konovalov).
+- Further clarified the semantics of cCamSlot::Decrypt().
+- Fixed flickering if subtitles are active while the OSD demo is running.
+- Fixed numbering frames. Previously they were numbered starting from 1, while it
+  is apparently standard to number them from 0. Any existing recordings with editing
+  marks (which will now be off by one) can still be cut with all VDR versions from
+  1.7.32, because these will automatically adjust editing marks to I-frames.
+  Users of stable releases shouldn't notice any problems.
+- Fixed a possible crash in the OSD demo (reported by Christopher Reimer).
+- Fixed some compiler warnings with Clang 3.4.1 (reported by Paul Menzel).
+- Added LinkageTypePremiere to libsi/si.h and eit.c to avoid a compiler warning with
+  Clang 3.4.1 (suggested by Tony Houghten).
+- Replaced the NULL pointer assignment in ~cReceiver() to force a segfault with
+  a call to abort() (suggested by Tony Houghten).
+- Fixed learning keyboard remote control codes (thanks to Lars Hanisch).
+- Improved PAT/PMT scanning to speed up initial tuning to encrypted channels on
+  transponders with many PAT entries (reported by Mariusz Bialonczyk).
+- Fixed the replay progress display for very long recordings.
+- Fixed detecting broken video data streams when recording.
+- Fixed handling frame detection buffer length (reported by Eike Sauer).
+
+2014-03-16: Version 2.1.6
+
+- Revoked "Fixed some compiler warnings with Clang 3.4.1" from ci.c, because this
+  did not compile with older versions of gcc (thanks to Sören Moch).
+- Fixed keeping the current position in the Recordings menu if a recording was
+  deleted in a sub folder.
+- Fixed handling transfer mode on full featured DVB cards for encrypted channels
+  that have no audio pid (reported by Christian Winkler).
+- Fixed a possible endless loop in cH264Parser::GetGolombUe(), which caused recordings
+  on some HD channels to get stuck and resulted in buffer overflows.
+- Fixed handling PAT packets when detecting frames, so that they can be properly
+  taken into account when regenerating the index of a recording.
+- Fixed adding new source types in case they are already registered (reported by Rolf
+  Ahrenberg).
+- Removed an unnecessary assignment from cMenuRecordings::~cMenuRecordings().
+- The Recordings menu now remembers the last recording the cursor was positioned on,
+  independent of the last replayed recording. When a replay ends, however, the cursor
+  will initially be positioned to the last replayed recording again when the menu
+  is opened.
+- Updated the Finnish OSD texts (thanks to Antti Hartikainen).
+- Fixed drawing the live indicator in the LCARS skin in case there are no devices.
+- When checking for obsolete channels, those with an RID that is not 0 are now
+  ignored (suggested by Oliver Endriss).
+- The SDT is now only parsed *after* the NIT has been read, and it explicitly uses
+  the source value derived from the NIT. This should prevent new channels from being
+  created with the wrong source.
+- Added a log message in case a receiver is detached from its device because the
+  assigned CAM can't decrypt the channel.
+- Refactored setup parameter handling for output devices:
+  + The function cDevice::GetVideoSystem() has been deprecated and will be removed
+    in a future version. In order to check whether a particular plugin needs to be
+    modified if this function is removed, you can comment out the line
+    #define DEPRECATED_VIDEOSYSTEM
+    in device.h.
+  + Handling the "video (display) format" (things like 16:9, 4:3, pan&scan, letterbox
+    etc) shall now be done by the individual output devices, because the types and
+    numbers of parameters are too device specific. The Setup/DVB parameters
+    "Video format" and "Video display format" are still there for now and can be used
+    by SD devices. HD devices, however, shall not use these parameters (any more),
+    but rather implement their own setup menu with the necessary parameters for
+    controlling output.
+  + The dvbhdffdevice plugin has been modified accordingly.
+  + Made it clear that cDevice::SetDigitalAudioDevice() merely tells the output device
+    that the current audio track is Dolby Digital. This function was only used by the
+    original "full featured" DVB cards - do not use it for new developments!
+    If an output device has several ways of replaying audio (like HDMI or analog jack)
+    it shall implement the proper options in its plugin's SetupMenu() function.
+- Added support for "Pilot", "T2-System-Id" and "SISO/MISO" parameters (thanks to
+  Rolf Ahrenberg).
+- Now initializing the isOnVideoDirectoryFileSystem member of cRecording when
+  scanning the video directory, so that it won't cause a delay when opening the menu
+  on a system with a large number of recordings.
+- Now resetting the isOnVideoDirectoryFileSystem member of a cRecording to -1 after
+  renaming it, so that it will be re-checked upon the next call to
+  IsOnVideoDirectoryFileSystem().
+- Added support for systemd (thanks to Christopher Reimer). To activate this you
+  need to add "SDNOTIFY=1" to the 'make' call.
+
+2014-03-22: Version 2.0.6
 
 - Updated 'sources.conf' (thanks to Antti Hartikainen).
 - cFont::CreateFont() now returns a dummy font in case there are no fonts installed.
@@ -7915,3 +8306,149 @@ Video Disk Recorder Revision History
   on a system with a large number of recordings.
 - The APIVERSION has been increased to 2.0.6 due to the changes to pat.h, sdt.h and
   the functional modification to cFont::CreateFont().
+
+2015-01-18: Version 2.1.7
+
+- No longer logging an error message in DirSizeMB() if the given directory doesn't
+  exist. This avoids lots of log entries in case several VDRs use the same video
+  directory and one of them has already physically removed a recording directory,
+  while the others still have it in their list of deleted recordings.
+- Updated the Italian OSD texts (thanks to Diego Pierotto).
+- A cCamSlot that has WantsTsData set to true in its constructor now also gets
+  the CAT and EMM PIDs data.
+- Fixed a possible division by zero in frame rate detection.
+- VDR now reads command line options from *.conf files in /etc/vdr/conf.d (thanks
+  to Lars Hanisch). See vdr.1 and vdr.5 for details.
+- Fixed a possible crash in the LCARS skin (thanks to Thomas Reufer).
+- Updated the dvbhddevice plugin source.
+- Fixed a bug in the Makefile when installing plugins with LCLBLD=1 (thanks to
+  Stefan Huelswitt).
+- The pid of the PMT in which the CA descriptors of a given channel are broadcast
+  is now stored together with the CA descriptors and can be retrieved by calling
+  GetPmtPid() (this information is only required to receive encrypted channels
+  with the OctopusNet receiver via the 'satip' plugin).
+- Channels that are not listed in the SDT are now only marked as OBSOLETE if
+  "Setup/DVB/Update channels" is set to a value other than "no" or "PIDs only".
+- Fixed multiple OBSOLETE marks in channels that are not listed in the SDT in case
+  "Setup/Miscellaneous/Show channel names with source" is set to "yes".
+- The new function cOsd::DrawScaledBitmap() is now used for drawing subtitles.
+  This function can be reimplemented by high level OSDs which may be able to do
+  the scaling in hardware or otherwise more efficiently (thanks to Thomas Reufer).
+- Fixed detaching receivers from devices in case a CAM needs to receive the TS
+  (reported by Dietmar Spingler).
+- Fixed resetting the receiver for EMM pids for CAMs that need to receive the TS
+  (reported by Dietmar Spingler).
+- Fixed (well, actually worked around) a problem with subtitles not being displayed
+  because the broadcaster doesn't set the data's version numbers as required by the
+  DVB standard (thanks to Rolf Ahrenberg).
+- Fixed support for systemd (thanks to Christopher Reimer).
+- Added a missing backslash to the help text of the SVDRP command MOVR (thanks to
+  Lars Hanisch).
+- Added subsystem id support for DVB devices connected via USB (thanks to Jose
+  Alberto Reguero).
+- Added the functions IndexOf(), InsertUnique(), AppendUnique() and RemoveElement()
+  to the cVector class (thanks to Stefan Schallenberg).
+- Fixed a possible out-of-bounds access in cVector::Remove().
+- Added functions to set and retrieve the priority of a cReceiver (suggested by
+  Frank Schmirler).
+- Added the new parameters "Setup/Miscellaneous/Volume steps" and
+  ".../Volume linearize" (thanks to Claus Muus). See the MANUAL for details.
+- Fixed jumping to an absolute position via the Red key in case replay was paused
+  (reported by Dieter Ferdinand).
+- Changed the German weekday names from "MonDieMitDonFreSamSon" to
+  "Mo.Di.Mi.Do.Fr.Sa.So." (thanks to Stefan Blochberger).
+- Now handling CAT sections that consist of more than one TS packet.
+- Added handling for DTS audio tracks to cPatPmtParser::ParsePmt() (thanks to
+  Thomas Reufer).
+- Added support for PGS subtitles (thanks to Thomas Reufer).
+- Use of the function cOsd::GetBitmap() outside of derived classes is now deprecated,
+  and it may be made 'protected' in a future version, since it doesn't work with
+  TrueColor OSDs. Plugin authors may want to modify their code so that it
+  works without this function.
+- Modified the descriptions of several threads, so that the important information
+  (like device or frontend numbers) is within the first 15 characters of the
+  string, because only these are displayed in thread listings. Plugin authors may
+  want to do the same.
+- Added the channel name to log messages that reference a channel (suggested by
+  Dietmar Spingler).
+- Modified the CAM API so that it is possible to implement CAMs that can be freely
+  assigned to any devices (thanks to Jasmin Jessich).
+- Plugins can now implement the function SetMenuSortMode() in their skin objects
+  derived from cSkinDisplayMenu, to get informed about the currently used sort
+  mode, if applicable (suggested by Martin Schirrmacher).
+- Added cOsdProvider::OsdSizeChanged(), which plugins that implement an output device
+  can call to signal a change in the OSD that requires a redraw of the currently
+  displayed object (thanks to Thomas Reufer).
+- Added a comment to cRecorder::Activate() about the need to call Detach() in the
+  destructor (suggested by Eike Sauer).
+- Now returning from removing deleted recordings after at most 10 seconds, or if the
+  user presses a remote control key, to keep the system from getting unresponsive
+  when removing a huge number of files (reported by Dieter Ferdinand).
+- Fixed generating the index file of an existing recording in case at the of a TS file
+  there is less data in the buffer than needed by the frame detector. In such a case
+  it was possible that frames were missed, and there was most likely a distortion
+  when replaying that part of a recording. This is mostly a problem for recordings that
+  consist of more than one *.ts file. Single file recordings could only lose some
+  frames at their very end, which probably doesn't matter. At any rate, if you have
+  generated an index file with VDR version 2.0.6, 2.1.5 or 2.1.6, you may want to
+  do so again with this version to make sure the index is OK.
+- Added the new command line option --updindex, which can be used to update an
+  incomplete index of a recording (based on a patch from Helmut Auer).
+
+2015-01-20: Version 2.0.7
+
+- Fixed a possible division by zero in frame rate detection.
+- Fixed a bug in the Makefile when installing plugins with LCLBLD=1 (thanks to
+  Stefan Huelswitt).
+- Fixed jumping to an absolute position via the Red key in case replay was paused
+  (reported by Dieter Ferdinand).
+- Now returning from removing deleted recordings after at most 10 seconds, or if the
+  user presses a remote control key, to keep the system from getting unresponsive
+  when removing a huge number of files (reported by Dieter Ferdinand).
+- Fixed generating the index file of an existing recording in case at the of a TS file
+  there is less data in the buffer than needed by the frame detector. In such a case
+  it was possible that frames were missed, and there was most likely a distortion
+  when replaying that part of a recording. This is mostly a problem for recordings that
+  consist of more than one *.ts file. Single file recordings could only lose some
+  frames at their very end, which probably doesn't matter. At any rate, if you have
+  generated an index file with VDR version 2.0.6 you may want to do so again with this
+  version to make sure the index is OK.
+
+2015-02-01: Version 2.1.8
+
+- Updated the Italian OSD texts (thanks to Diego Pierotto).
+- Fixed "warning: invalid suffix on literal" with GCC 4.8 and C++11 (thanks to Joerg
+  Bornkessel).
+- Fixed the link to "svdrpsend (1)" in the vdr.1 man page (thanks to Chris Mayo).
+- Updated the Finnish OSD texts (thanks to Rolf Ahrenberg).
+- Updated the Romanian OSD texts (thanks to Lucian Muresan).
+- Added functionality based on the "jumpplay" patch from Torsten Kunkel and Thomas
+  Günther:
+  + The new option "Setup/Replay/Pause replay when jumping to a mark" can be used to
+    turn off pausing replay when jumping to an editing mark with the '9' key.
+  + The new option "Setup/Replay/Skip edited parts" can be used to automatically skip
+    the edited parts of a recording during replay, without the need to actually cut
+    the recording.
+  + The new option "Setup/Replay/Pause replay at last mark" can be used to make replay
+    go into Pause mode when it has reached the last "end" mark.
+  + The '8' key for testing an edited sequence now also jumps to the next *end*
+    mark if "Setup/Replay/Skip edited parts" is active. This allows for testing edits
+    in recordings that have actually been cut, as well as recordings that have not
+    been cut, in case "Skip edited parts" is enabled.
+- Added support for "Satellite Channel Routing" (SCR) according to EN50607, also
+  known as "JESS" (thanks to Manfred Völkel and Frank Neumann).
+- The keys '1' and '3' can now be used in replay mode to position an editing mark
+  in "binary" mode (based on a patch from Rolf Ahrenberg, with modifications by Helmut
+  Auer). See MANUAL, section "Editing a Recording".
+- The Yellow button in the "Setup/CAM" menu can now be used to put the selected
+  CAM into a mode where it remains assigned to a device that is tuned to the current
+  channel until the smart card it contains is activated and the CAM thus starts to
+  descramble (see MANUAL, section "Setup/CAM" for details).
+- Updated the Estonian OSD texts (thanks to Arthur Konovalov).
+- Added ARGSDIR to the ONEDIR section of Make.config.template (suggested by Derek
+  Kelly).
+- Made cRecording::GetResume() public (suggested by Stefan Braun).
+- Fixed setting the read index in cDvbPlayer::Goto() in case Still is false.
+- The function cDvbPlayer::Goto() now automatically calls Play() if Still is false.
+- Added support for LCN (Logical Channel Numbers), which plugins may use to sort
+  channels (thanks to Rolf Ahrenberg).

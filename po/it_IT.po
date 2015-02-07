@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: VDR 2.0.0\n"
 "Report-Msgid-Bugs-To: <vdr-bugs@tvdr.de>\n"
-"POT-Creation-Date: 2013-03-04 14:46+0100\n"
-"PO-Revision-Date: 2013-02-11 23:46+0100\n"
+"POT-Creation-Date: 2015-01-30 13:14+0100\n"
+"PO-Revision-Date: 2015-01-19 20:19+0100\n"
 "Last-Translator: Diego Pierotto <vdr-italian@tiscali.it>\n"
 "Language-Team: Italian <vdr@linuxtv.org>\n"
 "Language: it\n"
@@ -25,6 +25,9 @@ msgstr ""
 
 msgid "*** Invalid Channel ***"
 msgstr "*** Canale NON valido ***"
+
+msgid "CAM activated!"
+msgstr ""
 
 msgid "Channel not available!"
 msgstr "Canale non disponibile!"
@@ -82,6 +85,15 @@ msgstr "Rolloff"
 
 msgid "StreamId"
 msgstr "StreamId"
+
+msgid "Pilot"
+msgstr "Pilot"
+
+msgid "T2SystemId"
+msgstr "T2SystemId"
+
+msgid "SISO/MISO"
+msgstr "SISO/MISO"
 
 msgid "Starting EPG scan"
 msgstr "Inizio scansione EPG"
@@ -570,6 +582,12 @@ msgstr "CA"
 msgid "Sid"
 msgstr "Sid"
 
+msgid "Nid"
+msgstr "Nid"
+
+msgid "Tid"
+msgstr "Tid"
+
 msgid "Channel settings are not unique!"
 msgstr "Parametri canale non univoci!"
 
@@ -610,8 +628,8 @@ msgstr "Nome cartella già esistente!"
 msgid "Folder name must not contain '%c'!"
 msgstr "Il nome cartella non deve contenere '%c'!"
 
-msgid "Button$Select"
-msgstr "Seleziona"
+msgid "Button$Open"
+msgstr "Apri"
 
 msgid "Delete folder and all sub folders?"
 msgstr "Eliminare la cartella e sue sottocartelle?"
@@ -730,6 +748,73 @@ msgstr "Inserisci %d cifre!"
 msgid "CAM not responding!"
 msgstr "La CAM non risponde!"
 
+msgid "Edit path"
+msgstr "Modifica percorso"
+
+msgid "Folder"
+msgstr "Cartella"
+
+msgid "This folder is currently in use - no changes are possible!"
+msgstr "La cartella è attualmente in uso - nessuna modifica possibile!"
+
+#, c-format
+msgid "Move entire folder containing %d recordings?"
+msgstr "Spostare tutta la cartella contenente %d registrazioni?"
+
+msgid "Error while moving folder!"
+msgstr "Errore durante lo spostamento della cartella!"
+
+msgid "Edit recording"
+msgstr "Modifica registrazione"
+
+msgid "This recording is currently in use - no changes are possible!"
+msgstr "La registrazione è attualmente in uso - nessuna modifica possibile!"
+
+msgid "Button$Cancel cutting"
+msgstr "Annulla taglio"
+
+msgid "Button$Stop cutting"
+msgstr "Ferma taglio"
+
+msgid "Button$Cancel moving"
+msgstr "Annulla spostamento"
+
+msgid "Button$Stop moving"
+msgstr "Ferma spostamento"
+
+msgid "Button$Cancel copying"
+msgstr "Annulla copia"
+
+msgid "Button$Stop copying"
+msgstr "Ferma copia"
+
+msgid "Button$Cut"
+msgstr "Taglia"
+
+msgid "Button$Delete marks"
+msgstr "Elimina marcatori"
+
+msgid "Recording vanished!"
+msgstr "Registrazione sparita!"
+
+msgid "Edited version already exists - overwrite?"
+msgstr "Versione modificata già esistente. Sovrascrivere?"
+
+msgid "Error while queueing recording for cutting!"
+msgstr "Errore durante l'accodamento della registrazione per il taglio!"
+
+msgid "Delete editing marks for this recording?"
+msgstr "Eliminare i marcatori di modifica della registrazione?"
+
+msgid "Error while deleting editing marks!"
+msgstr "Errore durante la cancellazione dei marcatori di modifica!"
+
+msgid "Error while changing priority/lifetime!"
+msgstr "Errore durante la modifica priorità/durata!"
+
+msgid "Error while changing folder/name!"
+msgstr "Errore durante la modifica cartella/nome!"
+
 msgid "Recording info"
 msgstr "Info registrazione"
 
@@ -741,9 +826,6 @@ msgstr "Riavvolgi"
 
 msgid "Recordings"
 msgstr "Registrazioni"
-
-msgid "Button$Open"
-msgstr "Apri"
 
 msgid "Commands"
 msgstr "Comandi"
@@ -1000,6 +1082,33 @@ msgstr "Periferica %d connessa al cavo sat"
 msgid "Setup.LNB$own"
 msgstr "propria"
 
+msgid "Setup.LNB$Use dish positioner"
+msgstr "Utilizza motore antenna"
+
+msgid "Setup.LNB$Site latitude (degrees)"
+msgstr "Latitudine attuale (gradi)"
+
+msgid "South"
+msgstr "Sud"
+
+msgid "North"
+msgstr "Nord"
+
+msgid "Setup.LNB$Site longitude (degrees)"
+msgstr "Longitudine attuale (gradi)"
+
+msgid "West"
+msgstr "Ovest"
+
+msgid "East"
+msgstr "Est"
+
+msgid "Setup.LNB$Max. positioner swing (degrees)"
+msgstr "Rotazione massima motore (gradi)"
+
+msgid "Setup.LNB$Positioner speed (degrees/s)"
+msgstr "Velocità motore (gradi/s)"
+
 msgid "CAM reset"
 msgstr "Reimposta la CAM"
 
@@ -1009,8 +1118,18 @@ msgstr "La CAM è presente"
 msgid "CAM ready"
 msgstr "La CAM è pronta"
 
+#. TRANSLATORS: note the leading blank!
+msgid " (activating)"
+msgstr ""
+
 msgid "CAM"
 msgstr "Accesso condizionato CAM"
+
+msgid "Button$Cancel activation"
+msgstr ""
+
+msgid "Button$Activate"
+msgstr ""
 
 msgid "Button$Menu"
 msgstr "Menu"
@@ -1023,6 +1142,9 @@ msgstr "Apertura menu CAM..."
 
 msgid "Can't open CAM menu!"
 msgstr "Impossibile aprire il menu CAM!"
+
+msgid "Can't activate CAM!"
+msgstr ""
 
 msgid "CAM is in use - really reset?"
 msgstr "La CAM è in uso - vuoi reimpostarla?"
@@ -1117,6 +1239,21 @@ msgstr "Mostra tempo elaborazione (s)"
 msgid "Setup.Replay$Pause replay when setting mark"
 msgstr "Pausa riproduzione durante impostazione segni"
 
+msgid "Setup.Replay$Pause replay when jumping to a mark"
+msgstr ""
+
+msgid "Setup.Replay$Skip edited parts"
+msgstr ""
+
+msgid "Setup.Replay$Pause replay at last mark"
+msgstr ""
+
+msgid "Setup.Replay$Binary skip initial value (s)"
+msgstr ""
+
+msgid "Setup.Replay$Binary skip timeout (s)"
+msgstr ""
+
 msgid "Setup.Replay$Resume ID"
 msgstr "ID di ripristino"
 
@@ -1152,6 +1289,12 @@ msgstr "come prima"
 
 msgid "Setup.Miscellaneous$Initial volume"
 msgstr "Volume iniziale"
+
+msgid "Setup.Miscellaneous$Volume steps"
+msgstr "Volume a tacche"
+
+msgid "Setup.Miscellaneous$Volume linearize"
+msgstr "Volume lineare"
 
 msgid "Setup.Miscellaneous$Channels wrap"
 msgstr "Riavvolgimento canali"
@@ -1336,6 +1479,10 @@ msgstr "DAL VIVO"
 
 msgid "PLAY"
 msgstr "RIPRODUCI"
+
+#, c-format
+msgid "Moving dish to %.1f..."
+msgstr "Muovi antenna verso %.1f..."
 
 msgid "ST:TNG Panels"
 msgstr "Consolle ST:TNG"

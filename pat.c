@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: pat.c 2.19.1.2 2014/02/19 09:31:29 kls Exp $
+ * $Id: pat.c 3.5 2015/01/04 13:14:01 kls Exp $
  */
 
 #include "pat.h"
@@ -20,6 +20,7 @@
 class cCaDescriptor : public cListObject {
 private:
   int caSystem;
+  int caPid;
   int esPid;
   int length;
   uchar *data;
@@ -28,6 +29,7 @@ public:
   virtual ~cCaDescriptor();
   bool operator== (const cCaDescriptor &arg) const;
   int CaSystem(void) { return caSystem; }
+  int CaPid(void) { return caPid; }
   int EsPid(void) { return esPid; }
   int Length(void) const { return length; }
   const uchar *Data(void) const { return data; }
@@ -36,6 +38,7 @@ public:
 cCaDescriptor::cCaDescriptor(int CaSystem, int CaPid, int EsPid, int Length, const uchar *Data)
 {
   caSystem = CaSystem;
+  caPid = CaPid;
   esPid = EsPid;
   length = Length + 6;
   data = MALLOC(uchar, length);
@@ -66,26 +69,30 @@ private:
   int source;
   int transponder;
   int serviceId;
+  int pmtPid; // needed for OctopusNet - otherwise irrelevant!
   int numCaIds;
   int caIds[MAXCAIDS + 1];
   cList<cCaDescriptor> caDescriptors;
   void AddCaId(int CaId);
 public:
-  cCaDescriptors(int Source, int Transponder, int ServiceId);
+  cCaDescriptors(int Source, int Transponder, int ServiceId, int PmtPid);
   bool operator== (const cCaDescriptors &arg) const;
   bool Is(int Source, int Transponder, int ServiceId);
   bool Is(cCaDescriptors * CaDescriptors);
   bool Empty(void) { return caDescriptors.Count() == 0; }
   void AddCaDescriptor(SI::CaDescriptor *d, int EsPid);
   int GetCaDescriptors(const int *CaSystemIds, int BufSize, uchar *Data, int EsPid);
+  int GetCaPids(const int *CaSystemIds, int BufSize, int *Pids);
+  const int GetPmtPid(void) { return pmtPid; };
   const int *CaIds(void) { return caIds; }
   };
 
-cCaDescriptors::cCaDescriptors(int Source, int Transponder, int ServiceId)
+cCaDescriptors::cCaDescriptors(int Source, int Transponder, int ServiceId, int PmtPid)
 {
   source = Source;
   transponder = Transponder;
   serviceId = ServiceId;
+  pmtPid = PmtPid;
   numCaIds = 0;
   caIds[0] = 0;
 }
@@ -162,7 +169,7 @@ int cCaDescriptors::GetCaDescriptors(const int *CaSystemIds, int BufSize, uchar 
          if (EsPid < 0 || d->EsPid() == EsPid) {
             const int *caids = CaSystemIds;
             do {
-               if (d->CaSystem() == *caids) {
+               if (*caids == 0xFFFF || d->CaSystem() == *caids) {
                   if (length + d->Length() <= BufSize) {
                      memcpy(Data + length, d->Data(), d->Length());
                      length += d->Length();
@@ -178,6 +185,30 @@ int cCaDescriptors::GetCaDescriptors(const int *CaSystemIds, int BufSize, uchar 
   return -1;
 }
 
+int cCaDescriptors::GetCaPids(const int *CaSystemIds, int BufSize, int *Pids)
+{
+  if (!CaSystemIds || !*CaSystemIds)
+     return 0;
+  if (BufSize > 0 && Pids) {
+     int numPids = 0;
+     for (cCaDescriptor *d = caDescriptors.First(); d; d = caDescriptors.Next(d)) {
+         const int *caids = CaSystemIds;
+         do {
+            if (*caids == 0xFFFF || d->CaSystem() == *caids) {
+               if (numPids + 1 < BufSize) {
+                  Pids[numPids++] = d->CaPid();
+                  Pids[numPids] = 0;
+                  }
+               else
+                  return -1;
+               }
+            } while (*++caids);
+         }
+     return numPids;
+     }
+  return -1;
+}
+
 // --- cCaDescriptorHandler --------------------------------------------------
 
 class cCaDescriptorHandler : public cList<cCaDescriptors> {
@@ -189,6 +220,8 @@ public:
       // 1 if it is an all new descriptor with actual contents,
       // and 2 if an existing descriptor was changed.
   int GetCaDescriptors(int Source, int Transponder, int ServiceId, const int *CaSystemIds, int BufSize, uchar *Data, int EsPid);
+  int GetCaPids(int Source, int Transponder, int ServiceId, const int *CaSystemIds, int BufSize, int *Pids);
+  int GetPmtPid(int Source, int Transponder, int ServiceId);
   };
 
 int cCaDescriptorHandler::AddCaDescriptors(cCaDescriptors *CaDescriptors)
@@ -219,11 +252,41 @@ int cCaDescriptorHandler::GetCaDescriptors(int Source, int Transponder, int Serv
   return 0;
 }
 
+int cCaDescriptorHandler::GetCaPids(int Source, int Transponder, int ServiceId, const int *CaSystemIds, int BufSize, int *Pids)
+{
+  cMutexLock MutexLock(&mutex);
+  for (cCaDescriptors *ca = First(); ca; ca = Next(ca)) {
+      if (ca->Is(Source, Transponder, ServiceId))
+         return ca->GetCaPids(CaSystemIds, BufSize, Pids);
+      }
+  return 0;
+}
+
+int cCaDescriptorHandler::GetPmtPid(int Source, int Transponder, int ServiceId)
+{
+  cMutexLock MutexLock(&mutex);
+  for (cCaDescriptors *ca = First(); ca; ca = Next(ca)) {
+      if (ca->Is(Source, Transponder, ServiceId))
+         return ca->GetPmtPid();
+      }
+  return 0;
+}
+
 cCaDescriptorHandler CaDescriptorHandler;
 
 int GetCaDescriptors(int Source, int Transponder, int ServiceId, const int *CaSystemIds, int BufSize, uchar *Data, int EsPid)
 {
   return CaDescriptorHandler.GetCaDescriptors(Source, Transponder, ServiceId, CaSystemIds, BufSize, Data, EsPid);
+}
+
+int GetCaPids(int Source, int Transponder, int ServiceId, const int *CaSystemIds, int BufSize, int *Pids)
+{
+  return CaDescriptorHandler.GetCaPids(Source, Transponder, ServiceId, CaSystemIds, BufSize, Pids);
+}
+
+int GetPmtPid(int Source, int Transponder, int ServiceId)
+{
+  return CaDescriptorHandler.GetPmtPid(Source, Transponder, ServiceId);
 }
 
 // --- cPatFilter ------------------------------------------------------------
@@ -340,7 +403,7 @@ void cPatFilter::Process(u_short Pid, u_char Tid, const u_char *Data, int Length
      cChannel *Channel = Channels.GetByServiceID(Source(), Transponder(), pmt.getServiceId());
      if (Channel) {
         SI::CaDescriptor *d;
-        cCaDescriptors *CaDescriptors = new cCaDescriptors(Channel->Source(), Channel->Transponder(), Channel->Sid());
+        cCaDescriptors *CaDescriptors = new cCaDescriptors(Channel->Source(), Channel->Transponder(), Channel->Sid(), Pid);
         // Scan the common loop:
         for (SI::Loop::Iterator it; (d = (SI::CaDescriptor*)pmt.commonDescriptors.getNext(it, SI::CaDescriptorTag)); ) {
             CaDescriptors->AddCaDescriptor(d, 0);

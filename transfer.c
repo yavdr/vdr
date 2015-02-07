@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: transfer.c 2.8.1.1 2013/08/22 12:37:02 kls Exp $
+ * $Id: transfer.c 3.1 2013/08/22 12:33:02 kls Exp $
  */
 
 #include "transfer.h"

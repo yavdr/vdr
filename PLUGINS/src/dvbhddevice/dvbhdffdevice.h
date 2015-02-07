@@ -52,8 +52,6 @@ public:
 
 public:
   virtual void SetVideoDisplayFormat(eVideoDisplayFormat VideoDisplayFormat);
-  virtual void SetVideoFormat(bool VideoFormat16_9);
-  virtual eVideoSystem GetVideoSystem(void);
   virtual void GetVideoSize(int &Width, int &Height, double &VideoAspect);
   virtual void GetOsdSize(int &Width, int &Height, double &PixelAspect);
 
@@ -70,16 +68,18 @@ protected:
   virtual int GetAudioChannelDevice(void);
   virtual void SetAudioChannelDevice(int AudioChannel);
   virtual void SetVolumeDevice(int Volume);
-  virtual void SetDigitalAudioDevice(bool On);
 
 // Player facilities
 
 private:
   int playVideoPid;
   int playAudioPid;
+  int playPcrPid;
   bool freezed;
   bool trickMode;
   bool isPlayingVideo;
+  bool isTransferMode;
+  bool supportsPcrInTransferMode;
 
   // Pes2Ts conversion stuff
   uint8_t videoCounter;
@@ -99,7 +99,11 @@ public:
   virtual int64_t GetSTC(void);
   virtual cRect CanScaleVideo(const cRect &Rect, int Alignment = taCenter);
   virtual void ScaleVideo(const cRect &Rect = cRect::Null);
+#if (APIVERSNUM >= 20103)
+  virtual void TrickSpeed(int Speed, bool Forward);
+#else
   virtual void TrickSpeed(int Speed);
+#endif
   virtual void Clear(void);
   virtual void Play(void);
   virtual void Freeze(void);

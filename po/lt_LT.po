@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: VDR 2.0.0\n"
 "Report-Msgid-Bugs-To: <vdr-bugs@tvdr.de>\n"
-"POT-Creation-Date: 2013-03-04 14:46+0100\n"
+"POT-Creation-Date: 2015-01-30 13:14+0100\n"
 "PO-Revision-Date: 2010-10-30 11:55+0200\n"
 "Last-Translator: Valdemaras Pipiras <varas@ambernet.lt>\n"
 "Language-Team: Lithuanian <vdr@linuxtv.org>\n"
@@ -18,6 +18,9 @@ msgstr ""
 
 msgid "*** Invalid Channel ***"
 msgstr "*** Blogi kanalo nustatymai ***"
+
+msgid "CAM activated!"
+msgstr ""
 
 msgid "Channel not available!"
 msgstr "Kanalas neegzistuoja!"
@@ -75,6 +78,15 @@ msgstr "Rolloff"
 
 msgid "StreamId"
 msgstr "StreamId"
+
+msgid "Pilot"
+msgstr ""
+
+msgid "T2SystemId"
+msgstr ""
+
+msgid "SISO/MISO"
+msgstr ""
 
 msgid "Starting EPG scan"
 msgstr "Pradedamas EPG skanavimas"
@@ -563,6 +575,12 @@ msgstr "CA (dekodavimo sistema)"
 msgid "Sid"
 msgstr "Serviso id"
 
+msgid "Nid"
+msgstr ""
+
+msgid "Tid"
+msgstr ""
+
 msgid "Channel settings are not unique!"
 msgstr "Kanalų nustatymai neunikalūs!"
 
@@ -603,8 +621,8 @@ msgstr "Toks katalogo vardas jau egzistuoja!"
 msgid "Folder name must not contain '%c'!"
 msgstr "Katalogo pavadinimas turi būti sudarytas iš '%c'!"
 
-msgid "Button$Select"
-msgstr "Pasirinkti"
+msgid "Button$Open"
+msgstr "Atidaryti"
 
 msgid "Delete folder and all sub folders?"
 msgstr "Ištrinti katalogą ir jo visus pakatalogius?"
@@ -723,6 +741,73 @@ msgstr "Įveskite %d skaičius!"
 msgid "CAM not responding!"
 msgstr "Dekodavimo modulis (CAM) neveikia!"
 
+msgid "Edit path"
+msgstr ""
+
+msgid "Folder"
+msgstr ""
+
+msgid "This folder is currently in use - no changes are possible!"
+msgstr ""
+
+#, c-format
+msgid "Move entire folder containing %d recordings?"
+msgstr ""
+
+msgid "Error while moving folder!"
+msgstr ""
+
+msgid "Edit recording"
+msgstr ""
+
+msgid "This recording is currently in use - no changes are possible!"
+msgstr ""
+
+msgid "Button$Cancel cutting"
+msgstr ""
+
+msgid "Button$Stop cutting"
+msgstr ""
+
+msgid "Button$Cancel moving"
+msgstr ""
+
+msgid "Button$Stop moving"
+msgstr ""
+
+msgid "Button$Cancel copying"
+msgstr ""
+
+msgid "Button$Stop copying"
+msgstr ""
+
+msgid "Button$Cut"
+msgstr ""
+
+msgid "Button$Delete marks"
+msgstr ""
+
+msgid "Recording vanished!"
+msgstr ""
+
+msgid "Edited version already exists - overwrite?"
+msgstr ""
+
+msgid "Error while queueing recording for cutting!"
+msgstr ""
+
+msgid "Delete editing marks for this recording?"
+msgstr ""
+
+msgid "Error while deleting editing marks!"
+msgstr ""
+
+msgid "Error while changing priority/lifetime!"
+msgstr ""
+
+msgid "Error while changing folder/name!"
+msgstr ""
+
 msgid "Recording info"
 msgstr "Informacija apie įrašus"
 
@@ -734,9 +819,6 @@ msgstr "Atsukti"
 
 msgid "Recordings"
 msgstr "Įrašai"
-
-msgid "Button$Open"
-msgstr "Atidaryti"
 
 msgid "Commands"
 msgstr "Komandos"
@@ -993,6 +1075,33 @@ msgstr "Įrenginys %d prijungtas prie sat kabelio"
 msgid "Setup.LNB$own"
 msgstr "savas"
 
+msgid "Setup.LNB$Use dish positioner"
+msgstr ""
+
+msgid "Setup.LNB$Site latitude (degrees)"
+msgstr ""
+
+msgid "South"
+msgstr ""
+
+msgid "North"
+msgstr ""
+
+msgid "Setup.LNB$Site longitude (degrees)"
+msgstr ""
+
+msgid "West"
+msgstr ""
+
+msgid "East"
+msgstr ""
+
+msgid "Setup.LNB$Max. positioner swing (degrees)"
+msgstr ""
+
+msgid "Setup.LNB$Positioner speed (degrees/s)"
+msgstr ""
+
 msgid "CAM reset"
 msgstr "Dekodavimo modulis (CAM) perkrautas"
 
@@ -1002,8 +1111,18 @@ msgstr "Dekodavimo modulis (CAM) įjungtas"
 msgid "CAM ready"
 msgstr "Dekodavimo modulis (CAM) paruoštas darbui"
 
+#. TRANSLATORS: note the leading blank!
+msgid " (activating)"
+msgstr ""
+
 msgid "CAM"
 msgstr "Dekodavimo modulis (CAM)"
+
+msgid "Button$Cancel activation"
+msgstr ""
+
+msgid "Button$Activate"
+msgstr ""
 
 msgid "Button$Menu"
 msgstr "Meniu"
@@ -1016,6 +1135,9 @@ msgstr "Atidaromas dekodavimo modulio meniu..."
 
 msgid "Can't open CAM menu!"
 msgstr "Negali atidaryti dekodavimo modulio meniu!"
+
+msgid "Can't activate CAM!"
+msgstr ""
 
 msgid "CAM is in use - really reset?"
 msgstr "Dekodavimo modulis šiuo metu naudojamas - tikrai perkrauti?"
@@ -1110,6 +1232,21 @@ msgstr "Progreso rodymo laikas (s)"
 msgid "Setup.Replay$Pause replay when setting mark"
 msgstr "Pristabdyti pakartojimą kai vyksta žymėjimas"
 
+msgid "Setup.Replay$Pause replay when jumping to a mark"
+msgstr ""
+
+msgid "Setup.Replay$Skip edited parts"
+msgstr ""
+
+msgid "Setup.Replay$Pause replay at last mark"
+msgstr ""
+
+msgid "Setup.Replay$Binary skip initial value (s)"
+msgstr ""
+
+msgid "Setup.Replay$Binary skip timeout (s)"
+msgstr ""
+
 msgid "Setup.Replay$Resume ID"
 msgstr "Kūrinio ID"
 
@@ -1145,6 +1282,12 @@ msgstr "kaip anksčiau"
 
 msgid "Setup.Miscellaneous$Initial volume"
 msgstr "Garsas įjungimo metu"
+
+msgid "Setup.Miscellaneous$Volume steps"
+msgstr ""
+
+msgid "Setup.Miscellaneous$Volume linearize"
+msgstr ""
 
 msgid "Setup.Miscellaneous$Channels wrap"
 msgstr "Kanalų pridengimas"
@@ -1329,6 +1472,10 @@ msgstr "GYVAI"
 
 msgid "PLAY"
 msgstr "GROTI"
+
+#, c-format
+msgid "Moving dish to %.1f..."
+msgstr ""
 
 msgid "ST:TNG Panels"
 msgstr "ST:TNG Skydeliai"
