@@ -110,13 +110,6 @@ case "$1" in
             chown root:$GROUP /usr/lib/vdr/vdr-shutdown.wrapper && \
             chmod 6750 /usr/lib/vdr/vdr-shutdown.wrapper
         fi
-
-        # Dropped alternatives from old package version
-        # (This can be dropped at squeeze +2)
-        update-alternatives --remove vdr /usr/bin/vdr-daemon
-        update-alternatives --remove vdr /usr/bin/vdr-kbd
-        update-alternatives --remove vdr /usr/bin/vdr-lirc
-        update-alternatives --remove vdr /usr/bin/vdr-rcu
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

@@ -1,6 +1,7 @@
 vdr (2.2.0-1) UNRELEASED; urgency=medium
 
   * New upstream release
+  * Dropped upgrade code for pre-Squeeze releases
 
  -- Tobias Grimm <etobi@debian.org>  Thu, 19 Feb 2015 12:18:30 +0100
 
