@@ -1,4 +1,4 @@
 04_newplugin.patch:be5169037184e60fe7265891bb8f9f94
 06_default_svdrp_port_0.patch:98fc8d7a9f450374de5e5690ad4c98c7
 12_osdbase-maxitems.patch:c5bf663d8e89d441eb9c040403e19228
-99_ncursesw-include.patch:0a5c35a4977202dba83f6e1968cae1fc
+99_ncursesw-include.patch:98a6f4705b312dc9de9775e867e95d54
