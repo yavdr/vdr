@@ -26,6 +26,23 @@ set -e
 # source debconf lib
 #. /usr/share/debconf/confmodule
 
+
+# 
+# Create /var/lib/video if /var/lib/video does not exist.
+# If /var/lib/video.00 exists, /var/lib/video will become a symlink
+#
+TryCreateVideoDir() {
+    if [ ! -e /var/lib/video -a ! -L /var/lib/video ]; then
+        if [ -e /var/lib/video.00 ]; then
+            # No /var/lib/video but /var/lib/video.00 -> Make video a symlink pointing to video.00
+            ln -s video.00 /var/lib/video
+        else
+            # create /var/lib/video
+            mkdir /var/lib/video
+        fi
+    fi
+}
+
 case "$1" in
     configure)
 
@@ -53,23 +70,7 @@ case "$1" in
 
         db_get vdr/create_video_dir
         if $RET; then
-                # check if an old directory /var/lib/video exists, and
-                # symlink it to /var/lib/video.00
-                if [ -d /var/lib/video ] && [ ! -e /var/lib/video.00 ]; then
-                        ln -s video /var/lib/video.00
-                fi
-
-                # create /var/lib/video.00 if it does not exist
-                if [ ! -e /var/lib/video.00 ]; then
-                        mkdir /var/lib/video.00
-                fi
-
-                # check if /var/lib/video.00 exists and /var/lib/video is
-                # missing, then create the symlink /var/lib/video which
-                # points to /var/lib/video.00
-                if [ ! -e /var/lib/video ] && [ -e /var/lib/video.00 ]; then
-                        ln -s video.00 /var/lib/video
-                fi
+            TryCreateVideoDir
         fi
 
         # ensure that user and group 'vdr' exist

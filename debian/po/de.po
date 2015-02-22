@@ -65,18 +65,18 @@ msgstr ""
 #. Type: boolean
 #. Description
 #: ../vdr.templates:2001
-msgid "Create /var/lib/video.00?"
-msgstr "Soll /var/lib/video.00 erstellt werden?"
+msgid "Create /var/lib/video?"
+msgstr "Soll /var/lib/video erstellt werden?"
 
 #. Type: boolean
 #. Description
 #: ../vdr.templates:2001
 msgid ""
-"By default VDR is configured to use /var/lib/video.00 to store recordings. "
+"By default VDR is configured to use /var/lib/video to store recordings. "
 "You can either create this directory now, or change this behavior later  by "
 "modifying the VIDEO_DIR variable in /etc/default/vdr."
 msgstr ""
-"Standardmäßig ist VDR so konfiguriert, dass Aufnahmen in /var/lib/video.00 "
+"Standardmäßig ist VDR so konfiguriert, dass Aufnahmen in /var/lib/video "
 "gespeichert werden. Sie können dieses Verzeichnis entweder jetzt erstellen, "
 "oder diese Konfiguration später ändern, indem Sie die Variable VIDEO_DIR in /"
 "etc/default/vdr anpassen."

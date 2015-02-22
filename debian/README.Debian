@@ -124,7 +124,7 @@ VFAT=<0|1>
 
 VIDEO_DIR="<VIDEODIR>"
 
-    Default: "/var/lib/video.00"
+    Default: "/var/lib/video"
 
     The video directory where vdr recordings will be stored.
 
