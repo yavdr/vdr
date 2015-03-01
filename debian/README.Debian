@@ -90,10 +90,10 @@ USER=<USERNAME>
 
 LIRC=<lirc_device>
 
-    Default: /dev/lircd
+    Default: /var/run/lirc/lircd
 
     Allows one to change the LIRC device or disable LIRC alltogether by
-    setting it to /dev/null which might be required if you use a
+    setting it to "" which might be required if you use a
     different frontend, like XBMC or xineliboutput.
 
 VDR_CHARSET_OVERRIDE=<CHARSET>

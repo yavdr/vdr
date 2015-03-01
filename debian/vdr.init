@@ -88,7 +88,7 @@ startvdr()
             if [ -n "$LIRC" ]; then
                 LIRC_OPT="--lirc=$LIRC"
             else
-                LIRC_OPT="--lirc"
+                LIRC_OPT=""
             fi
 
             if [ "$ENABLE_CORE_DUMPS" == "1" ]; then

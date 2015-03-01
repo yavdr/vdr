@@ -77,4 +77,7 @@ ENV_FILE="none"
 # Enable VFAT file system support by default
 VFAT=1
 
+# Default LIRC device
+LIRC=/var/run/lirc/lircd
+
 test -f /etc/default/vdr && . /etc/default/vdr
