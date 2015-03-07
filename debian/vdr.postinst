@@ -24,10 +24,9 @@ set -e
 #     `abort-remove' or `abort-deconfigure'.
 
 # source debconf lib
-#. /usr/share/debconf/confmodule
+. /usr/share/debconf/confmodule
 
-
-# 
+#
 # Create /var/lib/video if /var/lib/video does not exist.
 # If /var/lib/video.00 exists, /var/lib/video will become a symlink
 #
@@ -43,74 +42,79 @@ TryCreateVideoDir() {
     fi
 }
 
+InstallChannelsConf() {
+    [ -e /var/lib/vdr/channels.conf ] && return
+    case "$1" in
+        Satellite)
+            cp /usr/share/vdr/channels.conf-examples/channels.conf.sat /var/lib/vdr/channels.conf
+            chmod 644 /var/lib/vdr/channels.conf
+            ;;
+        Terrestrial)
+            cp /usr/share/vdr/channels.conf-examples/channels.conf.terr /var/lib/vdr/channels.conf
+            chmod 644 /var/lib/vdr/channels.conf
+            ;;
+        Cable)
+            cp /usr/share/vdr/channels.conf-examples/channels.conf.cable /var/lib/vdr/channels.conf
+            chmod 644 /var/lib/vdr/channels.conf
+            ;;
+    esac
+}
+
+InstallUserAndGroupVdr() {
+    USER=vdr
+    GROUP=vdr
+    if ! getent group "$GROUP"| grep -q "^$GROUP:" ; then
+        echo -n "Adding group $GROUP.."
+        addgroup --quiet --system $GROUP
+        echo "..done"
+    fi
+    if ! getent passwd "$USER"| grep -q "^$USER:"; then
+        echo -n "Adding user $USER.."
+        adduser --system --home /var/lib/vdr --shell /bin/false \
+                --gecos "VDR user" --no-create-home \
+                --disabled-login --disabled-password \
+                --ingroup $GROUP \
+                $USER
+        echo "...done"
+    fi
+
+    # put vdr in group video so that it can access the DVB device nodes
+    adduser $USER video > /dev/null || true
+}
+
+ConfigureOwnerShip() {
+    # ensure that vdr's config and recording files are correctly owned
+    [ -e /var/lib/video ] && chown -R $USER:$GROUP /var/lib/video/
+    if [ -e /var/lib/vdr ] ; then
+        chown $USER:$GROUP /var/lib/vdr
+        chown $USER:$GROUP /var/lib/vdr/* > /dev/null 2>&1 || true
+    fi
+    if [ -e /var/cache/vdr ] ; then
+        chown $USER:$GROUP /var/cache/vdr
+        chown $USER:$GROUP /var/cache/vdr/* > /dev/null 2>&1|| true
+    fi
+
+    # make /usr/lib/vdr/vdr-shutdown.wrapper setuid/setgid
+    # (owner root:vdr, mode 6750)
+    if [ -e /usr/lib/vdr/vdr-shutdown.wrapper ] ; then
+        chown root:$GROUP /usr/lib/vdr/vdr-shutdown.wrapper && \
+        chmod 6750 /usr/lib/vdr/vdr-shutdown.wrapper
+    fi
+}
+
 case "$1" in
     configure)
-
-        . /usr/share/debconf/confmodule
-
-        # install/move channels.conf
-        if [ ! -e /var/lib/vdr/channels.conf ]; then
-                db_get vdr/select_dvb_card
-
-                case "$RET" in
-                Satellite)
-                        cp /usr/share/vdr/channels.conf-examples/channels.conf.sat /var/lib/vdr/channels.conf
-                        chmod 644 /var/lib/vdr/channels.conf
-                ;;
-                Terrestrial)
-                        cp /usr/share/vdr/channels.conf-examples/channels.conf.terr /var/lib/vdr/channels.conf
-                        chmod 644 /var/lib/vdr/channels.conf
-                ;;
-                Cable)
-                        cp /usr/share/vdr/channels.conf-examples/channels.conf.cable /var/lib/vdr/channels.conf
-                        chmod 644 /var/lib/vdr/channels.conf
-                ;;
-                esac
-        fi
+        db_get vdr/select_dvb_card
+        InstallChannelsConf "$RET"
 
         db_get vdr/create_video_dir
         if $RET; then
             TryCreateVideoDir
         fi
 
-        # ensure that user and group 'vdr' exist
-        USER=vdr
-        GROUP=vdr
-        if ! getent group "$GROUP"| grep -q "^$GROUP:" ; then
-                echo -n "Adding group $GROUP.."
-                addgroup --quiet --system $GROUP
-                echo "..done"
-        fi
-        if ! getent passwd "$USER"| grep -q "^$USER:"; then
-                echo -n "Adding user $USER.."
-                adduser --system --home /var/lib/vdr --shell /bin/false \
-                        --gecos "VDR user" --no-create-home \
-                        --disabled-login --disabled-password \
-                        --ingroup $GROUP \
-                        $USER
-                echo "...done"
-        fi
+        InstallUserAndGroupVdr
 
-        # put vdr in group video so that it can access the DVB device nodes
-        adduser $USER video > /dev/null || true
-
-        # ensure that vdr's config and recording files are correctly owned
-        [ -e /var/lib/video ] && chown -R $USER:$GROUP /var/lib/video/
-        if [ -e /var/lib/vdr ] ; then
-            chown $USER:$GROUP /var/lib/vdr
-            chown $USER:$GROUP /var/lib/vdr/* > /dev/null 2>&1 || true
-        fi
-        if [ -e /var/cache/vdr ] ; then
-            chown $USER:$GROUP /var/cache/vdr
-            chown $USER:$GROUP /var/cache/vdr/* > /dev/null 2>&1|| true
-        fi
-
-        # make /usr/lib/vdr/vdr-shutdown.wrapper setuid/setgid
-        # (owner root:vdr, mode 6750)
-        if [ -e /usr/lib/vdr/vdr-shutdown.wrapper ] ; then
-            chown root:$GROUP /usr/lib/vdr/vdr-shutdown.wrapper && \
-            chmod 6750 /usr/lib/vdr/vdr-shutdown.wrapper
-        fi
+        ConfigureOwnerShip
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)
@@ -122,17 +126,10 @@ case "$1" in
     ;;
 esac
 
-# dh_installdeb will replace this with shell code automatically
-# generated by other debhelper scripts.
-
 db_stop
 
-
-# FIXME
-# wait for vdr to properly shutdown before it is restarted again
-sleep 5
-
-
+# dh_installdeb will replace this with shell code automatically
+# generated by other debhelper scripts.
 #DEBHELPER#
 
 exit 0
