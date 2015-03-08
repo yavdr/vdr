@@ -28,11 +28,6 @@ test -x $VDRPRG || exit 0
 
 . /usr/lib/vdr/config-loader.sh
 
-# Set shutdown command
-test "$ENABLE_SHUTDOWN" = "1" && VDRSHUTDOWN="/usr/lib/vdr/vdr-shutdown.wrapper" \
-                              || VDRSHUTDOWN=""
-
-. /usr/lib/vdr/plugin-loader.sh
 . /usr/lib/vdr/commands-loader.sh
 
 
@@ -81,26 +76,8 @@ startvdr()
             mergecommands "reccmds"
             configure_console_input
 
-            if [ "$VFAT" == "1" ]; then
-                OPTIONS="--vfat $OPTIONS"
-            fi
-
-            if [ -n "$LIRC" ]; then
-                LIRC_OPT="--lirc=$LIRC"
-            else
-                LIRC_OPT=""
-            fi
-
-            if [ "$ENABLE_CORE_DUMPS" == "1" ]; then
-                ulimit -c unlimited
-                OPTIONS="$OPTIONS --userdump"
-            fi
-
             start-stop-daemon --start --quiet --startas $DAEMON --background -d /tmp \
-                --name $(basename $DAEMON) --pidfile $PIDFILE --make-pidfile -- \
-                -v $VIDEO_DIR -c $CFG_DIR -L $PLUGIN_DIR -r $REC_CMD \
-                -s $VDRSHUTDOWN -E $EPG_FILE -u $USER -g /tmp \
-                --port $SVDRP_PORT $OPTIONS $LIRC_OPT $PLUGINS $REDIRECT
+                --name $(basename $DAEMON) --pidfile $PIDFILE --make-pidfile -- $REDIRECT
         else
             echo -n " - seems to be running already"
         fi

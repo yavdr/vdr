@@ -1,4 +1,4 @@
-vdr (2.2.0-2) UNRELEASED; urgency=medium
+vdr (2.2.0-1) UNRELEASED; urgency=medium
 
   * New upstream release
   * Dropped upgrade code for pre-Squeeze releases
@@ -7,6 +7,9 @@ vdr (2.2.0-2) UNRELEASED; urgency=medium
   * When LIRC is set to an empty string, disable LIRC. By default use
     /var/run/lirc/lircd
   * Updated copyright
+  * Arguments for vdr are now read from /etc/vdr/conf.d/
+  * Plugins must provide a config, which may cointain plugin arguments, in
+    /etc/vdr/conf.d/ in order to be loaded
 
  -- Tobias Grimm <etobi@debian.org>  Sat, 07 Mar 2015 13:02:02 +0100
 

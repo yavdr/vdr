@@ -1,1 +1,3 @@
 usr/lib/vdr/plugins/libvdr-dvbsddevice.so.*
+
+debian/dvbsddevice.conf    etc/vdr/conf.avail/

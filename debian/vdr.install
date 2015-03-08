@@ -14,13 +14,13 @@ epg2html                                usr/lib/vdr/
 debian/runvdr                           usr/sbin/
 
 debian/config-loader.sh                 usr/lib/vdr/
-debian/plugin-loader.sh                 usr/lib/vdr/
 debian/commands-loader.sh               usr/lib/vdr/
 debian/vdr-groups.sh                    usr/lib/vdr/
 debian/vdr-recordingaction              usr/lib/vdr/
 debian/vdr-shutdown                     usr/lib/vdr/
 debian/vdr-shutdown.wrapper             usr/lib/vdr/
 
+debian/00-vdr.conf                      /etc/vdr/conf.d/
 debian/vdr.groups                       etc/vdr/
 debian/R90.custom                       etc/vdr/recording-hooks/
 debian/S90.custom                       etc/vdr/shutdown-hooks/
@@ -34,3 +34,4 @@ debian/themes/*.theme                   var/lib/vdr/themes/
 
 var/lib/vdr/channels.conf.sat           usr/share/vdr/channels.conf-examples/
 channels.conf.*                         usr/share/vdr/channels.conf-examples/
+debian/migrate-old-config.sh            usr/share/vdr/
