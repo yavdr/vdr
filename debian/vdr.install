@@ -24,7 +24,6 @@ debian/00-vdr.conf                      /etc/vdr/conf.d/
 debian/vdr.groups                       etc/vdr/
 debian/R90.custom                       etc/vdr/recording-hooks/
 debian/S90.custom                       etc/vdr/shutdown-hooks/
-debian/order.conf                       etc/vdr/plugins/
 debian/commands.custom.conf             etc/vdr/command-hooks/
 debian/reccmds.custom.conf              etc/vdr/command-hooks/
 
