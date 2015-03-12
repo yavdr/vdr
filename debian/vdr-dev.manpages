@@ -1,2 +1,3 @@
 debian/vdr-newplugin.1
 debian/debianize-vdrplugin.1
+debian/dh-addon-vdrplugin/*.1

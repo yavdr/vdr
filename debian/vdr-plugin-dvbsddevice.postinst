@@ -1,0 +1,3 @@
+if [ "$1" = configure -a -z "$2" ]; then
+  ln -sr "/etc/vdr/conf.avail/dvbsddevice.conf" "/etc/vdr/conf.d/50-dvbsddevice.conf"
+fi

@@ -16,10 +16,14 @@ MAKE_OPTIONS = PREFIX=$(PREFIX) VIDEODIR=$(VIDEODIR) LIBDIR=$(LIBDIR)
 override_dh_auto_build:
 	dh_auto_build -- $(MAKE_OPTIONS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -o debian/vdr-shutdown.wrapper debian/vdr-shutdown-wrapper.c
+	for file in $$(ls debian/dh-addon-vdrplugin/dh_*); do \
+		pod2man --section=1 --utf8 $$file $$file.1; \
+	done
 
 override_dh_auto_clean:
 	dh_auto_clean
 	rm -f debian/vdr-shutdown.wrapper
+	rm -f debian/dh-addon-vdrplugin/*.1
 
 override_dh_auto_install:
 	dh_auto_install -- $(MAKE_OPTIONS)

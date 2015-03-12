@@ -1,0 +1,179 @@
+#! /usr/bin/perl -w
+
+=head1 NAME
+
+dh_vdrplugin_enable - enables plugin loading in /etc/vdr/conf.d
+
+=cut
+
+use strict;
+use Debian::Debhelper::Dh_Lib;
+use Scalar::Util qw(looks_like_number);
+
+=head1 SYNOPSIS
+
+B<dh_vdrplugin_enable> [S<I<debhelper options>>]
+
+=head1 DESCRIPTION
+
+dh_vdrplugin_enable is a debhelper program that is responsible for generating
+the symlinks in /etc/vdr/conf.d which vdr parses to load its plugins.
+
+By default all config files a package provides in /etc/vdr/conf.avail will be
+linked to /etc/vdr/conf.d/50-<plugin>.conf. For all plugins in
+/usr/lib/vdr/plugins which do not have an explicit config, a default config file
+will be created with the appropriate symlink in /etc/vdr/conf.d/.
+
+If a debian/<package>.vdrargs file is specified only the config files listed
+there will be installed/symlinked.
+
+=head1 FILES
+
+=over 4
+
+=item debian/I<package>.vdrargs
+
+Lists config files to be installed to /etc/vdr/conf.avail/ and linked to
+/etc/vdr/conf.d/. By default symlinks will be created as 50-<config.conf>.
+You can change the default priority of 50 by adding it after the config
+file separated by whitespace.
+
+If the priority is set to DISABLED, the config file will be installed to
+/etc/vdr/conf.avail/ but not linked to /etc/conf.d/.
+
+=back
+
+=head1 EXAMPLES
+
+dh_vdrplugin is usually called indirectly in a rules file via the dh command.
+
+	%:
+		dh --with vdrplugin $@
+
+It can also be called directly, prior to calling dh_gencontrol.
+
+=head1 CONFORMS TO
+
+Debian policy, version 3.8.1
+
+=cut
+
+init ();
+
+no locale;
+
+sub get_plugins_from_config {
+  my ($config_file) = @_;
+  my @plugins;
+  open(my $conf, '<', $config_file);
+  while(<$conf>) {
+    if ($_ =~ /^\[(.+)\]/) {
+      push(@plugins, $1);
+    }
+  }
+  close($conf);
+  return @plugins;
+}
+
+sub get_plugins_from_lib_dir {
+  my ($package_dir) = @_;
+  return map { $_ =~ /libvdr-(.+?)\./ && $1 } <$package_dir/usr/lib/vdr/plugins/libvdr-*.so.*>;
+}
+
+sub create_default_config {
+  my ($plugin, $package_dir) = @_;
+  my $conf_dir = "$package_dir/etc/vdr/conf.avail";
+  my $conf_file = "$conf_dir/$plugin.conf";
+
+  if (! -e $conf_dir) {
+    doit("install", "-d", $conf_dir);
+  }
+
+  verbose_print("Creating default VDR plugin config '$conf_file'");
+
+  open(my $conf, '>', $conf_file);
+  print $conf "#\n";
+  print $conf "# $plugin VDR plugin arguments\n";
+  print $conf "#\n";
+  print $conf "\n";
+  print $conf "[$plugin]\n";
+  close($conf);
+
+  return $conf_file;
+}
+
+sub load_pkgfile {
+  my ($package) = @_;
+  my %config_files = ();
+  my $pkgfile=pkgfile($package, "vdrargs");
+  if ($pkgfile) {
+    foreach my $config (filedoublearray($pkgfile, ".")) {
+      $config_files{@$config[0]} = @$config[1] // 50;
+    }
+  }
+  return %config_files;
+}
+
+foreach my $package (@{$dh{DOPACKAGES}}) {
+  my $package_dir=tmpdir($package);
+  my %config_files = load_pkgfile($package);
+
+  if (%config_files) {
+    #
+    # Install config files defined in pkgfile
+    #
+    for my $source (keys %config_files) {
+      my $target = "$package_dir/etc/vdr/conf.avail/" . basename($source);
+      doit("install", "-p", "-D", "-m644", $source, $target);
+      $config_files{$target} = $config_files{$source};
+      delete $config_files{$source};
+    }
+  }
+  else {
+    #
+    # Add already installed conf files with priority 50
+    #
+    foreach my $config_file (<$package_dir/etc/vdr/conf.avail/*.conf>) {
+      if (!$config_files{$config_file}) {
+        $config_files{$config_file} = 50;
+      }
+    }
+
+    #
+    # Figure out which plugins the conf files are for
+    #
+    my @plugins_with_config = ();
+    for my $config_file (keys %config_files) {
+      push(@plugins_with_config, get_plugins_from_config($config_file));
+    }
+
+    #
+    # Add default config file for plugins without a conf
+    #
+    foreach my $plugin (get_plugins_from_lib_dir($package_dir)) {
+      if (!grep { $_ eq $plugin } @plugins_with_config) {
+        my $new_config = create_default_config($plugin, $package_dir);
+        $config_files{$new_config} = 50;
+      }
+    }
+  }
+  #
+  # Now pass the configs to be symlinked to the postinst/postrm templates
+  #
+  my @enabled_configs = grep { looks_like_number($config_files{$_}) } (keys %config_files);
+  my $configs = join(' ', map { (basename($_), $config_files{$_}) } (@enabled_configs));
+  autoscript($package, "postinst", "postinst-vdrplugin-enable", "s/#PLUGINCONFIGS#/$configs/");
+  autoscript($package, "postrm", "postrm-vdrplugin-enable", "s/#PLUGINCONFIGS#/$configs/");
+}
+
+=head1 SEE ALSO
+
+L<debhelper(7)>
+
+This program is not a part of debhelper.
+
+=head1 AUTHOR
+
+Tobias Grimm <tobias.grimm@e-tobi.net>
+
+=cut

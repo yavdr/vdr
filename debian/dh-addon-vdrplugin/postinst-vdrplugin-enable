@@ -1,0 +1,12 @@
+dh_vdrplugin_create_symlinks() {
+  while [ $# -gt 1 ] ; do
+    local config=$1
+    local priority=$2
+    shift 2
+    ln -sr "/etc/vdr/conf.avail/$config" "/etc/vdr/conf.d/$priority-$config"
+  done
+}
+
+if [ "$1" = configure -a -z "$2" ]; then
+  dh_vdrplugin_create_symlinks #PLUGINCONFIGS#
+fi
