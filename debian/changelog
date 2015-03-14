@@ -11,6 +11,7 @@ vdr (2.2.0-1) UNRELEASED; urgency=medium
   * Plugins must provide a config, which may cointain plugin arguments, in
     /etc/vdr/conf.d/ in order to be loaded
   * Install a debhelper addon in vdr-dev which supports the plugin packaging
+  * Delete /etc/vdr/conf.d on purge
 
  -- Tobias Grimm <etobi@debian.org>  Sat, 07 Mar 2015 13:02:02 +0100
 

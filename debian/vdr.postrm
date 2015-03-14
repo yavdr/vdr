@@ -29,6 +29,7 @@ case "$1" in
         rm -f /var/lib/vdr/remote.conf > /dev/null 2>&1 || true
         rm -f /var/lib/vdr/setup.conf > /dev/null 2>&1 || true
         rm -f /var/lib/vdr/timers.conf > /dev/null 2>&1 || true
+        rm -rf /etc/vdr/conf.d
     ;;
     remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
     ;;
