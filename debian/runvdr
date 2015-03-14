@@ -3,9 +3,6 @@
 . /usr/lib/vdr/config-loader.sh
 
 VDR_ENV="LANG=$VDR_LANG LC_ALL=$VDR_LANG"
-if [ -n "$VDR_CHARSET_OVERRIDE" ] ; then
-   VDR_ENV="$VDR_ENV VDR_CHARSET_OVERRIDE=$VDR_CHARSET_OVERRIDE"
-fi
 
 VDRCMD="$VDR_ENV /usr/bin/vdr $*"
 

@@ -96,16 +96,6 @@ LIRC=<lirc_device>
     setting it to "" which might be required if you use a
     different frontend, like XBMC or xineliboutput.
 
-VDR_CHARSET_OVERRIDE=<CHARSET>
-
-    Default: not set
-
-    Workaround for broadcasters not correctly implementing the standard.
-    According to "ETSI EN 300 468" the default character set is ISO-6937. But
-    unfortunately some broadcasters actually use ISO-8859-9, but fail to
-    correctly announce that. If you set VDR_CHARSET_OVERRIDE=ISO-8859-9, then VDR
-    uses ISO-8859-9 as default.
-
 VDR_LANG=<LANG>
 
     Default: read from LANG or LC_ALL in /etc/default/locale or /etc/environment,

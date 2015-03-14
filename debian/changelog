@@ -12,6 +12,8 @@ vdr (2.2.0-1) UNRELEASED; urgency=medium
     /etc/vdr/conf.d/ in order to be loaded
   * Install a debhelper addon in vdr-dev which supports the plugin packaging
   * Delete /etc/vdr/conf.d on purge
+  * Removed the VDR_CHARSET_OVERRIDE from /etc/default/vdr - replaced with the
+   --chartab command line argument
 
  -- Tobias Grimm <etobi@debian.org>  Sat, 07 Mar 2015 13:02:02 +0100
 

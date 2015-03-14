@@ -16,3 +16,8 @@ sed -e "s|\(--video\)=.*|\1=$VIDEO_DIR|g" \
     -e "s|.*\(--shutdown\)|$([ "$ENABLE_SHUTDOWN" != "1" ] && echo '#')\1|g" \
     -e "s|.*--lirc.*|$([ -n "$LIRC" ] && echo "--lirc=$LIRC" || echo '#--lirc')|g" \
     -i /etc/vdr/conf.d/00-vdr.conf
+
+
+if [ -n "$VDR_CHARSET_OVERRIDE" ]; then
+  echo "--chartab=$VDR_CHARSET_OVERRIDE" >> /etc/vdr/conf.d/00-vdr.conf
+fi
