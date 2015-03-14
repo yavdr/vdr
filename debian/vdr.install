@@ -10,8 +10,7 @@ var/lib/vdr/svdrphosts.conf             etc/vdr/
 var/lib/vdr/*.conf                      usr/share/doc/vdr/examples/
 
 epg2html                                usr/lib/vdr/
-
-debian/runvdr                           usr/sbin/
+debian/runvdr                           usr/lib/vdr/
 
 debian/config-loader.sh                 usr/lib/vdr/
 debian/commands-loader.sh               usr/lib/vdr/

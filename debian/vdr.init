@@ -19,7 +19,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 NAME=vdr
 DESC="Linux Video Disk Recorder"
 
-DAEMON=/usr/sbin/runvdr
+DAEMON=/usr/lib/vdr/runvdr
 PIDFILE=/var/run/runvdr.pid
 VDRPRG=/usr/bin/vdr
 
