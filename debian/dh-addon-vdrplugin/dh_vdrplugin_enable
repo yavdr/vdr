@@ -162,8 +162,8 @@ foreach my $package (@{$dh{DOPACKAGES}}) {
   #
   my @enabled_configs = grep { looks_like_number($config_files{$_}) } (keys %config_files);
   my $configs = join(' ', map { (basename($_), $config_files{$_}) } (@enabled_configs));
-  autoscript($package, "postinst", "postinst-vdrplugin-enable", "s/#PLUGINCONFIGS#/$configs/");
-  autoscript($package, "postrm", "postrm-vdrplugin-enable", "s/#PLUGINCONFIGS#/$configs/");
+  autoscript($package, "postinst", "postinst-vdrplugin", "s/#PLUGINCONFIGS#/$configs/");
+  autoscript($package, "postrm", "postrm-vdrplugin", "s/#PLUGINCONFIGS#/$configs/");
 }
 
 =head1 SEE ALSO
