@@ -4,7 +4,6 @@ usr/lib/pkgconfig/vdr.pc
 debian/debianize-vdrplugin      usr/bin/
 
 debian/plugin-template/         usr/share/vdr-dev/
-debian/dependencies.sh          usr/share/vdr-dev/
 debian/abi-version              usr/share/vdr-dev/
 
 debian/dh-addon-vdrplugin/vdrplugin.pm               /usr/share/perl5/Debian/Debhelper/Sequence/
