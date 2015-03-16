@@ -1,4 +1,4 @@
-vdr (2.2.0-1) unstable; urgency=low
+vdr (2.2.0-1) unstable; urgency=medium
 
   * Support for multiple video directories dropped
 
@@ -7,7 +7,7 @@ vdr (2.2.0-1) unstable; urgency=low
   It is recommended to use e.g. mhddfs or LVM to combine multiple volumes.
 
   The default video directory for VDR now is /var/lib/video. This can be changed
-  by modifying the VIDEO_DIR variable in /etc/default/vdr.
+  by modifying the --video setting in /etc/vdr/conf.d/00-vdr.conf.
 
  -- Tobias Grimm <etobi@debian.org>  Thu, 19 Feb 2015 12:18:30 +0100
 
