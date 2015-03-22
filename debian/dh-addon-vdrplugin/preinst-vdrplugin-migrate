@@ -1,0 +1,22 @@
+dh_vdrplugin_prep_migrate_config() {
+  local pkgname="$1"
+  shift
+  while [ $# -gt 0 ] ; do
+    local oldconfig="$1"
+    shift
+    if [ -e "$oldconfig" ] ; then
+      local md5sum="$(md5sum $oldconfig | sed -e 's/ .*//')"
+      local old_md5sum="$(dpkg-query -W -f='${Conffiles}' $pkgname | sed -n -e "\' $oldconfig ' { s/ obsolete$//; s/.* //; p }")"
+      if [ "$md5sum" = "$old_md5sum" ]; then
+        mv "$oldconfig" "$oldconfig.dpkg-remove"
+      else
+        mv "$oldconfig" "$oldconfig.dpkg-migrate"
+      fi
+    fi
+  done
+}
+
+case "$1" in
+  install|upgrade)
+    dh_vdrplugin_prep_migrate_config #PKGNAME# #OLDCONFIGS#
+esac

@@ -1,0 +1,22 @@
+#
+# To enable a vdr plugin, its config must be symlinked to /etc/vdr/conf.d.
+# This must only be done when installing a plugin package or upgrading
+# from an old package, which does not support the conf.d mechanism.
+#
+# Before installing, we remember if the plugin-config in conf.avail
+# does not exist (because this is a new installation or an upgrade
+# from an old installation or the config was removed by the admin)
+# by creating a /etc/vdr/conf.d/*.dpkg-vdr-plugin-enable "tag"-file.
+#
+dh_vdrplugin_prepare_enable() {
+  while [ $# -gt 0 ] ; do
+    local config=$1
+    local priority=$2
+    shift 2
+    if [ ! -e "/etc/vdr/conf.avail/$config" ] ; then
+      touch "/etc/vdr/conf.d/$priority-$config.dpkg-vdrplugin-enable"
+    fi
+  done
+}
+
+dh_vdrplugin_prepare_enable #ENABLEDCONFIGS#

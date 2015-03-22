@@ -1,0 +1,92 @@
+#! /usr/bin/perl -w
+
+=head1 NAME
+
+dh_vdrplugin_migrate - migrates old config files to /etc/vdr/conf.avail
+
+=cut
+
+use strict;
+use Debian::Debhelper::Dh_Lib;
+use Scalar::Util qw(looks_like_number);
+
+=head1 SYNOPSIS
+
+B<dh_vdrplugin_migrate> [S<I<debhelper options>>]
+
+=head1 DESCRIPTION
+
+dh_vdrplugin_migrate is a debhelper program that is responsible for migrating
+the settings from the old config file /etc/vdr/plugins/plugin.*.conf to the
+new config file(s) in /etc/vdr/conf.avail.
+
+=head1 EXAMPLES
+
+dh_vdrplugin is usually called indirectly in a rules file via the dh command.
+
+	%:
+		dh --with vdrplugin $@
+
+It can also be called directly, prior to calling dh_gencontrol.
+
+=head1 CONFORMS TO
+
+Debian policy, version 3.8.1
+
+=cut
+
+init ();
+
+no locale;
+
+sub get_plugins_from_config {
+  my ($config_file) = @_;
+  my @plugins;
+  open(my $conf, '<', $config_file);
+  while(<$conf>) {
+    if ($_ =~ /^\[(.+)\]/) {
+      push(@plugins, $1);
+    }
+  }
+  close($conf);
+  return @plugins;
+}
+
+sub get_plugins_from_lib_dir {
+  my ($package_dir) = @_;
+  return map { $_ =~ /libvdr-(.+?)\./ && $1 } <$package_dir/usr/lib/vdr/plugins/libvdr-*.so.*>;
+}
+
+foreach my $package (@{$dh{DOPACKAGES}}) {
+  my $package_dir=tmpdir($package);
+
+  my @old_configs;
+  my @old_new_config_pairs;
+  foreach my $config_file (<$package_dir/etc/vdr/conf.avail/*.conf>) {
+    my @plugins = get_plugins_from_config($config_file);
+    foreach my $plugin (@plugins) {
+      push(@old_configs, "/etc/vdr/plugins/plugin.$plugin.conf");
+      push(@old_new_config_pairs, "/etc/vdr/plugins/plugin.$plugin.conf " . "/etc/vdr/conf.avail/" . basename($config_file));
+    }
+  }
+  if (@old_new_config_pairs) {
+    my $oldconfigs = join(' ', @old_configs);
+    autoscript($package, "preinst", "preinst-vdrplugin-migrate", "s|#PKGNAME#|$package|; s|#OLDCONFIGS#|$oldconfigs|");
+    autoscript($package, "postrm", "postrm-vdrplugin-migrate", "s|#OLDCONFIGS#|$oldconfigs|");
+
+    my $configs = join(' ', @old_new_config_pairs);
+    autoscript($package, "postinst", "postinst-vdrplugin-migrate", "s|#CONFIGS#|$configs|");
+  }
+}
+
+=head1 SEE ALSO
+
+L<debhelper(7)>
+
+This program is not a part of debhelper.
+
+=head1 AUTHOR
+
+Tobias Grimm <tobias.grimm@e-tobi.net>
+
+=cut

@@ -1,0 +1,29 @@
+dh_vdrplugin_restore_config() {
+  while [ $# -gt 0 ] ; do
+    local oldconfig="$1"
+    shift
+    if [ -e "$oldconfig.dpkg-remove" ] ; then
+      mv "$oldconfig.dpkg-remove" "$oldconfig"
+    fi
+    if [ -e "$oldconfig.dpkg-migrate" ] ; then
+      mv "$oldconfig.dpkg-migrate" "$oldconfig"
+    end
+   fi
+  done
+}
+
+dh_vdrplugin_cleanup_config_backups() {
+  while [ $# -gt 0 ] ; do
+    rm -f "$1.dpkg-bak"
+    shift
+  done
+}
+
+case "$1" in
+  abort-install|abort-upgrade)
+    dh_vdrplugin_restore_config #OLDCONFIGS#
+    ;;
+  purge)
+    dh_vdrplugin_cleanup_config_backups
+    ;;
+esac

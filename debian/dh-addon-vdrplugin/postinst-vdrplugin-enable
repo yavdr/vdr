@@ -1,0 +1,22 @@
+#
+# Automatically create symlink in /etc/vdr/conf.d to enable the VDR plugin
+# if the plugin was installed or upgraded from a version which did not
+# supported the conf.d mechanism.
+#
+dh_vdrplugin_create_symlinks() {
+  while [ $# -gt 1 ] ; do
+    local config=$1
+    local priority=$2
+    shift 2
+    if [ -e "/etc/vdr/conf.d/$priority-$config.dpkg-vdrplugin-enable" ] ; then
+      rm "/etc/vdr/conf.d/$priority-$config.dpkg-vdrplugin-enable"
+      if [ -e "/etc/vdr/conf.avail/$config" ] ; then
+        ln -sr "/etc/vdr/conf.avail/$config" "/etc/vdr/conf.d/$priority-$config"
+      fi
+    fi
+  done
+}
+
+if [ "$1" = configure ]; then
+  dh_vdrplugin_create_symlinks #ENABLEDCONFIGS#
+fi

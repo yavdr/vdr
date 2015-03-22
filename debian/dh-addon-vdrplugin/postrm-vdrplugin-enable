@@ -1,0 +1,29 @@
+#
+# Remove automatically created conf.d symlink of vdr plugin
+#
+dh_vdrplugin_delete_symlinks() {
+  while [ $# -gt 1 ] ; do
+    local config=$1
+    local priority=$2
+    shift 2
+    rm -f "/etc/vdr/conf.d/$priority-$config"
+  done
+}
+
+#
+# Remove any tag files which may have been created by preinst
+#
+dh_vdrplugin_cleanup() {
+  while [ $# -gt 1 ] ; do
+    local config=$1
+    local priority=$2
+    shift 2
+    rm -f "/etc/vdr/conf.d/$priority-$config.dpkg-vdrplugin-enable"
+  done
+}
+
+if [ "$1" = "remove" ] ; then
+  dh_vdrplugin_delete_symlinks #ENABLEDCONFIGS#
+fi
+
+dh_vdrplugin_cleanup #ENABLEDCONFIGS#
