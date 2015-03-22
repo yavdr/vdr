@@ -19,6 +19,7 @@ debian/vdr-recordingaction              usr/lib/vdr/
 debian/vdr-shutdown                     usr/lib/vdr/
 debian/vdr-shutdown.wrapper             usr/lib/vdr/
 
+debian/svdrpsend                        etc/bash_completion.d/
 debian/00-vdr.conf                      etc/vdr/conf.d/
 debian/vdr.groups                       etc/vdr/
 debian/R90.custom                       etc/vdr/recording-hooks/

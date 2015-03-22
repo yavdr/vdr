@@ -1,0 +1,35 @@
+
+have svdrpsend &&
+_svdrpsend ()
+{
+  local cur prev
+
+  _get_comp_words_by_ref cur prev
+
+  COMPREPLY=()
+
+  if [[ ($COMP_CWORD -eq 1) || ("${prev^^}" == "HELP") ]]; then
+
+    cmds="CHAN CLRE DELC DELR DELT EDIT GRAB HELP HITK LSTC LSTE LSTR LSTT MESG MODC MODT MOVC MOVR NEWC NEWT NEXT PLAY PLUG PUTE REMO SCAN STAT UPDT UPDR VOLU"
+    COMPREPLY=( $( compgen -W "$cmds" | grep -i "^$cur" ) )
+
+  else
+
+    case "${prev}" in
+
+      chan|CHAN)
+        COMPREPLY=( $( compgen -W "+ -" $cur ) )
+        ;;
+
+      plug|PLUG)
+        apiversion=`eval "/usr/bin/vdr -V -L/usr/bin/vdr 2>/dev/null | sed 's/.*(.*\/\(.*\)).*/\1/'"`
+        plugins=`eval "find /usr/lib/vdr/plugins -name 'libvdr-*.so.${apiversion}' -printf '%f\n' | sed -e 's/libvdr-\(.*\)\.so\.${apiversion}/\1/'"`
+        COMPREPLY=( $( compgen -W "$plugins" | grep -i "^$cur" ) )
+        ;;
+
+    esac
+
+  fi
+}
+
+[ "$have" ] && complete -F _svdrpsend -o filenames svdrpsend
