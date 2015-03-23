@@ -20,12 +20,25 @@ dh_vdrplugin_migrate_config() {
     }
   }
 
+  my @updatedOptions;
+
+  # Update options in new config with values from old one
   while(<$newConfigFile>) {
     my $line = $_;
     while (my ($key, $value) = each(%options)) {
-      $line = $value if $line =~ /^$key/;
+      if ($line =~ /^$key/) {
+        $line = $value;
+        push(@updatedOptions,$key);
+      }
     }
-    print $modifiedConfigFile  $line;
+    print $modifiedConfigFile $line;
+  }
+
+  # Add additional values from old config to new one
+  while (my ($key, $value) = each(%options)) {
+    if (! grep {$_ eq $key} @updatedOptions) {
+      print $modifiedConfigFile $value;
+    }
   }
 
   close($originalConfigFile);
