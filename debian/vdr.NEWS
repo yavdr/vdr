@@ -1,5 +1,15 @@
 vdr (2.2.0-1) unstable; urgency=medium
 
+  * Now using /etc/vdr/conf.d for loading plugins
+
+  VDR plugin packages now install a config file to /etc/vdr/conf.avail/.
+  This is basically the same as the old config file
+  /etc/vdr/plugins/plugin-<name>.conf and contains contains the command line
+  arguments passed to the plugin.
+  By creating a symlink in /etc/vdr.conf.d/ which points to the config in
+  conf.avail/ the plugin gets enabled for loading when the vdr daemon is
+  started.
+
   * Support for multiple video directories dropped
 
   The code for distributing recordings over several video directories has been

@@ -31,16 +31,6 @@ Additional configuration options
 
 The following options can be configured in /etc/default/vdr.
 
-ENABLE_CORE_DUMPS=<0|1>
-
-    Default: 0
-
-    Set this to 1, to create core dumps when VDR crashes. If no specific
-    system-wide core dump location is specified, the core dump
-    will be created as /tmp/core.
-    The symbol files are located in the vdr-dbg and vdr-plugin-*-dbg
-    packages.
-
 KEYB_TTY="<CONSOLE>"
 
     Default: "" (No console input)
@@ -55,16 +45,6 @@ KEYB_TTY_SWITCH=<0|1>
     Set this to 1, to make VDR switch to the console specified in KEYB_TTY
     on startup.
 
-PLUGIN_CHECK_STARTABLE="<yes|no>"
-
-    Default: "yes"
-
-    Before starting VDR with the plugins, the loadability of the plugin
-    libraries will be checked with "vdr -V -P plugin". This will catch
-    some binary incompatibilities and problems with the plugins
-    initialization code. Set this to "no" to load the plugins without
-    any testing.
-
 SHUTDOWNCMD="<COMMAND>"
 
     Default: "/sbin/shutdown -h now"
@@ -74,28 +54,6 @@ SHUTDOWNCMD="<COMMAND>"
     command. See section "Shutdown-Hooks" below. SHUTDOWNCMD will be executed
     detached in background.
 
-SVDRP_PORT=<PORT>
-
-    Default: 6419
-
-    Default port for SVDRP (Simple Video Disk Recorder Protocol), the telnet
-    like interface to control VDR.
-
-USER=<USERNAME>
-
-    Default: vdr
-
-    Username under which vdr will run. All plugins and commands invoked by VDR
-    will be executed with the rights of this user.
-
-LIRC=<lirc_device>
-
-    Default: /var/run/lirc/lircd
-
-    Allows one to change the LIRC device or disable LIRC alltogether by
-    setting it to "" which might be required if you use a
-    different frontend, like XBMC or xineliboutput.
-
 VDR_LANG=<LANG>
 
     Default: read from LANG or LC_ALL in /etc/default/locale or /etc/environment,
@@ -103,34 +61,17 @@ VDR_LANG=<LANG>
 
     Locale which is used when running vdr.
 
-VFAT=<0|1>
-
-    Default: 1
-
-    This corresponds to VDR's --vfat option. If videos are stored on a VFAT file
-    system or a SAMBA share, VFAT should be set to 1. With VFAT=1, the encoding
-    and length of file names will be tweaked, so that it can be correctly stored
-    on VFAT file systems.
-
-VIDEO_DIR="<VIDEODIR>"
-
-    Default: "/var/lib/video"
-
-    The video directory where vdr recordings will be stored.
-
 
 Automatic Loading of Plugins
 ----------------------------
 
-When starting vdr with "/etc/init.d/vdr start", for each plugin found in
-/usr/lib/vdr/plugins the appropriate command line argument -P<plugin_name>
-will be created automatically.
+When starting the vdr daemon, it will search in /etc/vdr/conf.d for plugin config
+files, optionally containing command line parameters passed to these plugins, and
+and load these plugins.
 
-If a file /etc/vdr/plugins/plugin.<plugin_name>.conf exists, it will be
-parsed for command line arguments for the specified plugin. This file may
-contain comments prefixed by a "#" and the command line arguments may also be
-distributed across several lines.
-
+Usually the files in /etc/vdr/conf.d/ will be symlinks to the real config files 
+in /etc/vdr/conf.avail/. By deleting or renaming these symlinks, a plugin can be
+disabled or the plugin load order can be changed.
 
 Command-Hooks
 -------------
