@@ -9,14 +9,17 @@
 # by creating a /etc/vdr/conf.d/*.dpkg-vdr-plugin-enable "tag"-file.
 #
 dh_vdrplugin_prepare_enable() {
+  local pkgname="$1"
+  shift
   while [ $# -gt 0 ] ; do
     local config=$1
     local priority=$2
     shift 2
-    if [ ! -e "/etc/vdr/conf.avail/$config" ] ; then
+    local old_md5sum="$(dpkg-query -W -f='${Conffiles}' $pkgname | sed -n -e "\' $config ' { s/ obsolete$//; s/.* //; p }")"
+    if [ -z "$old_md5sum" ] ; then
       touch "/etc/vdr/conf.d/$priority-$config.dpkg-vdrplugin-enable"
     fi
   done
 }
 
-dh_vdrplugin_prepare_enable #ENABLEDCONFIGS#
+dh_vdrplugin_prepare_enable #PKGNAME# #ENABLEDCONFIGS#
