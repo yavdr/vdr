@@ -27,17 +27,17 @@ set -e
 . /usr/share/debconf/confmodule
 
 #
-# Create /var/lib/video if /var/lib/video does not exist.
-# If /var/lib/video.00 exists, /var/lib/video will become a symlink
+# Create /srv/vdr/video if /srv/vdr/video does not exist.
+# If /srv/vdr/video.00 exists, /srv/vdr/video will become a symlink
 #
 TryCreateVideoDir() {
-    if [ ! -e /var/lib/video -a ! -L /var/lib/video ]; then
-        if [ -e /var/lib/video.00 ]; then
-            # No /var/lib/video but /var/lib/video.00 -> Make video a symlink pointing to video.00
-            ln -s video.00 /var/lib/video
+    if [ ! -e /srv/vdr/video -a ! -L /srv/vdr/video ]; then
+        if [ -e /srv/vdr/video.00 ]; then
+            # No /srv/vdr/video but /srv/vdr/video.00 -> Make video a symlink pointing to video.00
+            ln -s video.00 /srv/vdr/video
         else
-            # create /var/lib/video
-            mkdir /var/lib/video
+            # create /srv/vdr/video
+            mkdir /srv/vdr/video
         fi
     fi
 }
@@ -65,12 +65,12 @@ InstallUserAndGroupVdr() {
     GROUP=vdr
     if ! getent group "$GROUP"| grep -q "^$GROUP:" ; then
         echo -n "Adding group $GROUP.."
-        addgroup --quiet --system $GROUP
+        addgroup --quiet --gid 666 --system $GROUP
         echo "..done"
     fi
     if ! getent passwd "$USER"| grep -q "^$USER:"; then
         echo -n "Adding user $USER.."
-        adduser --system --home /var/lib/vdr --shell /bin/false \
+        adduser --system --uid 666 --home /var/lib/vdr --shell /bin/false \
                 --gecos "VDR user" --no-create-home \
                 --disabled-login --disabled-password \
                 --ingroup $GROUP \
@@ -84,7 +84,7 @@ InstallUserAndGroupVdr() {
 
 ConfigureOwnerShip() {
     # ensure that vdr's config and recording files are correctly owned
-    [ -e /var/lib/video ] && chown -R $USER:$GROUP /var/lib/video/
+    [ -e /srv/vdr/video ] && chown -R $USER:$GROUP /srv/vdr/video/
     if [ -e /var/lib/vdr ] ; then
         chown $USER:$GROUP /var/lib/vdr
         chown $USER:$GROUP /var/lib/vdr/* > /dev/null 2>&1 || true
@@ -104,21 +104,21 @@ ConfigureOwnerShip() {
 
 case "$1" in
     configure)
-        db_get vdr/select_dvb_card
-        InstallChannelsConf "$RET"
+#        db_get vdr/select_dvb_card
+#        InstallChannelsConf "$RET"
 
-        db_get vdr/create_video_dir
-        if $RET; then
+#        db_get vdr/create_video_dir
+#        if $RET; then
             TryCreateVideoDir
-        fi
+#        fi
 
         InstallUserAndGroupVdr
 
         ConfigureOwnerShip
 
-        if dpkg --compare-versions "$2" lt "2.2.0-1"; then
-            sh /usr/share/vdr/migrate-old-config.sh || true
-        fi
+#        if dpkg --compare-versions "$2" lt "2.2.0-1"; then
+#            sh /usr/share/vdr/migrate-old-config.sh || true
+#        fi
     ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

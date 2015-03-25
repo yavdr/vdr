@@ -6,7 +6,7 @@
 CXXFLAGS += $(CPPFLAGS)
 CFLAGS += $(CPPFLAGS)
 PREFIX = /usr
-VIDEODIR = /var/lib/video
+VIDEODIR = /srv/vdr/video.00
 LIBDIR = /usr/lib/vdr/plugins
 MAKE_OPTIONS = PREFIX=$(PREFIX) VIDEODIR=$(VIDEODIR) LIBDIR=$(LIBDIR)
 
@@ -37,6 +37,9 @@ override_dh_install:
 	for example in hello osddemo pictures servicedemo skincurses status svdrpdemo rcu; do \
 	    install -D PLUGINS/src/$$example/README debian/vdr-plugin-examples/usr/share/doc/vdr-plugin-examples/README.$$example; \
 	done
+
+override_dh_installinit:
+	dh_installinit --no-start --no-restart-on-upgrade
 
 override_dh_strip:
 	dh_strip -p vdr --dbg-package=vdr-dbg

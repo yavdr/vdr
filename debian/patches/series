@@ -1,5 +1,14 @@
 04_newplugin.patch
 06_default_svdrp_port_0.patch
 12_osdbase-maxitems.patch
-
+81_Make_config.patch
 99_ncursesw-include.patch
+
+opt-37-x_menuorg.patch
+opt-42-x_MainMenuHooks-v1.0.1.patch
+opt-50_graphtft.patch
+opt-56_eventdetails_v3.patch
+opt-57_vdr-remote_instant_recordings.patch
+opt-61_dynamite.patch
+
+vdr-2.2.0-hide-first-recording-level-v5.patch

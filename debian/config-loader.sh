@@ -49,7 +49,7 @@ ENABLE_CORE_DUMPS=0
 ENABLE_SHUTDOWN=0
 
 # Video-Directory
-VIDEO_DIR="/var/lib/video"
+VIDEO_DIR="/srv/vdr/video.00"
 
 # Set this to load only startable plugins (check with "vdr -V -P plugin")
 PLUGIN_CHECK_STARTABLE="yes"

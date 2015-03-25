@@ -1,0 +1,57 @@
+start on ( stopped vdr RESULT=failed EXIT_SIGNAL=?* or \
+           stopped vdr RESULT=failed EXIT_STATUS!=[02] )
+
+task
+
+script
+if [ "$EXIT_SIGNAL" = "" ]; then
+   logger -t "vdr-crash" "vdr exit with exit status $EXIT_STATUS"
+else
+   logger -t "vdr-crash" "vdr exit with signal $EXIT_SIGNAL"
+fi
+
+# cleanup possible leftovers after core dump
+if [ -e /tmp/vdr-xine ]; then
+    rm -rf /tmp/vdr-xine
+fi
+
+# save other artifacts helping to debug
+
+TIMESTAMP=$(date +%Y%m%d%H%M%S)
+# stdout output (which should not happen, but anyway)
+if [ -e /tmp/vdr.log ]; then
+    cp /tmp/vdr.log /var/log/vdr/stdout.vdr.$TIMESTAMP.log
+fi
+if [ -e /tmp/vdr-frontend.log ]; then
+    cp /tmp/vdr-frontend.log /var/log/vdr/stdout.vdr-frontend.$TIMESTAMP.log
+fi
+
+# only keep files from last day
+find /var/log/vdr -name '*.log' -mtime +1 | xargs rm -f
+
+# generate a crashlog if we run debug vdr and cleanup the core file
+CRASHLOG=/var/log/vdr/crashlog.$TIMESTAMP
+echo "Crashlog from $(date)" > $CRASHLOG
+echo "----------------------------------" >> $CRASHLOG
+echo "" >> $CRASHLOG
+
+echo "Environment details:" >> $CRASHLOG
+env >> $CRASHLOG
+echo "" >> $CRASHLOG
+
+echo "Backtrace:" >> $CRASHLOG
+echo "----------" >> $CRASHLOG
+echo "" >> $CRASHLOG
+for CORE in $(find /var/log/vdr -name 'core.*') ; do
+    gdb /usr/bin/vdr --core="$CORE" --batch -ex "where" >> $CRASHLOG
+    echo "" >> $CRASHLOG
+    echo "" >> $CRASHLOG
+    gdb /usr/bin/vdr --core="$CORE" --batch -ex "bt" >> $CRASHLOG
+    echo "" >> $CRASHLOG
+    echo "" >> $CRASHLOG
+    echo "Detailed Backtrace with Threads" >> $CRASHLOG
+    gdb /usr/bin/vdr --core="$CORE" --batch -ex "thread apply all bt" >> $CRASHLOG
+    rm -f $CORE
+done
+
+end script

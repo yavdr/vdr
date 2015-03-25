@@ -1,0 +1,62 @@
+# Starts the vdr, with config and installed plugins
+
+description     "VDR upstart script"
+author          "Steffen Barszus <steffenbpunkt@gmail.com>"
+author          "Lars Hanisch <dvb@flensrocker.de>"
+
+start on ( \
+          runlevel [2345] \
+       or stopped vdr RESULT=failed EXIT_SIGNAL=?* \
+       or stopped vdr RESULT=failed EXIT_STATUS!=[02] \
+       or resume \
+         )
+stop on runlevel [!2345]
+
+kill timeout 60
+
+# "expect stop" must be enabled if "dbus2vdr --upstart" is used
+# "expect stop" must not be enabled if "dbus2vdr --upstart" is not used
+# The Upstart job will hang if you don't pay attention to this
+#expect stop
+
+normal exit 0
+nice -10
+
+pre-start script
+
+. /usr/lib/vdr/config-loader.sh
+if [ "$ENABLED" = "0" ] ; then
+    echo "aborted (to enable the daemon, edit /etc/default/vdr)"
+    exit 2
+fi
+
+end script
+
+script
+
+. /usr/lib/vdr/config-loader.sh
+
+mkdir -p /var/run/vdr
+chown -R $USER:vdr /var/run/vdr
+
+. /usr/lib/vdr/commands-loader.sh
+
+mergecommands "commands"
+mergecommands "reccmds"
+
+# enable debug measures
+if [ -f /etc/init/vdr-dbg.conf ]; then
+   ulimit -c unlimited
+   echo "/var/log/vdr/core.%p" > /proc/sys/kernel/core_pattern
+fi
+
+# set language (default by environment, else by /etc/default/vdr)
+LANG=$VDR_LANG
+LC_ALL=$VDR_LANG
+export LANG LC_ALL
+
+export HOME=/var/lib/vdr
+
+exec /usr/bin/vdr
+
+end script

@@ -10,7 +10,7 @@ _Description: DVB card type:
 Template: vdr/create_video_dir
 Type: boolean
 Default: false
-_Description: Create /var/lib/video?
- By default VDR is configured to use /var/lib/video to store recordings.
+_Description: Create /srv/vdr/video?
+ By default VDR is configured to use /srv/vdr/video to store recordings.
  You can either create this directory now, or change this behavior later 
  by modifying the VIDEO_DIR variable in /etc/default/vdr.

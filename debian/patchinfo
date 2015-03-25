@@ -18,8 +18,53 @@ Patches applied to vanilla vdr sources
 
     Fixes problems with text2skin skin enigma.
 
+81_Make_config.patch
+    Tobias Grimm <vdr@e-tobi.net>
+
+    Add Make.config to compile debug versions.
+
 99_ncursesw-include.patch
     Tobias Grimm <tg@e-tobi.net>
 
     Use ncursesw header file
+
+opt-37-x_menuorg.patch
+    Tobias Grimm <tg@e-tobi.net>
+
+    This patch is required by the MenuOrg plugin. It adds a service interface,
+    that can be implemented by plugins to reorganize  VDR's main menu entries
+    with the ability to create custom sub menus. This is version 0.5.s of the
+    patch
+
+opt-42-x_MainMenuHooks-v1.0.1.patch
+    Frank Schmirler <vdrdev@schmirler.de>
+
+    This patch allows plugins to replace the VDR mainmenus "Schedule",
+    "Channels", "Timers" and "Recordings" by a different implementation.
+
+opt-50_graphtft.patch
+    Jörg Wendel (Horchi)
+
+    Patch required for the GraphTFT plugin.
+
+opt-56_eventdetails_v3.patch
+    Michael Eiler <eiler.mike@gmail.com>      
+
+    Patch for vdr-plugin-restfulapi
+
+opt-57_vdr-remote_instant_recordings.patch
+    Frank Schmirler <vdrdev@schmirler.de> 
+
+    Patch for vdr-plugin-remotetimers
+
+opt-61_dynamite.patch
+    Lars Hanisch <dvb@flensrocker.de>
+
+    Patch for VDR to support hotpluggable devices via the dynamite plugin.
+
+vdr-2.2.0-hide-first-recording-level-v5.patch
+    Lars Hanisch <dvb@flensrocker.de>
+
+    Hide the first level of directories in the recordings menu, all recordings
+    are stored at the "local" directory
 

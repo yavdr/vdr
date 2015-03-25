@@ -48,7 +48,7 @@ Package: vdr-dbg
 Section: debug
 Priority: extra
 Architecture: any
-Depends: ${misc:Depends}, vdr (= ${binary:Version})
+Depends: ${misc:Depends}, vdr (= ${binary:Version}), gdb
 Description: Debug symbols for the VDR Video Disc Recorder
  Video Disk Recorder (VDR) is a digital sat-receiver program using
  Linux and DVB technologies. It allows one to record MPEG2 streams,
