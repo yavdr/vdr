@@ -20,7 +20,7 @@ Index: vdr/newplugin
  	\@mkdir \$(TMPDIR)/\$(ARCHIVE)
  	\@cp -a * \$(TMPDIR)/\$(ARCHIVE)
 -	\@tar czf \$(PACKAGE).tgz -C \$(TMPDIR) \$(ARCHIVE)
-+	\@tar czf \$(PACKAGE).tgz -C \$(TMPDIR) --exclude debian --exclude CVS --exclude .svn \$(ARCHIVE)
++	\@tar czf \$(PACKAGE).tgz -C \$(TMPDIR) --exclude debian --exclude CVS --exclude .svn --exclude .hg --exclude .git \$(ARCHIVE)
  	\@-rm -rf \$(TMPDIR)/\$(ARCHIVE)
  	\@echo Distribution package created as \$(PACKAGE).tgz
  
