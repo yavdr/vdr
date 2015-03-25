@@ -16,6 +16,7 @@ vdr (2.2.0-1) UNRELEASED; urgency=medium
    --chartab command line argument
   * Removed dvb-modules reloading code (Closes: #512362)
   * Added bash completion for svdrpesend (taken from yaVDR / Lars Hanisch)
+  * Added systemd support
 
  -- Tobias Grimm <etobi@debian.org>  Sat, 07 Mar 2015 13:02:02 +0100
 

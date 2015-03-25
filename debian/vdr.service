@@ -1,0 +1,11 @@
+[Unit]
+Description=Video Disk Recorder
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/vdr
+Restart=on-failure
+RestartPreventExitStatus=0 2
+
+[Install]
+WantedBy=multi-user.target
