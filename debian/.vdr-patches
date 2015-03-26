@@ -1,7 +1,7 @@
 04_newplugin.patch:bd963b34c9b1b473f445535d83c30ec1
 06_default_svdrp_port_0.patch:98fc8d7a9f450374de5e5690ad4c98c7
 12_osdbase-maxitems.patch:c5bf663d8e89d441eb9c040403e19228
-81_Make_config.patch:b07cfdb7e8dc2ac07944b58fb77cdaaa
+81_Make_config.patch:c4b83d8c5716bd003e53e6a2c2429b16
 99_ncursesw-include.patch:98a6f4705b312dc9de9775e867e95d54
 opt-37-x_menuorg.patch:35fcf552ee33618af5fcc547ebadb727
 opt-42-x_MainMenuHooks-v1.0.1.patch:5f3d09d70974e85923b8cd4c59e4c75b

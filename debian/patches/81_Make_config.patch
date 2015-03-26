@@ -89,7 +89,7 @@ Re-Authored: Lars Hanisch <dvb@flensrocker.de>
 +#BIDI = 1
 +
 +### Define if you want 'systemd' notification:
-+#SDNOTIFY = 1
++SDNOTIFY = 1
 +
 +### Fallback for plugins with old makefiles:
 +ifdef PLUGIN
