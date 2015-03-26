@@ -71,7 +71,6 @@ startvdr()
         if start-stop-daemon --start --startas $DAEMON --test \
             --name $(basename $DAEMON) --pidfile $PIDFILE >/dev/null
         then
-            getplugins
             mergecommands "commands"
             mergecommands "reccmds"
             configure_console_input

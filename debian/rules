@@ -8,10 +8,10 @@ CFLAGS += $(CPPFLAGS)
 PREFIX = /usr
 VIDEODIR = /srv/vdr/video.00
 LIBDIR = /usr/lib/vdr/plugins
-MAKE_OPTIONS = PREFIX=$(PREFIX) VIDEODIR=$(VIDEODIR) LIBDIR=$(LIBDIR)
+MAKE_OPTIONS = PREFIX=$(PREFIX) VIDEODIR=$(VIDEODIR) LIBDIR=$(LIBDIR) SDNOTIFY=1
 
 %:
-	dh $@
+	dh $@ --with systemd
 
 override_dh_auto_build:
 	dh_auto_build -- $(MAKE_OPTIONS)
