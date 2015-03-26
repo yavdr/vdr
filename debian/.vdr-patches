@@ -10,3 +10,4 @@ opt-56_eventdetails_v3.patch:e2ff963982af0673b0436d3f7f6c2048
 opt-57_vdr-remote_instant_recordings.patch:fe3a39622a71ea4b3aa265ba0a834175
 opt-61_dynamite.patch:3897ceca04a77cb6855b572c12ad29b7
 vdr-2.2.0-hide-first-recording-level-v5.patch:153c16a8b2ba2c4c022d1a1dae3fac18
+vdr-2.2.0-permashift.patch:9a167f0a460173aefed3a7962f387952

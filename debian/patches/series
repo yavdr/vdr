@@ -12,3 +12,6 @@ opt-57_vdr-remote_instant_recordings.patch
 opt-61_dynamite.patch
 
 vdr-2.2.0-hide-first-recording-level-v5.patch
+
+vdr-2.2.0-permashift.patch
+
