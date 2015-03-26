@@ -1,4 +1,4 @@
-vdr (2.2.0-1yavdr2~trusty) trusty; urgency=medium
+vdr (2.2.0-1yavdr3~trusty) trusty; urgency=medium
 
   * rebuild yavdr's package based on Debian's git
   * change videodir to /srv/vdr/video
