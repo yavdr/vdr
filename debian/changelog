@@ -1,7 +1,7 @@
 vdr (2.2.0-1yavdr2~trusty) trusty; urgency=medium
 
   * rebuild yavdr's package based on Debian's git
-  * change videodir to /srv/vdr/video.00
+  * change videodir to /srv/vdr/video
   * add upstart job for vdr
   * add conf-file and upstart job for vdr-dbg
   * don't restart vdr on update

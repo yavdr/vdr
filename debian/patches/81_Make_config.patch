@@ -43,7 +43,7 @@ Re-Authored: Lars Hanisch <dvb@flensrocker.de>
 +RESDIR    = $(PREFIX)/share/vdr
 +#DVBDIR    = /usr/src/v4l-dvb/linux/include/uapi
 +
-+VIDEODIR  = /srv/vdr/video.00
++VIDEODIR  = /srv/vdr/video
 +CONFDIR   = /var/lib/vdr
 +ARGSDIR   = /etc/vdr/conf.d
 +CACHEDIR  = /var/cache/vdr

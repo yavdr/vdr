@@ -27,7 +27,7 @@ set -e
 #. /usr/share/debconf/confmodule
 
 #
-# Create /srv/vdr/video if /srv/vdr/video does not exist.
+# Create /srv/vdr/video and a symlink to video.00 if /srv/vdr/video does not exist.
 # If /srv/vdr/video.00 exists, /srv/vdr/video will become a symlink
 #
 TryCreateVideoDir() {
@@ -36,8 +36,9 @@ TryCreateVideoDir() {
             # No /srv/vdr/video but /srv/vdr/video.00 -> Make video a symlink pointing to video.00
             ln -s video.00 /srv/vdr/video
         else
-            # create /srv/vdr/video
+            # create /srv/vdr/video and link it to video.00
             mkdir -p /srv/vdr/video
+            ln -s video /srv/vdr/video.00
         fi
     fi
 }

@@ -6,7 +6,7 @@
 CXXFLAGS += $(CPPFLAGS)
 CFLAGS += $(CPPFLAGS)
 PREFIX = /usr
-VIDEODIR = /srv/vdr/video.00
+VIDEODIR = /srv/vdr/video
 LIBDIR = /usr/lib/vdr/plugins
 MAKE_OPTIONS = PREFIX=$(PREFIX) VIDEODIR=$(VIDEODIR) LIBDIR=$(LIBDIR) SDNOTIFY=1
 
