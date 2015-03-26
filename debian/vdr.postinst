@@ -24,7 +24,7 @@ set -e
 #     `abort-remove' or `abort-deconfigure'.
 
 # source debconf lib
-. /usr/share/debconf/confmodule
+#. /usr/share/debconf/confmodule
 
 #
 # Create /srv/vdr/video if /srv/vdr/video does not exist.
