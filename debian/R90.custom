@@ -32,6 +32,10 @@ case $1 in
         # do here whatever you would like to do right BEFORE
         # the recording $2 STARTS
         ;;
+    started)
+        # do here whatever you would like to do right AFTER
+        # the recording $2 STARTED
+        ;;
     after)
         # do here whatever you would like to do right AFTER
         # the recording $2 ENDED
@@ -40,5 +44,9 @@ case $1 in
         # do here whatever you would like to do right AFTER
         # the recording $2 has been EDITED
         # $3 is the original recording
+        ;;
+    deleted)
+        # do here whatever you would like to do right AFTER
+        # the recording $2 has been DELETED
         ;;
 esac
