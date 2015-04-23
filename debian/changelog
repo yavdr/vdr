@@ -1,6 +1,7 @@
 vdr (2.2.0-2yavdr0~trusty) trusty; urgency=medium
 
   * add patch for pin plugin
+  * install plugins.mk to /usr/include/vdr
 
  -- Lars Hanisch <dvb@flensrocker.de>  Thu, 23 Apr 2015 20:15:37 +0200
 

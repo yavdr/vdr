@@ -71,7 +71,7 @@ Re-Authored: Lars Hanisch <dvb@flensrocker.de>
 +
 +# Use this if you want to have a central place where you configure compile time
 +# parameters for plugins:
-+#PLGCFG = $(CONFDIR)/plugins.mk
++PLGCFG = $(INCDIR)/vdr/plugins.mk
 +
 +### The remote control:
 +LIRC_DEVICE = /var/run/lirc/lircd

@@ -2,6 +2,7 @@ usr/include
 usr/lib/pkgconfig/vdr.pc
 
 Make.config                                 usr/include/vdr/
+debian/plugins.mk                           usr/include/vdr/
 
 PLUGINS/src/dvbhddevice/dvbhdffdevice.h     usr/include/vdr/plugins/dvbhddevice/
 PLUGINS/src/dvbhddevice/hdffcmd.h           usr/include/vdr/plugins/dvbhddevice/
