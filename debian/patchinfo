@@ -62,6 +62,11 @@ opt-61_dynamite.patch
 
     Patch for VDR to support hotpluggable devices via the dynamite plugin.
 
+opt-65_pin.patch
+    Jörg Wendel (horchi@vdr-portal)
+
+    patch for the pin plugin
+
 vdr-2.2.0-hide-first-recording-level-v5.patch
     Lars Hanisch <dvb@flensrocker.de>
 

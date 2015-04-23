@@ -10,6 +10,7 @@ opt-50_graphtft.patch
 opt-56_eventdetails_v3.patch
 opt-57_vdr-remote_instant_recordings.patch
 opt-61_dynamite.patch
+opt-65_pin.patch
 
 vdr-2.2.0-hide-first-recording-level-v5.patch
 

@@ -16,7 +16,7 @@ Author: Lars Hanisch <dvb@flensrocker.de>
           strreplace((char *)*Folder, FOLDERDELIMCHAR, FOLDERDELIMCHARSUBST); // makes sure parent folders come before subfolders
           if (Dirs.Find(Folder) < 0)
              Dirs.Append(strdup(Folder));
-@@ -2366,7 +2366,7 @@
+@@ -2378,7 +2378,7 @@
    recording = Recording;
    originalFileName = recording->FileName();
    Recordings.StateChanged(recordingsState); // just to get the current state
@@ -25,7 +25,7 @@ Author: Lars Hanisch <dvb@flensrocker.de>
    strn0cpy(name, recording->BaseName(), sizeof(name));
    priority = recording->Priority();
    lifetime = recording->Lifetime();
-@@ -2449,7 +2449,7 @@
+@@ -2461,7 +2461,7 @@
  
  eOSState cMenuRecordingEdit::Folder(void)
  {
@@ -34,7 +34,7 @@ Author: Lars Hanisch <dvb@flensrocker.de>
  }
  
  eOSState cMenuRecordingEdit::Action(void)
-@@ -2513,7 +2513,7 @@
+@@ -2525,7 +2525,7 @@
       }
    cString NewName = *folder ? cString::sprintf("%s%c%s", folder, FOLDERDELIMCHAR, name) : name;
    NewName.CompactChars(FOLDERDELIMCHAR);
@@ -43,7 +43,7 @@ Author: Lars Hanisch <dvb@flensrocker.de>
       if (!recording->ChangeName(NewName)) {
          Skins.Message(mtError, tr("Error while changing folder/name!"));
          return osContinue;
-@@ -2817,6 +2817,15 @@
+@@ -2830,6 +2830,15 @@
  {
    cString d(cVideoDirectory::Name());
    if (base) {
@@ -596,7 +596,7 @@ Author: Lars Hanisch <dvb@flensrocker.de>
                   }
 --- a/vdr.c
 +++ b/vdr.c
-@@ -261,6 +261,7 @@
+@@ -262,6 +262,7 @@
        { "genindex", required_argument, NULL, 'g' | 0x100 },
        { "grab",     required_argument, NULL, 'g' },
        { "help",     no_argument,       NULL, 'h' },
@@ -604,7 +604,7 @@ Author: Lars Hanisch <dvb@flensrocker.de>
        { "instance", required_argument, NULL, 'i' },
        { "lib",      required_argument, NULL, 'L' },
        { "lirc",     optional_argument, NULL, 'l' | 0x100 },
-@@ -287,7 +288,7 @@
+@@ -288,7 +289,7 @@
      };
  
    int c;
@@ -613,7 +613,7 @@ Author: Lars Hanisch <dvb@flensrocker.de>
          switch (c) {
            case 'a': AudioCommand = optarg;
                      break;
-@@ -375,6 +376,8 @@
+@@ -376,6 +377,8 @@
                      break;
            case 'h': DisplayHelp = true;
                      break;
@@ -622,7 +622,7 @@ Author: Lars Hanisch <dvb@flensrocker.de>
            case 'i': if (isnumber(optarg)) {
                         InstanceId = atoi(optarg);
                         if (InstanceId >= 0)
-@@ -560,6 +563,13 @@
+@@ -561,6 +564,13 @@
                 "                           existing directory, without any \"..\", double '/'\n"
                 "                           or symlinks (default: none, same as -g-)\n"
                 "  -h,       --help         print this help and exit\n"
