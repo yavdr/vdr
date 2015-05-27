@@ -1,3 +1,10 @@
+vdr (2.2.0-4yavdr0~trusty) trusty; urgency=medium
+
+  * remove redundant --vfat from 00-vdr.conf
+  * add "missing plugin" patch, so vdr starts even if plugins are missing
+
+ -- Lars Hanisch <dvb@flensrocker.de>  Wed, 27 May 2015 23:29:31 +0200
+
 vdr (2.2.0-3yavdr0~trusty) trusty; urgency=medium
 
   * increase abi-version
