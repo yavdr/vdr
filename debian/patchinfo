@@ -78,3 +78,8 @@ vdr-2.2.0-permashift.patch
 
     Patch for permashift plugin
 
+vdr-2.2.0-missing-plugin.patch
+    Ville Skyttä <ville.skytta@iki.fi>
+
+    Don't exit with an error if a plugin can't be loaded
+

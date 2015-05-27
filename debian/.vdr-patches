@@ -12,3 +12,4 @@ opt-61_dynamite.patch:3897ceca04a77cb6855b572c12ad29b7
 opt-65_pin.patch:ff9d10ae09cde8cb160fc2baf559f584
 vdr-2.2.0-hide-first-recording-level-v5.patch:0846e8ea7c7ee712b2f9f8430c0d6211
 vdr-2.2.0-permashift.patch:aceb7fe9a41998cbc95753e90cbb143a
+vdr-2.2.0-missing-plugin.patch:4dcd9323530dcd19f45eea608fb34955
