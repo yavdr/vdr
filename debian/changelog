@@ -1,3 +1,10 @@
+vdr (2.2.0-5yavdr0~trusty) trusty; urgency=medium
+
+  * remove --lirc from 00-vdr.conf
+    it will be replaced with a templated file
+
+ -- Lars Hanisch <dvb@flensrocker.de>  Wed, 03 Jun 2015 16:41:41 +0200
+
 vdr (2.2.0-4yavdr0~trusty) trusty; urgency=medium
 
   * remove redundant --vfat from 00-vdr.conf
