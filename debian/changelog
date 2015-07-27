@@ -1,3 +1,10 @@
+vdr (2.2.0-6yavdr0~trusty) trusty; urgency=medium
+
+  * remove osdbase-maxitems patch
+    it's incompatible with skindesigner and text2skin is obsolete
+
+ -- Lars Hanisch <dvb@flensrocker.de>  Mon, 27 Jul 2015 18:57:55 +0200
+
 vdr (2.2.0-5yavdr0~trusty) trusty; urgency=medium
 
   * remove --lirc from 00-vdr.conf

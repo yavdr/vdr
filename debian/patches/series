@@ -1,6 +1,6 @@
 04_newplugin.patch
 06_default_svdrp_port_0.patch
-12_osdbase-maxitems.patch
+#12_osdbase-maxitems.patch
 81_Make_config.patch
 99_ncursesw-include.patch
 
