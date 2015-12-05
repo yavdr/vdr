@@ -13,11 +13,6 @@ Patches applied to vanilla vdr sources
     default unless someone specifies another port with the --port option when
     starting vdr
 
-12_osdbase-maxitems.patch
-    Andreas Brugger <brougs78@gmx.net>
-
-    Fixes problems with text2skin skin enigma.
-
 81_Make_config.patch
     Tobias Grimm <vdr@e-tobi.net>
 
@@ -82,4 +77,9 @@ vdr-2.2.0-missing-plugin.patch
     Ville Skyttä <ville.skytta@iki.fi>
 
     Don't exit with an error if a plugin can't be loaded
+
+vdr-2.2.0-toomanypids.patch
+    Zabrimus @ vdr-portal
+
+    Don't add same pid multiple times
 

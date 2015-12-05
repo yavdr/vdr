@@ -1,3 +1,9 @@
+vdr (2.2.0-7yavdr0~trusty) trusty; urgency=medium
+
+  * add patch against too many pids
+
+ -- Lars Hanisch <dvb@flensrocker.de>  Sat, 05 Dec 2015 14:16:34 +0100
+
 vdr (2.2.0-6yavdr0~trusty) trusty; urgency=medium
 
   * remove osdbase-maxitems patch

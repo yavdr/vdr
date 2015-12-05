@@ -1,6 +1,5 @@
 04_newplugin.patch:bd963b34c9b1b473f445535d83c30ec1
 06_default_svdrp_port_0.patch:98fc8d7a9f450374de5e5690ad4c98c7
-12_osdbase-maxitems.patch:c5bf663d8e89d441eb9c040403e19228
 81_Make_config.patch:7ddffabce7ed19c7d253b61223d20ebb
 99_ncursesw-include.patch:98a6f4705b312dc9de9775e867e95d54
 opt-37-x_menuorg.patch:35fcf552ee33618af5fcc547ebadb727
@@ -13,3 +12,4 @@ opt-65_pin.patch:ff9d10ae09cde8cb160fc2baf559f584
 vdr-2.2.0-hide-first-recording-level-v5.patch:0846e8ea7c7ee712b2f9f8430c0d6211
 vdr-2.2.0-permashift.patch:aceb7fe9a41998cbc95753e90cbb143a
 vdr-2.2.0-missing-plugin.patch:4dcd9323530dcd19f45eea608fb34955
+vdr-2.2.0-toomanypids.patch:3b30f63e69828db6a9a97e3e2d984c25
