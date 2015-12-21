@@ -37,10 +37,10 @@ opt-42-x_MainMenuHooks-v1.0.1.patch
     This patch allows plugins to replace the VDR mainmenus "Schedule",
     "Channels", "Timers" and "Recordings" by a different implementation.
 
-opt-50_graphtft.patch
-    Jörg Wendel (Horchi)
+opt-50_graphtftng.patch
+    JÃ¶rg Wendel (Horchi)
 
-    Patch required for the GraphTFT plugin.
+    Patch required for the GraphTFTng plugin.
 
 opt-56_eventdetails_v3.patch
     Michael Eiler <eiler.mike@gmail.com>      

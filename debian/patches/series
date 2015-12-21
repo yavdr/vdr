@@ -6,7 +6,7 @@
 
 opt-37-x_menuorg.patch
 opt-42-x_MainMenuHooks-v1.0.1.patch
-opt-50_graphtft.patch
+opt-50_graphtftng.patch
 opt-56_eventdetails_v3.patch
 opt-57_vdr-remote_instant_recordings.patch
 opt-61_dynamite.patch

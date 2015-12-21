@@ -7,7 +7,7 @@ Author: Lars Hanisch <dvb@flensrocker.de>
 
 --- a/menu.c
 +++ b/menu.c
-@@ -794,7 +794,7 @@
+@@ -792,7 +792,7 @@
       cThreadLock RecordingsLock(&Recordings);
       cStringList Dirs;
       for (cRecording *Recording = Recordings.First(); Recording; Recording = Recordings.Next(Recording)) {
@@ -16,7 +16,7 @@ Author: Lars Hanisch <dvb@flensrocker.de>
           strreplace((char *)*Folder, FOLDERDELIMCHAR, FOLDERDELIMCHARSUBST); // makes sure parent folders come before subfolders
           if (Dirs.Find(Folder) < 0)
              Dirs.Append(strdup(Folder));
-@@ -2378,7 +2378,7 @@
+@@ -2372,7 +2372,7 @@
    recording = Recording;
    originalFileName = recording->FileName();
    Recordings.StateChanged(recordingsState); // just to get the current state
@@ -25,7 +25,7 @@ Author: Lars Hanisch <dvb@flensrocker.de>
    strn0cpy(name, recording->BaseName(), sizeof(name));
    priority = recording->Priority();
    lifetime = recording->Lifetime();
-@@ -2461,7 +2461,7 @@
+@@ -2455,7 +2455,7 @@
  
  eOSState cMenuRecordingEdit::Folder(void)
  {
@@ -34,7 +34,7 @@ Author: Lars Hanisch <dvb@flensrocker.de>
  }
  
  eOSState cMenuRecordingEdit::Action(void)
-@@ -2525,7 +2525,7 @@
+@@ -2519,7 +2519,7 @@
       }
    cString NewName = *folder ? cString::sprintf("%s%c%s", folder, FOLDERDELIMCHAR, name) : name;
    NewName.CompactChars(FOLDERDELIMCHAR);
@@ -43,7 +43,7 @@ Author: Lars Hanisch <dvb@flensrocker.de>
       if (!recording->ChangeName(NewName)) {
          Skins.Message(mtError, tr("Error while changing folder/name!"));
          return osContinue;
-@@ -2830,6 +2830,15 @@
+@@ -2822,6 +2822,15 @@
  {
    cString d(cVideoDirectory::Name());
    if (base) {
@@ -447,7 +447,7 @@ Author: Lars Hanisch <dvb@flensrocker.de>
  
  extern int DirectoryPathMax;
  extern int DirectoryNameMax;
-@@ -105,6 +107,7 @@
+@@ -104,6 +106,7 @@
    mutable char *sortBufferTime;
    mutable char *fileName;
    mutable char *name;
@@ -455,7 +455,7 @@ Author: Lars Hanisch <dvb@flensrocker.de>
    mutable int fileSizeMB;
    mutable int numFrames;
    int channel;
-@@ -134,6 +137,18 @@
+@@ -133,6 +136,18 @@
    bool IsInPath(const char *Path);
         ///< Returns true if this recording is stored anywhere under the given Path.
         ///< If Path is NULL or an empty string, the entire video directory is checked.
@@ -474,7 +474,7 @@ Author: Lars Hanisch <dvb@flensrocker.de>
    cString Folder(void) const;
         ///< Returns the name of the folder this recording is stored in (without the
         ///< video directory). For use in menus etc.
-@@ -218,12 +233,56 @@
+@@ -217,12 +232,56 @@
    };
  
  class cRecordings : public cList<cRecording>, public cThread {
@@ -531,7 +531,7 @@ Author: Lars Hanisch <dvb@flensrocker.de>
    const char *UpdateFileName(void);
    void Refresh(bool Foreground = false);
    bool ScanVideoDir(const char *DirName, bool Foreground = false, int LinkLevel = 0, int DirLevel = 0);
-@@ -280,6 +339,7 @@
+@@ -279,6 +338,7 @@
         ///< If OldPath and NewPath are on different file systems, the recordings
         ///< will be moved in a background process and this function returns true
         ///< if all recordings have been successfully added to the RecordingsHandler.

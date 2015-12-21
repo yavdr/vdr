@@ -1,3 +1,9 @@
+vdr (2.2.0-9yavdr0~trusty) trusty; urgency=medium
+
+  * new patch for graphtftng (abi-break)
+
+ -- Lars Hanisch <dvb@flensrocker.de>  Mon, 21 Dec 2015 19:20:41 +0100
+
 vdr (2.2.0-8yavdr0~trusty) trusty; urgency=medium
 
   * add patch for dynamic caid-buffer-allocation

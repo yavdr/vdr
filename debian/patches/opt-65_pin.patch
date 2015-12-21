@@ -26,7 +26,7 @@ Author: Jörg Wendel (horchi@vdr-portal)
    if (LiveView) {
 --- a/menu.c
 +++ b/menu.c
-@@ -963,6 +963,18 @@
+@@ -961,6 +961,18 @@
       Add(new cMenuEditBitItem( tr("VPS"),          &data.flags, tfVps));
       Add(new cMenuEditIntItem( tr("Priority"),     &data.priority, 0, MAXPRIORITY));
       Add(new cMenuEditIntItem( tr("Lifetime"),     &data.lifetime, 0, MAXLIFETIME));
@@ -45,7 +45,7 @@ Author: Jörg Wendel (horchi@vdr-portal)
       Add(file = new cMenuEditStrItem( tr("File"),   data.file, sizeof(data.file)));
       SetFirstDayItem();
       }
-@@ -2778,7 +2790,8 @@
+@@ -2770,7 +2782,8 @@
                     }
                  }
              }
@@ -55,7 +55,7 @@ Author: Jörg Wendel (horchi@vdr-portal)
              Add(Item);
              LastItem = Item;
              if (Item->IsDirectory())
-@@ -2844,6 +2857,9 @@
+@@ -2836,6 +2849,9 @@
  {
    cMenuRecordingItem *ri = (cMenuRecordingItem *)Get(Current());
    if (ri) {
@@ -65,7 +65,7 @@ Author: Jörg Wendel (horchi@vdr-portal)
       if (ri->IsDirectory())
          Open();
       else {
-@@ -4060,28 +4076,32 @@
+@@ -4045,28 +4061,32 @@
  
    // Basic menu items:
  
@@ -103,7 +103,7 @@ Author: Jörg Wendel (horchi@vdr-portal)
       Add(new cOsdItem(hk(tr("Commands")),  osCommands));
  
    }
-@@ -4152,6 +4172,14 @@
+@@ -4137,6 +4157,14 @@
    eOSState state = cOsdMenu::ProcessKey(Key);
    HadSubMenu |= HasSubMenu();
  
@@ -118,7 +118,7 @@ Author: Jörg Wendel (horchi@vdr-portal)
    cOsdObject *menu = NULL;
    switch (state) {
      case osSchedule:
-@@ -4198,6 +4226,7 @@
+@@ -4183,6 +4211,7 @@
                           if (item) {
                              cPlugin *p = cPluginManager::GetPlugin(item->PluginIndex());
                              if (p) {
@@ -126,7 +126,7 @@ Author: Jörg Wendel (horchi@vdr-portal)
                                 cOsdObject *menu = p->MainMenuAction();
                                 if (menu) {
                                    if (menu->IsMenu())
-@@ -4209,6 +4238,7 @@
+@@ -4194,6 +4223,7 @@
                                    }
                                 }
                              }
@@ -134,7 +134,7 @@ Author: Jörg Wendel (horchi@vdr-portal)
                           state = osEnd;
                         }
                         break;
-@@ -4423,6 +4453,7 @@
+@@ -4408,6 +4438,7 @@
             Channel = Direction > 0 ? Channels.Next(Channel) : Channels.Prev(Channel);
             if (!Channel && Setup.ChannelsWrap)
                Channel = Direction > 0 ? Channels.First() : Channels.Last();
@@ -142,7 +142,7 @@ Author: Jörg Wendel (horchi@vdr-portal)
             if (Channel && !Channel->GroupSep() && cDevice::GetDevice(Channel, LIVEPRIORITY, true, true))
                return Channel;
             }
-@@ -5131,6 +5162,7 @@
+@@ -5116,6 +5147,7 @@
             for (int i = 0; i < MAXRECORDCONTROLS; i++) {
                 if (!RecordControls[i]) {
                    RecordControls[i] = new cRecordControl(device, Timer, Pause);
@@ -262,7 +262,7 @@ Author: Jörg Wendel (horchi@vdr-portal)
  public:
    cStatus(void);
 @@ -122,6 +139,14 @@
-   static void MsgOsdMenuDisplay(const char* kind);
+   static void MsgOsdMenuDisplay(eMenuCategory menuCategory);
    static void MsgOsdMenuDestroy();
    static void MsgOsdEventItem(const cEvent* Event, const char *Text, int Index, int Count);
 +  static bool MsgChannelProtected(const cDevice* Device, const cChannel* Channel);                 // PIN PATCH
