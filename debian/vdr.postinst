@@ -85,7 +85,9 @@ InstallUserAndGroupVdr() {
 
 ConfigureOwnerShip() {
     # ensure that vdr's config and recording files are correctly owned
-    [ -e /srv/vdr/video ] && chown -R $USER:$GROUP /srv/vdr/video/
+    if [ -e /srv/vdr/video ] ; then
+        chown -f -R $USER:$GROUP /srv/vdr/video/ || true
+    fi
     if [ -e /var/lib/vdr ] ; then
         chown $USER:$GROUP /var/lib/vdr
         chown $USER:$GROUP /var/lib/vdr/* > /dev/null 2>&1 || true
