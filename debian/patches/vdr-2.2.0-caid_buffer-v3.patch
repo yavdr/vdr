@@ -3,7 +3,7 @@ Forwarded: yes
 Author: Lars Hanisch <dvb@flensrocker.de>
 
 diff --git a/ci.c b/ci.c
-index ffc7ff7..63603bc 100644
+index ffc7ff7..8bfae23 100644
 --- a/ci.c
 +++ b/ci.c
 @@ -25,6 +25,8 @@
@@ -15,14 +15,27 @@ index ffc7ff7..63603bc 100644
  // Set these to 'true' for debug output:
  static bool DumpTPDUDataTransfer = false;
  static bool DebugProtocol = false;
-@@ -784,8 +786,15 @@ cCiCaPmt::cCiCaPmt(uint8_t CmdId, int Source, int Transponder, int ProgramNumber
+@@ -763,9 +765,12 @@ private:
+   int transponder;
+   int programNumber;
+   int caSystemIds[MAXCASYSTEMIDS + 1]; // list is zero terminated!
++  uint8_t *caDescriptors;
++  int caBufSize;
+   void AddCaDescriptors(int Length, const uint8_t *Data);
+ public:
+   cCiCaPmt(uint8_t CmdId, int Source, int Transponder, int ProgramNumber, const int *CaSystemIds);
++  ~cCiCaPmt(void);
+   uint8_t CmdId(void) { return cmdId; }
+   void SetListManagement(uint8_t ListManagement);
+   uint8_t ListManagement(void) { return capmt[0]; }
+@@ -784,8 +789,15 @@ cCiCaPmt::cCiCaPmt(uint8_t CmdId, int Source, int Transponder, int ProgramNumber
           caSystemIds[i] = CaSystemIds[i];
       }
    caSystemIds[i] = 0;
 -  uint8_t caDescriptors[512];
 -  int caDescriptorsLength = GetCaDescriptors(source, transponder, programNumber, caSystemIds, sizeof(caDescriptors), caDescriptors, 0);
-+  int caBufSize = CAID_BUFSIZE;
-+  uint8_t *caDescriptors = new uint8_t[caBufSize];
++  caBufSize = CAID_BUFSIZE;
++  caDescriptors = new uint8_t[caBufSize];
 +  int caDescriptorsLength = GetCaDescriptors(source, transponder, programNumber, caSystemIds, caBufSize, caDescriptors, 0);
 +  if (caDescriptorsLength < 0) {
 +     delete [] caDescriptors;
@@ -33,15 +46,19 @@ index ffc7ff7..63603bc 100644
    length = 0;
    capmt[length++] = CPLM_ONLY;
    capmt[length++] = (ProgramNumber >> 8) & 0xFF;
-@@ -795,6 +804,7 @@ cCiCaPmt::cCiCaPmt(uint8_t CmdId, int Source, int Transponder, int ProgramNumber
-   capmt[length++] = 0x00; // program_info_length H (at program level)
-   capmt[length++] = 0x00; // program_info_length L
+@@ -797,6 +809,11 @@ cCiCaPmt::cCiCaPmt(uint8_t CmdId, int Source, int Transponder, int ProgramNumber
    AddCaDescriptors(caDescriptorsLength, caDescriptors);
-+  delete [] caDescriptors;
  }
  
++cCiCaPmt::~cCiCaPmt(void)
++{
++  delete [] caDescriptors;
++}
++
  void cCiCaPmt::SetListManagement(uint8_t ListManagement)
-@@ -805,21 +815,37 @@ void cCiCaPmt::SetListManagement(uint8_t ListManagement)
+ {
+   capmt[0] = ListManagement;
+@@ -805,21 +822,34 @@ void cCiCaPmt::SetListManagement(uint8_t ListManagement)
  void cCiCaPmt::AddPid(int Pid, uint8_t StreamType)
  {
    if (Pid) {
@@ -55,8 +72,6 @@ index ffc7ff7..63603bc 100644
 -     capmt[length++] = 0x00; // ES_info_length H (at ES level)
 -     capmt[length++] = 0x00; // ES_info_length L
 -     AddCaDescriptors(caDescriptorsLength, caDescriptors);
-+     int caBufSize = CAID_BUFSIZE;
-+     uint8_t *caDescriptors = new uint8_t[caBufSize];
 +     int caDescriptorsLength = GetCaDescriptors(source, transponder, programNumber, caSystemIds, caBufSize, caDescriptors, Pid);
 +     if (caDescriptorsLength < 0) {
 +       delete [] caDescriptors;
@@ -75,7 +90,6 @@ index ffc7ff7..63603bc 100644
 +        }
 +     else
 +        esyslog("ERROR: buffer overflow in CA descriptor");
-+     delete [] caDescriptors;
       }
  }
  
