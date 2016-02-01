@@ -1,3 +1,9 @@
+vdr (2.2.0-12yavdr0~trusty) trusty; urgency=medium
+
+  * new patch for graphtftng
+
+ -- Lars Hanisch <dvb@flensrocker.de>  Mon, 01 Feb 2016 19:27:28 +0100
+
 vdr (2.2.0-11yavdr0~trusty) trusty; urgency=medium
 
   * new patch for dynamic caid-buffer-allocation

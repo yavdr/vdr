@@ -24,7 +24,7 @@ Origin: http://vdr.schmirler.de/
  #define MAXWAIT4EPGINFO   3 // seconds
  #define MODETIMEOUT       3 // seconds
  #define NEWTIMERLIMIT   120 // seconds until the start time of a new timer created from the Schedule menu,
-@@ -5036,6 +5038,50 @@
+@@ -5037,6 +5039,50 @@
  
  bool cRecordControls::Start(cTimer *Timer, bool Pause)
  {

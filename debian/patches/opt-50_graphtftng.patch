@@ -66,6 +66,14 @@ Origin: git://projects.vdr-developer.org/vdr-plugin-graphtftng.git
  void cMenuSchedule::PrepareScheduleAllThis(const cEvent *Event, const cChannel *Channel)
  {
    Clear();
+@@ -2562,6 +2589,7 @@
+      }
+   cOsdMenu::Display();
+   DisplayMenu()->SetRecording(recording);
++  cStatus::MsgOsdSetRecording(recording);
+   if (recording->Info()->Description())
+      cStatus::MsgOsdTextItem(recording->Info()->Description());
+ }
 --- a/osdbase.c
 +++ b/osdbase.c
 @@ -106,6 +106,7 @@

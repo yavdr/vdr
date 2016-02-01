@@ -45,7 +45,7 @@ Author: Jörg Wendel (horchi@vdr-portal)
       Add(file = new cMenuEditStrItem( tr("File"),   data.file, sizeof(data.file)));
       SetFirstDayItem();
       }
-@@ -2770,7 +2782,8 @@
+@@ -2771,7 +2783,8 @@
                     }
                  }
              }
@@ -55,7 +55,7 @@ Author: Jörg Wendel (horchi@vdr-portal)
              Add(Item);
              LastItem = Item;
              if (Item->IsDirectory())
-@@ -2836,6 +2849,9 @@
+@@ -2837,6 +2850,9 @@
  {
    cMenuRecordingItem *ri = (cMenuRecordingItem *)Get(Current());
    if (ri) {
@@ -65,7 +65,7 @@ Author: Jörg Wendel (horchi@vdr-portal)
       if (ri->IsDirectory())
          Open();
       else {
-@@ -4045,28 +4061,32 @@
+@@ -4046,28 +4062,32 @@
  
    // Basic menu items:
  
@@ -103,7 +103,7 @@ Author: Jörg Wendel (horchi@vdr-portal)
       Add(new cOsdItem(hk(tr("Commands")),  osCommands));
  
    }
-@@ -4137,6 +4157,14 @@
+@@ -4138,6 +4158,14 @@
    eOSState state = cOsdMenu::ProcessKey(Key);
    HadSubMenu |= HasSubMenu();
  
@@ -118,7 +118,7 @@ Author: Jörg Wendel (horchi@vdr-portal)
    cOsdObject *menu = NULL;
    switch (state) {
      case osSchedule:
-@@ -4183,6 +4211,7 @@
+@@ -4184,6 +4212,7 @@
                           if (item) {
                              cPlugin *p = cPluginManager::GetPlugin(item->PluginIndex());
                              if (p) {
@@ -126,7 +126,7 @@ Author: Jörg Wendel (horchi@vdr-portal)
                                 cOsdObject *menu = p->MainMenuAction();
                                 if (menu) {
                                    if (menu->IsMenu())
-@@ -4194,6 +4223,7 @@
+@@ -4195,6 +4224,7 @@
                                    }
                                 }
                              }
@@ -134,7 +134,7 @@ Author: Jörg Wendel (horchi@vdr-portal)
                           state = osEnd;
                         }
                         break;
-@@ -4408,6 +4438,7 @@
+@@ -4409,6 +4439,7 @@
             Channel = Direction > 0 ? Channels.Next(Channel) : Channels.Prev(Channel);
             if (!Channel && Setup.ChannelsWrap)
                Channel = Direction > 0 ? Channels.First() : Channels.Last();
@@ -142,7 +142,7 @@ Author: Jörg Wendel (horchi@vdr-portal)
             if (Channel && !Channel->GroupSep() && cDevice::GetDevice(Channel, LIVEPRIORITY, true, true))
                return Channel;
             }
-@@ -5116,6 +5147,7 @@
+@@ -5117,6 +5148,7 @@
             for (int i = 0; i < MAXRECORDCONTROLS; i++) {
                 if (!RecordControls[i]) {
                    RecordControls[i] = new cRecordControl(device, Timer, Pause);
