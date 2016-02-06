@@ -11,7 +11,7 @@ LIBDIR = /usr/lib/vdr/plugins
 MAKE_OPTIONS = PREFIX=$(PREFIX) VIDEODIR=$(VIDEODIR) LIBDIR=$(LIBDIR) SDNOTIFY=1
 
 %:
-	dh $@ --with systemd
+	dh $@ --with bash-completion,systemd
 
 override_dh_auto_build:
 	dh_auto_build -- $(MAKE_OPTIONS)
@@ -37,9 +37,10 @@ override_dh_install:
 	for example in hello osddemo pictures servicedemo skincurses status svdrpdemo rcu; do \
 	    install -D PLUGINS/src/$$example/README debian/vdr-plugin-examples/usr/share/doc/vdr-plugin-examples/README.$$example; \
 	done
+	DH_AUTOSCRIPTDIR=debian/dh-addon-vdrplugin debian/dh-addon-vdrplugin/dh_vdrplugin_enable
 
 override_dh_installinit:
-	dh_installinit --no-start --no-restart-on-upgrade
+	dh_installinit --no-start --no-restart-on-upgrade --error-handler true
 
 override_dh_strip:
 	dh_strip -p vdr --dbg-package=vdr-dbg
