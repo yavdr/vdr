@@ -1,0 +1,14 @@
+--- a/Makefile
++++ b/Makefile
+@@ -95,9 +95,9 @@
+ LIBS += $(shell pkg-config --libs fribidi)
+ endif
+ ifdef SDNOTIFY
+-INCLUDES += $(shell pkg-config --cflags libsystemd-daemon)
++INCLUDES += $(shell pkg-config --cflags libsystemd)
+ DEFINES += -DSDNOTIFY
+-LIBS += $(shell pkg-config --libs libsystemd-daemon)
++LIBS += $(shell pkg-config --libs libsystemd)
+ endif
+ 
+ LIRC_DEVICE ?= /var/run/lirc/lircd
