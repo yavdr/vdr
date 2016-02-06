@@ -13,6 +13,7 @@ epg2html                                usr/lib/vdr/
 debian/runvdr                           usr/lib/vdr/
 
 debian/config-loader.sh                 usr/lib/vdr/
+debian/merge-commands.sh                usr/lib/vdr/
 debian/commands-loader.sh               usr/lib/vdr/
 debian/vdr-groups.sh                    usr/lib/vdr/
 debian/vdr-recordingaction              usr/lib/vdr/
