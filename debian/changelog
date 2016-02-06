@@ -1,4 +1,10 @@
-vdr (2.2.0-13yavdr0~trusty) xenial; urgency=medium
+vdr (2.2.0-16yavdr0~xenial) xenial; urgency=medium
+
+  * add some changes from debian package
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Sat, 06 Feb 2016 21:54:13 +0100
+
+vdr (2.2.0-13yavdr0~xenial) xenial; urgency=medium
 
   * update package for xenial
 
