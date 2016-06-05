@@ -1,3 +1,10 @@
+vdr (2.2.0-13yavdr0~trusty) trusty; urgency=medium
+
+  * add patch for h.265 parser
+  * add patch against mutex deadlock
+
+ -- Lars Hanisch <dvb@flensrocker.de>  Sun, 05 Jun 2016 15:21:24 +0200
+
 vdr (2.2.0-12yavdr0~trusty) trusty; urgency=medium
 
   * new patch for graphtftng
