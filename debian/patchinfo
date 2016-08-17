@@ -88,3 +88,8 @@ vdr-2.2.0-caid_buffer-v3.patch
 
     dynamically resize buffer for caids
 
+systemd.diff
+    seahawk1986 @ vdr-portal
+
+    Use libsystemd instead of libsystemd-daemon
+
