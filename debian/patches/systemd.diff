@@ -1,3 +1,7 @@
+Description: Use libsystemd instead of libsystemd-daemon
+Forwarded: no
+Author: seahawk1986 @ vdr-portal
+
 --- a/Makefile
 +++ b/Makefile
 @@ -95,9 +95,9 @@
