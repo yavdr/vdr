@@ -88,3 +88,8 @@ vdr-2.2.0-caid_buffer-v3.patch
 
     dynamically resize buffer for caids
 
+systemd.patch
+    Tobias Grimm <etobi@debian.org>
+
+    Use libsystemd instead of transitional libsystemd-daemon
+

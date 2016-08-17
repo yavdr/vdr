@@ -13,13 +13,14 @@ epg2html                                usr/lib/vdr/
 debian/runvdr                           usr/lib/vdr/
 
 debian/config-loader.sh                 usr/lib/vdr/
+debian/merge-commands.sh                usr/lib/vdr/
 debian/commands-loader.sh               usr/lib/vdr/
 debian/vdr-groups.sh                    usr/lib/vdr/
 debian/vdr-recordingaction              usr/lib/vdr/
 debian/vdr-shutdown                     usr/lib/vdr/
 debian/vdr-shutdown.wrapper             usr/lib/vdr/
+debian/wait-for-dvb@.service            lib/systemd/system/
 
-debian/svdrpsend                        etc/bash_completion.d/
 debian/00-vdr.conf                      etc/vdr/conf.d/
 debian/vdr.groups                       etc/vdr/
 debian/R90.custom                       etc/vdr/recording-hooks/

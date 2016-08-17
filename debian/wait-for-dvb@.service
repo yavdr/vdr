@@ -1,0 +1,19 @@
+[Unit]
+Wants=dev-dvb-adapter%i-frontend0.device
+Wants=dev-dvb-adapter%i-demux0.device
+Wants=dev-dvb-adapter%i-dvr0.device
+#Wants=dev-dvb-adapter%i-net0.device
+
+After=dev-dvb-adapter%i-frontend0.device
+After=dev-dvb-adapter%i-demux0.device
+After=dev-dvb-adapter%i-dvr0.device
+#After=dev-dvb-adapter%i-net0.device
+
+Before=vdr.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/logger -t wait-for-dvb got device %i
+
+[Install]
+WantedBy=multi-user.target

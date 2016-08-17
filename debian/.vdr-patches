@@ -13,4 +13,5 @@ vdr-2.2.0-hide-first-recording-level-v5.patch:c8369be1eba87f08853f8aa09035a5ca
 vdr-2.2.0-permashift.patch:9964ad8284fb1b82873bc946bf541328
 vdr-2.2.0-missing-plugin.patch:4dcd9323530dcd19f45eea608fb34955
 vdr-2.2.0-toomanypids.patch:3b30f63e69828db6a9a97e3e2d984c25
-vdr-2.2.0-caid_buffer-v3.patch:48f41d09dca5a3864f296c665ad21dd3
+vdr-2.2.0-caid_buffer-v3.patch:f77319f74ec62af61562e120ae8e3236
+systemd.patch:263b8db8a6cb952fe9157dbf4c76aaa5

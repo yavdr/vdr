@@ -1,0 +1,19 @@
+Description: Use libsystemd instead of transitional libsystemd-daemon
+Author: Tobias Grimm <etobi@debian.org>
+---
+Index: vdr/Makefile
+===================================================================
+--- vdr.orig/Makefile	2015-09-21 22:07:22.568154904 +0200
++++ vdr/Makefile	2015-10-05 21:21:49.338294885 +0200
+@@ -95,9 +95,9 @@
+ LIBS += $(shell pkg-config --libs fribidi)
+ endif
+ ifdef SDNOTIFY
+-INCLUDES += $(shell pkg-config --cflags libsystemd-daemon)
++INCLUDES += $(shell pkg-config --cflags libsystemd)
+ DEFINES += -DSDNOTIFY
+-LIBS += $(shell pkg-config --libs libsystemd-daemon)
++LIBS += $(shell pkg-config --libs libsystemd)
+ endif
+ 
+ LIRC_DEVICE ?= /var/run/lirc/lircd
