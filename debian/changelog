@@ -1,3 +1,9 @@
+vdr (2.2.0-18yavdr0~xenial) xenial; urgency=medium
+
+  * bump version for Launchpad
+
+ -- Lars Hanisch <dvb@flensrocker.de>  Wed, 17 Aug 2016 23:17:22 +0200
+
 vdr (2.2.0-17yavdr0~xenial) xenial; urgency=medium
 
   * use libsystemd-dev instead of libsystemd-daemon-dev
