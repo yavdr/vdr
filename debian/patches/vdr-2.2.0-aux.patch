@@ -1,0 +1,82 @@
+Description: Add AUX data fields to epg entries. This patch is used by some plugins like epg2vdr and osd2web
+Author: Jörg Wendel
+Origin: https://projects.vdr-developer.org/git/vdr-plugin-epg2vdr.git/plain/patches/vdr-2.2.0-aux.patch
+--- a/epg.c
++++ b/epg.c
+@@ -122,6 +122,7 @@
+   shortText = NULL;
+   description = NULL;
+   components = NULL;
++  aux = NULL;
+   memset(contents, 0, sizeof(contents));
+   parentalRating = 0;
+   startTime = 0;
+@@ -135,6 +136,7 @@
+   free(title);
+   free(shortText);
+   free(description);
++  free(aux);
+   delete components;
+ }
+ 
+@@ -235,6 +237,12 @@
+   seen = time(NULL);
+ }
+ 
++void cEvent::SetAux(const char *Aux)
++{
++  free(aux);
++  aux = Aux ? strdup(Aux) : NULL;
++}
++
+ cString cEvent::ToDescr(void) const
+ {
+   char vpsbuf[64] = "";
+@@ -479,6 +487,11 @@
+         }
+      if (vps)
+         fprintf(f, "%sV %ld\n", Prefix, vps);
++     if (!isempty(aux)) {
++        strreplace(aux, '\n', '|');
++        fprintf(f, "%s@ %s\n", Prefix, aux);
++        strreplace(aux, '|', '\n');
++        }
+      if (!InfoOnly)
+         fprintf(f, "%se\n", Prefix);
+      }
+@@ -520,6 +533,9 @@
+               break;
+     case 'V': SetVps(atoi(t));
+               break;
++    case '@': strreplace(t, '|', '\n');
++              SetAux(t);
++              break;
+     default:  esyslog("ERROR: unexpected tag while reading EPG data: %s", s);
+               return false;
+     }
+--- a/epg.h
++++ b/epg.h
+@@ -96,6 +96,7 @@
+   time_t vps;              // Video Programming Service timestamp (VPS, aka "Programme Identification Label", PIL)
+   time_t seen;             // When this event was last seen in the data stream
+   std::vector< struct tEpgDetail > details; // additional information provided by epg source
++  char *aux;
+ public:
+   cEvent(tEventID EventID);
+   ~cEvent();
+@@ -118,6 +119,7 @@
+   time_t Vps(void) const { return vps; }
+   time_t Seen(void) const { return seen; }
+   bool SeenWithin(int Seconds) const { return time(NULL) - seen < Seconds; }
++  const char *Aux(void) const { return aux; }
+   bool HasTimer(void) const;
+   bool IsRunning(bool OrAboutToStart = false) const;
+   static const char *ContentToString(uchar Content);
+@@ -141,6 +143,7 @@
+   void SetDuration(int Duration);
+   void SetVps(time_t Vps);
+   void SetSeen(void);
++  void SetAux(const char *Aux);
+   void AddDetail(char* value);
+   void AddDetail(std::string key, std::string value);
+   void ClearDetails() { details.erase(details.begin(), details.end()); };

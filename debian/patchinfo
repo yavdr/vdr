@@ -88,3 +88,19 @@ vdr-2.2.0-caid_buffer-v3.patch
 
     dynamically resize buffer for caids
 
+vdr-2.2.0-h265-frame-parser.patch
+    Thomas Reufer <thomas@reufer.ch>
+
+    Add h265 frame parser to VDR 2.2.0
+
+vdr-2.2.0-mutex-deadlock.patch
+    jrie (vdr-portal.de)
+
+    prevent deadlocks caused by wrong mutex order
+
+vdr-2.2.0-aux.patch
+    Jörg Wendel
+
+    Add AUX data fields to epg entries. This patch is used by some plugins like
+    epg2vdr and osd2web
+

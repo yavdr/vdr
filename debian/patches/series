@@ -23,3 +23,4 @@ vdr-2.2.0-caid_buffer-v3.patch
 vdr-2.2.0-h265-frame-parser.patch
 vdr-2.2.0-mutex-deadlock.patch
 
+vdr-2.2.0-aux.patch

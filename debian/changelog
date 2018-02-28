@@ -1,3 +1,9 @@
+vdr (2.2.0-14yavdr0~trusty) trusty; urgency=medium
+
+  * add vdr-2.2.0-aux.patch by Jörg Wendel
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Wed, 24 May 2017 10:11:01 +0200
+
 vdr (2.2.0-13yavdr0~trusty) trusty; urgency=medium
 
   * add patch for h.265 parser
