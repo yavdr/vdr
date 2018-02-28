@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: device.h 3.10 2015/01/12 14:39:09 kls Exp $
+ * $Id: device.h 4.10 2017/05/30 11:06:11 kls Exp $
  */
 
 #ifndef __DEVICE_H
@@ -55,7 +55,7 @@ enum ePlayMode { pmNone,           // audio/video from decoder
                  // KNOWN TO YOUR PLAYER.
                };
 
-#define DEPRECATED_VIDEOSYSTEM
+//#define DEPRECATED_VIDEOSYSTEM
 #ifdef DEPRECATED_VIDEOSYSTEM
 enum eVideoSystem { vsPAL,
                     vsNTSC
@@ -106,9 +106,25 @@ public:
 
 /// The cDevice class is the base from which actual devices can be derived.
 
+#define DTV_STAT_VALID_NONE      0x0000
+#define DTV_STAT_VALID_STRENGTH  0x0001
+#define DTV_STAT_VALID_CNR       0x0002
+#define DTV_STAT_VALID_BERPRE    0x0004
+#define DTV_STAT_VALID_BERPOST   0x0008
+#define DTV_STAT_VALID_PER       0x0010
+#define DTV_STAT_VALID_STATUS    0x0020
+
+#define DTV_STAT_HAS_NONE        0x0000
+#define DTV_STAT_HAS_SIGNAL      0x0001
+#define DTV_STAT_HAS_CARRIER     0x0002
+#define DTV_STAT_HAS_VITERBI     0x0004
+#define DTV_STAT_HAS_SYNC        0x0008
+#define DTV_STAT_HAS_LOCK        0x0010
+
 class cDevice : public cThread {
   friend class cLiveSubtitle;
   friend class cDeviceHook;
+  friend class cReceiver;
 private:
   static int numDevices;
   static int useDevice;
@@ -241,6 +257,7 @@ public:
 // Channel facilities
 
 private:
+  mutable cMutex mutexChannel;
   time_t occupiedTimeout;
 protected:
   static int currentChannel;
@@ -283,6 +300,23 @@ public:
          ///< move the satellite dish to the requested position (only applies to DVB-S
          ///< devices). If no positioner is involved, or this is not a DVB-S device,
          ///< NULL will be returned.
+  virtual bool SignalStats(int &Valid, double *Strength = NULL, double *Cnr = NULL, double *BerPre = NULL, double *BerPost = NULL, double *Per = NULL, int *Status = NULL) const;
+         ///< Returns statistics about the currently received signal (if available).
+         ///< Strength is the signal strength in dBm (typical range -100dBm...0dBm).
+         ///< Cnr is the carrier to noise ratio in dB (typical range 0dB...40dB).
+         ///< BerPre is the bit error rate before the forward error correction (FEC).
+         ///< BerPost is the bit error rate after the forward error correction (FEC).
+         ///< Per is the block error rate after the forward error correction (FEC).
+         ///< Status is the masked frontend status (signal/carrier/viterbi/sync/lock).
+         ///< Typical range for BerPre, BerPost and Per is 0...1.
+         ///< If any of the given pointers is not NULL, the value of the respective signal
+         ///< statistic is returned in it. Upon return, Valid holds a combination of
+         ///< DTV_STAT_VALID_* flags, indicating which of the returned values are actually
+         ///< valid. If the flag for a particular parameter in Valid is 0, the returned
+         ///< value is undefined. It depends on the device which of these parameters
+         ///< (if any) are available.
+         ///< Returns true if any of the requested parameters is valid.
+         ///< If false is returned, the value in Valid is undefined.
   virtual int SignalStrength(void) const;
          ///< Returns the "strength" of the currently received signal.
          ///< This is a value in the range 0 (no signal at all) through
@@ -322,7 +356,11 @@ protected:
 public:
   static int CurrentChannel(void) { return primaryDevice ? currentChannel : 0; }
          ///< Returns the number of the current channel on the primary device.
+#define DEPRECATED_SETCURRENTCHANNEL
+#ifdef DEPRECATED_SETCURRENTCHANNEL
   static void SetCurrentChannel(const cChannel *Channel) { currentChannel = Channel ? Channel->Number() : 0; }
+#endif
+  static void SetCurrentChannel(int ChannelNumber) { currentChannel = ChannelNumber; }
          ///< Sets the number of the current channel on the primary device, without
          ///< actually switching to it. This can be used to correct the current
          ///< channel number while replaying.
@@ -351,6 +389,7 @@ public:
 // PID handle facilities
 
 private:
+  mutable cMutex mutexPids;
   virtual void Action(void);
 protected:
   enum ePidType { ptAudio, ptVideo, ptPcr, ptTeletext, ptDolby, ptOther };
@@ -420,7 +459,6 @@ public:
 // Common Interface facilities:
 
 private:
-  time_t startScrambleDetection;
   cCamSlot *camSlot;
 public:
   virtual bool HasCi(void);
@@ -835,19 +873,23 @@ class cTSBuffer : public cThread {
 private:
   int f;
   int cardIndex;
-  bool delivered;
+  int delivered;
   cRingBufferLinear *ringBuffer;
   virtual void Action(void);
 public:
   cTSBuffer(int File, int Size, int CardIndex);
   virtual ~cTSBuffer();
-  uchar *Get(int *Available = NULL);
+  uchar *Get(int *Available = NULL, bool CheckAvailable = false);
      ///< Returns a pointer to the first TS packet in the buffer. If Available is given,
      ///< it will return the total number of consecutive bytes pointed to in the buffer.
      ///< It is guaranteed that the returned pointer points to a TS_SYNC_BYTE and that
      ///< there are at least TS_SIZE bytes in the buffer. Otherwise NULL will be
      ///< returned and the value in Available (if given) is undefined.
      ///< Each call to Get() returns a pointer to the next TS packet in the buffer.
+     ///< If CheckAvailable is true, the buffer will be checked whether it contains
+     ///< at least TS_SIZE bytes before trying to get any data from it. Otherwise, if
+     ///< the buffer is empty, this function will wait a little while for the buffer
+     ///< to be filled again.
   void Skip(int Count);
      ///< If after a call to Get() more or less than TS_SIZE of the available data
      ///< has been processed, a call to Skip() with the number of processed bytes

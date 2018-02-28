@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: recording.c 3.28 2015/02/16 07:49:14 kls Exp $
+ * $Id: recording.c 4.10 2017/06/25 12:31:46 kls Exp $
  */
 
 #include "recording.h"
@@ -27,6 +27,7 @@
 #include "remux.h"
 #include "ringbuffer.h"
 #include "skins.h"
+#include "svdrp.h"
 #include "tools.h"
 #include "videodir.h"
 
@@ -76,9 +77,6 @@ int DirectoryNameMax = NAME_MAX;
 bool DirectoryEncoding = false;
 int InstanceId = 0;
 
-cRecordings DeletedRecordings(true);
-static cRecordings VanishedRecordings;
-
 // --- cRemoveDeletedRecordingsThread ----------------------------------------
 
 class cRemoveDeletedRecordingsThread : public cThread {
@@ -100,8 +98,8 @@ void cRemoveDeletedRecordingsThread::Action(void)
   if (LockFile.Lock()) {
      time_t StartTime = time(NULL);
      bool deleted = false;
-     cThreadLock DeletedRecordingsLock(&DeletedRecordings);
-     for (cRecording *r = DeletedRecordings.First(); r; ) {
+     LOCK_DELETEDRECORDINGS_WRITE;
+     for (cRecording *r = DeletedRecordings->First(); r; ) {
          if (cIoThrottle::Engaged())
             return;
          if (time(NULL) - StartTime > MAXREMOVETIME)
@@ -109,14 +107,14 @@ void cRemoveDeletedRecordingsThread::Action(void)
          if (cRemote::HasKeys())
             return; // react immediately on user input
          if (r->Deleted() && time(NULL) - r->Deleted() > DELETEDLIFETIME) {
-            cRecording *next = DeletedRecordings.Next(r);
+            cRecording *next = DeletedRecordings->Next(r);
             r->Remove();
-            DeletedRecordings.Del(r);
+            DeletedRecordings->Del(r);
             r = next;
             deleted = true;
             continue;
             }
-         r = DeletedRecordings.Next(r);
+         r = DeletedRecordings->Next(r);
          }
      if (deleted) {
         const char *IgnoreFiles[] = { SORTMODEFILE, NULL };
@@ -134,8 +132,8 @@ void RemoveDeletedRecordings(void)
   static time_t LastRemoveCheck = 0;
   if (time(NULL) - LastRemoveCheck > REMOVECHECKDELTA) {
      if (!RemoveDeletedRecordingsThread.Active()) {
-        cThreadLock DeletedRecordingsLock(&DeletedRecordings);
-        for (cRecording *r = DeletedRecordings.First(); r; r = DeletedRecordings.Next(r)) {
+        LOCK_DELETEDRECORDINGS_READ;
+        for (const cRecording *r = DeletedRecordings->First(); r; r = DeletedRecordings->Next(r)) {
             if (r->Deleted() && time(NULL) - r->Deleted() > DELETEDLIFETIME) {
                RemoveDeletedRecordingsThread.Start();
                break;
@@ -163,37 +161,43 @@ void AssertFreeDiskSpace(int Priority, bool Force)
            return;
         // Remove the oldest file that has been "deleted":
         isyslog("low disk space while recording, trying to remove a deleted recording...");
-        cThreadLock DeletedRecordingsLock(&DeletedRecordings);
-        if (DeletedRecordings.Count()) {
-           cRecording *r = DeletedRecordings.First();
-           cRecording *r0 = NULL;
-           while (r) {
-                 if (r->IsOnVideoDirectoryFileSystem()) { // only remove recordings that will actually increase the free video disk space
-                    if (!r0 || r->Start() < r0->Start())
-                       r0 = r;
-                    }
-                 r = DeletedRecordings.Next(r);
-                 }
-           if (r0) {
-              if (r0->Remove())
-                 LastFreeDiskCheck += REMOVELATENCY / Factor;
-              DeletedRecordings.Del(r0);
-              return;
-              }
-           }
-        else {
+        int NumDeletedRecordings = 0;
+        {
+          LOCK_DELETEDRECORDINGS_WRITE;
+          NumDeletedRecordings = DeletedRecordings->Count();
+          if (NumDeletedRecordings) {
+             cRecording *r = DeletedRecordings->First();
+             cRecording *r0 = NULL;
+             while (r) {
+                   if (r->IsOnVideoDirectoryFileSystem()) { // only remove recordings that will actually increase the free video disk space
+                      if (!r0 || r->Start() < r0->Start())
+                         r0 = r;
+                      }
+                   r = DeletedRecordings->Next(r);
+                   }
+             if (r0) {
+                if (r0->Remove())
+                   LastFreeDiskCheck += REMOVELATENCY / Factor;
+                DeletedRecordings->Del(r0);
+                return;
+                }
+             }
+        }
+        if (NumDeletedRecordings == 0) {
            // DeletedRecordings was empty, so to be absolutely sure there are no
            // deleted recordings we need to double check:
-           DeletedRecordings.Update(true);
-           if (DeletedRecordings.Count())
+           cRecordings::Update(true);
+           LOCK_DELETEDRECORDINGS_READ;
+           if (DeletedRecordings->Count())
               return; // the next call will actually remove it
            }
         // No "deleted" files to remove, so let's see if we can delete a recording:
         if (Priority > 0) {
            isyslog("...no deleted recording found, trying to delete an old recording...");
-           cThreadLock RecordingsLock(&Recordings);
-           if (Recordings.Count()) {
-              cRecording *r = Recordings.First();
+           LOCK_RECORDINGS_WRITE;
+           Recordings->SetExplicitModify();
+           if (Recordings->Count()) {
+              cRecording *r = Recordings->First();
               cRecording *r0 = NULL;
               while (r) {
                     if (r->IsOnVideoDirectoryFileSystem()) { // only delete recordings that will actually increase the free video disk space
@@ -209,10 +213,11 @@ void AssertFreeDiskSpace(int Priority, bool Force)
                              }
                           }
                        }
-                    r = Recordings.Next(r);
+                    r = Recordings->Next(r);
                     }
               if (r0 && r0->Delete()) {
-                 Recordings.Del(r0);
+                 Recordings->Del(r0);
+                 Recordings->SetModified();
                  return;
                  }
               }
@@ -225,14 +230,6 @@ void AssertFreeDiskSpace(int Priority, bool Force)
         }
      LastFreeDiskCheck = time(NULL);
      }
-}
-
-// --- Clear vanished recordings ---------------------------------------------
-
-void ClearVanishedRecordings(void)
-{
-  cThreadLock RecordingsLock(&Recordings); // yes, it *is* Recordings!
-  VanishedRecordings.Clear();
 }
 
 // --- cResumeFile -----------------------------------------------------------
@@ -309,7 +306,8 @@ bool cResumeFile::Save(int Index)
            if (safe_write(f, &Index, sizeof(Index)) < 0)
               LOG_ERROR_STR(fileName);
            close(f);
-           Recordings.ResetResume(fileName);
+           LOCK_RECORDINGS_WRITE;
+           Recordings->ResetResume(fileName);
            return true;
            }
         }
@@ -318,7 +316,8 @@ bool cResumeFile::Save(int Index)
         if (f) {
            fprintf(f, "I %d\n", Index);
            fclose(f);
-           Recordings.ResetResume(fileName);
+           LOCK_RECORDINGS_WRITE;
+           Recordings->ResetResume(fileName);
            }
         else
            LOG_ERROR_STR(fileName);
@@ -331,8 +330,10 @@ bool cResumeFile::Save(int Index)
 void cResumeFile::Delete(void)
 {
   if (fileName) {
-     if (remove(fileName) == 0)
-        Recordings.ResetResume(fileName);
+     if (remove(fileName) == 0) {
+        LOCK_RECORDINGS_WRITE;
+        Recordings->ResetResume(fileName);
+        }
      else if (errno != ENOENT)
         LOG_ERROR_STR(fileName);
      }
@@ -753,6 +754,7 @@ char *LimitNameLengths(char *s, int PathMax, int NameMax)
 
 cRecording::cRecording(cTimer *Timer, const cEvent *Event)
 {
+  id = 0;
   resume = RESUME_NOT_INITIALIZED;
   titleBuffer = NULL;
   sortBufferName = sortBufferTime = NULL;
@@ -787,10 +789,8 @@ cRecording::cRecording(cTimer *Timer, const cEvent *Event)
            else
               break;
            }
-     if (Timer->IsSingleEvent()) {
+     if (Timer->IsSingleEvent())
         Timer->SetFile(name); // this was an instant recording, so let's set the actual data
-        Timers.SetModified();
-        }
      }
   else if (Timer->IsSingleEvent() || !Setup.UseSubtitle)
      name = strdup(Timer->File());
@@ -810,6 +810,7 @@ cRecording::cRecording(cTimer *Timer, const cEvent *Event)
 
 cRecording::cRecording(const char *FileName)
 {
+  id = 0;
   resume = RESUME_NOT_INITIALIZED;
   fileSizeMB = -1; // unknown
   channel = -1;
@@ -1002,6 +1003,11 @@ void cRecording::ClearSortName(void)
   sortBufferName = sortBufferTime = NULL;
 }
 
+void cRecording::SetId(int Id)
+{
+  id = Id;
+}
+
 int cRecording::GetResume(void) const
 {
   if (resume == RESUME_NOT_INITIALIZED) {
@@ -1017,7 +1023,7 @@ int cRecording::Compare(const cListObject &ListObject) const
   return strcasecmp(SortName(), r->SortName());
 }
 
-bool cRecording::IsInPath(const char *Path)
+bool cRecording::IsInPath(const char *Path) const
 {
   if (isempty(Path))
      return true;
@@ -1154,20 +1160,14 @@ bool cRecording::IsOnVideoDirectoryFileSystem(void) const
   return isOnVideoDirectoryFileSystem;
 }
 
-bool cRecording::HasMarks(void)
+bool cRecording::HasMarks(void) const
 {
   return access(cMarks::MarksFileName(this), F_OK) == 0;
 }
 
 bool cRecording::DeleteMarks(void)
 {
-  if (remove(cMarks::MarksFileName(this)) < 0) {
-     if (errno != ENOENT) {
-        LOG_ERROR_STR(fileName);
-        return false;
-        }
-     }
-  return true;
+  return cMarks::DeleteMarksFile(this);
 }
 
 void cRecording::ReadInfo(void)
@@ -1219,8 +1219,6 @@ bool cRecording::ChangePriorityLifetime(int NewPriority, int NewLifetime)
         if (!WriteInfo())
            return false;
         }
-     Recordings.ChangeState();
-     Recordings.TouchUpdate();
      }
   return true;
 }
@@ -1245,8 +1243,6 @@ bool cRecording::ChangeName(const char *NewName)
         }
      isOnVideoDirectoryFileSystem = -1; // it might have been moved to a different file system
      ClearSortName();
-     Recordings.ChangeState();
-     Recordings.TouchUpdate();
      }
   return true;
 }
@@ -1360,58 +1356,54 @@ int cRecording::FileSizeMB(void) const
   return fileSizeMB;
 }
 
-// --- cRecordings -----------------------------------------------------------
+// --- cVideoDirectoryScannerThread ------------------------------------------
 
-cRecordings Recordings;
+class cVideoDirectoryScannerThread : public cThread {
+private:
+  cRecordings *recordings;
+  cRecordings *deletedRecordings;
+  bool initial;
+  void ScanVideoDir(const char *DirName, int LinkLevel = 0, int DirLevel = 0);
+protected:
+  virtual void Action(void);
+public:
+  cVideoDirectoryScannerThread(cRecordings *Recordings, cRecordings *DeletedRecordings);
+  ~cVideoDirectoryScannerThread();
+  };
 
-char *cRecordings::updateFileName = NULL;
-
-cRecordings::cRecordings(bool Deleted)
-:cThread("video directory scanner")
+cVideoDirectoryScannerThread::cVideoDirectoryScannerThread(cRecordings *Recordings, cRecordings *DeletedRecordings)
+:cThread("video directory scanner", true)
 {
-  deleted = Deleted;
+  recordings = Recordings;
+  deletedRecordings = DeletedRecordings;
   initial = true;
-  lastUpdate = 0;
-  state = 0;
 }
 
-cRecordings::~cRecordings()
+cVideoDirectoryScannerThread::~cVideoDirectoryScannerThread()
 {
   Cancel(3);
 }
 
-void cRecordings::Action(void)
+void cVideoDirectoryScannerThread::Action(void)
 {
-  Refresh();
+  cStateKey StateKey;
+  recordings->Lock(StateKey);
+  initial = recordings->Count() == 0; // no name checking if the list is initially empty
+  StateKey.Remove();
+  deletedRecordings->Lock(StateKey, true);
+  deletedRecordings->Clear();
+  StateKey.Remove();
+  ScanVideoDir(cVideoDirectory::Name());
 }
 
-const char *cRecordings::UpdateFileName(void)
+void cVideoDirectoryScannerThread::ScanVideoDir(const char *DirName, int LinkLevel, int DirLevel)
 {
-  if (!updateFileName)
-     updateFileName = strdup(AddDirectory(cVideoDirectory::Name(), ".update"));
-  return updateFileName;
-}
-
-void cRecordings::Refresh(bool Foreground)
-{
-  lastUpdate = time(NULL); // doing this first to make sure we don't miss anything
-  initial = Count() == 0; // no name checking if the list is initially empty
-  if (deleted) {
-     Lock();
-     Clear();
-     ChangeState();
-     Unlock();
-     }
-  ScanVideoDir(cVideoDirectory::Name(), Foreground);
-}
-
-bool cRecordings::ScanVideoDir(const char *DirName, bool Foreground, int LinkLevel, int DirLevel)
-{
-  bool DoChangeState = false;
   // Find any new recordings:
   cReadDir d(DirName);
   struct dirent *e;
-  while ((Foreground || Running()) && (e = d.Next()) != NULL) {
+  while (Running() && (e = d.Next()) != NULL) {
+        if (cIoThrottle::Engaged())
+           cCondWait::SleepMs(100);
         cString buffer = AddDirectory(DirName, e->d_name);
         struct stat st;
         if (lstat(buffer, &st) == 0) {
@@ -1426,57 +1418,74 @@ bool cRecordings::ScanVideoDir(const char *DirName, bool Foreground, int LinkLev
                  continue;
               }
            if (S_ISDIR(st.st_mode)) {
-              if (endswith(buffer, deleted ? DELEXT : RECEXT)) {
-                 if (deleted || initial || !GetByName(buffer)) {
+              cRecordings *Recordings = NULL;
+              if (endswith(buffer, RECEXT))
+                 Recordings = recordings;
+              else if (endswith(buffer, DELEXT))
+                 Recordings = deletedRecordings;
+              if (Recordings) {
+                 cStateKey StateKey;
+                 Recordings->Lock(StateKey, true);
+                 if (Recordings == deletedRecordings || initial || !Recordings->GetByName(buffer)) {
                     cRecording *r = new cRecording(buffer);
                     if (r->Name()) {
                        r->NumFrames(); // initializes the numFrames member
                        r->FileSizeMB(); // initializes the fileSizeMB member
                        r->IsOnVideoDirectoryFileSystem(); // initializes the isOnVideoDirectoryFileSystem member
-                       if (deleted)
-                          r->deleted = time(NULL);
-                       Lock();
-                       Add(r);
-                       if (initial)
-                          ChangeState();
-                       else
-                          DoChangeState = true;
-                       Unlock();
+                       if (Recordings == deletedRecordings)
+                          r->SetDeleted();
+                       Recordings->Add(r);
                        }
                     else
                        delete r;
                     }
+                 StateKey.Remove();
                  }
               else
-                 DoChangeState |= ScanVideoDir(buffer, Foreground, LinkLevel + Link, DirLevel + 1);
+                 ScanVideoDir(buffer, LinkLevel + Link, DirLevel + 1);
               }
            }
         }
   // Handle any vanished recordings:
-  if (!deleted && !initial && DirLevel == 0) {
-     for (cRecording *recording = First(); recording; ) {
-         cRecording *r = recording;
-         recording = Next(recording);
-         if (access(r->FileName(), F_OK) != 0) {
-            Lock();
-            Del(r, false);
-            VanishedRecordings.Add(r);
-            DoChangeState = true;
-            Unlock();
-            }
+  if (!initial && DirLevel == 0) {
+     cStateKey StateKey;
+     recordings->Lock(StateKey, true);
+     for (cRecording *Recording = recordings->First(); Recording; ) {
+         cRecording *r = Recording;
+         Recording = recordings->Next(Recording);
+         if (access(r->FileName(), F_OK) != 0)
+            recordings->Del(r);
          }
+     StateKey.Remove();
      }
-  if (DoChangeState && DirLevel == 0)
-     ChangeState();
-  return DoChangeState;
 }
 
-bool cRecordings::StateChanged(int &State)
+// --- cRecordings -----------------------------------------------------------
+
+cRecordings cRecordings::recordings;
+cRecordings cRecordings::deletedRecordings(true);
+int cRecordings::lastRecordingId = 0;
+char *cRecordings::updateFileName = NULL;
+cVideoDirectoryScannerThread *cRecordings::videoDirectoryScannerThread = NULL;
+time_t cRecordings::lastUpdate = 0;
+
+cRecordings::cRecordings(bool Deleted)
+:cList<cRecording>(Deleted ? "4 DelRecs" : "3 Recordings")
 {
-  int NewState = state;
-  bool Result = State != NewState;
-  State = state;
-  return Result;
+}
+
+cRecordings::~cRecordings()
+{
+  // The first one to be destructed deletes it:
+  delete videoDirectoryScannerThread;
+  videoDirectoryScannerThread = NULL;
+}
+
+const char *cRecordings::UpdateFileName(void)
+{
+  if (!updateFileName)
+     updateFileName = strdup(AddDirectory(cVideoDirectory::Name(), ".update"));
+  return updateFileName;
 }
 
 void cRecordings::TouchUpdate(void)
@@ -1485,6 +1494,7 @@ void cRecordings::TouchUpdate(void)
   TouchFile(UpdateFileName());
   if (!needsUpdate)
      lastUpdate = time(NULL); // make sure we don't trigger ourselves
+  BroadcastSVDRPCommand("UPDR");
 }
 
 bool cRecordings::NeedsUpdate(void)
@@ -1495,37 +1505,48 @@ bool cRecordings::NeedsUpdate(void)
   return lastUpdate < lastModified;
 }
 
-bool cRecordings::Update(bool Wait)
+void cRecordings::Update(bool Wait)
 {
+  if (!videoDirectoryScannerThread)
+     videoDirectoryScannerThread = new cVideoDirectoryScannerThread(&recordings, &deletedRecordings);
+  lastUpdate = time(NULL); // doing this first to make sure we don't miss anything
+  videoDirectoryScannerThread->Start();
   if (Wait) {
-     Refresh(true);
-     return Count() > 0;
+     while (videoDirectoryScannerThread->Active())
+           cCondWait::SleepMs(100);
      }
-  else
-     Start();
-  return false;
 }
 
-cRecording *cRecordings::GetByName(const char *FileName)
+const cRecording *cRecordings::GetById(int Id) const
+{
+  for (const cRecording *Recording = First(); Recording; Recording = Next(Recording)) {
+      if (Recording->Id() == Id)
+         return Recording;
+      }
+  return NULL;
+}
+
+const cRecording *cRecordings::GetByName(const char *FileName) const
 {
   if (FileName) {
-     LOCK_THREAD;
-     for (cRecording *recording = First(); recording; recording = Next(recording)) {
-         if (strcmp(recording->FileName(), FileName) == 0)
-            return recording;
+     for (const cRecording *Recording = First(); Recording; Recording = Next(Recording)) {
+         if (strcmp(Recording->FileName(), FileName) == 0)
+            return Recording;
          }
      }
   return NULL;
 }
 
+void cRecordings::Add(cRecording *Recording)
+{
+  Recording->SetId(++lastRecordingId);
+  cList<cRecording>::Add(Recording);
+}
+
 void cRecordings::AddByName(const char *FileName, bool TriggerUpdate)
 {
-  LOCK_THREAD;
-  cRecording *recording = GetByName(FileName);
-  if (!recording) {
-     recording = new cRecording(FileName);
-     Add(recording);
-     ChangeState();
+  if (!GetByName(FileName)) {
+     Add(new cRecording(FileName));
      if (TriggerUpdate)
         TouchUpdate();
      }
@@ -1533,58 +1554,52 @@ void cRecordings::AddByName(const char *FileName, bool TriggerUpdate)
 
 void cRecordings::DelByName(const char *FileName)
 {
-  LOCK_THREAD;
-  cRecording *recording = GetByName(FileName);
+  cRecording *Recording = GetByName(FileName);
   cRecording *dummy = NULL;
-  if (!recording)
-     recording = dummy = new cRecording(FileName); // allows us to use a FileName that is not in the Recordings list
-  cThreadLock DeletedRecordingsLock(&DeletedRecordings);
+  if (!Recording)
+     Recording = dummy = new cRecording(FileName); // allows us to use a FileName that is not in the Recordings list
+  LOCK_DELETEDRECORDINGS_WRITE;
   if (!dummy)
-     Del(recording, false);
-  char *ext = strrchr(recording->fileName, '.');
+     Del(Recording, false);
+  char *ext = strrchr(Recording->fileName, '.');
   if (ext) {
      strncpy(ext, DELEXT, strlen(ext));
-     if (access(recording->FileName(), F_OK) == 0) {
-        recording->deleted = time(NULL);
-        DeletedRecordings.Add(recording);
-        recording = NULL; // to prevent it from being deleted below
+     if (access(Recording->FileName(), F_OK) == 0) {
+        Recording->SetDeleted();
+        DeletedRecordings->Add(Recording);
+        Recording = NULL; // to prevent it from being deleted below
         }
      }
-  delete recording;
-  ChangeState();
+  delete Recording;
   TouchUpdate();
 }
 
 void cRecordings::UpdateByName(const char *FileName)
 {
-  LOCK_THREAD;
-  cRecording *recording = GetByName(FileName);
-  if (recording)
-     recording->ReadInfo();
+  if (cRecording *Recording = GetByName(FileName))
+     Recording->ReadInfo();
 }
 
-int cRecordings::TotalFileSizeMB(void)
+int cRecordings::TotalFileSizeMB(void) const
 {
   int size = 0;
-  LOCK_THREAD;
-  for (cRecording *recording = First(); recording; recording = Next(recording)) {
-      int FileSizeMB = recording->FileSizeMB();
-      if (FileSizeMB > 0 && recording->IsOnVideoDirectoryFileSystem())
+  for (const cRecording *Recording = First(); Recording; Recording = Next(Recording)) {
+      int FileSizeMB = Recording->FileSizeMB();
+      if (FileSizeMB > 0 && Recording->IsOnVideoDirectoryFileSystem())
          size += FileSizeMB;
       }
   return size;
 }
 
-double cRecordings::MBperMinute(void)
+double cRecordings::MBperMinute(void) const
 {
   int size = 0;
   int length = 0;
-  LOCK_THREAD;
-  for (cRecording *recording = First(); recording; recording = Next(recording)) {
-      if (recording->IsOnVideoDirectoryFileSystem()) {
-         int FileSizeMB = recording->FileSizeMB();
+  for (const cRecording *Recording = First(); Recording; Recording = Next(Recording)) {
+      if (Recording->IsOnVideoDirectoryFileSystem()) {
+         int FileSizeMB = Recording->FileSizeMB();
          if (FileSizeMB > 0) {
-            int LengthInSeconds = recording->LengthInSeconds();
+            int LengthInSeconds = Recording->LengthInSeconds();
             if (LengthInSeconds > 0) {
                if (LengthInSeconds / FileSizeMB < LIMIT_SECS_PER_MB_RADIO) { // don't count radio recordings
                   size += FileSizeMB;
@@ -1597,23 +1612,21 @@ double cRecordings::MBperMinute(void)
   return (size && length) ? double(size) * 60 / length : -1;
 }
 
-int cRecordings::PathIsInUse(const char *Path)
+int cRecordings::PathIsInUse(const char *Path) const
 {
-  LOCK_THREAD;
   int Use = ruNone;
-  for (cRecording *recording = First(); recording; recording = Next(recording)) {
-      if (recording->IsInPath(Path))
-         Use |= recording->IsInUse();
+  for (const cRecording *Recording = First(); Recording; Recording = Next(Recording)) {
+      if (Recording->IsInPath(Path))
+         Use |= Recording->IsInUse();
       }
   return Use;
 }
 
-int cRecordings::GetNumRecordingsInPath(const char *Path)
+int cRecordings::GetNumRecordingsInPath(const char *Path) const
 {
-  LOCK_THREAD;
   int n = 0;
-  for (cRecording *recording = First(); recording; recording = Next(recording)) {
-      if (recording->IsInPath(Path))
+  for (const cRecording *Recording = First(); Recording; Recording = Next(Recording)) {
+      if (Recording->IsInPath(Path))
          n++;
       }
   return n;
@@ -1622,36 +1635,35 @@ int cRecordings::GetNumRecordingsInPath(const char *Path)
 bool cRecordings::MoveRecordings(const char *OldPath, const char *NewPath)
 {
   if (OldPath && NewPath && strcmp(OldPath, NewPath)) {
-     LOCK_THREAD;
      dsyslog("moving '%s' to '%s'", OldPath, NewPath);
-     for (cRecording *recording = First(); recording; recording = Next(recording)) {
-         if (recording->IsInPath(OldPath)) {
-            const char *p = recording->Name() + strlen(OldPath);
+     bool Moved = false;
+     for (cRecording *Recording = First(); Recording; Recording = Next(Recording)) {
+         if (Recording->IsInPath(OldPath)) {
+            const char *p = Recording->Name() + strlen(OldPath);
             cString NewName = cString::sprintf("%s%s", NewPath, p);
-            if (!recording->ChangeName(NewName))
+            if (!Recording->ChangeName(NewName))
                return false;
-            ChangeState();
+            Moved = true;
             }
          }
+     if (Moved)
+        TouchUpdate();
      }
   return true;
 }
 
 void cRecordings::ResetResume(const char *ResumeFileName)
 {
-  LOCK_THREAD;
-  for (cRecording *recording = First(); recording; recording = Next(recording)) {
-      if (!ResumeFileName || strncmp(ResumeFileName, recording->FileName(), strlen(recording->FileName())) == 0)
-         recording->ResetResume();
+  for (cRecording *Recording = First(); Recording; Recording = Next(Recording)) {
+      if (!ResumeFileName || strncmp(ResumeFileName, Recording->FileName(), strlen(Recording->FileName())) == 0)
+         Recording->ResetResume();
       }
-  ChangeState();
 }
 
 void cRecordings::ClearSortNames(void)
 {
-  LOCK_THREAD;
-  for (cRecording *recording = First(); recording; recording = Next(recording))
-      recording->ClearSortName();
+  for (cRecording *Recording = First(); Recording; Recording = Next(Recording))
+      Recording->ClearSortName();
 }
 
 // --- cDirCopier ------------------------------------------------------------
@@ -1714,7 +1726,7 @@ void cDirCopier::Action(void)
         int To = -1;
         size_t BufferSize = BUFSIZ;
         while (Running()) {
-              // Suspend cutting if we have severe throughput problems:
+              // Suspend copying if we have severe throughput problems:
               if (Throttled()) {
                  cCondWait::SleepMs(100);
                  continue;
@@ -1810,8 +1822,9 @@ void cDirCopier::Stop(void)
   Cancel(3);
   if (error) {
      cVideoDirectory::RemoveVideoFile(dirNameDst);
-     Recordings.AddByName(dirNameSrc);
-     Recordings.DelByName(dirNameDst);
+     LOCK_RECORDINGS_WRITE;
+     Recordings->AddByName(dirNameSrc);
+     Recordings->DelByName(dirNameDst);
      }
 }
 
@@ -1891,17 +1904,19 @@ bool cRecordingsHandlerEntry::Active(bool &Error)
         copier->Start();
         }
      ClearPending();
-     Recordings.ChangeState();
+     LOCK_RECORDINGS_WRITE; // to trigger a state change
      return true;
      }
   // Clean up:
   if (CopierFinishedOk && (Usage() & ruMove) != 0) {
      cRecording Recording(FileNameSrc());
-     if (Recording.Delete())
-        Recordings.DelByName(Recording.FileName());
+     if (Recording.Delete()) {
+        LOCK_RECORDINGS_WRITE;
+        Recordings->DelByName(Recording.FileName());
+        }
      }
-  Recordings.ChangeState();
-  Recordings.TouchUpdate();
+  LOCK_RECORDINGS_WRITE; // to trigger a state change
+  Recordings->TouchUpdate();
   return false;
 }
 
@@ -1910,6 +1925,7 @@ bool cRecordingsHandlerEntry::Active(bool &Error)
 cRecordingsHandler RecordingsHandler;
 
 cRecordingsHandler::cRecordingsHandler(void)
+:cThread("recordings handler")
 {
   finished = true;
   error = false;
@@ -1917,6 +1933,27 @@ cRecordingsHandler::cRecordingsHandler(void)
 
 cRecordingsHandler::~cRecordingsHandler()
 {
+  Cancel(3);
+}
+
+void cRecordingsHandler::Action(void)
+{
+  while (Running()) {
+        bool Sleep = false;
+        {
+          cMutexLock MutexLock(&mutex);
+          if (cRecordingsHandlerEntry *r = operations.First()) {
+             if (!r->Active(error))
+                operations.Del(r);
+             else
+                Sleep = true;
+             }
+          else
+             break;
+        }
+        if (Sleep)
+           cCondWait::SleepMs(100);
+        }
 }
 
 cRecordingsHandlerEntry *cRecordingsHandler::Get(const char *FileName)
@@ -1944,8 +1981,7 @@ bool cRecordingsHandler::Add(int Usage, const char *FileNameSrc, const char *Fil
               Usage |= ruPending;
               operations.Add(new cRecordingsHandlerEntry(Usage, FileNameSrc, FileNameDst));
               finished = false;
-              Active(); // start it right away if possible
-              Recordings.ChangeState();
+              Start();
               return true;
               }
            else
@@ -1965,17 +2001,17 @@ bool cRecordingsHandler::Add(int Usage, const char *FileNameSrc, const char *Fil
 void cRecordingsHandler::Del(const char *FileName)
 {
   cMutexLock MutexLock(&mutex);
-  if (cRecordingsHandlerEntry *r = Get(FileName)) {
+  if (cRecordingsHandlerEntry *r = Get(FileName))
      operations.Del(r);
-     Recordings.ChangeState();
-     }
 }
 
 void cRecordingsHandler::DelAll(void)
 {
-  cMutexLock MutexLock(&mutex);
-  operations.Clear();
-  Recordings.ChangeState();
+  {
+    cMutexLock MutexLock(&mutex);
+    operations.Clear();
+  }
+  Cancel(3);
 }
 
 int cRecordingsHandler::GetUsage(const char *FileName)
@@ -1984,18 +2020,6 @@ int cRecordingsHandler::GetUsage(const char *FileName)
   if (cRecordingsHandlerEntry *r = Get(FileName))
      return r->Usage(FileName);
   return ruNone;
-}
-
-bool cRecordingsHandler::Active(void)
-{
-  cMutexLock MutexLock(&mutex);
-  while (cRecordingsHandlerEntry *r = operations.First()) {
-        if (r->Active(error))
-           return true;
-        else
-           operations.Del(r);
-        }
-  return false;
 }
 
 bool cRecordingsHandler::Finished(bool &Error)
@@ -2028,7 +2052,7 @@ cMark::~cMark()
 
 cString cMark::ToText(void)
 {
-  return cString::sprintf("%s%s%s\n", *IndexToHMSF(position, true, framesPerSecond), Comment() ? " " : "", Comment() ? Comment() : "");
+  return cString::sprintf("%s%s%s", *IndexToHMSF(position, true, framesPerSecond), Comment() ? " " : "", Comment() ? Comment() : "");
 }
 
 bool cMark::Parse(const char *s)
@@ -2047,7 +2071,7 @@ bool cMark::Parse(const char *s)
 
 bool cMark::Save(FILE *f)
 {
-  return fprintf(f, "%s", *ToText()) > 0;
+  return fprintf(f, "%s\n", *ToText()) > 0;
 }
 
 // --- cMarks ----------------------------------------------------------------
@@ -2057,9 +2081,19 @@ cString cMarks::MarksFileName(const cRecording *Recording)
   return AddDirectory(Recording->FileName(), Recording->IsPesRecording() ? MARKSFILESUFFIX ".vdr" : MARKSFILESUFFIX);
 }
 
+bool cMarks::DeleteMarksFile(const cRecording *Recording)
+{
+  if (remove(cMarks::MarksFileName(Recording)) < 0) {
+     if (errno != ENOENT) {
+        LOG_ERROR_STR(Recording->FileName());
+        return false;
+        }
+     }
+  return true;
+}
+
 bool cMarks::Load(const char *RecordingFileName, double FramesPerSecond, bool IsPesRecording)
 {
-  cMutexLock MutexLock(this);
   recordingFileName = RecordingFileName;
   fileName = AddDirectory(RecordingFileName, IsPesRecording ? MARKSFILESUFFIX ".vdr" : MARKSFILESUFFIX);
   framesPerSecond = FramesPerSecond;
@@ -2072,7 +2106,6 @@ bool cMarks::Load(const char *RecordingFileName, double FramesPerSecond, bool Is
 
 bool cMarks::Update(void)
 {
-  cMutexLock MutexLock(this);
   time_t t = time(NULL);
   if (t > nextUpdate && *fileName) {
      time_t LastModified = LastModifiedTime(fileName);
@@ -2104,7 +2137,6 @@ bool cMarks::Update(void)
 
 bool cMarks::Save(void)
 {
-  cMutexLock MutexLock(this);
   if (cConfig<cMark>::Save()) {
      lastFileTime = LastModifiedTime(fileName);
      return true;
@@ -2114,7 +2146,6 @@ bool cMarks::Save(void)
 
 void cMarks::Align(void)
 {
-  cMutexLock MutexLock(this);
   cIndexFile IndexFile(recordingFileName, false, isPesRecording);
   for (cMark *m = First(); m; m = Next(m)) {
       int p = IndexFile.GetClosestIFrame(m->Position());
@@ -2127,7 +2158,6 @@ void cMarks::Align(void)
 
 void cMarks::Sort(void)
 {
-  cMutexLock MutexLock(this);
   for (cMark *m1 = First(); m1; m1 = Next(m1)) {
       for (cMark *m2 = Next(m1); m2; m2 = Next(m2)) {
           if (m2->Position() < m1->Position()) {
@@ -2140,43 +2170,42 @@ void cMarks::Sort(void)
 
 void cMarks::Add(int Position)
 {
-  cMutexLock MutexLock(this);
   cConfig<cMark>::Add(new cMark(Position, NULL, framesPerSecond));
   Sort();
 }
 
-cMark *cMarks::Get(int Position)
+const cMark *cMarks::Get(int Position) const
 {
-  for (cMark *mi = First(); mi; mi = Next(mi)) {
+  for (const cMark *mi = First(); mi; mi = Next(mi)) {
       if (mi->Position() == Position)
          return mi;
       }
   return NULL;
 }
 
-cMark *cMarks::GetPrev(int Position)
+const cMark *cMarks::GetPrev(int Position) const
 {
-  for (cMark *mi = Last(); mi; mi = Prev(mi)) {
+  for (const cMark *mi = Last(); mi; mi = Prev(mi)) {
       if (mi->Position() < Position)
          return mi;
       }
   return NULL;
 }
 
-cMark *cMarks::GetNext(int Position)
+const cMark *cMarks::GetNext(int Position) const
 {
-  for (cMark *mi = First(); mi; mi = Next(mi)) {
+  for (const cMark *mi = First(); mi; mi = Next(mi)) {
       if (mi->Position() > Position)
          return mi;
       }
   return NULL;
 }
 
-cMark *cMarks::GetNextBegin(cMark *EndMark)
+const cMark *cMarks::GetNextBegin(const cMark *EndMark) const
 {
-  cMark *BeginMark = EndMark ? Next(EndMark) : First();
+  const cMark *BeginMark = EndMark ? Next(EndMark) : First();
   if (BeginMark && EndMark && BeginMark->Position() == EndMark->Position()) {
-     while (cMark *NextMark = Next(BeginMark)) {
+     while (const cMark *NextMark = Next(BeginMark)) {
            if (BeginMark->Position() == NextMark->Position()) { // skip Begin/End at the same position
               if (!(BeginMark = Next(NextMark)))
                  break;
@@ -2188,13 +2217,13 @@ cMark *cMarks::GetNextBegin(cMark *EndMark)
   return BeginMark;
 }
 
-cMark *cMarks::GetNextEnd(cMark *BeginMark)
+const cMark *cMarks::GetNextEnd(const cMark *BeginMark) const
 {
   if (!BeginMark)
      return NULL;
-  cMark *EndMark = Next(BeginMark);
+  const cMark *EndMark = Next(BeginMark);
   if (EndMark && BeginMark && BeginMark->Position() == EndMark->Position()) {
-     while (cMark *NextMark = Next(EndMark)) {
+     while (const cMark *NextMark = Next(EndMark)) {
            if (EndMark->Position() == NextMark->Position()) { // skip End/Begin at the same position
               if (!(EndMark = Next(NextMark)))
                  break;
@@ -2206,12 +2235,11 @@ cMark *cMarks::GetNextEnd(cMark *BeginMark)
   return EndMark;
 }
 
-int cMarks::GetNumSequences(void)
+int cMarks::GetNumSequences(void) const
 {
-  cMutexLock MutexLock(this);
   int NumSequences = 0;
-  if (cMark *BeginMark = GetNextBegin()) {
-     while (cMark *EndMark = GetNextEnd(BeginMark)) {
+  if (const cMark *BeginMark = GetNextBegin()) {
+     while (const cMark *EndMark = GetNextEnd(BeginMark)) {
            NumSequences++;
            BeginMark = GetNextBegin(EndMark);
            }
@@ -2330,7 +2358,7 @@ void cIndexFileGenerator::Action(void)
                  Buffer.Del(Processed);
                  }
               }
-           else if (PatPmtParser.Vpid()) {
+           else if (PatPmtParser.Completed()) {
               // Step 2 - sync FrameDetector:
               int Processed = FrameDetector.Analyze(Data, Length);
               if (Processed > 0) {
@@ -2352,9 +2380,9 @@ void cIndexFileGenerator::Action(void)
                        PatPmtParser.ParsePmt(p, TS_SIZE);
                     Length -= TS_SIZE;
                     p += TS_SIZE;
-                    if (PatPmtParser.Vpid()) {
-                       // Found Vpid, so rewind to sync FrameDetector:
-                       FrameDetector.SetPid(PatPmtParser.Vpid(), PatPmtParser.Vtype());
+                    if (PatPmtParser.Completed()) {
+                       // Found pid, so rewind to sync FrameDetector:
+                       FrameDetector.SetPid(PatPmtParser.Vpid() ? PatPmtParser.Vpid() : PatPmtParser.Apid(0), PatPmtParser.Vpid() ? PatPmtParser.Vtype() : PatPmtParser.Atype(0));
                        BufferChunks = IFG_BUFFER_SIZE;
                        Rewind = true;
                        break;
@@ -2401,7 +2429,8 @@ void cIndexFileGenerator::Action(void)
            if (FrameDetector.FramesPerSecond() > 0 && !DoubleEqual(RecordingInfo.FramesPerSecond(), FrameDetector.FramesPerSecond())) {
               RecordingInfo.SetFramesPerSecond(FrameDetector.FramesPerSecond());
               RecordingInfo.Write();
-              Recordings.UpdateByName(recordingName);
+              LOCK_RECORDINGS_WRITE;
+              Recordings->UpdateByName(recordingName);
               }
            }
         Skins.QueueMessage(mtInfo, tr("Index file regeneration complete"));
@@ -3018,7 +3047,7 @@ int ReadFrame(cUnbufferedFile *f, uchar *b, int Length, int Max)
 
 // --- Recordings Sort Mode --------------------------------------------------
 
-eRecordingsSortMode RecordingsSortMode = rsmName;
+eRecordingsSortMode RecordingsSortMode = rsmTime;
 
 bool HasRecordingsSortMode(const char *Directory)
 {
@@ -3027,7 +3056,7 @@ bool HasRecordingsSortMode(const char *Directory)
 
 void GetRecordingsSortMode(const char *Directory)
 {
-  RecordingsSortMode = rsmName;
+  RecordingsSortMode = eRecordingsSortMode(constrain(Setup.DefaultSortModeRec, 0, int(rsmTime)));
   if (FILE *f = fopen(AddDirectory(Directory, SORTMODEFILE), "r")) {
      char buf[8];
      if (fgets(buf, sizeof(buf), f))

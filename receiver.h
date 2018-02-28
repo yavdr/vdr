@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: receiver.h 3.3 2015/01/12 14:03:22 kls Exp $
+ * $Id: receiver.h 4.3 2017/05/01 08:48:34 kls Exp $
  */
 
 #ifndef __RECEIVER_H
@@ -22,6 +22,11 @@ private:
   int priority;
   int pids[MAXRECEIVEPIDS];
   int numPids;
+  time_t lastScrambledPacket;
+  time_t startScrambleDetection;
+  int scramblingTimeout;
+  time_t startEitInjection;
+  time_t lastEitInjection;
   bool WantsPid(int Pid);
 protected:
   cDevice *Device(void) { return device; }
@@ -31,7 +36,7 @@ protected:
                ///< (On == true) and right after it gets detached from (On == false) a cDevice. It can be used
                ///< to do things like starting/stopping a thread.
                ///< It is guaranteed that Receive() will not be called before Activate(true).
-  virtual void Receive(uchar *Data, int Length) = 0;
+  virtual void Receive(const uchar *Data, int Length) = 0;
                ///< This function is called from the cDevice we are attached to, and
                ///< delivers one TS packet from the set of PIDs the cReceiver has requested.
                ///< The data packet must be accepted immediately, and the call must return

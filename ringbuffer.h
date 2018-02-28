@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: ringbuffer.h 3.0 2013/02/16 15:20:37 kls Exp $
+ * $Id: ringbuffer.h 4.2 2017/03/19 13:11:39 kls Exp $
  */
 
 #ifndef __RINGBUFFER_H
@@ -80,6 +80,8 @@ public:
   virtual int Free(void) { return Size() - Available() - 1 - margin; }
   virtual void Clear(void);
     ///< Immediately clears the ring buffer.
+    ///< This function may safely be called from the reading thread without additional
+    ///< locking. If called from the writing thread, proper locking must be used.
   int Read(int FileHandle, int Max = 0);
     ///< Reads at most Max bytes from FileHandle and stores them in the
     ///< ring buffer. If Max is 0, reads as many bytes as possible.
@@ -113,8 +115,9 @@ private:
   eFrameType type;
   int index;
   uint32_t pts;
+  bool independent;
 public:
-  cFrame(const uchar *Data, int Count, eFrameType = ftUnknown, int Index = -1, uint32_t Pts = 0);
+  cFrame(const uchar *Data, int Count, eFrameType = ftUnknown, int Index = -1, uint32_t Pts = 0, bool independent = false);
     ///< Creates a new cFrame object.
     ///< If Count is negative, the cFrame object will take ownership of the given
     ///< Data. Otherwise it will allocate Count bytes of memory and copy Data.
@@ -124,6 +127,7 @@ public:
   eFrameType Type(void) const { return type; }
   int Index(void) const { return index; }
   uint32_t Pts(void) const { return pts; }
+  bool Independent(void) const { return independent; }
   };
 
 class cRingBufferFrame : public cRingBuffer {

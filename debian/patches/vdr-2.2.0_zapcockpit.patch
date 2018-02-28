@@ -1,0 +1,1117 @@
+Description: This patch provides an additional information in the channel info
+ menu. At the moment it only works with skindesigner skins.
+Author: Louis Braun
+
+--- a/config.c
++++ b/config.c
+@@ -414,6 +414,11 @@
+   SVDRPTimeout = 300;
+   ZapTimeout = 3;
+   ChannelEntryTimeout = 1000;
++  ZapcockpitUseGroups = 1;
++  ZapcockpitUseHints = 1;
++  ZapcockpitUseInfo = 1;
++  ZapcockpitHideLastGroup = 0;
++  ZapcockpitShowAllChannels = 0;
+   RcRepeatDelay = 300;
+   RcRepeatDelta = 100;
+   DefaultPriority = 50;
+@@ -636,6 +641,11 @@
+   else if (!strcasecmp(Name, "SVDRPTimeout"))        SVDRPTimeout       = atoi(Value);
+   else if (!strcasecmp(Name, "ZapTimeout"))          ZapTimeout         = atoi(Value);
+   else if (!strcasecmp(Name, "ChannelEntryTimeout")) ChannelEntryTimeout= atoi(Value);
++  else if (!strcasecmp(Name, "ZapcockpitUseGroups")) ZapcockpitUseGroups= atoi(Value);
++  else if (!strcasecmp(Name, "ZapcockpitUseHints"))  ZapcockpitUseHints = atoi(Value);
++  else if (!strcasecmp(Name, "ZapcockpitUseInfo"))   ZapcockpitUseInfo  = atoi(Value);
++  else if (!strcasecmp(Name, "ZapcockpitHideLastGroup"))   ZapcockpitHideLastGroup   = atoi(Value);
++  else if (!strcasecmp(Name, "ZapcockpitShowAllChannels")) ZapcockpitShowAllChannels = atoi(Value);
+   else if (!strcasecmp(Name, "RcRepeatDelay"))       RcRepeatDelay      = atoi(Value);
+   else if (!strcasecmp(Name, "RcRepeatDelta"))       RcRepeatDelta      = atoi(Value);
+   else if (!strcasecmp(Name, "DefaultPriority"))     DefaultPriority    = atoi(Value);
+@@ -762,6 +772,11 @@
+   Store("SVDRPTimeout",       SVDRPTimeout);
+   Store("ZapTimeout",         ZapTimeout);
+   Store("ChannelEntryTimeout",ChannelEntryTimeout);
++  Store("ZapcockpitUseGroups",ZapcockpitUseGroups);
++  Store("ZapcockpitUseHints", ZapcockpitUseHints);
++  Store("ZapcockpitUseInfo",  ZapcockpitUseInfo);
++  Store("ZapcockpitHideLastGroup",   ZapcockpitHideLastGroup);
++  Store("ZapcockpitShowAllChannels", ZapcockpitShowAllChannels);
+   Store("RcRepeatDelay",      RcRepeatDelay);
+   Store("RcRepeatDelta",      RcRepeatDelta);
+   Store("DefaultPriority",    DefaultPriority);
+--- a/config.h
++++ b/config.h
+@@ -296,6 +296,11 @@
+   int SVDRPTimeout;
+   int ZapTimeout;
+   int ChannelEntryTimeout;
++  int ZapcockpitUseGroups;
++  int ZapcockpitUseHints;
++  int ZapcockpitUseInfo;
++  int ZapcockpitHideLastGroup;
++  int ZapcockpitShowAllChannels;
+   int RcRepeatDelay;
+   int RcRepeatDelta;
+   int DefaultPriority, DefaultLifetime;
+--- a/menu.c
++++ b/menu.c
+@@ -3815,6 +3815,11 @@
+   Add(new cMenuEditIntItem( tr("Setup.Miscellaneous$SVDRP timeout (s)"),          &data.SVDRPTimeout));
+   Add(new cMenuEditIntItem( tr("Setup.Miscellaneous$Zap timeout (s)"),            &data.ZapTimeout));
+   Add(new cMenuEditIntItem( tr("Setup.Miscellaneous$Channel entry timeout (ms)"), &data.ChannelEntryTimeout, 0));
++  Add(new cMenuEditBoolItem( tr("Setup.Miscellaneous$Zapcockpit: 2nd ok shows info"), &data.ZapcockpitUseInfo));
++  Add(new cMenuEditBoolItem( tr("Setup.Miscellaneous$Zapcockpit: Use extended channel group display"), &data.ZapcockpitUseGroups));
++  Add(new cMenuEditBoolItem( tr("Setup.Miscellaneous$Zapcockpit: Use channel hints"), &data.ZapcockpitUseHints));
++  Add(new cMenuEditBoolItem( tr("Setup.Miscellaneous$Zapcockpit: Hide last channel group"), &data.ZapcockpitHideLastGroup));
++  Add(new cMenuEditBoolItem( tr("Setup.Miscellaneous$Zapcockpit: Show \"All Channels\" Item in Group List"), &data.ZapcockpitShowAllChannels));
+   Add(new cMenuEditIntItem( tr("Setup.Miscellaneous$Remote control repeat delay (ms)"), &data.RcRepeatDelay, 0));
+   Add(new cMenuEditIntItem( tr("Setup.Miscellaneous$Remote control repeat delta (ms)"), &data.RcRepeatDelta, 0));
+   Add(new cMenuEditChanItem(tr("Setup.Miscellaneous$Initial channel"),            &data.InitialChannel, tr("Setup.Miscellaneous$as before")));
+@@ -4383,7 +4388,7 @@
+   lastTime.Set();
+ }
+ 
+-cDisplayChannel::cDisplayChannel(eKeys FirstKey)
++cDisplayChannel::cDisplayChannel(eKeys FirstKey, bool processKey)
+ :cOsdObject(true)
+ {
+   currentDisplayChannel = this;
+@@ -4396,7 +4401,8 @@
+   displayChannel = Skins.Current()->DisplayChannel(withInfo);
+   positioner = NULL;
+   channel = Channels.GetByNumber(cDevice::CurrentChannel());
+-  ProcessKey(FirstKey);
++  if (processKey)
++     ProcessKey(FirstKey);
+ }
+ 
+ cDisplayChannel::~cDisplayChannel()
+@@ -4638,6 +4644,784 @@
+   return osEnd;
+ }
+ 
++// --- cGroupListItem -------------------------------------------------------
++const char *cGroupListItem::GroupName(void) { 
++  if (channel)
++     return channel->Name();
++  return tr("Setup.Miscellaneous$All Channels"); 
++}
++
++// --- cDisplayChannelExtended -------------------------------------------------------
++cDisplayChannelExtended::cDisplayChannelExtended(int Number, bool Switched)
++:cDisplayChannel(Number, Switched)
++{
++  state = esDefault;
++  keyRightOpensChannellist = -1;
++  numItemsChannel = 0;
++  currentChannel = -1;
++  startChannel = -1;
++  numItemsGroup = 0;
++  currentGroup = -1;
++  startGroup = -1;
++}
++
++cDisplayChannelExtended::cDisplayChannelExtended(eKeys FirstKey)
++:cDisplayChannel(FirstKey, false)
++{
++  state = esInit;
++  keyRightOpensChannellist = -1;
++  numItemsChannel = 0;
++  currentChannel = -1;
++  startChannel = -1;
++  numItemsGroup = 0;
++  currentGroup = -1;
++  startGroup = -1;
++}
++
++cDisplayChannelExtended::~cDisplayChannelExtended()
++{
++}
++
++eOSState cDisplayChannelExtended::ProcessKey(eKeys Key)
++{
++  cSkinDisplayChannelExtended *displayChannelExtended = dynamic_cast<cSkinDisplayChannelExtended*>(displayChannel);
++  if (!displayChannelExtended)
++     return cDisplayChannel::ProcessKey(Key);
++
++  if (Key != kNone)
++     lastTime.Set();
++
++  bool keyHandeled = false;
++  //number keys are always handled by default state
++  if ((int)Key >= k0 && (int)Key <= k9) {
++     displayChannelExtended->SetViewType(dcDefault);
++     StateNumberKey((int)Key, displayChannelExtended);
++     state = esDefault;
++  } else if (number <= 0) {
++     switch (state) {
++       case esInit:
++            keyHandeled = StateInit((int)Key, displayChannelExtended);
++            break;
++       case esDefault:
++            keyHandeled = StateDefault((int)Key, displayChannelExtended);
++            break;
++       case esChannelInfo:
++            keyHandeled = StateChannelInfo((int)Key, displayChannelExtended);
++            break;
++       case esChannelList:
++       case esChannelListInfo:
++            keyHandeled = StateChannelList((int)Key, displayChannelExtended);
++            break;
++       case esGroupsList:
++            keyHandeled = StateGroupList((int)Key, displayChannelExtended);
++            break;
++       case esGroupsChannelList:
++       case esGroupsChannelListInfo:
++            keyHandeled = StateGroupChannelList((int)Key, displayChannelExtended);
++            break;
++       default:
++            break;
++     }
++    }
++  if (state == esClose)
++     return osEnd;
++  //in extended state, no timeout
++  if (state != esDefault) 
++     lastTime.Set();
++
++  //do own flush for all lists
++  if (keyHandeled || (Key == kNone && state > esChannelInfo)) {
++     SetNeedsFastResponse(false);
++     displayChannel->Flush();
++     return osContinue;
++     }
++
++  return cDisplayChannel::ProcessKey(Key);
++}
++
++void cDisplayChannelExtended::StateNumberKey(int key, cSkinDisplayChannelExtended *dcExt)
++{
++  if (!Setup.ZapcockpitUseHints)
++     return;
++  if (number < 0)
++     return;
++  int selectedChannel = number > Channels.MaxNumber() ? key - k0 : number * 10 + key - k0;
++  int candidateStartNumber = selectedChannel * 10;
++  channellist.Clear();
++  cChannel *candidatesStart = Channels.GetByNumber(candidateStartNumber);
++  int numHints = 0;
++  for (cChannel *candidate = candidatesStart; candidate; candidate = Channels.Next(candidate)) {
++      if (candidate->GroupSep())
++         continue;
++      numHints++;
++      if (candidate->Number() >= candidateStartNumber + 9)
++         break;
++      }
++  if (numHints == 0)
++     return;
++  dcExt->SetNumChannelHints(numHints);
++  for (cChannel *candidate = candidatesStart; candidate; candidate = Channels.Next(candidate)) {
++      if (candidate->GroupSep())
++         continue;
++      dcExt->SetChannelHint(candidate);
++      if (candidate->Number() >= candidateStartNumber + 9)
++         break;
++      }
++}
++
++bool cDisplayChannelExtended::StateInit(int key, cSkinDisplayChannelExtended *dcExt)
++{
++  if (keyRightOpensChannellist == -1)
++    keyRightOpensChannellist = dcExt->KeyRightOpensChannellist() ? 1 : 0;
++
++  bool keyHandeled = false;
++  switch (key) {
++    case kLeft|k_Repeat:  case kLeft:
++    case kPrev|k_Repeat:  case kPrev: {
++         if (!Setup.ZapcockpitUseGroups)
++            return false;
++         cOsdProvider::OsdSizeChanged(osdState); // just to get the current state
++         DisplayChannel();
++         DisplayInfo();
++         if (keyRightOpensChannellist) {
++            InitGroupList(dcExt);
++            state = esGroupsList;
++         } else {
++            InitChannelList(dcExt);
++            state = esChannelList;
++            }
++         keyHandeled = true;
++         break;
++    }
++    case kRight|k_Repeat: case kRight:
++    case kNext|k_Repeat:  case kNext: {
++         if (!Setup.ZapcockpitUseGroups)
++            return false;
++         cOsdProvider::OsdSizeChanged(osdState); // just to get the current state
++         DisplayChannel();
++         DisplayInfo();
++         if (keyRightOpensChannellist) {
++            InitChannelList(dcExt);
++            state = esChannelList;
++         } else {
++            InitGroupList(dcExt);
++            state = esGroupsList;
++            }
++         keyHandeled = true;
++         break;
++         }
++    //other keys are handled by cDisplayChannel::ProcessKeys()
++    default:
++         dcExt->SetViewType(dcDefault);
++         state = esDefault;
++         break;
++    }
++  return keyHandeled;
++}
++
++bool cDisplayChannelExtended::StateDefault(int key, cSkinDisplayChannelExtended *dcExt)
++{
++  if (keyRightOpensChannellist == -1)
++    keyRightOpensChannellist = dcExt->KeyRightOpensChannellist() ? 1 : 0;
++  bool keyHandeled = false;
++  switch (key) {
++    //2nd ok opens extended info for current channel
++    case kOk: {
++         if (!Setup.ZapcockpitUseInfo)
++            return false;
++         dcExt->SetViewType(dcChannelInfo);
++         dcExt->SetChannelInfo(channel);
++         state = esChannelInfo;
++         keyHandeled = true;
++         break;
++         }
++    case kLeft|k_Repeat:  case kLeft:
++    case kPrev|k_Repeat:  case kPrev: {
++         if (!Setup.ZapcockpitUseGroups)
++            return false;
++         if (keyRightOpensChannellist) {
++            InitGroupList(dcExt);
++            state = esGroupsList;
++         } else {
++            InitChannelList(dcExt);
++            state = esChannelList;
++            }
++         keyHandeled = true;
++         break;
++         }
++    case kRight|k_Repeat: case kRight:
++    case kNext|k_Repeat:  case kNext: {
++         if (!Setup.ZapcockpitUseGroups)
++            return false;
++         if (keyRightOpensChannellist) {
++            InitChannelList(dcExt);
++            state = esChannelList;
++         } else {
++            InitGroupList(dcExt);
++            state = esGroupsList;
++            }
++         keyHandeled = true;
++         break;
++         }
++    //other keys are handled by cDisplayChannel::ProcessKeys()
++    default:  
++         break;
++    }
++  return keyHandeled;
++}
++
++bool cDisplayChannelExtended::StateChannelInfo(int key, cSkinDisplayChannelExtended *dcExt)
++{
++  bool keyHandeled = false;
++  switch (key) {
++    //ok closes here
++    case kOk:
++         state = esDefault;
++         break;
++    //channel switching is handled by default state
++    case kUp|k_Repeat:      case kUp:
++    case kDown|k_Repeat:    case kDown:
++    case kChanUp|k_Repeat:  case kChanUp:
++    case kChanDn|k_Repeat:  case kChanDn:
++         dcExt->SetViewType(dcDefault);
++         state = esDefault;
++         break;
++    case kUp|k_Release:     case kDown|k_Release:
++    case kChanUp|k_Release: case kChanDn|k_Release:
++    case kNext|k_Release:   case kPrev|k_Release:
++         dcExt->SetViewType(dcDefault);
++         state = esDefault;
++         break;
++    case kLeft|k_Repeat:  case kLeft:
++    case kPrev|k_Repeat:  case kPrev: {
++         if (!Setup.ZapcockpitUseGroups)
++            return false;
++         if (keyRightOpensChannellist) {
++            InitGroupList(dcExt);
++            state = esGroupsList;
++         } else {
++            InitChannelList(dcExt);
++            state = esChannelList;
++            }
++         keyHandeled = true;
++         break;
++         }
++    case kRight|k_Repeat: case kRight:
++    case kNext|k_Repeat:  case kNext: {
++         if (!Setup.ZapcockpitUseGroups)
++            return false;
++         if (keyRightOpensChannellist) {
++            InitChannelList(dcExt);
++            state = esChannelList;
++         } else {
++            InitGroupList(dcExt);
++            state = esGroupsList;
++            }
++         keyHandeled = true;
++         break;
++         }
++    default:
++         break;
++  }
++  return keyHandeled;
++}
++
++bool cDisplayChannelExtended::StateChannelList(int key, cSkinDisplayChannelExtended *dcExt)
++{
++  bool keyHandeled = false;
++  switch (key) {
++    //ok switches to the selected channel
++    case kOk: {
++         bool ok = SwitchChannel();
++         dcExt->SetViewType(dcDefault);
++         if (!ok)
++            keyHandeled = true;
++         state = esDefault;
++         break;
++         }
++    //scrolling up / down
++    case kUp|k_Repeat: case kUp:
++         state = esChannelList;
++         dcExt->SetViewType(dcChannelList);
++         CursorUp(dcExt);
++         keyHandeled = true;
++         break;
++    case kDown|k_Repeat: case kDown:
++         state = esChannelList;
++         dcExt->SetViewType(dcChannelList);
++         CursorDown(dcExt);
++         keyHandeled = true;
++         break;
++    case kLeft|k_Repeat: case kLeft: {
++         keyHandeled = true;
++         if (keyRightOpensChannellist) {
++           if (state == esChannelList) {
++              state = esClose;
++           } else if (state == esChannelListInfo) {
++              dcExt->SetViewType(dcChannelList);            
++              state = esChannelList;
++              }
++         } else
++            ShowChannellistInfo(dcExt, dcChannelListInfo);
++         break;
++         }
++    //right shows extended info of currently selected channel
++    case kRight|k_Repeat: case kRight: {
++         keyHandeled = true;
++         if (keyRightOpensChannellist)
++            ShowChannellistInfo(dcExt, dcChannelListInfo);
++         else {
++           if (state == esChannelList) {
++              state = esClose;
++           } else if (state == esChannelListInfo) {
++              dcExt->SetViewType(dcChannelList);            
++              state = esChannelList;
++              }
++           }
++         break;
++         }
++    default:
++         break;
++    }
++  return keyHandeled;
++}
++
++bool cDisplayChannelExtended::StateGroupList(int key, cSkinDisplayChannelExtended *dcExt)
++{
++  bool keyHandeled = false;
++  switch (key) {
++    //ok switches to first channel in group
++    case kOk: {
++         bool ok = SwitchChannel();
++         dcExt->SetViewType(dcDefault);
++         if (!ok)
++            keyHandeled = true;
++         state = esDefault;
++         break;
++         }
++    //scrolling up / down
++    case kUp|k_Repeat: case kUp:
++         state = esGroupsList;
++         CursorUp(dcExt);
++         dcExt->SetViewType(dcGroupsList);
++         keyHandeled = true;
++         break;
++    case kDown|k_Repeat: case kDown:
++         state = esGroupsList;
++         CursorDown(dcExt);
++         dcExt->SetViewType(dcGroupsList);
++         keyHandeled = true;
++         break;
++    case kLeft|k_Repeat: case kLeft:
++         keyHandeled = true;
++         if (keyRightOpensChannellist) {
++            state = esGroupsChannelList;
++            InitGroupChannelList(dcExt);
++         } else
++            state = esClose;
++         break;
++    case kRight|k_Repeat: case kRight:
++         keyHandeled = true;
++         if (keyRightOpensChannellist)
++            state = esClose;
++         else {
++            state = esGroupsChannelList;
++            InitGroupChannelList(dcExt);
++            }
++         break;
++    default:
++         break;
++    }
++  return keyHandeled;
++}
++
++bool cDisplayChannelExtended::StateGroupChannelList(int key, cSkinDisplayChannelExtended *dcExt)
++{
++  bool keyHandeled = false;
++  switch (key) {
++    //ok switches to the selected channel
++    case kOk: {
++         bool ok = SwitchChannel();
++         dcExt->SetViewType(dcDefault);
++         if (!ok)
++            keyHandeled = true;
++         state = esDefault;
++         break;
++         }
++    //scrolling up / down
++    case kUp|k_Repeat: case kUp:
++         state = esGroupsChannelList;
++         dcExt->SetViewType(dcGroupsChannelList);
++         CursorUp(dcExt);
++         keyHandeled = true;
++         break;
++    case kDown|k_Repeat: case kDown:
++         state = esGroupsChannelList;
++         dcExt->SetViewType(dcGroupsChannelList);
++         CursorDown(dcExt);
++         keyHandeled = true;
++         break;
++    case kLeft|k_Repeat: case kLeft: {
++         keyHandeled = true;
++         if (keyRightOpensChannellist)
++            ShowChannellistInfo(dcExt, dcGroupsChannelListInfo);
++         else {
++            if (state == esGroupsChannelList) {
++               state = esGroupsList;
++               dcExt->SetViewType(dcGroupsList);
++            } else if (state == esGroupsChannelListInfo) {
++               state = esGroupsChannelList;
++               dcExt->SetViewType(dcGroupsChannelList);            
++               }
++            }
++         break;
++         }
++    case kRight|k_Repeat: case kRight: {
++         keyHandeled = true;
++         if (keyRightOpensChannellist) {
++            if (state == esGroupsChannelList) {
++               state = esGroupsList;
++               dcExt->SetViewType(dcGroupsList);
++            } else if (state == esGroupsChannelListInfo) {
++               state = esGroupsChannelList;
++               dcExt->SetViewType(dcGroupsChannelList);
++               }
++         } else
++            ShowChannellistInfo(dcExt, dcGroupsChannelListInfo);
++         break;
++         }
++    default:
++         break;
++    }
++  return keyHandeled;
++}
++
++void cDisplayChannelExtended::ShowChannellistInfo(cSkinDisplayChannelExtended *dcExt, eDisplaychannelView newViewType) {
++  if (newViewType == dcChannelListInfo && state != esChannelList)
++     return;
++  if (newViewType == dcGroupsChannelListInfo && state != esGroupsChannelList)
++     return;
++
++  cChannelListItem *li = channellist.Get(currentChannel);
++  if (li) {
++     const cChannel *selected = li->Channel();
++     if (selected) {
++        dcExt->SetViewType(newViewType);
++        dcExt->SetChannelInfo(selected);
++        state = (newViewType == dcChannelListInfo) ? esChannelListInfo : esGroupsChannelListInfo;
++        }
++     }
++}
++
++void cDisplayChannelExtended::InitChannelList(cSkinDisplayChannelExtended *dcExt)
++{
++  dcExt->SetViewType(dcChannelList);
++  numItemsChannel = dcExt->MaxItems();
++  if (numItemsChannel < 1)
++     return;
++  SetChannelList();
++  currentChannel = GetIndexChannel(channel);
++  if (currentChannel < 0)
++     currentChannel = 0;
++  startChannel = max(0, currentChannel - numItemsChannel/2 + 1);
++  DisplayChannelList(dcExt);
++}
++
++void cDisplayChannelExtended::SetChannelList(void)
++{
++  channellist.Clear();
++  cChannel *lastSep = NULL;
++  if (Setup.ZapcockpitHideLastGroup)
++     lastSep = LastChannelSep();
++  for (cChannel *c = Channels.First(); c; c = Channels.Next(c)) {
++      if (c->GroupSep()) {
++         if (Setup.ZapcockpitHideLastGroup && c == lastSep)
++            break;
++         else
++            continue;
++         }
++      channellist.Add(new cChannelListItem(c));
++      }
++}
++
++int cDisplayChannelExtended::GetIndexChannel(cChannel *c)
++{
++  int i=0;
++  for (cChannelListItem *li = channellist.First(); li; li = channellist.Next(li)) {
++      if (li->Channel() == c)
++         return i;
++      i++;
++      }
++  return -1;
++}
++
++void cDisplayChannelExtended::InitGroupList(cSkinDisplayChannelExtended *dcExt)
++{
++  dcExt->SetViewType(dcGroupsList);
++  numItemsGroup = dcExt->MaxItems();
++  if (numItemsGroup < 1)
++     return;
++  SetGroupList();
++  currentGroup = GetIndexGroup(channel);
++  if (currentGroup < 0)
++     currentGroup = 0;
++  startGroup = max(0, numItemsGroup >= grouplist.Count() ? 0 : currentGroup - numItemsGroup/2 + 1);
++  DisplayGroupList(dcExt);
++}
++
++void cDisplayChannelExtended::SetGroupList(void)
++{
++  grouplist.Clear();
++  if (Setup.ZapcockpitShowAllChannels) {
++     cGroupListItem *allChannels = new cGroupListItem(NULL);
++     int totalNumChannels = 0;
++     cChannel *lastSep = NULL;
++     if (Setup.ZapcockpitHideLastGroup)
++        lastSep = LastChannelSep();
++     for (cChannel *c = Channels.First(); c; c = Channels.Next(c)) {
++        if (c->GroupSep()) {
++           if (Setup.ZapcockpitHideLastGroup && c == lastSep)
++              break;
++           else
++              continue;
++         }
++         totalNumChannels++;
++      }
++     allChannels->SetNumChannels(totalNumChannels);
++     grouplist.Add(allChannels);
++     }
++
++  cChannel *lastSep = NULL;
++  if (Setup.ZapcockpitHideLastGroup)
++     lastSep = LastChannelSep();
++  int numChannels = 0;
++  cGroupListItem *item = NULL;
++  for (cChannel *c = Channels.First(); c; c = Channels.Next(c)) {
++      if (c->GroupSep()) {
++         if (item) {
++            item->SetNumChannels(numChannels);
++            numChannels = 0;  
++            }
++         if (Setup.ZapcockpitHideLastGroup && c == lastSep)
++            break;
++         item = new cGroupListItem(c);
++         grouplist.Add(item);
++      } else
++         numChannels++;
++      }
++  if (grouplist.Count() > 0 && numChannels)
++     grouplist.Last()->SetNumChannels(numChannels);
++}
++
++int cDisplayChannelExtended::GetIndexGroup(cChannel *cur)
++{
++  cChannel *group = NULL;
++  for (cChannel *c = cur; c; c = Channels.Prev(c)) {
++      if (c->GroupSep()) {
++         group = c;
++         break;
++         }
++      }
++  if (!group)
++     return -1;
++  int i=0;
++  for (cGroupListItem *li = grouplist.First(); li; li = grouplist.Next(li)) {
++      if (li->Channel() == group)
++         return i;
++      i++;
++      }
++  return -1;
++}
++
++void cDisplayChannelExtended::InitGroupChannelList(cSkinDisplayChannelExtended *dcExt)
++{
++  dcExt->SetViewType(dcGroupsChannelList);
++  numItemsChannel = dcExt->MaxItems();
++  if (numItemsChannel < 1)
++     return;
++  SetGroupChannelList(dcExt);
++  currentChannel = 0;
++  startChannel = 0;
++  DisplayChannelList(dcExt);
++}
++
++void cDisplayChannelExtended::SetGroupChannelList(cSkinDisplayChannelExtended *dcExt)
++{
++  cGroupListItem *curGroup = grouplist.Get(currentGroup);
++  if (!curGroup)
++     return;
++  cChannel *curChannel = curGroup->Channel();
++  if (!curChannel) {
++     if (Setup.ZapcockpitShowAllChannels)
++        SetChannelList();
++     return;    
++     }
++  channellist.Clear();
++  for (cChannel *c = dynamic_cast<cChannel*>(curChannel->Next()); c; c = Channels.Next(c)) {
++      if (c->GroupSep())
++         break;
++      channellist.Add(new cChannelListItem(c));
++      }
++}
++
++void cDisplayChannelExtended::CursorUp(cSkinDisplayChannelExtended *dcExt)
++{
++  int *start, *current, *numItems;
++  if (state == esChannelList || state == esGroupsChannelList) {
++     start = &startChannel;
++     current = &currentChannel;
++     numItems = &numItemsChannel;
++  } else if (state == esGroupsList) {
++     start = &startGroup;
++     current = &currentGroup;
++     numItems = &numItemsGroup;
++  } else
++     return;
++  
++  if (*current == 0) {
++     dcExt->ClearList();
++     int itemsTotal = (state == esChannelList || state == esGroupsChannelList)?channellist.Count():((state == esGroupsList)?grouplist.Count():0); 
++     *current = itemsTotal-1;
++     *start = max(0, itemsTotal - *numItems);
++     if (state == esChannelList || state == esGroupsChannelList)
++        DisplayChannelList(dcExt);
++     else if (state == esGroupsList)
++        DisplayGroupList(dcExt);
++     return;
++     }
++  int curRel = *current - *start;
++  if (curRel > 0) {
++     if (state == esChannelList || state == esGroupsChannelList) {
++        const cChannel *prev = channellist.Get(*current-1)->Channel();
++        dcExt->SetChannelList(channellist.Get(*current)->Channel(), curRel, false);
++        dcExt->SetChannelList(prev, curRel-1, true);
++        (*current)--;
++        return;
++     } else if (state = esGroupsList) {
++        cGroupListItem *prev = grouplist.Get(*current-1);
++        cGroupListItem *old = grouplist.Get(*current);
++        dcExt->SetGroupList(old->GroupName(), old->NumChannels(), curRel, false);
++        dcExt->SetGroupList(prev->GroupName(), prev->NumChannels(), curRel-1, true);
++        (*current)--;
++        return;      
++        }
++     }
++  dcExt->ClearList();
++  (*current)--;
++  *start = max(0, *start-*numItems);
++
++  if (state == esChannelList || state == esGroupsChannelList)
++     DisplayChannelList(dcExt);
++  else if (state == esGroupsList)
++     DisplayGroupList(dcExt);
++}
++
++void cDisplayChannelExtended::CursorDown(cSkinDisplayChannelExtended *dcExt)
++{
++  int *start, *current, *numItems;
++  if (state == esChannelList || state == esGroupsChannelList) {
++     start = &startChannel;
++     current = &currentChannel;
++     numItems = &numItemsChannel;
++  } else if (state == esGroupsList) {
++     start = &startGroup;
++     current = &currentGroup;
++     numItems = &numItemsGroup;
++  } else
++     return;
++
++  int curRel = *current - *start;
++  if (curRel < *numItems - 1) {
++     if (state == esChannelList || state == esGroupsChannelList) {
++        cChannelListItem *next = channellist.Get(*current+1);
++        if (next) {
++           dcExt->SetChannelList(channellist.Get(*current)->Channel(), curRel, false);
++           dcExt->SetChannelList(next->Channel(), curRel+1, true);
++           (*current)++;      
++           return;
++           }
++     } else if (state == esGroupsList) {
++        cGroupListItem *next = grouplist.Get(*current+1);
++        if (next) {
++           cGroupListItem *old = grouplist.Get(*current);
++           dcExt->SetGroupList(old->GroupName(), old->NumChannels(), curRel, false);
++           dcExt->SetGroupList(next->GroupName(), next->NumChannels(), curRel+1, true);
++           (*current)++;      
++           return;
++           }
++        }
++     }
++  if (((state == esChannelList  || state == esGroupsChannelList) && *current+1 == channellist.Count()) || 
++      (state == esGroupsList && *current+1 == grouplist.Count()))
++     *start = *current = 0;
++  else
++     *start = *current = *current+1;
++  dcExt->ClearList();
++
++  if (state == esChannelList || state == esGroupsChannelList)
++     DisplayChannelList(dcExt);
++  else if (state == esGroupsList)
++     DisplayGroupList(dcExt);
++}
++
++void cDisplayChannelExtended::DisplayChannelList(cSkinDisplayChannelExtended *dcExt)
++{
++  int index = 0;
++  for (cChannelListItem *c = channellist.Get(startChannel); c; c = channellist.Next(c)) {
++      dcExt->SetChannelList(c->Channel(), index, (startChannel + index == currentChannel) ? true : false);
++      if (++index == numItemsChannel)
++         break;
++      }
++}
++
++void cDisplayChannelExtended::DisplayGroupList(cSkinDisplayChannelExtended *dcExt)
++{
++  int index = 0;
++  for (cGroupListItem *g = grouplist.Get(startGroup); g; g = grouplist.Next(g)) {
++      dcExt->SetGroupList(g->GroupName(), g->NumChannels(), index, (startGroup + index == currentGroup) ? true : false);
++      if (++index == numItemsGroup)
++         break;
++      }
++}
++
++bool cDisplayChannelExtended::SwitchChannel(void)
++{
++  cChannel *newChannel = NULL;
++  if ( state == esChannelList || 
++       state == esChannelListInfo ||
++       state == esGroupsChannelList ||
++       state == esGroupsChannelListInfo ) {
++     cChannelListItem *li = channellist.Get(currentChannel);
++     if (li)
++        newChannel = li->Channel();    
++  } else if (state == esGroupsList) {
++     cGroupListItem *item = grouplist.Get(currentGroup);
++     if (!item)
++        return false;
++     cChannel *cGroup = item->Channel();
++     for (cChannel *c = cGroup; c; c = Channels.Next(c))
++         if (!c->GroupSep()) {
++            newChannel = c;
++            break;
++            }
++     }
++  if (!newChannel || newChannel == channel)
++     return false;
++  SetTrackDescriptions(newChannel->Number()); // to make them immediately visible in the channel display
++  Channels.SwitchTo(newChannel->Number());
++  SetTrackDescriptions(newChannel->Number()); // switching the channel has cleared them
++  channel = newChannel;
++  return true;
++}
++
++cChannel *cDisplayChannelExtended::LastChannelSep(void)
++{
++  for (cChannel *c = Channels.Last(); c; c = Channels.Prev(c))
++      if (c->GroupSep())
++         return c;
++  return NULL;
++}
++
+ // --- cDisplayVolume --------------------------------------------------------
+ 
+ #define VOLUMETIMEOUT 1000 //ms
+--- a/menu.h
++++ b/menu.h
+@@ -115,30 +115,102 @@
+ 
+ class cDisplayChannel : public cOsdObject {
+ private:
+-  cSkinDisplayChannel *displayChannel;
+   int group;
+   bool withInfo;
+-  cTimeMs lastTime;
+-  int number;
+   bool timeout;
+-  int osdState;
+   const cPositioner *positioner;
+-  cChannel *channel;
+   const cEvent *lastPresent;
+   const cEvent *lastFollowing;
+   static cDisplayChannel *currentDisplayChannel;
+-  void DisplayChannel(void);
+-  void DisplayInfo(void);
+   void Refresh(void);
+   cChannel *NextAvailableChannel(cChannel *Channel, int Direction);
++protected:
++  cSkinDisplayChannel *displayChannel;
++  cTimeMs lastTime;
++  int number;
++  cChannel *channel;
++  int osdState;
++  void DisplayChannel(void);
++  void DisplayInfo(void);
+ public:
+   cDisplayChannel(int Number, bool Switched);
+-  cDisplayChannel(eKeys FirstKey);
++  cDisplayChannel(eKeys FirstKey, bool processKey = true);
+   virtual ~cDisplayChannel();
+   virtual eOSState ProcessKey(eKeys Key);
+   static bool IsOpen(void) { return currentDisplayChannel != NULL; }
+   };
+ 
++enum eExtendedState {
++  esInit = 0,
++  esDefault,
++  esChannelInfo,
++  esChannelList,
++  esChannelListInfo,
++  esGroupsList,
++  esGroupsChannelList,
++  esGroupsChannelListInfo,
++  esClose  
++  };
++
++class cChannelListItem : public cListObject {
++private:
++  cChannel *channel;
++public:
++  cChannelListItem(cChannel *Channel) { channel = Channel; };
++  virtual ~cChannelListItem(void) { };
++  cChannel *Channel(void) { return channel; }
++  };
++
++class cGroupListItem : public cListObject {
++private:
++  cChannel *channel;
++  int numChannels;
++public:
++  cGroupListItem(cChannel *Channel) { channel = Channel; numChannels = 0; };
++  virtual ~cGroupListItem(void) { };
++  const char *GroupName(void);
++  void SetNumChannels(int NumChannels) { numChannels = NumChannels; };
++  int NumChannels(void) { return numChannels; };
++  cChannel *Channel(void) { return channel; }
++  };
++
++class cDisplayChannelExtended : public cDisplayChannel {
++private:
++  eExtendedState state;
++  int keyRightOpensChannellist;
++  int numItemsChannel, startChannel, currentChannel;
++  int numItemsGroup, startGroup, currentGroup;
++  cList<cChannelListItem> channellist;
++  cList<cGroupListItem> grouplist;
++  void StateNumberKey(int key, cSkinDisplayChannelExtended *dcExt);
++  bool StateInit(int key, cSkinDisplayChannelExtended *dcExt);
++  bool StateDefault(int key, cSkinDisplayChannelExtended *dcExt);
++  bool StateChannelInfo(int key, cSkinDisplayChannelExtended *dcExt);
++  bool StateChannelList(int key, cSkinDisplayChannelExtended *dcExt);
++  bool StateGroupList(int key, cSkinDisplayChannelExtended *dcExt);
++  bool StateGroupChannelList(int key, cSkinDisplayChannelExtended *dcExt);
++  void ShowChannellistInfo(cSkinDisplayChannelExtended *dcExt, eDisplaychannelView newViewType);
++  void InitChannelList(cSkinDisplayChannelExtended *dcExt);
++  void SetChannelList(void);
++  int GetIndexChannel(cChannel *c);
++  void InitGroupList(cSkinDisplayChannelExtended *dcExt);
++  void SetGroupList(void);
++  int GetIndexGroup(cChannel *c);
++  void InitGroupChannelList(cSkinDisplayChannelExtended *dcExt);
++  void SetGroupChannelList(cSkinDisplayChannelExtended *dcExt);  
++  void CursorUp(cSkinDisplayChannelExtended *dcExt);
++  void CursorDown(cSkinDisplayChannelExtended *dcExt);
++  void DisplayChannelList(cSkinDisplayChannelExtended *dcExt);
++  void DisplayGroupList(cSkinDisplayChannelExtended *dcExt);
++  bool SwitchChannel(void);
++  cChannel *LastChannelSep(void);
++public:
++  cDisplayChannelExtended(int Number, bool Switched);
++  cDisplayChannelExtended(eKeys FirstKey);
++  virtual ~cDisplayChannelExtended();
++  virtual eOSState ProcessKey(eKeys Key);
++  };
++
+ class cDisplayVolume : public cOsdObject {
+ private:
+   cSkinDisplayVolume *displayVolume;
+--- a/po/de_DE.po
++++ b/po/de_DE.po
+@@ -8,7 +8,7 @@
+ msgstr ""
+ "Project-Id-Version: VDR 2.2.0\n"
+ "Report-Msgid-Bugs-To: <vdr-bugs@tvdr.de>\n"
+-"POT-Creation-Date: 2015-02-10 13:40+0100\n"
++"POT-Creation-Date: 2016-05-22 09:17+0200\n"
+ "PO-Revision-Date: 2015-02-10 13:45+0100\n"
+ "Last-Translator: Klaus Schmidinger <vdr@tvdr.de>\n"
+ "Language-Team: German <vdr@linuxtv.org>\n"
+@@ -1284,6 +1284,21 @@
+ msgid "Setup.Miscellaneous$Channel entry timeout (ms)"
+ msgstr "Zeitlimit für Kanaleingabe (ms)"
+ 
++msgid "Setup.Miscellaneous$Zapcockpit: 2nd ok shows info"
++msgstr "Zapcockpit: zweites OK zeigt Info"
++
++msgid "Setup.Miscellaneous$Zapcockpit: Use extended channel group display"
++msgstr "Zapcockpit: Erweiterte Kanalgruppen Anzeige benutzen"
++
++msgid "Setup.Miscellaneous$Zapcockpit: Use channel hints"
++msgstr "Zapcockpit: Kanalhinweise benutzen"
++
++msgid "Setup.Miscellaneous$Zapcockpit: Hide last channel group"
++msgstr "Zapcockpit: letzte Kanalgruppe ausblenden"
++
++msgid "Setup.Miscellaneous$Zapcockpit: Show \"All Channels\" Item in Group List"
++msgstr "Zapcockpit: Zeige \"Alle Kanäle\" in Kanalgruppen Liste"
++
+ msgid "Setup.Miscellaneous$Remote control repeat delay (ms)"
+ msgstr "Fernbedienung Wiederholverzögerung (ms)"
+ 
+@@ -1359,6 +1374,9 @@
+ msgid "Cancel editing?"
+ msgstr "Bearbeitung abbrechen?"
+ 
++msgid "Setup.Miscellaneous$All Channels"
++msgstr "Alle Kanäle"
++
+ msgid "No audio available!"
+ msgstr "Kein Audio verfügbar!"
+ 
+--- a/skins.c
++++ b/skins.c
+@@ -79,6 +79,13 @@
+      SetMessage(mtInfo, cString::sprintf(tr("Moving dish to %.1f..."), double(positioner->TargetLongitude()) / 10));
+ }
+ 
++cSkinDisplayChannelExtended::cSkinDisplayChannelExtended(void)
++: cSkinDisplayChannel()
++{
++
++}
++
++
+ // --- cSkinDisplayMenu ------------------------------------------------------
+ 
+ cSkinDisplayMenu::cSkinDisplayMenu(void)
+--- a/skins.h
++++ b/skins.h
+@@ -88,6 +88,34 @@
+   */
+   };
+ 
++#define USE_ZAPCOCKPIT 1
++
++enum eDisplaychannelView {
++  dcDefault = 0,
++  dcChannelInfo,
++  dcChannelList,
++  dcChannelListInfo,
++  dcGroupsList,
++  dcGroupsChannelList,
++  dcGroupsChannelListInfo  
++  };
++  
++class cSkinDisplayChannelExtended : public cSkinDisplayChannel {
++private:
++public:
++  cSkinDisplayChannelExtended(void);
++  virtual void SetViewType(eDisplaychannelView ViewType) = 0;
++  virtual int MaxItems(void) = 0;
++  virtual bool KeyRightOpensChannellist(void) = 0;
++  virtual void SetChannelInfo(const cChannel *Channel) = 0;
++  virtual void SetChannelList(const cChannel *Channel, int Index, bool Current) = 0;
++  virtual void SetGroupList(const char *Group, int NumChannels, int Index, bool Current) = 0;
++  virtual void SetGroupChannelList(const cChannel *Channel, int Index, bool Current) = 0;
++  virtual void ClearList(void) = 0;
++  virtual void SetNumChannelHints(int Num) = 0;
++  virtual void SetChannelHint(const cChannel *Channel) = 0;
++};
++
+ enum eMenuCategory {
+   mcUndefined = -1,
+   mcUnknown = 0,
+--- a/vdr.c
++++ b/vdr.c
+@@ -1007,7 +1007,7 @@
+         // Channel display:
+         if (!EITScanner.Active() && cDevice::CurrentChannel() != LastChannel) {
+            if (!Menu)
+-              Menu = new cDisplayChannel(cDevice::CurrentChannel(), LastChannel >= 0);
++              Menu = new cDisplayChannelExtended(cDevice::CurrentChannel(), LastChannel >= 0);
+            LastChannel = cDevice::CurrentChannel();
+            LastChannelChanged = Now;
+            }
+@@ -1188,8 +1188,10 @@
+           case kChanUp:
+           case kChanDn|k_Repeat:
+           case kChanDn:
+-               if (!Interact)
+-                  Menu = new cDisplayChannel(NORMALKEY(key));
++               if (!Interact) {
++                  Menu = new cDisplayChannelExtended(NORMALKEY(key));
++                  Menu->ProcessKey(NORMALKEY(key));
++                  }
+                else if (cDisplayChannel::IsOpen() || cControl::Control()) {
+                   Interact->ProcessKey(key);
+                   continue;
+@@ -1386,7 +1388,8 @@
+              case kUp:
+              case kDown|k_Repeat:
+              case kDown:
+-                  Menu = new cDisplayChannel(NORMALKEY(key));
++                  Menu = new cDisplayChannelExtended(NORMALKEY(key));
++                  Menu->ProcessKey(NORMALKEY(key));
+                   break;
+              // Viewing Control:
+              case kOk:   LastChannel = -1; break; // forces channel display

@@ -1,12 +1,10 @@
 Description: Use ncursesw header file
 Author: Tobias Grimm <tg@e-tobi.net>
 
-Index: vdr/PLUGINS/src/skincurses/skincurses.c
-===================================================================
---- vdr.orig/PLUGINS/src/skincurses/skincurses.c	2015-02-21 11:33:20.023435359 +0100
-+++ vdr/PLUGINS/src/skincurses/skincurses.c	2015-02-21 11:33:20.023435359 +0100
+--- a/PLUGINS/src/skincurses/skincurses.c
++++ b/PLUGINS/src/skincurses/skincurses.c
 @@ -6,7 +6,7 @@
-  * $Id: skincurses.c 3.3 2015/02/17 13:13:17 kls Exp $
+  * $Id: skincurses.c 4.2 2016/12/22 14:09:09 kls Exp $
   */
  
 -#include <ncurses.h>

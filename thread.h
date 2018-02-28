@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: thread.h 3.2 2015/01/14 11:39:55 kls Exp $
+ * $Id: thread.h 4.3 2017/05/31 11:39:11 kls Exp $
  */
 
 #ifndef __THREAD_H
@@ -13,6 +13,8 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <sys/types.h>
+
+typedef pid_t tThreadId;
 
 class cCondWait {
 private:
@@ -53,6 +55,8 @@ public:
 class cRwLock {
 private:
   pthread_rwlock_t rwlock;
+  int locked;
+  tThreadId writeLockThreadId;
 public:
   cRwLock(bool PreferWriter = false);
   ~cRwLock();
@@ -71,8 +75,6 @@ public:
   void Lock(void);
   void Unlock(void);
   };
-
-typedef pid_t tThreadId;
 
 class cThread {
   friend class cThreadLock;
@@ -164,6 +166,94 @@ public:
 
 #define LOCK_THREAD cThreadLock ThreadLock(this)
 
+class cStateKey;
+
+class cStateLock {
+  friend class cStateKey;
+private:
+  const char *name;
+  tThreadId threadId;
+  cRwLock rwLock;
+  int state;
+  bool explicitModify;
+  void Unlock(cStateKey &StateKey, bool IncState = true);
+       ///< Releases a lock that has been obtained by a previous call to Lock()
+       ///< with the given StateKey. If this was a write-lock, and IncState is true,
+       ///< the state of the lock will be incremented. In any case, the (new) state
+       ///< of the lock will be copied to the StateKey's state.
+public:
+  cStateLock(const char *Name = NULL);
+  bool Lock(cStateKey &StateKey, bool Write = false, int TimeoutMs = 0);
+       ///< Tries to get a lock and returns true if successful.
+       ///< If TimoutMs is not 0, it waits for the given number of milliseconds
+       ///< and returns false if no lock has been obtained within that time.
+       ///< Otherwise it waits indefinitely for the lock. The given StateKey
+       ///< will store which lock it has been used with, and will use that
+       ///< information when its Remove() function is called.
+       ///< There are two possible locks, one only for read access, and one
+       ///< for reading and writing:
+       ///<
+       ///< If Write is false (i.e. a read-lock is requested), the lock's state
+       ///< is compared to the given StateKey's state, and true is returned if
+       ///< they differ.
+       ///< If true is returned, the read-lock is still in place and the
+       ///< protected data structures can be safely accessed (in read-only mode!).
+       ///< Once the necessary operations have been performed, the lock must
+       ///< be released by a call to the StateKey's Remove() function.
+       ///< If false is returned, the state has not changed since the last check,
+       ///< and the read-lock has been released. In that case the protected
+       ///< data structures have not changed since the last call, so no action
+       ///< is required. Note that if TimeoutMs is used with read-locks, Lock()
+       ///< might return false even if the states of lock and key differ, just
+       ///< because it was unable to obtain the lock within the given time.
+       ///< You can call cStateKey::TimedOut() to detect this.
+       ///<
+       ///< If Write is true (i.e. a write-lock is requested), the states of the
+       ///< lock and the given StateKey don't matter, it will always try to obtain
+       ///< a write lock.
+  void SetExplicitModify(void) { explicitModify = true; }
+       ///< If you have obtained a write lock on this lock, and you don't want its
+       ///< state to be automatically incremented when the lock is released, a call to
+       ///< this function will disable this, and you can explicitly call IncState()
+       ///< to increment the state.
+  void IncState(void);
+       ///< Increments the state of this lock.
+  };
+
+class cStateKey {
+  friend class cStateLock;
+private:
+  cStateLock *stateLock;
+  bool write;
+  int state;
+  bool timedOut;
+public:
+  cStateKey(bool IgnoreFirst = false);
+       ///< Sets up a new state key. If IgnoreFirst is true, the first use
+       ///< of this key with a lock will not return true if the lock's state
+       ///< hasn't explicitly changed.
+  ~cStateKey();
+  void Reset(void);
+       ///< Resets the state of this key, so that the next call to a lock's
+       ///< Lock() function with this key will return true, even if the
+       ///< lock's state hasn't changed.
+  void Remove(bool IncState = true);
+       ///< Removes this key from the lock it was previously used with.
+       ///< If this key was used to obtain a write lock, the state of the lock will
+       ///< be incremented and copied to this key. You can set IncState to false
+       ///< to prevent this.
+  bool StateChanged(void);
+       ///< Returns true if this key is used for obtaining a write lock, and the
+       ///< lock's state differs from that of the key. When used with a read lock,
+       ///< it always returns true, because otherwise the lock wouldn't have been
+       ///< obtained in the first place.
+  bool InLock(void) { return stateLock; }
+       ///< Returns true if this key is currently in a lock.
+  bool TimedOut(void) const { return timedOut; }
+       ///< Returns true if the last lock attempt this key was used with failed due
+       ///< to a timeout.
+  };
+
 class cIoThrottle {
 private:
   static cMutex mutex;
@@ -199,6 +289,37 @@ public:
   operator FILE* () { return f; }
   bool Open(const char *Command, const char *Mode);
   int Close(void);
+  };
+
+// cBackTrace can be used for debugging.
+
+class cStringList;
+class cString;
+
+class cBackTrace {
+public:
+  static cString Demangle(char *s);
+         ///< Demangles the function name in the given string and returns the converted
+         ///< version of s. s must be one of the strings returned by a call to
+         ///< BackTrace() or GetCaller().
+         ///< Note that this function works on the given string by inserting '\0'
+         ///< characters to separate the individual parts. Therefore the string
+         ///< will be modified upon return.
+  static void BackTrace(cStringList &StringList, int Level = 0, bool Mangled = false);
+         ///< Produces a backtrace and stores it in the given StringList.
+         ///< If Level is given, only calls up to the given value are listed.
+         ///< If Mangled is true, the raw backtrace will be returned and you can use
+         ///< Demangle() to make the function names readable.
+  static void BackTrace(FILE *f = NULL, int Level = 0, bool Mangled = false);
+         ///< Produces a backtrace beginning at the given Level, and
+         ///< writes it to the given file. If no file is given, the backtrace is
+         ///< written to the logfile. If Mangled is true, the raw backtrace will
+         ///< be printed/logged.
+  static cString GetCaller(int Level = 0, bool Mangled = false);
+         ///< Returns the caller at the given Level (or the immediate caller,
+         ///< if Level is 0).
+         ///< If Mangled is true, the raw backtrace will be returned and you can use
+         ///< Demangle() to make the function name readable.
   };
 
 // SystemExec() implements a 'system()' call that closes all unnecessary file

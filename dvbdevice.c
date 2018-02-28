@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: dvbdevice.c 3.14 2015/01/14 12:09:19 kls Exp $
+ * $Id: dvbdevice.c 4.13 2017/05/09 11:50:38 kls Exp $
  */
 
 #include "dvbdevice.h"
@@ -201,21 +201,6 @@ int MapToDriver(int Value, const tDvbParameterMap *Map)
 
 cDvbTransponderParameters::cDvbTransponderParameters(const char *Parameters)
 {
-  polarization = 0;
-  inversion    = INVERSION_AUTO;
-  bandwidth    = 8000000;
-  coderateH    = FEC_AUTO;
-  coderateL    = FEC_AUTO;
-  modulation   = QPSK;
-  system       = DVB_SYSTEM_1;
-  transmission = TRANSMISSION_MODE_AUTO;
-  guard        = GUARD_INTERVAL_AUTO;
-  hierarchy    = HIERARCHY_AUTO;
-  rollOff      = ROLLOFF_AUTO;
-  streamId     = 0;
-  t2systemId   = 0;
-  sisoMiso     = 0;
-  pilot        = PILOT_AUTO;
   Parse(Parameters);
 }
 
@@ -266,6 +251,21 @@ const char *cDvbTransponderParameters::ParseParameter(const char *s, int &Value,
 
 bool cDvbTransponderParameters::Parse(const char *s)
 {
+  polarization = 0;
+  inversion    = INVERSION_AUTO;
+  bandwidth    = 8000000;
+  coderateH    = FEC_AUTO;
+  coderateL    = FEC_AUTO;
+  modulation   = QPSK;
+  system       = DVB_SYSTEM_1;
+  transmission = TRANSMISSION_MODE_AUTO;
+  guard        = GUARD_INTERVAL_AUTO;
+  hierarchy    = HIERARCHY_AUTO;
+  rollOff      = ROLLOFF_AUTO;
+  streamId     = 0;
+  t2systemId   = 0;
+  sisoMiso     = 0;
+  pilot        = PILOT_AUTO;
   while (s && *s) {
         switch (toupper(*s)) {
           case 'B': s = ParseParameter(s, bandwidth, BandwidthValues); break;
@@ -309,6 +309,9 @@ private:
   int tuneTimeout;
   int lockTimeout;
   time_t lastTimeoutReport;
+  mutable uint32_t lastUncValue;
+  mutable uint32_t lastUncDelta;
+  mutable time_t lastUncChange;
   cChannel channel;
   const cDiseqc *lastDiseqc;
   int diseqcOffset;
@@ -329,7 +332,7 @@ private:
   void ClearEventQueue(void) const;
   bool GetFrontendStatus(fe_status_t &Status) const;
   cPositioner *GetPositioner(void);
-  void ExecuteDiseqc(const cDiseqc *Diseqc, unsigned int *Frequency);
+  void ExecuteDiseqc(const cDiseqc *Diseqc, int *Frequency);
   void ResetToneAndVoltage(void);
   bool SetFrontend(void);
   virtual void Action(void);
@@ -346,6 +349,7 @@ public:
   void SetChannel(const cChannel *Channel);
   bool Locked(int TimeoutMs = 0);
   const cPositioner *Positioner(void) const { return positioner; }
+  bool GetSignalStats(int &Valid, double *Strength = NULL, double *Cnr = NULL, double *BerPre = NULL, double *BerPost = NULL, double *Per = NULL, int *Status = NULL) const;
   int GetSignalStrength(void) const;
   int GetSignalQuality(void) const;
   };
@@ -363,6 +367,9 @@ cDvbTuner::cDvbTuner(const cDvbDevice *Device, int Fd_Frontend, int Adapter, int
   tuneTimeout = 0;
   lockTimeout = 0;
   lastTimeoutReport = 0;
+  lastUncValue = 0;
+  lastUncDelta = 0;
+  lastUncChange = 0;
   lastDiseqc = NULL;
   diseqcOffset = 0;
   lastSource = 0;
@@ -554,12 +561,177 @@ bool cDvbTuner::GetFrontendStatus(fe_status_t &Status) const
   return false;
 }
 
+//#define DEBUG_SIGNALSTATS
 //#define DEBUG_SIGNALSTRENGTH
 //#define DEBUG_SIGNALQUALITY
+
+#define MAXFRONTENDCMDS 16
+#define SETCMD(c, d) { Props[CmdSeq.num].cmd = (c);\
+                       Props[CmdSeq.num].u.data = (d);\
+                       if (CmdSeq.num++ > MAXFRONTENDCMDS) {\
+                          esyslog("ERROR: too many tuning commands on frontend %d/%d", adapter, frontend);\
+                          return false;\
+                          }\
+                     }
+
+bool cDvbTuner::GetSignalStats(int &Valid, double *Strength, double *Cnr, double *BerPre, double *BerPost, double *Per, int *Status) const
+{
+  ClearEventQueue();
+  fe_status_t FeStatus;
+  dtv_property Props[MAXFRONTENDCMDS];
+  dtv_properties CmdSeq;
+  memset(&Props, 0, sizeof(Props));
+  memset(&CmdSeq, 0, sizeof(CmdSeq));
+  CmdSeq.props = Props;
+  Valid = DTV_STAT_VALID_NONE;
+  if (ioctl(fd_frontend, FE_READ_STATUS, &FeStatus) != 0) {
+     esyslog("ERROR: frontend %d/%d: %m", adapter, frontend);
+     return false;
+     }
+  if (Status) {
+     *Status = DTV_STAT_HAS_NONE;
+     if (FeStatus & FE_HAS_SIGNAL)  *Status |= DTV_STAT_HAS_SIGNAL;
+     if (FeStatus & FE_HAS_CARRIER) *Status |= DTV_STAT_HAS_CARRIER;
+     if (FeStatus & FE_HAS_VITERBI) *Status |= DTV_STAT_HAS_VITERBI;
+     if (FeStatus & FE_HAS_SYNC)    *Status |= DTV_STAT_HAS_SYNC;
+     if (FeStatus & FE_HAS_LOCK)    *Status |= DTV_STAT_HAS_LOCK;
+     Valid |= DTV_STAT_VALID_STATUS;
+     }
+  if (Strength)   SETCMD(DTV_STAT_SIGNAL_STRENGTH, 0);
+  if (Cnr)        SETCMD(DTV_STAT_CNR, 0);
+  if (BerPre)   { SETCMD(DTV_STAT_PRE_ERROR_BIT_COUNT, 0);
+                  SETCMD(DTV_STAT_PRE_TOTAL_BIT_COUNT, 0); }
+  if (BerPost)  { SETCMD(DTV_STAT_POST_ERROR_BIT_COUNT, 0);
+                  SETCMD(DTV_STAT_POST_TOTAL_BIT_COUNT, 0); }
+  if (Per)      { SETCMD(DTV_STAT_ERROR_BLOCK_COUNT, 0);
+                  SETCMD(DTV_STAT_TOTAL_BLOCK_COUNT, 0); }
+  if (ioctl(fd_frontend, FE_GET_PROPERTY, &CmdSeq) != 0) {
+     esyslog("ERROR: frontend %d/%d: %m", adapter, frontend);
+     return false;
+     }
+  int i = 0;
+  if (Strength) {
+     if (Props[i].u.st.len > 0) {
+        switch (Props[i].u.st.stat[0].scale) {
+          case FE_SCALE_DECIBEL:  *Strength = double(Props[i].u.st.stat[0].svalue) / 1000;
+                                  Valid |= DTV_STAT_VALID_STRENGTH;
+                                  break;
+          default: ;
+          }
+        }
+     i++;
+     }
+  if (Cnr) {
+     if (Props[i].u.st.len > 0) {
+        switch (Props[i].u.st.stat[0].scale) {
+          case FE_SCALE_DECIBEL:  *Cnr = double(Props[i].u.st.stat[0].svalue) / 1000;
+                                  Valid |= DTV_STAT_VALID_CNR;
+                                  break;
+          default: ;
+          }
+        }
+     i++;
+     }
+  if (BerPre) {
+     if (Props[i].u.st.len > 0 && Props[i + 1].u.st.len > 0) {
+        if (Props[i].u.st.stat[0].scale == FE_SCALE_COUNTER && Props[i + 1].u.st.stat[0].scale == FE_SCALE_COUNTER) {
+           uint64_t ebc = Props[i].u.st.stat[0].uvalue; // error bit count
+           uint64_t tbc = Props[i + 1].u.st.stat[0].uvalue; // total bit count
+           if (tbc > 0) {
+              *BerPre = double(ebc) / tbc;
+              Valid |= DTV_STAT_VALID_BERPRE;
+              }
+           }
+        }
+     i += 2;
+     }
+  if (BerPost) {
+     if (Props[i].u.st.len > 0 && Props[i + 1].u.st.len > 0) {
+        if (Props[i].u.st.stat[0].scale == FE_SCALE_COUNTER && Props[i + 1].u.st.stat[0].scale == FE_SCALE_COUNTER) {
+           uint64_t ebc = Props[i].u.st.stat[0].uvalue; // error bit count
+           uint64_t tbc = Props[i + 1].u.st.stat[0].uvalue; // total bit count
+           if (tbc > 0) {
+              *BerPost = double(ebc) / tbc;
+              Valid |= DTV_STAT_VALID_BERPOST;
+              }
+           }
+        }
+     i += 2;
+     }
+  if (Per) {
+     if (Props[i].u.st.len > 0 && Props[i + 1].u.st.len > 0) {
+        if (Props[i].u.st.stat[0].scale == FE_SCALE_COUNTER && Props[i + 1].u.st.stat[0].scale == FE_SCALE_COUNTER) {
+           uint64_t ebc = Props[i].u.st.stat[0].uvalue; // error block count
+           uint64_t tbc = Props[i + 1].u.st.stat[0].uvalue; // total block count
+           if (tbc > 0) {
+              *Per = double(ebc) / tbc;
+              Valid |= DTV_STAT_VALID_PER;
+              }
+           }
+        }
+     i += 2;
+     }
+#ifdef DEBUG_SIGNALSTATS
+  fprintf(stderr, "FE %d/%d: API5 %04X", adapter, frontend, Valid);
+  if ((Valid & DTV_STAT_VALID_STATUS)   != 0) fprintf(stderr, " STAT=%04X",     *Status);
+  if ((Valid & DTV_STAT_VALID_STRENGTH) != 0) fprintf(stderr, " STR=%1.1fdBm",  *Strength);
+  if ((Valid & DTV_STAT_VALID_CNR)      != 0) fprintf(stderr, " CNR=%1.1fdB",   *Cnr);
+  if ((Valid & DTV_STAT_VALID_BERPRE)   != 0) fprintf(stderr, " BERPRE=%1.1e",  *BerPre);
+  if ((Valid & DTV_STAT_VALID_BERPOST)  != 0) fprintf(stderr, " BERPOST=%1.1e", *BerPost);
+  if ((Valid & DTV_STAT_VALID_PER)      != 0) fprintf(stderr, " PER=%1.1e",     *Per);
+  fprintf(stderr, "\n");
+#endif
+  return Valid != DTV_STAT_VALID_NONE;
+}
+
+int dB1000toPercent(int dB1000, int Low, int High)
+{
+  // Convert the given value, which is in 1/1000 dBm, to a percentage in the
+  // range 0..100. Anything below Low is considered 0%, and anything above
+  // High counts as 100%.
+  if (dB1000 < Low)
+     return 0;
+  if (dB1000 > High)
+     return 100;
+  // return 100 - 100 * (High - dB1000) / (High - Low); // linear conversion
+  // return 100 - 100 * sqr(dB1000 - High) / sqr(Low - High); // quadratic conversion, see https://www.adriangranados.com/blog/dbm-to-percent-conversion
+  double v = 10.0 * (dB1000 - High) / (Low - High); // avoids the sqr() function
+  return 100 - v * v;
+}
 
 int cDvbTuner::GetSignalStrength(void) const
 {
   ClearEventQueue();
+  // Try DVB API 5:
+  for (int i = 0; i < 1; i++) { // just a trick to break out with 'continue' ;-)
+      dtv_property Props[MAXFRONTENDCMDS];
+      dtv_properties CmdSeq;
+      memset(&Props, 0, sizeof(Props));
+      memset(&CmdSeq, 0, sizeof(CmdSeq));
+      CmdSeq.props = Props;
+      SETCMD(DTV_STAT_SIGNAL_STRENGTH, 0);
+      if (ioctl(fd_frontend, FE_GET_PROPERTY, &CmdSeq) != 0) {
+         esyslog("ERROR: frontend %d/%d: %m", adapter, frontend);
+         return -1;
+         }
+      int Signal = 0;;
+      if (Props[0].u.st.len > 0) {
+         switch (Props[0].u.st.stat[0].scale) {
+           case FE_SCALE_DECIBEL:  Signal = dB1000toPercent(Props[0].u.st.stat[0].svalue, -95000, -20000); // TODO use different values for DVB-S, -T, -C?
+                                   break;
+           case FE_SCALE_RELATIVE: Signal = 100 * Props[0].u.st.stat[0].uvalue / 0xFFFF;
+                                   break;
+           default: ;
+           }
+#ifdef DEBUG_SIGNALSTRENGTH
+         fprintf(stderr, "FE %d/%d: API5 %d %08X %.1f S = %d\n", adapter, frontend, Props[0].u.st.stat[0].scale, int(Props[0].u.st.stat[0].svalue), int(Props[0].u.st.stat[0].svalue) / 1000.0, Signal);
+#endif
+         }
+      else
+         continue;
+      return Signal;
+      }
+  // Fall back to DVB API 3:
   uint16_t Signal;
   while (1) {
         if (ioctl(fd_frontend, FE_READ_SIGNAL_STRENGTH, &Signal) != -1)
@@ -579,7 +751,7 @@ int cDvbTuner::GetSignalStrength(void) const
   if (s > 100)
      s = 100;
 #ifdef DEBUG_SIGNALSTRENGTH
-  fprintf(stderr, "FE %d/%d: %08X S = %04X %04X %3d%%\n", adapter, frontend, subsystemId, MaxSignal, Signal, s);
+  fprintf(stderr, "FE %d/%d: API3 %08X S = %04X %04X %3d%%\n", adapter, frontend, subsystemId, MaxSignal, Signal, s);
 #endif
   return s;
 }
@@ -588,6 +760,36 @@ int cDvbTuner::GetSignalStrength(void) const
 
 int cDvbTuner::GetSignalQuality(void) const
 {
+  // Try DVB API 5:
+  for (int i = 0; i < 1; i++) { // just a trick to break out with 'continue' ;-)
+      dtv_property Props[MAXFRONTENDCMDS];
+      dtv_properties CmdSeq;
+      memset(&Props, 0, sizeof(Props));
+      memset(&CmdSeq, 0, sizeof(CmdSeq));
+      CmdSeq.props = Props;
+      SETCMD(DTV_STAT_CNR, 0);
+      if (ioctl(fd_frontend, FE_GET_PROPERTY, &CmdSeq) != 0) {
+         esyslog("ERROR: frontend %d/%d: %m", adapter, frontend);
+         return -1;
+         }
+      int Cnr = 0;;
+      if (Props[0].u.st.len > 0) {
+         switch (Props[0].u.st.stat[0].scale) {
+           case FE_SCALE_DECIBEL:  Cnr = dB1000toPercent(Props[0].u.st.stat[0].svalue, 5000, 20000); // TODO use different values for DVB-S, -T, -C?
+                                   break;
+           case FE_SCALE_RELATIVE: Cnr = 100 * Props[0].u.st.stat[0].uvalue / 0xFFFF;
+                                   break;
+           default: ;
+           }
+#ifdef DEBUG_SIGNALQUALITY
+         fprintf(stderr, "FE %d/%d: API5 %d %08X %.1f Q = %d\n", adapter, frontend, Props[0].u.st.stat[0].scale, int(Props[0].u.st.stat[0].svalue), int(Props[0].u.st.stat[0].svalue) / 1000.0, Cnr);
+#endif
+         }
+      else
+         continue;
+      return Cnr;
+      }
+  // Fall back to DVB API 3:
   fe_status_t Status;
   if (GetFrontendStatus(Status)) {
      // Actually one would expect these checks to be done from FE_HAS_SIGNAL to FE_HAS_LOCK, but some drivers (like the stb0899) are broken, so FE_HAS_LOCK is the only one that (hopefully) is generally reliable...
@@ -637,8 +839,38 @@ int cDvbTuner::GetSignalQuality(void) const
 #endif
      uint32_t Unc;
      while (1) {
-           if (ioctl(fd_frontend, FE_READ_UNCORRECTED_BLOCKS, &Unc) != -1)
+           if (ioctl(fd_frontend, FE_READ_UNCORRECTED_BLOCKS, &Unc) != -1) {
+              if (Unc != lastUncValue) {
+#ifdef DEBUG_SIGNALQUALITY
+                 fprintf(stderr, "FE %d/%d: API3 UNC = %u %u %u\n", adapter, frontend, Unc, lastUncValue, lastUncDelta);
+#endif
+                 lastUncDelta = (Unc >= lastUncValue) ? Unc - lastUncValue : lastUncValue - Unc;
+                 lastUncValue = Unc;
+                 lastUncChange = time(NULL);
+                 }
+              // The number of uncorrected blocks is a counter, which is normally
+              // at a constant value and only increases if there are new uncorrected
+              // blocks. So a change in the Unc value indicates reduced signal quality.
+              // Whenever the Unc counter changes, we take the delta between the old
+              // and new value into account for calculating the overall signal quality.
+              // The impact of Unc is considered for 2 seconds, and after that it is
+              // bisected with every passing second in order to phase it out. Otherwise
+              // once one or more uncorrected blocks occur, the signal quality would
+              // be considered low even if there haven't been any more uncorrected bocks
+              // for quite a while.
+              Unc = lastUncDelta;
+              if (Unc > 0) {
+                 int t = time(NULL) - lastUncChange - 2;
+                 if (t > 0)
+                    Unc >>= min(t, int(sizeof(Unc) * 8 - 1));
+                 if (Unc == 0)
+                    lastUncDelta = 0;
+#ifdef DEBUG_SIGNALQUALITY
+                 fprintf(stderr, "FE %d/%d: API3 UNC = %u\n", adapter, frontend, Unc);
+#endif
+                 }
               break;
+              }
            if (errno != EINTR) {
               Unc = 0;
 #ifdef DEBUG_SIGNALQUALITY
@@ -673,7 +905,7 @@ int cDvbTuner::GetSignalQuality(void) const
      if (q > 100)
         q = 100;
 #ifdef DEBUG_SIGNALQUALITY
-     fprintf(stderr, "FE %d/%d: %08X Q = %04X %04X %d %5d %5d %3d%%\n", adapter, frontend, subsystemId, MaxSnr, Snr, HasSnr, HasBer ? int(Ber) : -1, HasUnc ? int(Unc) : -1, q);
+     fprintf(stderr, "FE %d/%d: API3 %08X Q = %04X %04X %d %5d %5d %3d%%\n", adapter, frontend, subsystemId, MaxSnr, Snr, HasSnr, HasBer ? int(Ber) : -1, HasUnc ? int(Unc) : -1, q);
 #endif
      return q;
      }
@@ -696,7 +928,7 @@ cPositioner *cDvbTuner::GetPositioner(void)
   return positioner;
 }
 
-void cDvbTuner::ExecuteDiseqc(const cDiseqc *Diseqc, unsigned int *Frequency)
+void cDvbTuner::ExecuteDiseqc(const cDiseqc *Diseqc, int *Frequency)
 {
   if (!lnbPowerTurnedOn) {
      CHECK(ioctl(fd_frontend, FE_SET_VOLTAGE, SEC_VOLTAGE_13)); // must explicitly turn on LNB power
@@ -777,19 +1009,11 @@ static int GetRequiredDeliverySystem(const cChannel *Channel, const cDvbTranspon
 
 bool cDvbTuner::SetFrontend(void)
 {
-#define MAXFRONTENDCMDS 16
-#define SETCMD(c, d) { Frontend[CmdSeq.num].cmd = (c);\
-                       Frontend[CmdSeq.num].u.data = (d);\
-                       if (CmdSeq.num++ > MAXFRONTENDCMDS) {\
-                          esyslog("ERROR: too many tuning commands on frontend %d/%d", adapter, frontend);\
-                          return false;\
-                          }\
-                     }
-  dtv_property Frontend[MAXFRONTENDCMDS];
-  memset(&Frontend, 0, sizeof(Frontend));
+  dtv_property Props[MAXFRONTENDCMDS];
+  memset(&Props, 0, sizeof(Props));
   dtv_properties CmdSeq;
   memset(&CmdSeq, 0, sizeof(CmdSeq));
-  CmdSeq.props = Frontend;
+  CmdSeq.props = Props;
   SETCMD(DTV_CLEAR, 0);
   if (ioctl(fd_frontend, FE_SET_PROPERTY, &CmdSeq) < 0) {
      esyslog("ERROR: frontend %d/%d: %m", adapter, frontend);
@@ -806,7 +1030,7 @@ bool cDvbTuner::SetFrontend(void)
 
   SETCMD(DTV_DELIVERY_SYSTEM, frontendType);
   if (frontendType == SYS_DVBS || frontendType == SYS_DVBS2) {
-     unsigned int frequency = channel.Frequency();
+     int frequency = channel.Frequency();
      if (Setup.DiSEqC) {
         if (const cDiseqc *diseqc = Diseqcs.Get(device->CardIndex() + 1, channel.Source(), frequency, dtp.Polarization(), &scr)) {
            frequency -= diseqc->Lof();
@@ -829,7 +1053,7 @@ bool cDvbTuner::SetFrontend(void)
         }
      else {
         int tone = SEC_TONE_OFF;
-        if (frequency < (unsigned int)Setup.LnbSLOF) {
+        if (frequency < Setup.LnbSLOF) {
            frequency -= Setup.LnbFrequLo;
            tone = SEC_TONE_OFF;
            }
@@ -1064,6 +1288,7 @@ cOsdItem *cDvbSourceParam::GetOsdItem(void)
 
 // --- cDvbDevice ------------------------------------------------------------
 
+bool cDvbDevice::useDvbDevices = true;
 int cDvbDevice::setTransferModeForDolbyDigital = 1;
 cMutex cDvbDevice::bondMutex;
 
@@ -1081,13 +1306,24 @@ const char *DeliverySystemNames[] = {
   "ISDBC",
   "ATSC",
   "ATSCMH",
-  "DMBTH",
+  "DTMB",
   "CMMB",
   "DAB",
   "DVB-T2",
   "TURBO",
+  "DVB-C",
+  "DVB-C2",
   NULL
   };
+
+static const int DeliverySystemNamesMax = sizeof(DeliverySystemNames) / sizeof(DeliverySystemNames[0]) - 2; // -1 to get the maximum allowed index & -1 for the NULL => -2
+
+static const char *GetDeliverySystemName(int Index)
+{
+  if (Index > DeliverySystemNamesMax)
+     Index = 0;
+  return DeliverySystemNames[Index];
+};
 
 cDvbDevice::cDvbDevice(int Adapter, int Frontend)
 {
@@ -1110,6 +1346,7 @@ cDvbDevice::cDvbDevice(int Adapter, int Frontend)
   fd_ca = DvbOpen(DEV_DVB_CA, adapter, frontend, O_RDWR);
   if (fd_ca >= 0)
      ciAdapter = cDvbCiAdapter::CreateCiAdapter(this, fd_ca);
+  checkTsBuffer = false;
 
   // The DVR device (will be opened and closed as needed):
 
@@ -1185,9 +1422,9 @@ cString cDvbDevice::DeviceType(void) const
 {
   if (dvbTuner) {
      if (dvbTuner->FrontendType() != SYS_UNDEFINED)
-        return DeliverySystemNames[dvbTuner->FrontendType()];
+        return GetDeliverySystemName(dvbTuner->FrontendType());
      if (numDeliverySystems)
-        return DeliverySystemNames[deliverySystems[0]]; // to have some reasonable default
+        return GetDeliverySystemName(deliverySystems[0]); // to have some reasonable default
      }
   return "";
 }
@@ -1234,7 +1471,7 @@ bool cDvbDevice::Initialize(void)
             if (Exists(Adapter, Frontend)) {
                if (Found < MAXDEVICES) {
                   Found++;
-                  if (UseDevice(NextCardIndex())) {
+                  if (useDvbDevices && UseDevice(NextCardIndex())) {
                      if (Probe(Adapter, Frontend))
                         Used++;
                      }
@@ -1248,7 +1485,7 @@ bool cDvbDevice::Initialize(void)
   if (Found > 0) {
      isyslog("found %d DVB device%s", Found, Found > 1 ? "s" : "");
      if (Used != Found)
-        isyslog("using only %d DVB device%s", Used, Used > 1 ? "s" : "");
+        isyslog("using only %d DVB device%s", Used, Used != 1 ? "s" : "");
      }
   else
      isyslog("no DVB device found");
@@ -1262,36 +1499,36 @@ bool cDvbDevice::QueryDeliverySystems(int fd_frontend)
      LOG_ERROR;
      return false;
      }
-  dtv_property Frontend[1];
+  dtv_property Props[1];
   dtv_properties CmdSeq;
   // Determine the version of the running DVB API:
   if (!DvbApiVersion) {
-     memset(&Frontend, 0, sizeof(Frontend));
+     memset(&Props, 0, sizeof(Props));
      memset(&CmdSeq, 0, sizeof(CmdSeq));
-     CmdSeq.props = Frontend;
+     CmdSeq.props = Props;
      SETCMD(DTV_API_VERSION, 0);
      if (ioctl(fd_frontend, FE_GET_PROPERTY, &CmdSeq) != 0) {
         LOG_ERROR;
         return false;
         }
-     DvbApiVersion = Frontend[0].u.data;
+     DvbApiVersion = Props[0].u.data;
      isyslog("DVB API version is 0x%04X (VDR was built with 0x%04X)", DvbApiVersion, DVBAPIVERSION);
      }
   // Determine the types of delivery systems this device provides:
   bool LegacyMode = true;
   if (DvbApiVersion >= 0x0505) {
-     memset(&Frontend, 0, sizeof(Frontend));
+     memset(&Props, 0, sizeof(Props));
      memset(&CmdSeq, 0, sizeof(CmdSeq));
-     CmdSeq.props = Frontend;
+     CmdSeq.props = Props;
      SETCMD(DTV_ENUM_DELSYS, 0);
      int Result = ioctl(fd_frontend, FE_GET_PROPERTY, &CmdSeq);
      if (Result == 0) {
-        for (uint i = 0; i < Frontend[0].u.buffer.len; i++) {
+        for (uint i = 0; i < Props[0].u.buffer.len; i++) {
             if (numDeliverySystems >= MAXDELIVERYSYSTEMS) {
                esyslog("ERROR: too many delivery systems on frontend %d/%d", adapter, frontend);
                break;
                }
-            deliverySystems[numDeliverySystems++] = Frontend[0].u.buffer.data[i];
+            deliverySystems[numDeliverySystems++] = Props[0].u.buffer.data[i];
             }
         LegacyMode = false;
         }
@@ -1318,7 +1555,7 @@ bool cDvbDevice::QueryDeliverySystems(int fd_frontend)
   if (numDeliverySystems > 0) {
      cString ds("");
      for (int i = 0; i < numDeliverySystems; i++)
-         ds = cString::sprintf("%s%s%s", *ds, i ? "," : "", DeliverySystemNames[deliverySystems[i]]);
+         ds = cString::sprintf("%s%s%s", *ds, i ? "," : "", GetDeliverySystemName(deliverySystems[i]));
      cString ms("");
      if (frontendInfo.caps & FE_CAN_QPSK)      { numModulations++; ms = cString::sprintf("%s%s%s", *ms, **ms ? "," : "", MapToUserString(QPSK, ModulationValues)); }
      if (frontendInfo.caps & FE_CAN_QAM_16)    { numModulations++; ms = cString::sprintf("%s%s%s", *ms, **ms ? "," : "", MapToUserString(QAM_16, ModulationValues)); }
@@ -1619,6 +1856,11 @@ const cPositioner *cDvbDevice::Positioner(void) const
   return dvbTuner ? dvbTuner->Positioner() : NULL;
 }
 
+bool cDvbDevice::SignalStats(int &Valid, double *Strength, double *Cnr, double *BerPre, double *BerPost, double *Per, int *Status) const
+{
+  return dvbTuner ? dvbTuner->GetSignalStats(Valid, Strength, Cnr, BerPre, BerPost, Per, Status) : false;
+}
+
 int cDvbDevice::SignalStrength(void) const
 {
   return dvbTuner ? dvbTuner->GetSignalStrength() : -1;
@@ -1686,11 +1928,12 @@ bool cDvbDevice::GetTSPacket(uchar *&Data)
      if (cCamSlot *cs = CamSlot()) {
         if (cs->WantsTsData()) {
            int Available;
-           Data = tsBuffer->Get(&Available);
-           if (Data) {
-              Data = cs->Decrypt(Data, Available);
-              tsBuffer->Skip(Available);
-              }
+           Data = tsBuffer->Get(&Available, checkTsBuffer);
+           if (!Data)
+              Available = 0;
+           Data = cs->Decrypt(Data, Available);
+           tsBuffer->Skip(Available);
+           checkTsBuffer = Data != NULL;
            return true;
            }
         }

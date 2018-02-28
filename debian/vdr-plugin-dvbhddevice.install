@@ -1,4 +1,0 @@
-usr/lib/vdr/plugins/libvdr-dvbhddevice.so.*
-usr/share/locale/*/*/vdr-dvbhddevice.*
-
-debian/dvbhddevice.conf    etc/vdr/conf.avail/

@@ -1,26 +1,23 @@
 04_newplugin.patch
-06_default_svdrp_port_0.patch
 #12_osdbase-maxitems.patch
 81_Make_config.patch
 99_ncursesw-include.patch
 
 opt-37-x_menuorg.patch
 opt-42-x_MainMenuHooks-v1.0.1.patch
-opt-50_graphtftng.patch
+#opt-50_graphtft.patch
+
 opt-56_eventdetails_v3.patch
-opt-57_vdr-remote_instant_recordings.patch
+#opt-57_vdr-remote_instant_recordings.patch
 opt-61_dynamite.patch
+
 opt-65_pin.patch
 
-vdr-2.2.0-hide-first-recording-level-v5.patch
-
-vdr-2.2.0-permashift.patch
+vdr-2.3.1-hide-first-recording-level-v1.patch
 
 vdr-2.2.0-missing-plugin.patch
-vdr-2.2.0-toomanypids.patch
-vdr-2.2.0-caid_buffer-v3.patch
 
-vdr-2.2.0-h265-frame-parser.patch
-vdr-2.2.0-mutex-deadlock.patch
-
-systemd.patch
+vdr-2.3-patch-for-permashift.diff
+vdr-2.3.8-disable-DEBUG_LOCKSEQ.patch
+vdr-2.3.8-fixdevicedetachlock-2.diff
+fix_svdrpreply.diff

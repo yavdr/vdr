@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: recording.h 3.8 2015/02/07 14:29:14 kls Exp $
+ * $Id: recording.h 4.5 2017/04/03 13:31:16 kls Exp $
  */
 
 #ifndef __RECORDING_H
@@ -41,7 +41,6 @@ enum eRecordingUsage {
   };
 
 void RemoveDeletedRecordings(void);
-void ClearVanishedRecordings(void);
 void AssertFreeDiskSpace(int Priority = 0, bool Force = false);
      ///< The special Priority value -1 means that we shall get rid of any
      ///< deleted recordings faster than normal (because we're cutting).
@@ -98,6 +97,7 @@ public:
 class cRecording : public cListObject {
   friend class cRecordings;
 private:
+  int id;
   mutable int resume;
   mutable char *titleBuffer;
   mutable char *sortBufferName;
@@ -117,6 +117,7 @@ private:
   static char *StripEpisodeName(char *s, bool Strip);
   char *SortName(void) const;
   void ClearSortName(void);
+  void SetId(int Id); // should only be set by cRecordings
   time_t start;
   int priority;
   int lifetime;
@@ -125,12 +126,14 @@ public:
   cRecording(cTimer *Timer, const cEvent *Event);
   cRecording(const char *FileName);
   virtual ~cRecording();
+  int Id(void) const { return id; }
   time_t Start(void) const { return start; }
   int Priority(void) const { return priority; }
   int Lifetime(void) const { return lifetime; }
   time_t Deleted(void) const { return deleted; }
+  void SetDeleted(void) { deleted = time(NULL); }
   virtual int Compare(const cListObject &ListObject) const;
-  bool IsInPath(const char *Path);
+  bool IsInPath(const char *Path) const;
        ///< Returns true if this recording is stored anywhere under the given Path.
        ///< If Path is NULL or an empty string, the entire video directory is checked.
   cString Folder(void) const;
@@ -140,7 +143,7 @@ public:
        ///< Returns the base name of this recording (without the
        ///< video directory and folder). For use in menus etc.
   const char *Name(void) const { return name; }
-       ///< Returns the full name of the recording (without the video directory.
+       ///< Returns the full name of the recording (without the video directory).
        ///< For use in menus etc.
   const char *FileName(void) const;
        ///< Returns the full path name to the recording directory, including the
@@ -166,7 +169,7 @@ public:
   bool IsEdited(void) const;
   bool IsPesRecording(void) const { return isPesRecording; }
   bool IsOnVideoDirectoryFileSystem(void) const;
-  bool HasMarks(void);
+  bool HasMarks(void) const;
        ///< Returns true if this recording has any editing marks.
   bool DeleteMarks(void);
        ///< Deletes the editing marks from this recording (if any).
@@ -216,49 +219,58 @@ public:
        ///< as in time-shift).
   };
 
-class cRecordings : public cList<cRecording>, public cThread {
+class cVideoDirectoryScannerThread;
+
+class cRecordings : public cList<cRecording> {
 private:
+  static cRecordings recordings;
+  static cRecordings deletedRecordings;
+  static int lastRecordingId;
   static char *updateFileName;
-  bool deleted;
-  bool initial;
-  time_t lastUpdate;
-  int state;
-  const char *UpdateFileName(void);
-  void Refresh(bool Foreground = false);
-  bool ScanVideoDir(const char *DirName, bool Foreground = false, int LinkLevel = 0, int DirLevel = 0);
-protected:
-  void Action(void);
+  static time_t lastUpdate;
+  static cVideoDirectoryScannerThread *videoDirectoryScannerThread;
+  static const char *UpdateFileName(void);
 public:
   cRecordings(bool Deleted = false);
   virtual ~cRecordings();
-  bool Load(void) { return Update(true); }
-       ///< Loads the current list of recordings and returns true if there
-       ///< is anything in it (for compatibility with older plugins - use
-       ///< Update(true) instead).
-  bool Update(bool Wait = false);
+  static const cRecordings *GetRecordingsRead(cStateKey &StateKey, int TimeoutMs = 0) { return recordings.Lock(StateKey, false, TimeoutMs) ? &recordings : NULL; }
+       ///< Gets the list of recordings for read access.
+       ///< See cTimers::GetTimersRead() for details.
+  static cRecordings *GetRecordingsWrite(cStateKey &StateKey, int TimeoutMs = 0) { return recordings.Lock(StateKey, true, TimeoutMs) ? &recordings : NULL; }
+       ///< Gets the list of recordings for write access.
+       ///< See cTimers::GetTimersWrite() for details.
+  static const cRecordings *GetDeletedRecordingsRead(cStateKey &StateKey, int TimeoutMs = 0) { return deletedRecordings.Lock(StateKey, false, TimeoutMs) ? &deletedRecordings : NULL; }
+       ///< Gets the list of deleted recordings for read access.
+       ///< See cTimers::GetTimersRead() for details.
+  static cRecordings *GetDeletedRecordingsWrite(cStateKey &StateKey, int TimeoutMs = 0) { return deletedRecordings.Lock(StateKey, true, TimeoutMs) ? &deletedRecordings : NULL; }
+       ///< Gets the list of deleted recordings for write access.
+       ///< See cTimers::GetTimersWrite() for details.
+  static void Update(bool Wait = false);
        ///< Triggers an update of the list of recordings, which will run
        ///< as a separate thread if Wait is false. If Wait is true, the
        ///< function returns only after the update has completed.
-       ///< Returns true if Wait is true and there is anything in the list
-       ///< of recordings, false otherwise.
-  void TouchUpdate(void);
+  static void TouchUpdate(void);
        ///< Touches the '.update' file in the video directory, so that other
        ///< instances of VDR that access the same video directory can be triggered
        ///< to update their recordings list.
-  bool NeedsUpdate(void);
-  void ChangeState(void) { state++; }
-  bool StateChanged(int &State);
+       ///< This function is 'const', because it doesn't actually modify the list
+       ///< of recordings.
+  static bool NeedsUpdate(void);
   void ResetResume(const char *ResumeFileName = NULL);
   void ClearSortNames(void);
-  cRecording *GetByName(const char *FileName);
+  const cRecording *GetById(int Id) const;
+  cRecording *GetById(int Id) { return const_cast<cRecording *>(static_cast<const cRecordings *>(this)->GetById(Id)); };
+  const cRecording *GetByName(const char *FileName) const;
+  cRecording *GetByName(const char *FileName) { return const_cast<cRecording *>(static_cast<const cRecordings *>(this)->GetByName(FileName)); }
+  void Add(cRecording *Recording);
   void AddByName(const char *FileName, bool TriggerUpdate = true);
   void DelByName(const char *FileName);
   void UpdateByName(const char *FileName);
-  int TotalFileSizeMB(void);
-  double MBperMinute(void);
+  int TotalFileSizeMB(void) const;
+  double MBperMinute(void) const;
        ///< Returns the average data rate (in MB/min) of all recordings, or -1 if
        ///< this value is unknown.
-  int PathIsInUse(const char *Path);
+  int PathIsInUse(const char *Path) const;
        ///< Checks whether any recording in the given Path is currently in use and therefore
        ///< the whole Path shall not be tampered with. Returns 0 (ruNone) if no recording
        ///< is in use.
@@ -266,7 +278,7 @@ public:
        ///< If several recordings in the Path are currently in use, the return value will
        ///< be the combination of all individual recordings' flags.
        ///< If Path is NULL or an empty string, the entire video directory is checked.
-  int GetNumRecordingsInPath(const char *Path);
+  int GetNumRecordingsInPath(const char *Path) const;
        ///< Returns the total number of recordings in the given Path, including all
        ///< sub-folders of Path.
        ///< If Path is NULL or an empty string, the entire video directory is checked.
@@ -281,23 +293,34 @@ public:
        ///< if all recordings have been successfully added to the RecordingsHandler.
   };
 
-/// Any access to Recordings that loops through the list of recordings
-/// needs to hold a thread lock on this object!
-extern cRecordings Recordings;
-extern cRecordings DeletedRecordings;
+// Provide lock controlled access to the list:
+
+DEF_LIST_LOCK(Recordings);
+DEF_LIST_LOCK2(Recordings, DeletedRecordings);
+
+// These macros provide a convenient way of locking the global recordings list
+// and making sure the lock is released as soon as the current scope is left
+// (note that these macros wait forever to obtain the lock!):
+
+#define LOCK_RECORDINGS_READ  USE_LIST_LOCK_READ(Recordings)
+#define LOCK_RECORDINGS_WRITE USE_LIST_LOCK_WRITE(Recordings)
+#define LOCK_DELETEDRECORDINGS_READ  USE_LIST_LOCK_READ2(Recordings, DeletedRecordings)
+#define LOCK_DELETEDRECORDINGS_WRITE USE_LIST_LOCK_WRITE2(Recordings, DeletedRecordings)
 
 class cRecordingsHandlerEntry;
 
-class cRecordingsHandler {
+class cRecordingsHandler : public cThread {
 private:
   cMutex mutex;
   cList<cRecordingsHandlerEntry> operations;
   bool finished;
   bool error;
   cRecordingsHandlerEntry *Get(const char *FileName);
+protected:
+  virtual void Action(void);
 public:
   cRecordingsHandler(void);
-  ~cRecordingsHandler();
+  virtual ~cRecordingsHandler();
   bool Add(int Usage, const char *FileNameSrc, const char *FileNameDst = NULL);
        ///< Adds the given FileNameSrc to the recordings handler for (later)
        ///< processing. Usage can be either ruCut, ruMove or ruCopy. FileNameDst
@@ -315,12 +338,6 @@ public:
        ///< Deletes/terminates all operations.
   int GetUsage(const char *FileName);
        ///< Returns the usage type for the given FileName.
-  bool Active(void);
-       ///< Checks whether there is currently any operation running and starts
-       ///> the next one form the list if the previous one has finished.
-       ///< This function must be called regularly to trigger switching to the
-       ///< next operation in the list.
-       ///< Returns true if there are any operations in the list.
   bool Finished(bool &Error);
        ///< Returns true if all operations in the list have been finished.
        ///< If there have been any errors, Errors will be set to true.
@@ -350,7 +367,7 @@ public:
   bool Save(FILE *f);
   };
 
-class cMarks : public cConfig<cMark>, public cMutex {
+class cMarks : public cConfig<cMark> {
 private:
   cString recordingFileName;
   cString fileName;
@@ -360,9 +377,11 @@ private:
   time_t lastFileTime;
   time_t lastChange;
 public:
+  cMarks(void): cConfig<cMark>("Marks") {};
   static cString MarksFileName(const cRecording *Recording);
        ///< Returns the marks file name for the given Recording (regardless whether such
        ///< a file actually exists).
+  static bool DeleteMarksFile(const cRecording *Recording);
   bool Load(const char *RecordingFileName, double FramesPerSecond = DEFAULTFRAMESPERSECOND, bool IsPesRecording = false);
   bool Update(void);
   bool Save(void);
@@ -374,29 +393,35 @@ public:
        ///< calls to Del(), or any of the functions that return a "cMark *", in case
        ///< an other thread might modifiy the list while the returned pointer is
        ///< considered valid.
-  cMark *Get(int Position);
-  cMark *GetPrev(int Position);
-  cMark *GetNext(int Position);
-  cMark *GetNextBegin(cMark *EndMark = NULL);
+  const cMark *Get(int Position) const;
+  const cMark *GetPrev(int Position) const;
+  const cMark *GetNext(int Position) const;
+  const cMark *GetNextBegin(const cMark *EndMark = NULL) const;
        ///< Returns the next "begin" mark after EndMark, skipping any marks at the
        ///< same position as EndMark. If EndMark is NULL, the first actual "begin"
        ///< will be returned (if any).
-  cMark *GetNextEnd(cMark *BeginMark);
+  const cMark *GetNextEnd(const cMark *BeginMark) const;
        ///< Returns the next "end" mark after BeginMark, skipping any marks at the
        ///< same position as BeginMark.
-  int GetNumSequences(void);
+  int GetNumSequences(void) const;
        ///< Returns the actual number of sequences to be cut from the recording.
        ///< If there is only one actual "begin" mark, and it is positioned at index
        ///< 0 (the beginning of the recording), and there is no "end" mark, the
        ///< return value is 0, which means that the result is the same as the original
        ///< recording.
+  cMark *Get(int Position) { return const_cast<cMark *>(static_cast<const cMarks *>(this)->Get(Position)); }
+  cMark *GetPrev(int Position) { return const_cast<cMark *>(static_cast<const cMarks *>(this)->GetPrev(Position)); }
+  cMark *GetNext(int Position) { return const_cast<cMark *>(static_cast<const cMarks *>(this)->GetNext(Position)); }
+  cMark *GetNextBegin(const cMark *EndMark = NULL) { return const_cast<cMark *>(static_cast<const cMarks *>(this)->GetNextBegin(EndMark)); }
+  cMark *GetNextEnd(const cMark *BeginMark) { return const_cast<cMark *>(static_cast<const cMarks *>(this)->GetNextEnd(BeginMark)); }
   };
 
-#define RUC_BEFORERECORDING "before"
-#define RUC_STARTRECORDING  "started"
-#define RUC_AFTERRECORDING  "after"
-#define RUC_EDITEDRECORDING "edited"
-#define RUC_DELETERECORDING "deleted"
+#define RUC_BEFORERECORDING  "before"
+#define RUC_STARTRECORDING   "started"
+#define RUC_AFTERRECORDING   "after"
+#define RUC_EDITINGRECORDING "editing"
+#define RUC_EDITEDRECORDING  "edited"
+#define RUC_DELETERECORDING  "deleted"
 
 class cRecordingUserCommand {
 private:

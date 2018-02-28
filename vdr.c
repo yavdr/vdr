@@ -22,7 +22,7 @@
  *
  * The project's page is at http://www.tvdr.de
  *
- * $Id: vdr.c 3.16 2015/02/10 14:13:12 kls Exp $
+ * $Id: vdr.c 4.18 2017/06/08 16:10:34 kls Exp $
  */
 
 #include <getopt.h>
@@ -65,6 +65,7 @@
 #include "sourceparams.h"
 #include "sources.h"
 #include "status.h"
+#include "svdrp.h"
 #include "themes.h"
 #include "timers.h"
 #include "tools.h"
@@ -92,12 +93,12 @@
 
 static int LastSignal = 0;
 
-static bool SetUser(const char *UserName, bool UserDump)
+static bool SetUser(const char *User, bool UserDump)
 {
-  if (UserName) {
-     struct passwd *user = getpwnam(UserName);
+  if (User) {
+     struct passwd *user = isnumber(User) ? getpwuid(atoi(User)) : getpwnam(User);
      if (!user) {
-        fprintf(stderr, "vdr: unknown user: '%s'\n", UserName);
+        fprintf(stderr, "vdr: unknown user: '%s'\n", User);
         return false;
         }
      if (setgid(user->pw_gid) < 0) {
@@ -170,6 +171,9 @@ static void Watchdog(int signum)
   // Something terrible must have happened that prevented the 'alarm()' from
   // being called in time, so let's get out of here:
   esyslog("PANIC: watchdog timer expired - exiting!");
+#ifdef SDNOTIFY
+  sd_notify(0, "STOPPING=1\nSTATUS=PANIC");
+#endif
   exit(1);
 }
 
@@ -233,6 +237,10 @@ int main(int argc, char *argv[])
 #endif
 #if defined(VDR_USER)
   VdrUser = VDR_USER;
+#endif
+#ifdef SDNOTIFY
+  time_t SdWatchdog = 0;
+  int SdWatchdogTimeout = 0;
 #endif
 
   cArgs *Args = NULL;
@@ -301,7 +309,11 @@ int main(int argc, char *argv[])
                     break;
           case 'd': DaemonMode = true;
                     break;
-          case 'D': if (isnumber(optarg)) {
+          case 'D': if (*optarg == '-') {
+                       cDvbDevice::useDvbDevices = false;
+                       break;
+                       }
+                    if (isnumber(optarg)) {
                        int n = atoi(optarg);
                        if (0 <= n && n < MAXDEVICES) {
                           cDevice::SetUseDevice(n);
@@ -371,7 +383,7 @@ int main(int argc, char *argv[])
                     break;
           case 'g' | 0x100:
                     return GenerateIndex(optarg) ? 0 : 2;
-          case 'g': cSVDRP::SetGrabImageDir(*optarg != '-' ? optarg : NULL);
+          case 'g': SetSVDRPGrabImageDir(*optarg != '-' ? optarg : NULL);
                     break;
           case 'h': DisplayHelp = true;
                     break;
@@ -505,7 +517,7 @@ int main(int argc, char *argv[])
 
   if (VdrUser && geteuid() == 0) {
      StartedAsRoot = true;
-     if (strcmp(VdrUser, "root")) {
+     if (strcmp(VdrUser, "root") && strcmp(VdrUser, "0")) {
         if (!SetKeepCaps(true))
            return 2;
         if (!SetUser(VdrUser, UserDump))
@@ -536,7 +548,9 @@ int main(int argc, char *argv[])
                "  -d,       --daemon       run in daemon mode\n"
                "  -D NUM,   --device=NUM   use only the given DVB device (NUM = 0, 1, 2...)\n"
                "                           there may be several -D options (default: all DVB\n"
-               "                           devices will be used)\n"
+               "                           devices will be used); if -D- is given, no DVB\n"
+               "                           devices will be used at all, independent of any\n"
+               "                           other -D options\n"
                "            --dirnames=PATH[,NAME[,ENC]]\n"
                "                           set the maximum directory path length to PATH\n"
                "                           (default: %d); if NAME is also given, it defines\n"
@@ -586,7 +600,7 @@ int main(int argc, char *argv[])
                "                           (default: %s)\n"
                "  -t TTY,   --terminal=TTY controlling tty\n"
                "  -u USER,  --user=USER    run as user USER; only applicable if started as\n"
-               "                           root\n"
+               "                           root; USER can be a user name or a numerical id\n"
                "            --updindex=REC update index for recording REC and exit\n"
                "            --userdump     allow coredumps if -u is given (debugging)\n"
                "  -v DIR,   --video=DIR    use DIR as video directory (default: %s)\n"
@@ -741,14 +755,15 @@ int main(int argc, char *argv[])
   Sources.Load(AddDirectory(ConfigDirectory, "sources.conf"), true, true);
   Diseqcs.Load(AddDirectory(ConfigDirectory, "diseqc.conf"), true, Setup.DiSEqC);
   Scrs.Load(AddDirectory(ConfigDirectory, "scr.conf"), true);
-  Channels.Load(AddDirectory(ConfigDirectory, "channels.conf"), false, true);
-  Timers.Load(AddDirectory(ConfigDirectory, "timers.conf"));
+  cChannels::Load(AddDirectory(ConfigDirectory, "channels.conf"), false, true);
+  cTimers::Load(AddDirectory(ConfigDirectory, "timers.conf"));
   Commands.Load(AddDirectory(ConfigDirectory, "commands.conf"));
   RecordingCommands.Load(AddDirectory(ConfigDirectory, "reccmds.conf"));
   SVDRPhosts.Load(AddDirectory(ConfigDirectory, "svdrphosts.conf"), true);
   Keys.Load(AddDirectory(ConfigDirectory, "remote.conf"));
   KeyMacros.Load(AddDirectory(ConfigDirectory, "keymacros.conf"), true);
   Folders.Load(AddDirectory(ConfigDirectory, "folders.conf"));
+  CamResponsesLoad(AddDirectory(ConfigDirectory, "camresponses.conf"), true);
 
   if (!*cFont::GetFontFileName(Setup.FontOsd)) {
      const char *msg = "no fonts available - OSD will not show any text!";
@@ -758,8 +773,7 @@ int main(int argc, char *argv[])
 
   // Recordings:
 
-  Recordings.Update();
-  DeletedRecordings.Update();
+  cRecordings::Update();
 
   // EPG data:
 
@@ -825,7 +839,7 @@ int main(int argc, char *argv[])
 
   // User interface:
 
-  Interface = new cInterface(SVDRPport);
+  Interface = new cInterface;
 
   // Default skins:
 
@@ -865,6 +879,10 @@ int main(int argc, char *argv[])
   if (!cPositioner::GetPositioner()) // no plugin has created a positioner
      new cDiseqcPositioner;
 
+  // CAM data:
+
+  ChannelCamRelations.Load(AddDirectory(CacheDirectory, "cam.data"));
+
   // Channel:
 
   if (!cDevice::WaitForAllDevicesReady(DEVICEREADYTIMEOUT))
@@ -872,16 +890,20 @@ int main(int argc, char *argv[])
   if (!CamSlots.WaitForAllCamSlotsReady(DEVICEREADYTIMEOUT))
      dsyslog("not all CAM slots ready after %d seconds", DEVICEREADYTIMEOUT);
   if (*Setup.InitialChannel) {
+     LOCK_CHANNELS_READ;
      if (isnumber(Setup.InitialChannel)) { // for compatibility with old setup.conf files
-        if (cChannel *Channel = Channels.GetByNumber(atoi(Setup.InitialChannel)))
+        if (const cChannel *Channel = Channels->GetByNumber(atoi(Setup.InitialChannel)))
            Setup.InitialChannel = Channel->GetChannelID().ToString();
         }
-     if (cChannel *Channel = Channels.GetByChannelID(tChannelID::FromString(Setup.InitialChannel)))
+     if (const cChannel *Channel = Channels->GetByChannelID(tChannelID::FromString(Setup.InitialChannel)))
         Setup.CurrentChannel = Channel->Number();
      }
   if (Setup.InitialVolume >= 0)
      Setup.CurrentVolume = Setup.InitialVolume;
-  Channels.SwitchTo(Setup.CurrentChannel);
+  {
+    LOCK_CHANNELS_READ;
+    Channels->SwitchTo(Setup.CurrentChannel);
+  }
   if (MuteAudio)
      cDevice::PrimaryDevice()->ToggleMute();
   else
@@ -904,8 +926,25 @@ int main(int argc, char *argv[])
      }
 
 #ifdef SDNOTIFY
+  if (sd_watchdog_enabled(0, NULL) > 0) {
+     uint64_t timeout;
+     SdWatchdog = time(NULL);
+     sd_watchdog_enabled(0, &timeout);
+     SdWatchdogTimeout = (int)timeout/1000000;
+     dsyslog("SD_WATCHDOG enabled with timeout set to %d seconds", SdWatchdogTimeout);
+     }
+
+  // Startup notification:
+
   sd_notify(0, "READY=1\nSTATUS=Ready");
 #endif
+
+  // SVDRP:
+
+  SetSVDRPPorts(SVDRPport, DEFAULTSVDRPPORT);
+  StartSVDRPServerHandler();
+  if (Setup.SVDRPPeering)
+     StartSVDRPClientHandler();
 
   // Main program loop:
 
@@ -925,13 +964,14 @@ int main(int argc, char *argv[])
            static time_t lastTime = 0;
            if (!cDevice::PrimaryDevice()->HasProgramme()) {
               if (!CamMenuActive() && Now - lastTime > MINCHANNELWAIT) { // !CamMenuActive() to avoid interfering with the CAM if a CAM menu is open
-                 cChannel *Channel = Channels.GetByNumber(cDevice::CurrentChannel());
+                 LOCK_CHANNELS_READ;
+                 const cChannel *Channel = Channels->GetByNumber(cDevice::CurrentChannel());
                  if (Channel && (Channel->Vpid() || Channel->Apid(0) || Channel->Dpid(0))) {
-                    if (cDevice::GetDeviceForTransponder(Channel, LIVEPRIORITY) && Channels.SwitchTo(Channel->Number())) // try to switch to the original channel...
+                    if (cDevice::GetDeviceForTransponder(Channel, LIVEPRIORITY) && Channels->SwitchTo(Channel->Number())) // try to switch to the original channel...
                        ;
                     else if (LastTimerChannel > 0) {
-                       Channel = Channels.GetByNumber(LastTimerChannel);
-                       if (Channel && cDevice::GetDeviceForTransponder(Channel, LIVEPRIORITY) && Channels.SwitchTo(LastTimerChannel)) // ...or the one used by the last timer
+                       Channel = Channels->GetByNumber(LastTimerChannel);
+                       if (Channel && cDevice::GetDeviceForTransponder(Channel, LIVEPRIORITY) && Channels->SwitchTo(LastTimerChannel)) // ...or the one used by the last timer
                           ;
                        }
                     }
@@ -947,6 +987,11 @@ int main(int argc, char *argv[])
           static time_t lastOsdSizeUpdate = 0;
           if (Now != lastOsdSizeUpdate) { // once per second
              cOsdProvider::UpdateOsdSize();
+             static int OsdState = 0;
+             if (cOsdProvider::OsdSizeChanged(OsdState)) {
+                if (cOsdMenu *OsdMenu = dynamic_cast<cOsdMenu *>(Menu))
+                   OsdMenu->Display();
+                }
              lastOsdSizeUpdate = Now;
              }
         }
@@ -958,41 +1003,68 @@ int main(int argc, char *argv[])
               dsyslog("max. latency time %d seconds", MaxLatencyTime);
               }
            }
-        // Handle channel and timer modifications:
-        if (!Channels.BeingEdited() && !Timers.BeingEdited()) {
-           int modified = Channels.Modified();
-           static time_t ChannelSaveTimeout = 0;
-           static int TimerState = 0;
-           // Channels and timers need to be stored in a consistent manner,
-           // therefore if one of them is changed, we save both.
-           if (modified == CHANNELSMOD_USER || Timers.Modified(TimerState))
-              ChannelSaveTimeout = 1; // triggers an immediate save
-           else if (modified && !ChannelSaveTimeout)
-              ChannelSaveTimeout = Now + CHANNELSAVEDELTA;
-           bool timeout = ChannelSaveTimeout == 1 || ChannelSaveTimeout && Now > ChannelSaveTimeout && !cRecordControls::Active();
-           if ((modified || timeout) && Channels.Lock(false, 100)) {
-              if (timeout) {
-                 Channels.Save();
-                 Timers.Save();
-                 ChannelSaveTimeout = 0;
-                 }
-              for (cChannel *Channel = Channels.First(); Channel; Channel = Channels.Next(Channel)) {
-                  if (Channel->Modification(CHANNELMOD_RETUNE)) {
-                     cRecordControls::ChannelDataModified(Channel);
-                     if (Channel->Number() == cDevice::CurrentChannel() && cDevice::PrimaryDevice()->HasDecoder()) {
-                        if (!cDevice::PrimaryDevice()->Replaying() || cDevice::PrimaryDevice()->Transferring()) {
-                           if (cDevice::ActualDevice()->ProvidesTransponder(Channel)) { // avoids retune on devices that don't really access the transponder
-                              isyslog("retuning due to modification of channel %d (%s)", Channel->Number(), Channel->Name());
-                              Channels.SwitchTo(Channel->Number());
-                              }
-                           }
-                        }
-                     cStatus::MsgChannelChange(Channel);
-                     }
-                  }
-              Channels.Unlock();
-              }
+#ifdef SDNOTIFY
+        // Ping systemd watchdog when half the timeout is elapsed:
+        if (SdWatchdogTimeout && (Now - SdWatchdog) * 2 > SdWatchdogTimeout) {
+           sd_notify(0, "WATCHDOG=1");
+           SdWatchdog = Now;
+           dsyslog("SD_WATCHDOG ping");
            }
+#endif
+        // Handle channel and timer modifications:
+        {
+          // Channels and timers need to be stored in a consistent manner,
+          // therefore if one of them is changed, we save both.
+          static time_t ChannelSaveTimeout = 0;
+          static cStateKey TimersStateKey(true);
+          static cStateKey ChannelsStateKey(true);
+          static int ChannelsModifiedByUser = 0;
+          const cTimers *Timers = cTimers::GetTimersRead(TimersStateKey);
+          const cChannels *Channels = cChannels::GetChannelsRead(ChannelsStateKey);
+          if (ChannelSaveTimeout != 1) {
+             if (Channels) {
+                if (Channels->ModifiedByUser(ChannelsModifiedByUser))
+                   ChannelSaveTimeout = 1; // triggers an immediate save
+                else if (!ChannelSaveTimeout)
+                   ChannelSaveTimeout = Now + CHANNELSAVEDELTA;
+                }
+             if (Timers)
+                ChannelSaveTimeout = 1; // triggers an immediate save
+             }
+          if (ChannelSaveTimeout && Now > ChannelSaveTimeout && !cRecordControls::Active())
+             ChannelSaveTimeout = 1; // triggers an immediate save
+          if (Timers && Channels) {
+             Channels->Save();
+             Timers->Save();
+             ChannelSaveTimeout = 0;
+             }
+          if (Channels) {
+             for (const cChannel *Channel = Channels->First(); Channel; Channel = Channels->Next(Channel)) {
+                 if (Channel->Modification(CHANNELMOD_RETUNE)) {
+                    cRecordControls::ChannelDataModified(Channel);
+                    if (Channel->Number() == cDevice::CurrentChannel() && cDevice::PrimaryDevice()->HasDecoder()) {
+                       if (!cDevice::PrimaryDevice()->Replaying() || cDevice::PrimaryDevice()->Transferring()) {
+                          if (cDevice::ActualDevice()->ProvidesTransponder(Channel)) { // avoids retune on devices that don't really access the transponder
+                             isyslog("retuning due to modification of channel %d (%s)", Channel->Number(), Channel->Name());
+                             Channels->SwitchTo(Channel->Number());
+                             }
+                          }
+                       }
+                    cStatus::MsgChannelChange(Channel);
+                    }
+                 }
+             }
+          // State keys are removed in reverse order!
+          if (Channels)
+             ChannelsStateKey.Remove();
+          if (Timers)
+             TimersStateKey.Remove();
+          if (ChannelSaveTimeout == 1) {
+             // Only one of them was modified, so we reset the state keys to handle them both in the next turn:
+             ChannelsStateKey.Reset();
+             TimersStateKey.Reset();
+             }
+        }
         // Channel display:
         if (!EITScanner.Active() && cDevice::CurrentChannel() != LastChannel) {
            if (!Menu)
@@ -1002,80 +1074,109 @@ int main(int argc, char *argv[])
            }
         if (Now - LastChannelChanged >= Setup.ZapTimeout && LastChannel != PreviousChannel[PreviousChannelIndex])
            PreviousChannel[PreviousChannelIndex ^= 1] = LastChannel;
-        // Timers and Recordings:
-        if (!Timers.BeingEdited()) {
-           // Assign events to timers:
-           Timers.SetEvents();
-           // Must do all following calls with the exact same time!
-           // Process ongoing recordings:
-           cRecordControls::Process(Now);
-           // Start new recordings:
-           cTimer *Timer = Timers.GetMatch(Now);
-           if (Timer) {
-              if (!cRecordControls::Start(Timer))
-                 Timer->SetPending(true);
-              else
-                 LastTimerChannel = Timer->Channel()->Number();
-              }
-           // Make sure timers "see" their channel early enough:
-           static time_t LastTimerCheck = 0;
-           if (Now - LastTimerCheck > TIMERCHECKDELTA) { // don't do this too often
-              InhibitEpgScan = false;
-              for (cTimer *Timer = Timers.First(); Timer; Timer = Timers.Next(Timer)) {
-                  bool InVpsMargin = false;
-                  bool NeedsTransponder = false;
-                  if (Timer->HasFlags(tfActive) && !Timer->Recording()) {
-                     if (Timer->HasFlags(tfVps)) {
-                        if (Timer->Matches(Now, true, Setup.VpsMargin)) {
-                           InVpsMargin = true;
-                           Timer->SetInVpsMargin(InVpsMargin);
-                           }
-                        else if (Timer->Event()) {
-                           InVpsMargin = Timer->Event()->StartTime() <= Now && Now < Timer->Event()->EndTime();
-                           NeedsTransponder = Timer->Event()->StartTime() - Now < VPSLOOKAHEADTIME * 3600 && !Timer->Event()->SeenWithin(VPSUPTODATETIME);
-                           }
-                        else {
-                           cSchedulesLock SchedulesLock;
-                           const cSchedules *Schedules = cSchedules::Schedules(SchedulesLock);
-                           if (Schedules) {
-                              const cSchedule *Schedule = Schedules->GetSchedule(Timer->Channel());
-                              InVpsMargin = !Schedule; // we must make sure we have the schedule
-                              NeedsTransponder = Schedule && !Schedule->PresentSeenWithin(VPSUPTODATETIME);
-                              }
-                           }
-                        InhibitEpgScan |= InVpsMargin | NeedsTransponder;
-                        }
-                     else
-                        NeedsTransponder = Timer->Matches(Now, true, TIMERLOOKAHEADTIME);
-                     }
-                  if (NeedsTransponder || InVpsMargin) {
-                     // Find a device that provides the required transponder:
-                     cDevice *Device = cDevice::GetDeviceForTransponder(Timer->Channel(), MINPRIORITY);
-                     if (!Device && InVpsMargin)
-                        Device = cDevice::GetDeviceForTransponder(Timer->Channel(), LIVEPRIORITY);
-                     // Switch the device to the transponder:
-                     if (Device) {
-                        bool HadProgramme = cDevice::PrimaryDevice()->HasProgramme();
-                        if (!Device->IsTunedToTransponder(Timer->Channel())) {
-                           if (Device == cDevice::ActualDevice() && !Device->IsPrimaryDevice())
-                              cDevice::PrimaryDevice()->StopReplay(); // stop transfer mode
-                           dsyslog("switching device %d to channel %d (%s)", Device->DeviceNumber() + 1, Timer->Channel()->Number(), Timer->Channel()->Name());
-                           if (Device->SwitchChannel(Timer->Channel(), false))
-                              Device->SetOccupied(TIMERDEVICETIMEOUT);
-                           }
-                        if (cDevice::PrimaryDevice()->HasDecoder() && HadProgramme && !cDevice::PrimaryDevice()->HasProgramme())
-                           Skins.QueueMessage(mtInfo, tr("Upcoming recording!")); // the previous SwitchChannel() has switched away the current live channel
-                        }
-                     }
-                  }
-              LastTimerCheck = Now;
-              }
-           // Delete expired timers:
-           Timers.DeleteExpired();
-           }
-        if (!Menu && Recordings.NeedsUpdate()) {
-           Recordings.Update();
-           DeletedRecordings.Update();
+        {
+          // Timers and Recordings:
+          bool TimersModified = false;
+          bool TriggerRemoteTimerPoll = false;
+          static cStateKey TimersStateKey(true);
+          if (cTimers::GetTimersRead(TimersStateKey)) {
+             TriggerRemoteTimerPoll = true;
+             TimersStateKey.Remove();
+             }
+          cTimers *Timers = cTimers::GetTimersWrite(TimersStateKey);
+          // Get remote timers:
+          TimersModified |= Timers->GetRemoteTimers();
+          // Assign events to timers:
+          static cStateKey SchedulesStateKey;
+          if (const cSchedules *Schedules = cSchedules::GetSchedulesRead(SchedulesStateKey))
+             TimersModified |= Timers->SetEvents(Schedules);
+          // Must do all following calls with the exact same time!
+          // Process ongoing recordings:
+          if (cRecordControls::Process(Timers, Now)) {
+             TimersModified = true;
+             TriggerRemoteTimerPoll = true;
+             }
+          // Must keep the lock on the schedules until after processing the record
+          // controls, in order to avoid short interrupts in case the current event
+          // is replaced by a new one (which some broadcasters do, instead of just
+          // modifying the current event's data):
+          if (SchedulesStateKey.InLock())
+             SchedulesStateKey.Remove();
+          // Start new recordings:
+          if (cTimer *Timer = Timers->GetMatch(Now)) {
+             if (!cRecordControls::Start(Timers, Timer))
+                Timer->SetPending(true);
+             else
+                LastTimerChannel = Timer->Channel()->Number();
+             TimersModified = true;
+             TriggerRemoteTimerPoll = true;
+             }
+          // Make sure timers "see" their channel early enough:
+          static time_t LastTimerCheck = 0;
+          if (Now - LastTimerCheck > TIMERCHECKDELTA) { // don't do this too often
+             InhibitEpgScan = false;
+             for (cTimer *Timer = Timers->First(); Timer; Timer = Timers->Next(Timer)) {
+                 if (Timer->Remote())
+                    continue;
+                 bool InVpsMargin = false;
+                 bool NeedsTransponder = false;
+                 if (Timer->HasFlags(tfActive) && !Timer->Recording()) {
+                    if (Timer->HasFlags(tfVps)) {
+                       if (Timer->Matches(Now, true, Setup.VpsMargin)) {
+                          InVpsMargin = true;
+                          Timer->SetInVpsMargin(InVpsMargin);
+                          }
+                       else if (Timer->Event()) {
+                          InVpsMargin = Timer->Event()->StartTime() <= Now && Now < Timer->Event()->EndTime();
+                          NeedsTransponder = Timer->Event()->StartTime() - Now < VPSLOOKAHEADTIME * 3600 && !Timer->Event()->SeenWithin(VPSUPTODATETIME);
+                          }
+                       else {
+                          LOCK_SCHEDULES_READ;
+                          const cSchedule *Schedule = Schedules->GetSchedule(Timer->Channel());
+                          InVpsMargin = !Schedule; // we must make sure we have the schedule
+                          NeedsTransponder = Schedule && !Schedule->PresentSeenWithin(VPSUPTODATETIME);
+                          }
+                       InhibitEpgScan |= InVpsMargin | NeedsTransponder;
+                       }
+                    else
+                       NeedsTransponder = Timer->Matches(Now, true, TIMERLOOKAHEADTIME);
+                    }
+                 if (NeedsTransponder || InVpsMargin) {
+                    // Find a device that provides the required transponder:
+                    cDevice *Device = cDevice::GetDeviceForTransponder(Timer->Channel(), MINPRIORITY);
+                    if (!Device && InVpsMargin)
+                       Device = cDevice::GetDeviceForTransponder(Timer->Channel(), LIVEPRIORITY);
+                    // Switch the device to the transponder:
+                    if (Device) {
+                       bool HadProgramme = cDevice::PrimaryDevice()->HasProgramme();
+                       if (!Device->IsTunedToTransponder(Timer->Channel())) {
+                          if (Device == cDevice::ActualDevice() && !Device->IsPrimaryDevice())
+                             cDevice::PrimaryDevice()->StopReplay(); // stop transfer mode
+                          dsyslog("switching device %d to channel %d %s (%s)", Device->DeviceNumber() + 1, Timer->Channel()->Number(), *Timer->Channel()->GetChannelID().ToString(), Timer->Channel()->Name());
+                          if (Device->SwitchChannel(Timer->Channel(), false))
+                             Device->SetOccupied(TIMERDEVICETIMEOUT);
+                          }
+                       if (cDevice::PrimaryDevice()->HasDecoder() && HadProgramme && !cDevice::PrimaryDevice()->HasProgramme())
+                          Skins.QueueMessage(mtInfo, tr("Upcoming recording!")); // the previous SwitchChannel() has switched away the current live channel
+                       }
+                    }
+                 }
+             LastTimerCheck = Now;
+             }
+          // Delete expired timers:
+          if (Timers->DeleteExpired()) {
+             TimersModified = true;
+             TriggerRemoteTimerPoll = true;
+             }
+          // Trigger remote timer polls:
+          if (TriggerRemoteTimerPoll)
+             Timers->TriggerRemoteTimerPoll();
+          TimersStateKey.Remove(TimersModified);
+        }
+        // Recordings:
+        if (!Menu) {
+           if (cRecordings::NeedsUpdate())
+              cRecordings::Update();
            }
         // CAM control:
         if (!Menu && !cOsd::IsOpen())
@@ -1174,15 +1275,16 @@ int main(int argc, char *argv[])
           case kChanUp:
           case kChanDn|k_Repeat:
           case kChanDn:
-               if (!Interact)
+               if (!Interact) {
                   Menu = new cDisplayChannel(NORMALKEY(key));
+                  continue;
+                  }
                else if (cDisplayChannel::IsOpen() || cControl::Control()) {
                   Interact->ProcessKey(key);
                   continue;
                   }
                else
                   cDevice::SwitchChannel(NORMALKEY(key) == kChanUp ? 1 : -1);
-               key = kNone; // nobody else needs to see these keys
                break;
           // Volume control:
           case kVolUp|k_Repeat:
@@ -1244,8 +1346,12 @@ int main(int argc, char *argv[])
           // Instant recording:
           case kRecord:
                if (!cControl::Control()) {
-                  if (cRecordControls::Start())
-                     Skins.QueueMessage(mtInfo, tr("Recording started"));
+                  if (Setup.RecordKeyHandling) {
+                     if (Setup.RecordKeyHandling > 1 || Interface->Confirm(tr("Start recording?"))) {
+                        if (cRecordControls::Start())
+                           Skins.QueueMessage(mtInfo, tr("Recording started"));
+                        }
+                     }
                   key = kNone; // nobody else needs to see this key
                   }
                break;
@@ -1348,7 +1454,8 @@ int main(int argc, char *argv[])
              case k0: {
                   if (PreviousChannel[PreviousChannelIndex ^ 1] == LastChannel || LastChannel != PreviousChannel[0] && LastChannel != PreviousChannel[1])
                      PreviousChannelIndex ^= 1;
-                  Channels.SwitchTo(PreviousChannel[PreviousChannelIndex ^= 1]);
+                  LOCK_CHANNELS_READ;
+                  Channels->SwitchTo(PreviousChannel[PreviousChannelIndex ^= 1]);
                   break;
                   }
              // Direct Channel Select:
@@ -1409,10 +1516,7 @@ int main(int argc, char *argv[])
               ShutdownHandler.countdown.Cancel();
            }
 
-        // Keep the recordings handler alive:
-        RecordingsHandler.Active();
-
-        if ((Now - LastInteract) > ACTIVITYTIMEOUT && !cRecordControls::Active() && !RecordingsHandler.Active() && !Interface->HasSVDRPConnection() && (Now - cRemote::LastActivity()) > ACTIVITYTIMEOUT) {
+        if ((Now - LastInteract) > ACTIVITYTIMEOUT && !cRecordControls::Active() && !RecordingsHandler.Active() && (Now - cRemote::LastActivity()) > ACTIVITYTIMEOUT) {
            // Handle housekeeping tasks
 
            // Shutdown:
@@ -1436,7 +1540,7 @@ int main(int argc, char *argv[])
 
            // Disk housekeeping:
            RemoveDeletedRecordings();
-           ClearVanishedRecordings();
+           ListGarbageCollector.Purge();
            cSchedules::Cleanup();
            // Plugins housekeeping:
            PluginManager.Housekeeping();
@@ -1460,8 +1564,11 @@ Exit:
   signal(SIGPIPE, SIG_DFL);
   signal(SIGALRM, SIG_DFL);
 
-  PluginManager.StopPlugins();
+  StopSVDRPClientHandler();
+  StopSVDRPServerHandler();
+  ChannelCamRelations.Save();
   cRecordControls::Shutdown();
+  PluginManager.StopPlugins();
   RecordingsHandler.DelAll();
   delete Menu;
   cControl::Shutdown();
@@ -1480,8 +1587,10 @@ Exit:
   cPositioner::DestroyPositioner();
   cVideoDirectory::Destroy();
   EpgHandlers.Clear();
-  PluginManager.Shutdown(true);
   cSchedules::Cleanup(true);
+  CiResourceHandlers.Clear();
+  ListGarbageCollector.Purge(true);
+  PluginManager.Shutdown(true);
   ReportEpgBugFixStats(true);
   if (WatchdogTimeout > 0)
      dsyslog("max. latency time %d seconds", MaxLatencyTime);
@@ -1494,5 +1603,11 @@ Exit:
      closelog();
   if (HasStdin)
      tcsetattr(STDIN_FILENO, TCSANOW, &savedTm);
+#ifdef SDNOTIFY
+  if (ShutdownHandler.GetExitCode() == 2)
+     sd_notify(0, "STOPPING=1\nSTATUS=Startup failed, exiting");
+  else
+     sd_notify(0, "STOPPING=1\nSTATUS=Exiting");
+#endif
   return ShutdownHandler.GetExitCode();
 }

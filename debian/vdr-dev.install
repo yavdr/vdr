@@ -4,11 +4,11 @@ usr/lib/pkgconfig/vdr.pc
 Make.config                                 usr/include/vdr/
 debian/plugins.mk                           usr/include/vdr/
 
-PLUGINS/src/dvbhddevice/dvbhdffdevice.h     usr/include/vdr/plugins/dvbhddevice/
-PLUGINS/src/dvbhddevice/hdffcmd.h           usr/include/vdr/plugins/dvbhddevice/
-PLUGINS/src/dvbhddevice/libhdffcmd/*.h      usr/include/vdr/plugins/dvbhddevice/libhdffcmd/
-
-PLUGINS/src/dvbsddevice/dvbsdffdevice.h     usr/include/vdr/plugins/dvbsddevice/
+#PLUGINS/src/dvbhddevice/dvbhdffdevice.h     usr/include/vdr/plugins/dvbhddevice/
+#PLUGINS/src/dvbhddevice/hdffcmd.h           usr/include/vdr/plugins/dvbhddevice/
+#PLUGINS/src/dvbhddevice/libhdffcmd/*.h      usr/include/vdr/plugins/dvbhddevice/libhdffcmd/
+#
+#PLUGINS/src/dvbsddevice/dvbsdffdevice.h     usr/include/vdr/plugins/dvbsddevice/
 
 debian/debianize-vdrplugin      usr/bin/
 

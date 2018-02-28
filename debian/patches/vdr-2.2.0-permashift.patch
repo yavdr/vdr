@@ -185,7 +185,7 @@ Author: Eike Sauer <eike@ein-eike.de>
    bool Active(void);
 --- a/menu.c
 +++ b/menu.c
-@@ -4930,6 +4930,16 @@
+@@ -4944,6 +4944,16 @@
  
  cRecordControl::cRecordControl(cDevice *Device, cTimer *Timer, bool Pause)
  {
@@ -202,7 +202,7 @@ Author: Eike Sauer <eike@ein-eike.de>
    // Whatever happens here, the timers will be modified in some way...
    Timers.SetModified();
    // We're going to manipulate an event here, so we need to prevent
-@@ -4951,6 +4961,7 @@
+@@ -4965,6 +4975,7 @@
    timer->SetPending(true);
    timer->SetRecording(true);
    event = timer->Event();
@@ -210,7 +210,7 @@ Author: Eike Sauer <eike@ein-eike.de>
  
    if (event || GetEvent())
       dsyslog("Title: '%s' Subtitle: '%s'", event->Title(), event->ShortText());
-@@ -4978,8 +4989,21 @@
+@@ -4992,8 +5003,21 @@
    isyslog("record %s", fileName);
    if (MakeDirs(fileName, true)) {
       const cChannel *ch = timer->Channel();
@@ -234,7 +234,7 @@ Author: Eike Sauer <eike@ein-eike.de>
          Recording.WriteInfo();
          cStatus::MsgRecording(device, Recording.Name(), Recording.FileName(), true);
          if (!Timer && !cReplayControl::LastReplayed()) // an instant recording, maybe from cRecordControls::PauseLiveVideo()
-@@ -5001,8 +5025,6 @@
+@@ -5015,8 +5039,6 @@
             }
          return;
          }
@@ -243,7 +243,7 @@ Author: Eike Sauer <eike@ein-eike.de>
       }
    else
       timer->SetDeferred(DEFERTIMER);
-@@ -5077,7 +5099,7 @@
+@@ -5091,7 +5113,7 @@
  cRecordControl *cRecordControls::RecordControls[MAXRECORDCONTROLS] = { NULL };
  int cRecordControls::state = 0;
  
@@ -252,7 +252,7 @@ Author: Eike Sauer <eike@ein-eike.de>
  {
    if (!Timer) {
       cTimer *t = new cTimer(true, Pause);
-@@ -5156,7 +5178,7 @@
+@@ -5170,7 +5192,7 @@
          if (!Timer || Timer->Matches()) {
             for (int i = 0; i < MAXRECORDCONTROLS; i++) {
                 if (!RecordControls[i]) {
@@ -261,7 +261,7 @@ Author: Eike Sauer <eike@ein-eike.de>
                    cStatus::MsgRecordingFile(RecordControls[i]->FileName());  // PIN PATCH
                    return RecordControls[i]->Process(time(NULL));
                    }
-@@ -5173,6 +5195,11 @@
+@@ -5187,6 +5209,11 @@
    return false;
  }
  
@@ -273,7 +273,7 @@ Author: Eike Sauer <eike@ein-eike.de>
  void cRecordControls::Stop(const char *InstantId)
  {
    ChangeState();
-@@ -5195,10 +5222,16 @@
+@@ -5209,10 +5236,16 @@
  
  bool cRecordControls::PauseLiveVideo(void)
  {
@@ -292,7 +292,7 @@ Author: Eike Sauer <eike@ein-eike.de>
       cControl::Launch(rc);
       cControl::Attach();
       Skins.Message(mtStatus, NULL);
-@@ -5338,7 +5371,18 @@
+@@ -5352,7 +5385,18 @@
  cReplayControl::cReplayControl(bool PauseLive)
  :cDvbPlayerControl(fileName, PauseLive)
  {
@@ -314,7 +314,7 @@ Author: Eike Sauer <eike@ein-eike.de>
    marksModified = false;
 --- a/menu.h
 +++ b/menu.h
-@@ -240,6 +240,8 @@
+@@ -245,6 +245,8 @@
    bool GetEvent(void);
  public:
    cRecordControl(cDevice *Device, cTimer *Timer = NULL, bool Pause = false);
@@ -323,7 +323,7 @@ Author: Eike Sauer <eike@ein-eike.de>
    virtual ~cRecordControl();
    bool Process(time_t t);
    cDevice *Device(void) { return device; }
-@@ -255,8 +257,10 @@
+@@ -260,8 +262,10 @@
    static int state;
  public:
    static bool Start(cTimer *Timer = NULL, bool Pause = false);
@@ -334,7 +334,7 @@ Author: Eike Sauer <eike@ein-eike.de>
    static const char *GetInstantId(const char *LastInstantId);
    static cRecordControl *GetRecordControl(const char *FileName);
    static cRecordControl *GetRecordControl(const cTimer *Timer);
-@@ -311,6 +315,8 @@
+@@ -316,6 +320,8 @@
    void EditTest(void);
  public:
    cReplayControl(bool PauseLive = false);

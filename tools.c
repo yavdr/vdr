@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: tools.c 3.4 2015/02/07 15:09:17 kls Exp $
+ * $Id: tools.c 4.8 2017/06/25 11:45:39 kls Exp $
  */
 
 #include "tools.h"
@@ -274,6 +274,28 @@ cString strescape(const char *s, const char *chars)
   return cString(s, t != NULL);
 }
 
+cString strgetval(const char *s, const char *name, char d)
+{
+  if (s && name) {
+     int l = strlen(name);
+     const char *t = s;
+     while (const char *p = strstr(t, name)) {
+           t = skipspace(p + l);
+           if (p == s || *(p - 1) <= ' ') {
+              if (*t == d) {
+                 t = skipspace(t + 1);
+                 const char *v = t;
+                 while (*t > ' ')
+                       t++;
+                 return cString(v, t);
+                 break;
+                 }
+              }
+           }
+     }
+  return NULL;
+}
+
 bool startswith(const char *s, const char *p)
 {
   while (*p) {
@@ -349,6 +371,8 @@ bool StrInArray(const char *a[], const char *s)
 
 cString AddDirectory(const char *DirName, const char *FileName)
 {
+  if (*FileName == '/')
+     FileName++;
   return cString::sprintf("%s/%s", DirName && *DirName ? DirName : ".", FileName);
 }
 
@@ -1061,6 +1085,17 @@ cString &cString::operator=(const char *String)
   return *this;
 }
 
+cString &cString::Append(const char *String)
+{
+  int l1 = strlen(s);
+  int l2 = strlen(String);
+  char *p = (char *)realloc(s, l1 + l2 + 1);
+  if (p != s)
+     strcpy(p, s);
+  strcpy(p + l1, String);
+  return *this;
+}
+
 cString &cString::Truncate(int Index)
 {
   int l = strlen(s);
@@ -1289,6 +1324,20 @@ uchar *RgbToJpeg(uchar *Mem, int Width, int Height, int &Size, int Quality)
   return jcd.mem;
 }
 
+// --- GetHostName -----------------------------------------------------------
+
+const char *GetHostName(void)
+{
+  static char buffer[HOST_NAME_MAX] = "";
+  if (!*buffer) {
+     if (gethostname(buffer, sizeof(buffer)) < 0) {
+        LOG_ERROR;
+        strcpy(buffer, "vdr");
+        }
+     }
+  return buffer;
+}
+
 // --- cBase64Encoder --------------------------------------------------------
 
 const char *cBase64Encoder::b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -1440,6 +1489,19 @@ bool cPoller::Add(int FileHandle, bool Out)
   return false;
 }
 
+void cPoller::Del(int FileHandle, bool Out)
+{
+  if (FileHandle >= 0) {
+     for (int i = 0; i < numFileHandles; i++) {
+         if (pfd[i].fd == FileHandle && pfd[i].events == (Out ? POLLOUT : POLLIN)) {
+            if (i < numFileHandles - 1)
+               memmove(&pfd[i], &pfd[i + 1], (numFileHandles - i - 1) * sizeof(pollfd));
+            numFileHandles--;
+            }
+         }
+     }
+}
+
 bool cPoller::Poll(int TimeoutMs)
 {
   if (numFileHandles) {
@@ -1466,7 +1528,11 @@ cReadDir::~cReadDir()
 struct dirent *cReadDir::Next(void)
 {
   if (directory) {
+#if !__GLIBC_PREREQ(2, 24) // readdir_r() is deprecated as of GLIBC 2.24
      while (readdir_r(directory, &u.d, &result) == 0 && result) {
+#else
+     while ((result = readdir(directory)) != NULL) {
+#endif
            if (strcmp(result->d_name, ".") && strcmp(result->d_name, ".."))
               return result;
            }
@@ -1998,17 +2064,72 @@ int cListObject::Index(void) const
   return i;
 }
 
+// --- cListGarbageCollector -------------------------------------------------
+
+#define LIST_GARBAGE_COLLECTOR_TIMEOUT 5 // seconds
+
+cListGarbageCollector ListGarbageCollector;
+
+cListGarbageCollector::cListGarbageCollector(void)
+{
+  objects = NULL;
+  lastPut = 0;
+}
+
+cListGarbageCollector::~cListGarbageCollector()
+{
+  if (objects)
+     esyslog("ERROR: ListGarbageCollector destroyed without prior Purge()!");
+}
+
+void cListGarbageCollector::Put(cListObject *Object)
+{
+  mutex.Lock();
+  Object->next = objects;
+  objects = Object;
+  lastPut = time(NULL);
+  mutex.Unlock();
+}
+
+void cListGarbageCollector::Purge(bool Force)
+{
+  mutex.Lock();
+  if (objects && (time(NULL) - lastPut > LIST_GARBAGE_COLLECTOR_TIMEOUT || Force)) {
+     // We make sure that any object stays in the garbage collector for at least
+     // LIST_GARBAGE_COLLECTOR_TIMEOUT seconds, to give objects that have pointers
+     // to them a chance to drop these references before the object is finally
+     // deleted.
+     while (cListObject *Object = objects) {
+           objects = Object->next;
+           delete Object;
+           }
+     }
+  mutex.Unlock();
+}
+
 // --- cListBase -------------------------------------------------------------
 
-cListBase::cListBase(void)
+cListBase::cListBase(const char *NeedsLocking)
+:stateLock(NeedsLocking)
 {
   objects = lastObject = NULL;
   count = 0;
+  needsLocking = NeedsLocking;
+  useGarbageCollector = needsLocking;
 }
 
 cListBase::~cListBase()
 {
   Clear();
+}
+
+bool cListBase::Lock(cStateKey &StateKey, bool Write, int TimeoutMs) const
+{
+  if (needsLocking)
+     return stateLock.Lock(StateKey, Write, TimeoutMs);
+  else
+     esyslog("ERROR: cListBase::Lock() called for a list that doesn't require locking");
+  return false;
 }
 
 void cListBase::Add(cListObject *Object, cListObject *After)
@@ -2050,8 +2171,12 @@ void cListBase::Del(cListObject *Object, bool DeleteObject)
   if (Object == lastObject)
      lastObject = Object->Prev();
   Object->Unlink();
-  if (DeleteObject)
-     delete Object;
+  if (DeleteObject) {
+     if (useGarbageCollector)
+        ListGarbageCollector.Put(Object);
+     else
+        delete Object;
+     }
   count--;
 }
 
@@ -2095,11 +2220,30 @@ void cListBase::Clear(void)
   count = 0;
 }
 
-cListObject *cListBase::Get(int Index) const
+bool cListBase::Contains(const cListObject *Object) const
+{
+  for (const cListObject *o = objects; o; o = o->Next()) {
+      if (o == Object)
+         return true;
+      }
+  return false;
+}
+
+void cListBase::SetExplicitModify(void)
+{
+  stateLock.SetExplicitModify();
+}
+
+void cListBase::SetModified(void)
+{
+  stateLock.IncState();
+}
+
+const cListObject *cListBase::Get(int Index) const
 {
   if (Index < 0)
      return NULL;
-  cListObject *object = objects;
+  const cListObject *object = objects;
   while (object && Index-- > 0)
         object = object->Next();
   return object;
@@ -2115,7 +2259,9 @@ static int CompareListObjects(const void *a, const void *b)
 void cListBase::Sort(void)
 {
   int n = Count();
-  cListObject *a[n];
+  cListObject **a = MALLOC(cListObject *, n);
+  if (a == NULL)
+     return;
   cListObject *object = objects;
   int i = 0;
   while (object && i < n) {
@@ -2129,13 +2275,53 @@ void cListBase::Sort(void)
       count--;
       Add(a[i]);
       }
+  free(a);
+}
+
+// --- cDynamicBuffer --------------------------------------------------------
+
+cDynamicBuffer::cDynamicBuffer(int InitialSize)
+{
+  initialSize = InitialSize;
+  buffer = NULL;
+  size = used = 0;
+}
+
+cDynamicBuffer::~cDynamicBuffer()
+{
+  free(buffer);
+}
+
+bool cDynamicBuffer::Realloc(int NewSize)
+{
+  if (size < NewSize) {
+     NewSize = max(NewSize, size ? size * 3 / 2 : initialSize); // increase size by at least 50%
+     if (uchar *NewBuffer = (uchar *)realloc(buffer, NewSize)) {
+        buffer = NewBuffer;
+        size = NewSize;
+        }
+     else {
+        esyslog("ERROR: out of memory");
+        return false;
+        }
+     }
+  return true;
+}
+
+void cDynamicBuffer::Append(const uchar *Data, int Length)
+{
+  if (Assert(used + Length)) {
+     memcpy(buffer + used, Data, Length);
+     used += Length;
+     }
 }
 
 // --- cHashBase -------------------------------------------------------------
 
-cHashBase::cHashBase(int Size)
+cHashBase::cHashBase(int Size, bool OwnObjects)
 {
   size = Size;
+  ownObjects = OwnObjects;
   hashTable = (cList<cHashObject>**)calloc(size, sizeof(cList<cHashObject>*));
 }
 
@@ -2169,6 +2355,13 @@ void cHashBase::Del(cListObject *Object, unsigned int Id)
 void cHashBase::Clear(void)
 {
   for (int i = 0; i < size; i++) {
+      if (ownObjects) {
+         cList<cHashObject> *list = hashTable[i];
+         if (list) {
+            for (cHashObject *hob = list->First(); hob; hob = list->Next(hob))
+                delete hob->object;
+            }
+         }
       delete hashTable[i];
       hashTable[i] = NULL;
       }

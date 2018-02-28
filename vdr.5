@@ -8,7 +8,7 @@
 .\" License as specified in the file COPYING that comes with the
 .\" vdr distribution.
 .\"
-.\" $Id: vdr.5 3.4 2015/02/17 13:43:53 kls Exp $
+.\" $Id: vdr.5 4.3 2017/06/10 11:47:27 kls Exp $
 .\"
 .TH vdr 5 "19 Feb 2015" "2.2" "Video Disk Recorder Files"
 .SH NAME
@@ -845,19 +845,20 @@ The first character of each line defines what kind of data this line contains.
 
 The following tag characters are defined:
 .TS
-tab (@);
+tab (|);
 l l.
-\fBC\fR@<channel id> <channel name>
-\fBE\fR@<event id> <start time> <duration> <table id> <version>
-\fBT\fR@<title>
-\fBS\fR@<short text>
-\fBD\fR@<description>
-\fBG\fR@<genre> <genre>...
-\fBR\fR@<parental rating>
-\fBX\fR@<stream> <type> <language> <descr>
-\fBV\fR@<vps time>
-\fBe\fR@
-\fBc\fR@
+\fBC\fR|<channel id> <channel name>
+\fBE\fR|<event id> <start time> <duration> <table id> <version>
+\fBT\fR|<title>
+\fBS\fR|<short text>
+\fBD\fR|<description>
+\fBG\fR|<genre> <genre>...
+\fBR\fR|<parental rating>
+\fBX\fR|<stream> <type> <language> <descr>
+\fBV\fR|<vps time>
+\fB@\fR|<auxiliary data>
+\fBe\fR|
+\fBc\fR|
 .TE
 
 Lowercase characters mark the end of a sequence that was started by the
@@ -869,7 +870,6 @@ should at least have a \fBT\fR entry).
 
 There may be several \fBX\fR tags, depending on the number of tracks (video, audio etc.)
 the event provides.
-
 .TS
 tab (@);
 l l.
@@ -890,6 +890,7 @@ l l.
 <language>     @is the three letter language code (optionally two codes, separated by '+')
 <descr>        @is the description of this stream component
 <vps time>     @is the Video Programming Service time of this event
+<auxiliary data>@is an arbitrary string that can be used by external applications to store data; newline characters will be replaced with '|' when writing the \fIepg.data\fR file.
 .TE
 
 This file will be read at program startup in order to restore the results of
@@ -899,6 +900,63 @@ Note that the \fBevent id\fR that comes from the DVB data stream is actually
 just 16 bit wide. The internal representation in VDR allows for 32 bit to
 be used, so that external tools can generate EPG data that is guaranteed
 not to collide with the ids of existing data.
+
+The \fBauxiliary data\fR can be used for plugin specific purposes and has no meaning
+whatsoever to VDR itself. It will \fBnot\fR be written into the \fIinfo\fR file of
+a recording that is made for such an event.
+.SS CAM DATA
+The file \fIcam.data\fR contains information about which CAM in the system can
+decrypt a particular channel.
+Each line in this file contains a channel id, followed by one or more (blank
+separated) numbers, indicating the CAMs that have successfully decrypted this
+channel earlier.
+
+When tuning to an encrypted channel, this information is used to select the
+proper CAM for decrypting this channel. This channel/CAM relationship is not
+hardcoded, though. If a given channel can't be decrypted with a CAM listed
+in this file, other CAMs will be tried just as well. The main purpose of this
+file is to speed up channel switching in systems with more than one CAM.
+
+This file will be read at program startup and saved when the program ends.
+.SS CAM AUTO RESPONSE
+If your CAM keeps popping up annoying messages or you want to make sure VDR
+can record programmes with parental rating without having to enter the PIN
+(in case you can't turn that off in your CAM), you can set up auto responses
+in the file \fIcamresponses.conf\fR.
+
+Each line in this file specifies one rule to apply to texts received from
+the CAM. If the CAM's menu text matches the text in one of these rules,
+the given action is taken and sent to the CAM as an automatic response,
+without any menu appearing on the screen. The first match wins.
+
+The format of these rules is:
+
+nr text action
+
+where
+.TS
+tab (@);
+l l.
+nr       @is the number of the CAM this action applies to (0 = all CAMs)
+text     @is the text in the CAM menu to react on (must be quoted with '"' if it contains blanks, escape '"' with '\\')
+action   @is the action to take if the given text is encountered
+.TE
+
+Possible actions are:
+.TS
+tab (@);
+l l.
+DISCARD  @simply discard the menu (equivalent to pressing 'Back' on the RC)
+CONFIRM  @confirm the menu (equivalent to pressing 'OK' without selecting a particular item)
+SELECT   @select the menu item containing the text (equivalent to positioning the cursor on the item and pressing 'OK')
+<number> @the given number is sent to the CAM as if it were tyed in by the user (provided this is an input field).
+.TE
+
+Note that the text given in a rule must match exactly, including any leading or
+trailing blanks. If in doubt, you can get the exact text from the log file.
+Action keywords are case insensitive.
+
+Everything following (and including) a '#' character is considered to be comment.
 .SS COMMANDLINE OPTIONS
 If started without any options, vdr tries to read any files in the directory
 /etc/vdr/conf.d with names that do not begin with a '.' and that end with '.conf'.

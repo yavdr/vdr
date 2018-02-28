@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: remux.h 3.4 2014/03/22 14:58:24 kls Exp $
+ * $Id: remux.h 4.5 2017/05/21 09:44:52 kls Exp $
  */
 
 #ifndef __REMUX_H
@@ -51,6 +51,7 @@ public:
 
 #define PATPID 0x0000 // PAT PID (constant 0)
 #define CATPID 0x0001 // CAT PID (constant 1)
+#define EITPID 0x0012 // EIT PID (constant 18)
 #define MAXPID 0x2000 // for arrays that use a PID as the index
 
 #define PTSTICKS  90000 // number of PTS ticks per second
@@ -83,12 +84,18 @@ inline int TsPid(const uchar *p)
   return (p[1] & TS_PID_MASK_HI) * 256 + p[2];
 }
 
+inline void TsSetPid(uchar *p, int Pid)
+{
+  p[1] = (p[1] & ~TS_PID_MASK_HI) | ((Pid >> 8) & TS_PID_MASK_HI);
+  p[2] = Pid & 0x00FF;
+}
+
 inline bool TsIsScrambled(const uchar *p)
 {
   return p[3] & TS_SCRAMBLING_CONTROL;
 }
 
-inline uchar TsGetContinuityCounter(const uchar *p)
+inline uchar TsContinuityCounter(const uchar *p)
 {
   return p[3] & TS_CONT_CNT_MASK;
 }
@@ -114,11 +121,6 @@ inline int TsGetPayload(const uchar **p)
   return 0;
 }
 
-inline int TsContinuityCounter(const uchar *p)
-{
-  return p[3] & TS_CONT_CNT_MASK;
-}
-
 inline int64_t TsGetPcr(const uchar *p)
 {
   if (TsHasAdaptationField(p)) {
@@ -137,6 +139,15 @@ inline int64_t TsGetPcr(const uchar *p)
 
 void TsHidePayload(uchar *p);
 void TsSetPcr(uchar *p, int64_t Pcr);
+
+// Helper macro and function to quickly check whether Data points to the beginning
+// of a TS packet. The return value is the number of bytes that need to be skipped
+// to synchronize on the next TS packet (zero if already sync'd). TsSync() can be
+// called directly, the macro just performs the initial check inline and adds some
+// debug information for logging.
+
+#define TS_SYNC(Data, Length) (*Data == TS_SYNC_BYTE ? 0 : TsSync(Data, Length, __FILE__, __FUNCTION__, __LINE__))
+int TsSync(const uchar *Data, int Length, const char *File = NULL, const char *Function = NULL, int Line = 0);
 
 // The following functions all take a pointer to a sequence of complete TS packets.
 
@@ -361,6 +372,7 @@ private:
   uint16_t compositionPageIds[MAXSPIDS];
   uint16_t ancillaryPageIds[MAXSPIDS];
   bool updatePrimaryDevice;
+  bool completed;
 protected:
   int SectionLength(const uchar *Data, int Length) { return (Length >= 3) ? ((int(Data[1]) & 0x0F) << 8)| Data[2] : 0; }
 public:
@@ -397,6 +409,8 @@ public:
   int Vtype(void) const { return vtype; }
        ///< Returns the video stream type as defined by the current PMT, or 0 if no video
        ///< stream type has been detected, yet.
+  bool Completed(void) { return completed; }
+       ///< Returns true if the PMT has been completely parsed.
   const int *Apids(void) const { return apids; }
   const int *Dpids(void) const { return dpids; }
   const int *Spids(void) const { return spids; }
@@ -411,6 +425,22 @@ public:
   uchar SubtitlingType(int i) const { return (0 <= i && i < MAXSPIDS) ? subtitlingTypes[i] : uchar(0); }
   uint16_t CompositionPageId(int i) const { return (0 <= i && i < MAXSPIDS) ? compositionPageIds[i] : uint16_t(0); }
   uint16_t AncillaryPageId(int i) const { return (0 <= i && i < MAXSPIDS) ? ancillaryPageIds[i] : uint16_t(0); }
+  };
+
+// EIT Generator:
+
+class cEitGenerator {
+private:
+  uchar eit[TS_SIZE];
+  int counter;
+  int version;
+  uint16_t YMDtoMJD(int Y, int M, int D);
+  uchar *AddParentalRatingDescriptor(uchar *p, uchar ParentalRating = 0);
+public:
+  cEitGenerator(int Sid = 0);
+  uchar *Generate(int Sid);
+  uchar *Data(void) { return eit; }
+  int Length(void) { return sizeof(eit); }
   };
 
 // TS to PES converter:

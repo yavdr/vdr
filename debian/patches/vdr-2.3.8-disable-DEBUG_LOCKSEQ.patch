@@ -1,0 +1,11 @@
+--- a/thread.c
++++ b/thread.c
+@@ -27,7 +27,7 @@
+ #define ABORT { dsyslog("ABORT!"); cBackTrace::BackTrace(); abort(); }
+ 
+ //#define DEBUG_LOCKING  // uncomment this line to activate debug output for locking
+-#define DEBUG_LOCKSEQ  // uncomment this line to activate debug output for invalid locking sequence
++//#define DEBUG_LOCKSEQ  // uncomment this line to activate debug output for invalid locking sequence
+ //#define DEBUG_LOCKCALL // uncomment this line to activate caller information with DEBUG_LOCKSEQ (WARNING: expensive operation, use only when actually debugging the locking sequence!)
+ 
+ #ifdef DEBUG_LOCKING

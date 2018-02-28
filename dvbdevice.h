@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: dvbdevice.h 3.5 2014/03/16 10:38:31 kls Exp $
+ * $Id: dvbdevice.h 4.4 2017/05/09 11:24:47 kls Exp $
  */
 
 #ifndef __DVBDEVICE_H
@@ -174,6 +174,7 @@ private:
   static bool Probe(int Adapter, int Frontend);
          ///< Probes for existing DVB devices.
 public:
+  static bool useDvbDevices;
   static bool Initialize(void);
          ///< Initializes the DVB devices.
          ///< Must be called before accessing any DVB functions.
@@ -186,6 +187,7 @@ private:
   int numDeliverySystems;
   int numModulations;
   int fd_dvr, fd_ca;
+  bool checkTsBuffer;
   static cMutex bondMutex;
   cDvbDevice *bondedDevice;
   mutable bool needsDetachBondedReceivers;
@@ -242,6 +244,7 @@ public:
   virtual bool ProvidesEIT(void) const;
   virtual int NumProvidedSystems(void) const;
   virtual const cPositioner *Positioner(void) const;
+  virtual bool SignalStats(int &Valid, double *Strength = NULL, double *Cnr = NULL, double *BerPre = NULL, double *BerPost = NULL, double *Per = NULL, int *Status = NULL) const;
   virtual int SignalStrength(void) const;
   virtual int SignalQuality(void) const;
   virtual const cChannel *GetCurrentlyTunedTransponder(void) const;

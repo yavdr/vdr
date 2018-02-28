@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: filter.h 3.0 2004/01/11 13:31:59 kls Exp $
+ * $Id: filter.h 4.3 2017/05/07 15:18:48 kls Exp $
  */
 
 #ifndef __FILTER_H
@@ -15,11 +15,18 @@
 
 class cSectionSyncer {
 private:
-  int lastVersion;
+  int currentVersion;
+  int currentSection;
   bool synced;
+  bool complete;
+  uchar sections[32]; // holds 32 * 8 = 256 bits, as flags for the sections
+  void SetSectionFlag(uchar Section, bool On) { if (On) sections[Section / 8] |= (1 << (Section % 8)); else sections[Section / 8] &= ~(1 << (Section % 8)); }
+  bool GetSectionFlag(uchar Section) { return sections[Section / 8] & (1 << (Section % 8)); }
 public:
   cSectionSyncer(void);
   void Reset(void);
+  void Repeat(void);
+  bool Complete(void) { return complete; }
   bool Sync(uchar Version, int Number, int LastNumber);
   };
 
@@ -31,6 +38,7 @@ public:
   bool sticky;
   cFilterData(void);
   cFilterData(u_short Pid, u_char Tid, u_char Mask, bool Sticky);
+  cFilterData& operator= (const cFilterData &FilterData);
   bool Is(u_short Pid, u_char Tid, u_char Mask);
   bool Matches(u_short Pid, u_char Tid);
   };

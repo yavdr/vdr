@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: ci.c 3.19 2015/02/02 13:57:39 kls Exp $
+ * $Id: ci.c 4.18 2017/06/19 12:13:38 kls Exp $
  */
 
 #include "ci.h"
@@ -13,11 +13,13 @@
 #include <malloc.h>
 #include <netinet/in.h>
 #include <poll.h>
+#include <stdio.h>
 #include <string.h>
 #include <sys/ioctl.h>
 #include <time.h>
 #include <unistd.h>
 #include "device.h"
+#include "mtd.h"
 #include "pat.h"
 #include "receiver.h"
 #include "remux.h"
@@ -76,17 +78,18 @@ static char *CopyString(int Length, const uint8_t *Data)
 ///< Copies the string at Data.
 ///< Returns a pointer to a newly allocated string.
 {
-  // Some CAMs send funny characters at the beginning of strings.
-  // Let's just skip them:
-  while (Length > 0 && (*Data == ' ' || *Data == 0x05 || *Data == 0x96 || *Data == 0x97)) {
+  char *s = MALLOC(char, Length + 1);
+  char *p = s;
+  while (Length > 0) {
+        char c = *Data;
+        if (isprint(c)) // some CAMs send funny characters in their strings, let's just skip them
+           *p++ = c;
+        else if (c == 0x8A) // the character 0x8A is used as newline, so let's put a real '\n' in there
+           *p++ = '\n';
         Length--;
         Data++;
         }
-  char *s = MALLOC(char, Length + 1);
-  strncpy(s, (char *)Data, Length);
-  s[Length] = 0;
-  // The character 0x8A is used as newline, so let's put a real '\n' in there:
-  strreplace(s, 0x8A, '\n');
+  *p = 0;
   return s;
 }
 
@@ -117,16 +120,15 @@ private:
   cVector<int> emmPids;
   uchar buffer[2048]; // 11 bit length, max. 2048 byte
   uchar *bufp;
+  uchar mtdCatBuffer[TS_SIZE]; // TODO: handle multi packet CATs!
   int length;
   void AddEmmPid(int Pid);
   void DelEmmPids(void);
-protected:
-  virtual void Activate(bool On);
 public:
   cCaPidReceiver(void);
   virtual ~cCaPidReceiver() { Detach(); }
-  virtual void Receive(uchar *Data, int Length);
-  bool HasCaPids(void) { return NumPids() - emmPids.Size() - 1 > 0; }
+  virtual void Receive(const uchar *Data, int Length);
+  bool HasCaPids(void) const { return NumPids() - emmPids.Size() - 1 > 0; }
   void Reset(void) { DelEmmPids(); catVersion = -1; }
   };
 
@@ -155,15 +157,11 @@ void cCaPidReceiver::DelEmmPids(void)
   emmPids.Clear();
 }
 
-void cCaPidReceiver::Activate(bool On)
-{
-  catVersion = -1; // can be done independent of 'On'
-}
-
-void cCaPidReceiver::Receive(uchar *Data, int Length)
+void cCaPidReceiver::Receive(const uchar *Data, int Length)
 {
   if (TsPid(Data) == CATPID) {
-     uchar *p = NULL;
+     cMtdCamSlot *MtdCamSlot = dynamic_cast<cMtdCamSlot *>(Device()->CamSlot());
+     const uchar *p = NULL;
      if (TsPayloadStart(Data)) {
         if (Data[5] == SI::TableIdCAT) {
            length = (int(Data[6] & 0x03) << 8) | Data[7]; // section length
@@ -172,6 +170,8 @@ void cCaPidReceiver::Receive(uchar *Data, int Length)
               if (v != catVersion) {
                  if (Data[11] == 0 && Data[12] == 0) { // section number, last section number
                     if (length > TS_SIZE - 8) {
+                       if (MtdCamSlot)
+                          esyslog("ERROR: need to implement multi packet CAT handling for MTD!");
                        int n = TS_SIZE - 13;
                        memcpy(buffer, Data + 13, n);
                        bufp = buffer + n;
@@ -186,6 +186,8 @@ void cCaPidReceiver::Receive(uchar *Data, int Length)
                     dsyslog("multi table CAT section - unhandled!");
                  catVersion = v;
                  }
+              else if (MtdCamSlot)
+                 MtdCamSlot->PutCat(mtdCatBuffer, TS_SIZE);
               }
            }
         }
@@ -207,32 +209,32 @@ void cCaPidReceiver::Receive(uchar *Data, int Length)
            }
         }
      if (p) {
-        int OldCatVersion = catVersion; // must preserve the current version number
-        cDevice *AttachedDevice = Device();
-        if (AttachedDevice)
-           AttachedDevice->Detach(this);
         DelEmmPids();
         for (int i = 0; i < length - 4; i++) { // -4 = checksum
             if (p[i] == 0x09) {
                int CaId = int(p[i + 2] << 8) | p[i + 3];
-               int EmmPid = int(((p[i + 4] & 0x1F) << 8)) | p[i + 5];
+               int EmmPid = Peek13(p + i + 4);
                AddEmmPid(EmmPid);
+               if (MtdCamSlot)
+                  MtdMapPid(const_cast<uchar *>(p + i + 4), MtdCamSlot->MtdMapper());
                switch (CaId >> 8) {
                  case 0x01: for (int j = i + 7; j < p[i + 1] + 2; j += 4) {
-                                EmmPid = (int(p[j] & 0x0F) << 8) | p[j + 1];
+                                EmmPid = Peek13(p + j);
                                 AddEmmPid(EmmPid);
+                                if (MtdCamSlot)
+                                   MtdMapPid(const_cast<uchar *>(p + j), MtdCamSlot->MtdMapper());
                                 }
                             break;
                  }
                i += p[i + 1] + 2 - 1; // -1 to compensate for the loop increment
                }
             }
-        if (AttachedDevice)
-           AttachedDevice->AttachReceiver(this);
-        catVersion = OldCatVersion;
         p = NULL;
         bufp = 0;
         length = 0;
+        memcpy(mtdCatBuffer, Data, TS_SIZE);
+        if (MtdCamSlot)
+           MtdCamSlot->PutCat(mtdCatBuffer, TS_SIZE);
         }
      }
 }
@@ -251,7 +253,7 @@ private:
   time_t lastScrambledTime;
   int numTsPackets;
 protected:
-  virtual void Receive(uchar *Data, int Length);
+  virtual void Receive(const uchar *Data, int Length);
 public:
   cCaActivationReceiver(const cChannel *Channel, cCamSlot *CamSlot);
   virtual ~cCaActivationReceiver();
@@ -270,7 +272,7 @@ cCaActivationReceiver::~cCaActivationReceiver()
   Detach();
 }
 
-void cCaActivationReceiver::Receive(uchar *Data, int Length)
+void cCaActivationReceiver::Receive(const uchar *Data, int Length)
 {
   if (numTsPackets++ % TS_PACKET_FACTOR == 0) {
      time_t Now = time(NULL);
@@ -279,14 +281,150 @@ void cCaActivationReceiver::Receive(uchar *Data, int Length)
      else if (Now - lastScrambledTime > UNSCRAMBLE_TIME) {
         dsyslog("CAM %d: activated!", camSlot->SlotNumber());
         Skins.QueueMessage(mtInfo, tr("CAM activated!"));
+        cDevice *d = Device();
         Detach();
+        if (d) {
+           if (cCamSlot *s = d->CamSlot())
+              s->CancelActivation(); // this will delete *this* object, so no more code referencing *this* after this call!
+           }
         }
      }
 }
 
+// --- cCamResponse ----------------------------------------------------------
+
+// CAM Response Actions:
+
+#define CRA_NONE      0
+#define CRA_DISCARD  -1
+#define CRA_CONFIRM  -2
+#define CRA_SELECT   -3
+
+class cCamResponse : public cListObject {
+private:
+  int camNumber;
+  char *text;
+  int action;
+public:
+  cCamResponse(void);
+  ~cCamResponse();
+  bool Parse(const char *s);
+  int Matches(int CamNumber, const char *Text) const;
+  };
+
+cCamResponse::cCamResponse(void)
+{
+  camNumber = -1;
+  text = NULL;
+  action = CRA_NONE;
+}
+
+cCamResponse::~cCamResponse()
+{
+  free(text);
+}
+
+bool cCamResponse::Parse(const char *s)
+{
+  // Number:
+  s = skipspace(s);
+  if (*s == '*') {
+     camNumber = 0; // all CAMs
+     s++;
+     }
+  else {
+     char *e;
+     camNumber = strtol(s, &e, 10);
+     if (e == s || camNumber <= 0)
+        return false;
+     s = e;
+     }
+  // Text:
+  s = skipspace(s);
+  char *t = const_cast<char *>(s); // might have to modify it
+  char *q = NULL; // holds a copy in case of backslashes
+  bool InQuotes = false;
+  while (*t) {
+        if (*t == '"') {
+           if (t == s) { // opening quotes
+              InQuotes = true;
+              s++;
+              }
+           else if (InQuotes) // closing quotes
+              break;
+           }
+        else if (*t == '\\') {
+           if (!q) { // need to make a copy in order to strip backslashes
+              q = strdup(s);
+              t = q + (t - s);
+              s = q;
+              }
+           memmove(t, t + 1, strlen(t));
+           }
+        else if (*t == ' ') {
+           if (!InQuotes)
+              break;
+           }
+        t++;
+        }
+  free(text); // just for safety
+  text = NULL;
+  if (t != s) {
+     text = strndup(s, t - s);
+     s = t + 1;
+     }
+  free(q);
+  if (!text)
+     return false;
+  // Action:
+  s = skipspace(s);
+  if      (strcasecmp(s, "DISCARD") == 0) action = CRA_DISCARD;
+  else if (strcasecmp(s, "CONFIRM") == 0) action = CRA_CONFIRM;
+  else if (strcasecmp(s, "SELECT")  == 0) action = CRA_SELECT;
+  else if (isnumber(s))                   action = atoi(s);
+  else
+     return false;
+  return true;
+}
+
+int cCamResponse::Matches(int CamNumber, const char *Text) const
+{
+  if (!camNumber || camNumber == CamNumber) {
+     if (strcmp(text, Text) == 0)
+        return action;
+     }
+  return CRA_NONE;
+}
+
+// --- cCamResponses  --------------------------------------------------------
+
+class cCamResponses : public cConfig<cCamResponse> {
+public:
+  int GetMatch(int CamNumber, const char *Text) const;
+  };
+
+int cCamResponses::GetMatch(int CamNumber, const char *Text) const
+{
+  for (const cCamResponse *cr = First(); cr; cr = Next(cr)) {
+      int Action = cr->Matches(CamNumber, Text);
+      if (Action != CRA_NONE) {
+         dsyslog("CAM %d: auto response %4d to '%s'\n", CamNumber, Action, Text);
+         return Action;
+         }
+      }
+  return CRA_NONE;
+}
+
+cCamResponses CamResponses;
+
+bool CamResponsesLoad(const char *FileName, bool AllowComments, bool MustExist)
+{
+  return CamResponses.Load(FileName, AllowComments, MustExist);
+}
+
 // --- cTPDU -----------------------------------------------------------------
 
-#define MAX_TPDU_SIZE  2048
+#define MAX_TPDU_SIZE  4096
 #define MAX_TPDU_DATA  (MAX_TPDU_SIZE - 4)
 
 #define DATA_INDICATOR 0x80
@@ -421,6 +559,7 @@ private:
   cTimeMs alive;
   cTimeMs timer;
   cCiSession *sessions[MAX_SESSIONS_PER_TC + 1]; // session numbering starts with 1
+  cCiSession *tsPostProcessor;
   void SendTPDU(uint8_t Tag, int Length = 0, const uint8_t *Data = NULL);
   void SendTag(uint8_t Tag, uint16_t SessionId, uint32_t ResourceId = 0, int Status = -1);
   void Poll(void);
@@ -432,6 +571,8 @@ private:
 public:
   cCiTransportConnection(cCamSlot *CamSlot, uint8_t Tcid);
   virtual ~cCiTransportConnection();
+  void SetTsPostProcessor(cCiSession *CiSession);
+  bool TsPostProcess(uint8_t *TsPacket);
   cCamSlot *CamSlot(void) { return camSlot; }
   uint8_t Tcid(void) const { return tcid; }
   void CreateConnection(void) { createConnectionRequested = true; }
@@ -521,24 +662,7 @@ public:
 #define AOT_COMMS_RCV_LAST          0x9F8C05
 #define AOT_COMMS_RCV_MORE          0x9F8C06
 
-class cCiSession {
-private:
-  uint16_t sessionId;
-  uint32_t resourceId;
-  cCiTransportConnection *tc;
-protected:
-  int GetTag(int &Length, const uint8_t **Data);
-  const uint8_t *GetData(const uint8_t *Data, int &Length);
-  void SendData(int Tag, int Length = 0, const uint8_t *Data = NULL);
-  cCiTransportConnection *Tc(void) { return tc; }
-public:
-  cCiSession(uint16_t SessionId, uint32_t ResourceId, cCiTransportConnection *Tc);
-  virtual ~cCiSession();
-  uint16_t SessionId(void) { return sessionId; }
-  uint32_t ResourceId(void) { return resourceId; }
-  virtual bool HasUserIO(void) { return false; }
-  virtual void Process(int Length = 0, const uint8_t *Data = NULL);
-  };
+#define RESOURCE_CLASS_MASK         0xFFFF0000
 
 cCiSession::cCiSession(uint16_t SessionId, uint32_t ResourceId, cCiTransportConnection *Tc)
 {
@@ -549,6 +673,16 @@ cCiSession::cCiSession(uint16_t SessionId, uint32_t ResourceId, cCiTransportConn
 
 cCiSession::~cCiSession()
 {
+}
+
+void cCiSession::SetResourceId(uint32_t Id)
+{
+  resourceId = Id;
+}
+
+void cCiSession::SetTsPostProcessor(void)
+{
+  tc->SetTsPostProcessor(this);
 }
 
 int cCiSession::GetTag(int &Length, const uint8_t **Data)
@@ -574,7 +708,7 @@ const uint8_t *cCiSession::GetData(const uint8_t *Data, int &Length)
 
 void cCiSession::SendData(int Tag, int Length, const uint8_t *Data)
 {
-  uint8_t buffer[2048];
+  uint8_t buffer[MAX_TPDU_SIZE];
   uint8_t *p = buffer;
   *p++ = ST_SESSION_NUMBER;
   *p++ = 0x02;
@@ -591,7 +725,12 @@ void cCiSession::SendData(int Tag, int Length, const uint8_t *Data)
      tc->SendData(p - buffer, buffer);
      }
   else
-     esyslog("ERROR: CAM %d: data length (%d) exceeds buffer size", Tc()->CamSlot()->SlotNumber(), Length);
+     esyslog("ERROR: CAM %d: data length (%d) exceeds buffer size", CamSlot()->SlotNumber(), Length);
+}
+
+cCamSlot *cCiSession::CamSlot(void)
+{
+  return Tc()->CamSlot();
 }
 
 void cCiSession::Process(int Length, const uint8_t *Data)
@@ -611,7 +750,7 @@ public:
 cCiResourceManager::cCiResourceManager(uint16_t SessionId, cCiTransportConnection *Tc)
 :cCiSession(SessionId, RI_RESOURCE_MANAGER, Tc)
 {
-  dbgprotocol("Slot %d: new Resource Manager (session id %d)\n", Tc->CamSlot()->SlotNumber(), SessionId);
+  dbgprotocol("Slot %d: new Resource Manager (session id %d)\n", CamSlot()->SlotNumber(), SessionId);
   state = 0;
 }
 
@@ -621,39 +760,33 @@ void cCiResourceManager::Process(int Length, const uint8_t *Data)
      int Tag = GetTag(Length, &Data);
      switch (Tag) {
        case AOT_PROFILE_ENQ: {
-            dbgprotocol("Slot %d: <== Profile Enquiry (%d)\n", Tc()->CamSlot()->SlotNumber(), SessionId());
-            uint32_t resources[] = { htonl(RI_RESOURCE_MANAGER),
-                                     htonl(RI_APPLICATION_INFORMATION),
-                                     htonl(RI_CONDITIONAL_ACCESS_SUPPORT),
-                                     htonl(RI_DATE_TIME),
-                                     htonl(RI_MMI)
-                                   };
-            dbgprotocol("Slot %d: ==> Profile (%d)\n", Tc()->CamSlot()->SlotNumber(), SessionId());
-            SendData(AOT_PROFILE, sizeof(resources), (uint8_t*)resources);
+            dbgprotocol("Slot %d: <== Profile Enquiry (%d)\n", CamSlot()->SlotNumber(), SessionId());
+            dbgprotocol("Slot %d: ==> Profile (%d)\n", CamSlot()->SlotNumber(), SessionId());
+            SendData(AOT_PROFILE, CiResourceHandlers.NumIds() * sizeof(uint32_t), (uint8_t*)CiResourceHandlers.Ids());
             state = 3;
             }
             break;
        case AOT_PROFILE: {
-            dbgprotocol("Slot %d: <== Profile (%d)\n", Tc()->CamSlot()->SlotNumber(), SessionId());
+            dbgprotocol("Slot %d: <== Profile (%d)\n", CamSlot()->SlotNumber(), SessionId());
             if (state == 1) {
                int l = 0;
                const uint8_t *d = GetData(Data, l);
                if (l > 0 && d)
-                  esyslog("ERROR: CAM %d: resource manager: unexpected data", Tc()->CamSlot()->SlotNumber());
-               dbgprotocol("Slot %d: ==> Profile Change (%d)\n", Tc()->CamSlot()->SlotNumber(), SessionId());
+                  esyslog("ERROR: CAM %d: resource manager: unexpected data", CamSlot()->SlotNumber());
+               dbgprotocol("Slot %d: ==> Profile Change (%d)\n", CamSlot()->SlotNumber(), SessionId());
                SendData(AOT_PROFILE_CHANGE);
                state = 2;
                }
             else {
-               esyslog("ERROR: CAM %d: resource manager: unexpected tag %06X in state %d", Tc()->CamSlot()->SlotNumber(), Tag, state);
+               esyslog("ERROR: CAM %d: resource manager: unexpected tag %06X in state %d", CamSlot()->SlotNumber(), Tag, state);
                }
             }
             break;
-       default: esyslog("ERROR: CAM %d: resource manager: unknown tag %06X", Tc()->CamSlot()->SlotNumber(), Tag);
+       default: esyslog("ERROR: CAM %d: resource manager: unknown tag %06X", CamSlot()->SlotNumber(), Tag);
        }
      }
   else if (state == 0) {
-     dbgprotocol("Slot %d: ==> Profile Enq (%d)\n", Tc()->CamSlot()->SlotNumber(), SessionId());
+     dbgprotocol("Slot %d: ==> Profile Enq (%d)\n", CamSlot()->SlotNumber(), SessionId());
      SendData(AOT_PROFILE_ENQ);
      state = 1;
      }
@@ -661,25 +794,10 @@ void cCiResourceManager::Process(int Length, const uint8_t *Data)
 
 // --- cCiApplicationInformation ---------------------------------------------
 
-class cCiApplicationInformation : public cCiSession {
-private:
-  int state;
-  uint8_t applicationType;
-  uint16_t applicationManufacturer;
-  uint16_t manufacturerCode;
-  char *menuString;
-public:
-  cCiApplicationInformation(uint16_t SessionId, cCiTransportConnection *Tc);
-  virtual ~cCiApplicationInformation();
-  virtual void Process(int Length = 0, const uint8_t *Data = NULL);
-  bool EnterMenu(void);
-  const char *GetMenuString(void) { return menuString; }
-  };
-
 cCiApplicationInformation::cCiApplicationInformation(uint16_t SessionId, cCiTransportConnection *Tc)
 :cCiSession(SessionId, RI_APPLICATION_INFORMATION, Tc)
 {
-  dbgprotocol("Slot %d: new Application Information (session id %d)\n", Tc->CamSlot()->SlotNumber(), SessionId);
+  dbgprotocol("Slot %d: new Application Information (session id %d)\n", CamSlot()->SlotNumber(), SessionId);
   state = 0;
   menuString = NULL;
 }
@@ -695,7 +813,7 @@ void cCiApplicationInformation::Process(int Length, const uint8_t *Data)
      int Tag = GetTag(Length, &Data);
      switch (Tag) {
        case AOT_APPLICATION_INFO: {
-            dbgprotocol("Slot %d: <== Application Info (%d)\n", Tc()->CamSlot()->SlotNumber(), SessionId());
+            dbgprotocol("Slot %d: <== Application Info (%d)\n", CamSlot()->SlotNumber(), SessionId());
             int l = 0;
             const uint8_t *d = GetData(Data, l);
             if ((l -= 1) < 0) break;
@@ -708,15 +826,15 @@ void cCiApplicationInformation::Process(int Length, const uint8_t *Data)
             d += 2;
             free(menuString);
             menuString = GetString(l, &d);
-            isyslog("CAM %d: %s, %02X, %04X, %04X", Tc()->CamSlot()->SlotNumber(), menuString, applicationType, applicationManufacturer, manufacturerCode);
+            isyslog("CAM %d: %s, %02X, %04X, %04X", CamSlot()->SlotNumber(), menuString, applicationType, applicationManufacturer, manufacturerCode);
             state = 2;
             }
             break;
-       default: esyslog("ERROR: CAM %d: application information: unknown tag %06X", Tc()->CamSlot()->SlotNumber(), Tag);
+       default: esyslog("ERROR: CAM %d: application information: unknown tag %06X", CamSlot()->SlotNumber(), Tag);
        }
      }
   else if (state == 0) {
-     dbgprotocol("Slot %d: ==> Application Info Enq (%d)\n", Tc()->CamSlot()->SlotNumber(), SessionId());
+     dbgprotocol("Slot %d: ==> Application Info Enq (%d)\n", CamSlot()->SlotNumber(), SessionId());
      SendData(AOT_APPLICATION_INFO_ENQ);
      state = 1;
      }
@@ -725,7 +843,7 @@ void cCiApplicationInformation::Process(int Length, const uint8_t *Data)
 bool cCiApplicationInformation::EnterMenu(void)
 {
   if (state == 2) {
-     dbgprotocol("Slot %d: ==> Enter Menu (%d)\n", Tc()->CamSlot()->SlotNumber(), SessionId());
+     dbgprotocol("Slot %d: ==> Enter Menu (%d)\n", CamSlot()->SlotNumber(), SessionId());
      SendData(AOT_ENTER_MENU);
      return true;
      }
@@ -756,9 +874,9 @@ class cCiCaPmt {
   friend class cCiConditionalAccessSupport;
 private:
   uint8_t cmdId;
-  int length;
   int esInfoLengthPos;
-  uint8_t capmt[2048]; ///< XXX is there a specified maximum?
+  cDynamicBuffer caDescriptors;
+  cDynamicBuffer capmt;
   int source;
   int transponder;
   int programNumber;
@@ -768,8 +886,9 @@ public:
   cCiCaPmt(uint8_t CmdId, int Source, int Transponder, int ProgramNumber, const int *CaSystemIds);
   uint8_t CmdId(void) { return cmdId; }
   void SetListManagement(uint8_t ListManagement);
-  uint8_t ListManagement(void) { return capmt[0]; }
+  uint8_t ListManagement(void) { return capmt.Get(0); }
   void AddPid(int Pid, uint8_t StreamType);
+  void MtdMapPids(cMtdMapper *MtdMapper);
   };
 
 cCiCaPmt::cCiCaPmt(uint8_t CmdId, int Source, int Transponder, int ProgramNumber, const int *CaSystemIds)
@@ -784,59 +903,128 @@ cCiCaPmt::cCiCaPmt(uint8_t CmdId, int Source, int Transponder, int ProgramNumber
          caSystemIds[i] = CaSystemIds[i];
      }
   caSystemIds[i] = 0;
-  uint8_t caDescriptors[512];
-  int caDescriptorsLength = GetCaDescriptors(source, transponder, programNumber, caSystemIds, sizeof(caDescriptors), caDescriptors, 0);
-  length = 0;
-  capmt[length++] = CPLM_ONLY;
-  capmt[length++] = (ProgramNumber >> 8) & 0xFF;
-  capmt[length++] =  ProgramNumber       & 0xFF;
-  capmt[length++] = 0x01; // version_number, current_next_indicator - apparently vn doesn't matter, but cni must be 1
-  esInfoLengthPos = length;
-  capmt[length++] = 0x00; // program_info_length H (at program level)
-  capmt[length++] = 0x00; // program_info_length L
-  AddCaDescriptors(caDescriptorsLength, caDescriptors);
+  GetCaDescriptors(source, transponder, programNumber, caSystemIds, caDescriptors, 0);
+  capmt.Append(CPLM_ONLY);
+  capmt.Append((ProgramNumber >> 8) & 0xFF);
+  capmt.Append( ProgramNumber       & 0xFF);
+  capmt.Append(0x01); // version_number, current_next_indicator - apparently vn doesn't matter, but cni must be 1
+  esInfoLengthPos = capmt.Length();
+  capmt.Append(0x00); // program_info_length H (at program level)
+  capmt.Append(0x00); // program_info_length L
+  AddCaDescriptors(caDescriptors.Length(), caDescriptors.Data());
 }
 
 void cCiCaPmt::SetListManagement(uint8_t ListManagement)
 {
-  capmt[0] = ListManagement;
+  capmt.Set(0, ListManagement);
 }
 
 void cCiCaPmt::AddPid(int Pid, uint8_t StreamType)
 {
   if (Pid) {
-     uint8_t caDescriptors[512];
-     int caDescriptorsLength = GetCaDescriptors(source, transponder, programNumber, caSystemIds, sizeof(caDescriptors), caDescriptors, Pid);
-     //XXX buffer overflow check???
-     capmt[length++] = StreamType;
-     capmt[length++] = (Pid >> 8) & 0xFF;
-     capmt[length++] =  Pid       & 0xFF;
-     esInfoLengthPos = length;
-     capmt[length++] = 0x00; // ES_info_length H (at ES level)
-     capmt[length++] = 0x00; // ES_info_length L
-     AddCaDescriptors(caDescriptorsLength, caDescriptors);
+     GetCaDescriptors(source, transponder, programNumber, caSystemIds, caDescriptors, Pid);
+     capmt.Append(StreamType);
+     capmt.Append((Pid >> 8) & 0xFF);
+     capmt.Append( Pid       & 0xFF);
+     esInfoLengthPos = capmt.Length();
+     capmt.Append(0x00); // ES_info_length H (at ES level)
+     capmt.Append(0x00); // ES_info_length L
+     AddCaDescriptors(caDescriptors.Length(), caDescriptors.Data());
      }
 }
 
 void cCiCaPmt::AddCaDescriptors(int Length, const uint8_t *Data)
 {
   if (esInfoLengthPos) {
-     if (length + Length < int(sizeof(capmt))) {
-        if (Length || cmdId == CPCI_QUERY) {
-           capmt[length++] = cmdId;
-           memcpy(capmt + length, Data, Length);
-           length += Length;
-           int l = length - esInfoLengthPos - 2;
-           capmt[esInfoLengthPos]     = (l >> 8) & 0xFF;
-           capmt[esInfoLengthPos + 1] =  l       & 0xFF;
-           }
+     if (Length || cmdId == CPCI_QUERY) {
+        capmt.Append(cmdId);
+        capmt.Append(Data, Length);
+        int l = capmt.Length() - esInfoLengthPos - 2;
+        capmt.Set(esInfoLengthPos,     (l >> 8) & 0xFF);
+        capmt.Set(esInfoLengthPos + 1,  l       & 0xFF);
         }
-     else
-        esyslog("ERROR: buffer overflow in CA descriptor");
      esInfoLengthPos = 0;
      }
   else
      esyslog("ERROR: adding CA descriptor without Pid!");
+}
+
+static int MtdMapCaDescriptor(uchar *p, cMtdMapper *MtdMapper)
+{
+  // See pat.c: cCaDescriptor::cCaDescriptor() for the layout of the data!
+  if (*p == SI::CaDescriptorTag) {
+     int l = *++p;
+     if (l >= 4) {
+        MtdMapPid(p + 3, MtdMapper);
+        return l + 2;
+        }
+     else
+        esyslog("ERROR: wrong length (%d) in MtdMapCaDescriptor()", l);
+     }
+  else
+     esyslog("ERROR: wrong tag (%d) in MtdMapCaDescriptor()", *p);
+  return -1;
+}
+
+static int MtdMapCaDescriptors(uchar *p, cMtdMapper *MtdMapper)
+{
+  int Length = p[0] * 256 + p[1];
+  if (Length >= 3) {
+     p += 3;
+     int m = Length - 1;
+     while (m > 0) {
+           int l = MtdMapCaDescriptor(p, MtdMapper);
+           if (l > 0) {
+              p += l;
+              m -= l;
+              }
+           }
+     }
+  return Length + 2;
+}
+
+static int MtdMapStream(uchar *p, cMtdMapper *MtdMapper)
+{
+  // See ci.c: cCiCaPmt::AddPid() for the layout of the data!
+  MtdMapPid(p + 1, MtdMapper);
+  int l = MtdMapCaDescriptors(p + 3, MtdMapper);
+  if (l > 0)
+     return l + 3;
+  return -1;
+}
+
+static int MtdMapStreams(uchar *p, cMtdMapper *MtdMapper, int Length)
+{
+  int m = Length;
+  while (m >= 5) {
+        int l = MtdMapStream(p, MtdMapper);
+        if (l > 0) {
+           p += l;
+           m -= l;
+           }
+        else
+           break;
+        }
+  return Length;
+}
+
+void cCiCaPmt::MtdMapPids(cMtdMapper *MtdMapper)
+{
+  uchar *p = capmt.Data();
+  int m = capmt.Length();
+  if (m >= 3) {
+     MtdMapSid(p + 1, MtdMapper);
+     p += 4;
+     m -= 4;
+     if (m >= 2) {
+        int l = MtdMapCaDescriptors(p, MtdMapper);
+        if (l >= 0) {
+           p += l;
+           m -= l;
+           MtdMapStreams(p, MtdMapper, m);
+           }
+        }
+     }
 }
 
 // --- cCiConditionalAccessSupport -------------------------------------------
@@ -853,8 +1041,9 @@ void cCiCaPmt::AddCaDescriptors(int Length, const uint8_t *Data)
 
 #define CA_ENABLE(x) (((x) & CA_ENABLE_FLAG) ? (x) & ~CA_ENABLE_FLAG : 0)
 
-#define QUERY_WAIT_TIME      1000 // ms to wait before sending a query
+#define QUERY_WAIT_TIME       500 // ms to wait before sending a query
 #define QUERY_REPLY_TIMEOUT  2000 // ms to wait for a reply to a query
+#define QUERY_RETRIES           6 // max. number of retries to check if there is a reply to a query
 
 class cCiConditionalAccessSupport : public cCiSession {
 private:
@@ -863,6 +1052,7 @@ private:
   int caSystemIds[MAXCASYSTEMIDS + 1]; // list is zero terminated!
   bool repliesToQuery;
   cTimeMs timer;
+  int numRetries;
 public:
   cCiConditionalAccessSupport(uint16_t SessionId, cCiTransportConnection *Tc);
   virtual void Process(int Length = 0, const uint8_t *Data = NULL);
@@ -877,10 +1067,11 @@ public:
 cCiConditionalAccessSupport::cCiConditionalAccessSupport(uint16_t SessionId, cCiTransportConnection *Tc)
 :cCiSession(SessionId, RI_CONDITIONAL_ACCESS_SUPPORT, Tc)
 {
-  dbgprotocol("Slot %d: new Conditional Access Support (session id %d)\n", Tc->CamSlot()->SlotNumber(), SessionId);
+  dbgprotocol("Slot %d: new Conditional Access Support (session id %d)\n", CamSlot()->SlotNumber(), SessionId);
   state = 0; // inactive
   caSystemIds[numCaSystemIds = 0] = 0;
   repliesToQuery = false;
+  numRetries = 0;
 }
 
 void cCiConditionalAccessSupport::Process(int Length, const uint8_t *Data)
@@ -889,7 +1080,7 @@ void cCiConditionalAccessSupport::Process(int Length, const uint8_t *Data)
      int Tag = GetTag(Length, &Data);
      switch (Tag) {
        case AOT_CA_INFO: {
-            dbgprotocol("Slot %d: <== Ca Info (%d)", Tc()->CamSlot()->SlotNumber(), SessionId());
+            dbgprotocol("Slot %d: <== Ca Info (%d)", CamSlot()->SlotNumber(), SessionId());
             cString Ids;
             numCaSystemIds = 0;
             int l = 0;
@@ -903,24 +1094,29 @@ void cCiConditionalAccessSupport::Process(int Length, const uint8_t *Data)
                   if (numCaSystemIds < MAXCASYSTEMIDS)
                      caSystemIds[numCaSystemIds++] = id;
                   else {
-                     esyslog("ERROR: CAM %d: too many CA system IDs!", Tc()->CamSlot()->SlotNumber());
+                     esyslog("ERROR: CAM %d: too many CA system IDs!", CamSlot()->SlotNumber());
                      break;
                      }
                   }
             caSystemIds[numCaSystemIds] = 0;
             dbgprotocol("\n");
             if (state == 1) {
-               timer.Set(QUERY_WAIT_TIME); // WORKAROUND: Alphacrypt 3.09 doesn't reply to QUERY immediately after reset
+               timer.Set(0);
+               numRetries = QUERY_RETRIES;
                state = 2; // got ca info
                }
-            dsyslog("CAM %d: system ids:%s", Tc()->CamSlot()->SlotNumber(), *Ids ? *Ids : " none");
+            dsyslog("CAM %d: system ids:%s", CamSlot()->SlotNumber(), *Ids ? *Ids : " none");
             }
             break;
        case AOT_CA_PMT_REPLY: {
-            dbgprotocol("Slot %d: <== Ca Pmt Reply (%d)", Tc()->CamSlot()->SlotNumber(), SessionId());
+            dbgprotocol("Slot %d: <== Ca Pmt Reply (%d)", CamSlot()->SlotNumber(), SessionId());
             if (!repliesToQuery) {
-               dsyslog("CAM %d: replies to QUERY - multi channel decryption possible", Tc()->CamSlot()->SlotNumber());
+               dsyslog("CAM %d: replies to QUERY - multi channel decryption (MCD) possible", CamSlot()->SlotNumber());
                repliesToQuery = true;
+               if (CamSlot()->MtdAvailable()) {
+                  dsyslog("CAM %d: supports multi transponder decryption (MTD)", CamSlot()->SlotNumber());
+                  CamSlot()->MtdActivate(true);
+                  }
                }
             state = 5; // got ca pmt reply
             int l = 0;
@@ -971,32 +1167,67 @@ void cCiConditionalAccessSupport::Process(int Length, const uint8_t *Data)
             dbgprotocol("\n");
             }
             break;
-       default: esyslog("ERROR: CAM %d: conditional access support: unknown tag %06X", Tc()->CamSlot()->SlotNumber(), Tag);
+       default: esyslog("ERROR: CAM %d: conditional access support: unknown tag %06X", CamSlot()->SlotNumber(), Tag);
        }
      }
   else if (state == 0) {
-     dbgprotocol("Slot %d: ==> Ca Info Enq (%d)\n", Tc()->CamSlot()->SlotNumber(), SessionId());
+     dbgprotocol("Slot %d: ==> Ca Info Enq (%d)\n", CamSlot()->SlotNumber(), SessionId());
      SendData(AOT_CA_INFO_ENQ);
      state = 1; // enquired ca info
      }
-  else if (state == 2 && timer.TimedOut()) {
-     cCiCaPmt CaPmt(CPCI_QUERY, 0, 0, 0, NULL);
-     SendPMT(&CaPmt);
-     timer.Set(QUERY_REPLY_TIMEOUT);
-     state = 3; // waiting for reply
-     }
-  else if (state == 3 && timer.TimedOut()) {
-     dsyslog("CAM %d: doesn't reply to QUERY - only a single channel can be decrypted", Tc()->CamSlot()->SlotNumber());
-     state = 4; // normal operation
+  else if ((state == 2 || state == 3) && timer.TimedOut()) {
+     if (numRetries-- > 0) {
+        cCiCaPmt CaPmt(CPCI_QUERY, 0, 0, 0, NULL);
+        SendPMT(&CaPmt);
+        timer.Set(QUERY_WAIT_TIME);
+        state = 3; // waiting for reply
+        }
+     else {
+        dsyslog("CAM %d: doesn't reply to QUERY - only a single channel can be decrypted", CamSlot()->SlotNumber());
+        state = 4; // normal operation
+        }
      }
 }
 
 void cCiConditionalAccessSupport::SendPMT(cCiCaPmt *CaPmt)
 {
   if (CaPmt && state >= 2) {
-     dbgprotocol("Slot %d: ==> Ca Pmt (%d) %d %d\n", Tc()->CamSlot()->SlotNumber(), SessionId(), CaPmt->ListManagement(), CaPmt->CmdId());
-     SendData(AOT_CA_PMT, CaPmt->length, CaPmt->capmt);
+     dbgprotocol("Slot %d: ==> Ca Pmt (%d) %d %d\n", CamSlot()->SlotNumber(), SessionId(), CaPmt->ListManagement(), CaPmt->CmdId());
+     SendData(AOT_CA_PMT, CaPmt->capmt.Length(), CaPmt->capmt.Data());
      state = 4; // sent ca pmt
+     }
+}
+
+// --- cCiHostControl --------------------------------------------------------
+
+class cCiHostControl : public cCiSession {
+public:
+  cCiHostControl(uint16_t SessionId, cCiTransportConnection *Tc);
+  virtual void Process(int Length = 0, const uint8_t *Data = NULL);
+  };
+
+cCiHostControl::cCiHostControl(uint16_t SessionId, cCiTransportConnection* Tc)
+:cCiSession(SessionId, RI_HOST_CONTROL, Tc)
+{
+  dbgprotocol("Slot %d: new Host Control (session id %d)\n", CamSlot()->SlotNumber(), SessionId);
+}
+
+void cCiHostControl::Process(int Length, const uint8_t* Data)
+{
+  if (Data) {
+     int Tag = GetTag(Length, &Data);
+     switch (Tag) {
+       case AOT_TUNE:
+            dbgprotocol("Slot %d: <== Host Control Tune (%d)\n", CamSlot()->SlotNumber(), SessionId());
+            break;
+       case AOT_REPLACE:
+            dbgprotocol("Slot %d: <== Host Control Replace (%d)\n", CamSlot()->SlotNumber(), SessionId());
+            break;
+       case AOT_CLEAR_REPLACE:
+            dbgprotocol("Slot %d: <== Host Control Clear Replace (%d)\n", CamSlot()->SlotNumber(), SessionId());
+            break;
+       default: esyslog("ERROR: CAM %d: Host Control: unknown tag %06X", CamSlot()->SlotNumber(), Tag);
+       }
      }
 }
 
@@ -1017,7 +1248,7 @@ cCiDateTime::cCiDateTime(uint16_t SessionId, cCiTransportConnection *Tc)
 {
   interval = 0;
   lastTime = 0;
-  dbgprotocol("Slot %d: new Date Time (session id %d)\n", Tc->CamSlot()->SlotNumber(), SessionId);
+  dbgprotocol("Slot %d: new Date Time (session id %d)\n", CamSlot()->SlotNumber(), SessionId);
 }
 
 void cCiDateTime::SendDateTime(void)
@@ -1039,7 +1270,7 @@ void cCiDateTime::SendDateTime(void)
      bool OldDumpTPDUDataTransfer = DumpTPDUDataTransfer;
      DumpTPDUDataTransfer &= DumpDateTime;
      if (DumpDateTime)
-        dbgprotocol("Slot %d: ==> Date Time (%d)\n", Tc()->CamSlot()->SlotNumber(), SessionId());
+        dbgprotocol("Slot %d: ==> Date Time (%d)\n", CamSlot()->SlotNumber(), SessionId());
      SendData(AOT_DATE_TIME, 7, (uint8_t*)&T);
      DumpTPDUDataTransfer = OldDumpTPDUDataTransfer;
      }
@@ -1056,12 +1287,12 @@ void cCiDateTime::Process(int Length, const uint8_t *Data)
             const uint8_t *d = GetData(Data, l);
             if (l > 0)
                interval = *d;
-            dbgprotocol("Slot %d: <== Date Time Enq (%d), interval = %d\n", Tc()->CamSlot()->SlotNumber(), SessionId(), interval);
+            dbgprotocol("Slot %d: <== Date Time Enq (%d), interval = %d\n", CamSlot()->SlotNumber(), SessionId(), interval);
             lastTime = time(NULL);
             SendDateTime();
             }
             break;
-       default: esyslog("ERROR: CAM %d: date time: unknown tag %06X", Tc()->CamSlot()->SlotNumber(), Tag);
+       default: esyslog("ERROR: CAM %d: date time: unknown tag %06X", CamSlot()->SlotNumber(), Tag);
        }
      }
   else if (interval && time(NULL) - lastTime > interval) {
@@ -1126,7 +1357,7 @@ public:
 cCiMMI::cCiMMI(uint16_t SessionId, cCiTransportConnection *Tc)
 :cCiSession(SessionId, RI_MMI, Tc)
 {
-  dbgprotocol("Slot %d: new MMI (session id %d)\n", Tc->CamSlot()->SlotNumber(), SessionId);
+  dbgprotocol("Slot %d: new MMI (session id %d)\n", CamSlot()->SlotNumber(), SessionId);
   menu = fetchedMenu = NULL;
   enquiry = fetchedEnquiry = NULL;
 }
@@ -1153,11 +1384,11 @@ char *cCiMMI::GetText(int &Length, const uint8_t **Data)
   int Tag = GetTag(Length, Data);
   if (Tag == AOT_TEXT_LAST) {
      char *s = GetString(Length, Data);
-     dbgprotocol("Slot %d: <== Text Last (%d) '%s'\n", Tc()->CamSlot()->SlotNumber(), SessionId(), s);
+     dbgprotocol("Slot %d: <== Text Last (%d) '%s'\n", CamSlot()->SlotNumber(), SessionId(), s);
      return s;
      }
   else
-     esyslog("ERROR: CAM %d: MMI: unexpected text tag: %06X", Tc()->CamSlot()->SlotNumber(), Tag);
+     esyslog("ERROR: CAM %d: MMI: unexpected text tag: %06X", CamSlot()->SlotNumber(), Tag);
   return NULL;
 }
 
@@ -1167,7 +1398,7 @@ void cCiMMI::Process(int Length, const uint8_t *Data)
      int Tag = GetTag(Length, &Data);
      switch (Tag) {
        case AOT_DISPLAY_CONTROL: {
-            dbgprotocol("Slot %d: <== Display Control (%d)\n", Tc()->CamSlot()->SlotNumber(), SessionId());
+            dbgprotocol("Slot %d: <== Display Control (%d)\n", CamSlot()->SlotNumber(), SessionId());
             int l = 0;
             const uint8_t *d = GetData(Data, l);
             if (l > 0) {
@@ -1176,18 +1407,18 @@ void cCiMMI::Process(int Length, const uint8_t *Data)
                       if (l == 2 && *++d == MM_HIGH_LEVEL) {
                          struct tDisplayReply { uint8_t id; uint8_t mode; };
                          tDisplayReply dr = { id : DRI_MMI_MODE_ACK, mode : MM_HIGH_LEVEL };
-                         dbgprotocol("Slot %d: ==> Display Reply (%d)\n", Tc()->CamSlot()->SlotNumber(), SessionId());
+                         dbgprotocol("Slot %d: ==> Display Reply (%d)\n", CamSlot()->SlotNumber(), SessionId());
                          SendData(AOT_DISPLAY_REPLY, 2, (uint8_t *)&dr);
                          }
                       break;
-                 default: esyslog("ERROR: CAM %d: MMI: unsupported display control command %02X", Tc()->CamSlot()->SlotNumber(), *d);
+                 default: esyslog("ERROR: CAM %d: MMI: unsupported display control command %02X", CamSlot()->SlotNumber(), *d);
                  }
                }
             }
             break;
        case AOT_LIST_LAST:
        case AOT_MENU_LAST: {
-            dbgprotocol("Slot %d: <== Menu Last (%d)\n", Tc()->CamSlot()->SlotNumber(), SessionId());
+            dbgprotocol("Slot %d: <== Menu Last (%d)\n", CamSlot()->SlotNumber(), SessionId());
             delete menu;
             menu = new cCiMenu(this, Tag == AOT_MENU_LAST);
             int l = 0;
@@ -1199,20 +1430,46 @@ void cCiMMI::Process(int Length, const uint8_t *Data)
                if (l > 0) menu->titleText = GetText(l, &d);
                if (l > 0) menu->subTitleText = GetText(l, &d);
                if (l > 0) menu->bottomText = GetText(l, &d);
+               int Action = CRA_NONE;
+               int Select = -1;
+               int Item = 0;
                while (l > 0) {
                      char *s = GetText(l, &d);
                      if (s) {
                         if (!menu->AddEntry(s))
                            free(s);
+                        else if (Action == CRA_NONE) {
+                           Action = CamResponses.GetMatch(CamSlot()->SlotNumber(), s);
+                           if (Action == CRA_SELECT)
+                              Select = Item;
+                           }
                         }
                      else
                         break;
+                     Item++;
                      }
+               if (Action != CRA_NONE) {
+                  delete menu;
+                  menu = NULL;
+                  cCondWait::SleepMs(100);
+                  if (Action == CRA_DISCARD) {
+                     SendCloseMMI();
+                     dsyslog("CAM %d: DISCARD", CamSlot()->SlotNumber());
+                     }
+                  else if (Action == CRA_CONFIRM) {
+                     SendMenuAnswer(1);
+                     dsyslog("CAM %d: CONFIRM", CamSlot()->SlotNumber());
+                     }
+                  else if (Action == CRA_SELECT) {
+                     SendMenuAnswer(Select + 1);
+                     dsyslog("CAM %d: SELECT %d", CamSlot()->SlotNumber(), Select + 1);
+                     }
+                  }
                }
             }
             break;
        case AOT_ENQ: {
-            dbgprotocol("Slot %d: <== Enq (%d)\n", Tc()->CamSlot()->SlotNumber(), SessionId());
+            dbgprotocol("Slot %d: <== Enq (%d)\n", CamSlot()->SlotNumber(), SessionId());
             delete enquiry;
             enquiry = new cCiEnquiry(this);
             int l = 0;
@@ -1226,6 +1483,19 @@ void cCiMMI::Process(int Length, const uint8_t *Data)
                l--;
                // I really wonder why there is no text length field here...
                enquiry->text = CopyString(l, d);
+               int Action = CamResponses.GetMatch(CamSlot()->SlotNumber(), enquiry->text);
+               if (Action > CRA_NONE) {
+                  char s[enquiry->expectedLength * 2];
+                  snprintf(s, sizeof(s), "%d", Action);
+                  if (int(strlen(s)) == enquiry->expectedLength) {
+                     delete enquiry;
+                     enquiry = NULL;
+                     SendAnswer(s);
+                     dsyslog("CAM %d: PIN", CamSlot()->SlotNumber());
+                     }
+                  else
+                     esyslog("CAM %d: ERROR: unexpected PIN length %d, expected %d", CamSlot()->SlotNumber(), int(strlen(s)), enquiry->expectedLength);
+                  }
                }
             }
             break;
@@ -1239,10 +1509,10 @@ void cCiMMI::Process(int Length, const uint8_t *Data)
                if (l > 1)
                   delay = *d;
                }
-            dbgprotocol("Slot %d: <== Close MMI (%d)  id = %02X  delay = %d\n", Tc()->CamSlot()->SlotNumber(), SessionId(), id, delay);
+            dbgprotocol("Slot %d: <== Close MMI (%d)  id = %02X  delay = %d\n", CamSlot()->SlotNumber(), SessionId(), id, delay);
             }
             break;
-       default: esyslog("ERROR: CAM %d: MMI: unknown tag %06X", Tc()->CamSlot()->SlotNumber(), Tag);
+       default: esyslog("ERROR: CAM %d: MMI: unknown tag %06X", CamSlot()->SlotNumber(), Tag);
        }
      }
 }
@@ -1271,13 +1541,13 @@ cCiEnquiry *cCiMMI::Enquiry(bool Clear)
 
 void cCiMMI::SendMenuAnswer(uint8_t Selection)
 {
-  dbgprotocol("Slot %d: ==> Menu Answ (%d)\n", Tc()->CamSlot()->SlotNumber(), SessionId());
+  dbgprotocol("Slot %d: ==> Menu Answ (%d)\n", CamSlot()->SlotNumber(), SessionId());
   SendData(AOT_MENU_ANSW, 1, &Selection);
 }
 
 bool cCiMMI::SendAnswer(const char *Text)
 {
-  dbgprotocol("Slot %d: ==> Answ (%d)\n", Tc()->CamSlot()->SlotNumber(), SessionId());
+  dbgprotocol("Slot %d: ==> Answ (%d)\n", CamSlot()->SlotNumber(), SessionId());
   struct tAnswer { uint8_t id; char text[256]; };//XXX
   tAnswer answer;
   answer.id = Text ? AI_ANSWER : AI_CANCEL;
@@ -1289,7 +1559,7 @@ bool cCiMMI::SendAnswer(const char *Text)
 
 bool cCiMMI::SendCloseMMI(void)
 {
-  dbgprotocol("Slot %d: ==> Close MMI (%d)\n", Tc()->CamSlot()->SlotNumber(), SessionId());
+  dbgprotocol("Slot %d: ==> Close MMI (%d)\n", CamSlot()->SlotNumber(), SessionId());
   SendData(AOT_CLOSE_MMI, 0);
   return true;
 }
@@ -1356,6 +1626,7 @@ void cCiMenu::Abort(void)
 cCiEnquiry::cCiEnquiry(cCiMMI *MMI)
 {
   mmi = MMI;
+  mutex = NULL;
   text = NULL;
   blind = false;
   expectedLength = 0;
@@ -1388,6 +1659,82 @@ void cCiEnquiry::Abort(void)
      mmi->SendCloseMMI();
 }
 
+// --- cCiResourceHandler ----------------------------------------------------
+
+cCiResourceHandler::cCiResourceHandler(void)
+{
+}
+
+cCiResourceHandler::~cCiResourceHandler()
+{
+}
+
+// --- cCiDefaultResourceHandler ---------------------------------------------
+
+class cCiDefaultResourceHandler : public cCiResourceHandler {
+public:
+  virtual const uint32_t *ResourceIds(void) const;
+  virtual cCiSession *GetNewCiSession(uint32_t ResourceId, uint16_t SessionId, cCiTransportConnection *Tc);
+  };
+
+const uint32_t *cCiDefaultResourceHandler::ResourceIds(void) const
+{
+  static uint32_t Ids[] = {
+    RI_RESOURCE_MANAGER,
+    RI_APPLICATION_INFORMATION,
+    RI_CONDITIONAL_ACCESS_SUPPORT,
+    RI_HOST_CONTROL,
+    RI_DATE_TIME,
+    RI_MMI,
+    0
+    };
+  return Ids;
+}
+
+cCiSession *cCiDefaultResourceHandler::GetNewCiSession(uint32_t ResourceId, uint16_t SessionId, cCiTransportConnection *Tc)
+{
+  switch (ResourceId) {
+    case RI_RESOURCE_MANAGER:           return new cCiResourceManager(SessionId, Tc); break;
+    case RI_APPLICATION_INFORMATION:    return new cCiApplicationInformation(SessionId, Tc); break;
+    case RI_CONDITIONAL_ACCESS_SUPPORT: return new cCiConditionalAccessSupport(SessionId, Tc); break;
+    case RI_HOST_CONTROL:               return new cCiHostControl(SessionId, Tc); break;
+    case RI_DATE_TIME:                  return new cCiDateTime(SessionId, Tc); break;
+    case RI_MMI:                        return new cCiMMI(SessionId, Tc); break;
+    default:                            return NULL;
+    }
+}
+
+// --- cCiResourceHandlers ---------------------------------------------------
+
+cCiResourceHandlers CiResourceHandlers;
+
+cCiResourceHandlers::cCiResourceHandlers(void)
+{
+  Register(new cCiDefaultResourceHandler);
+}
+
+void cCiResourceHandlers::Register(cCiResourceHandler *ResourceHandler)
+{
+  if (ResourceHandler) {
+     Add(ResourceHandler);
+     if (const uint32_t *r = ResourceHandler->ResourceIds()) {
+        while (*r) {
+              resourceIds.Append(htonl(*r));
+              r++;
+              }
+        }
+     }
+}
+
+cCiSession *cCiResourceHandlers::GetNewCiSession(uint32_t ResourceId, uint16_t SessionId, cCiTransportConnection *Tc)
+{
+  for (cCiResourceHandler *r = Last(); r; r = Prev(r)) {
+      if (cCiSession *CiSession = r->GetNewCiSession(ResourceId, SessionId, Tc))
+         return CiSession;
+      }
+  return NULL;
+}
+
 // --- cCiTransportConnection (cont'd) ---------------------------------------
 
 #define TC_POLL_TIMEOUT   300 // ms WORKAROUND: TC_POLL_TIMEOUT < 300ms doesn't work with DragonCAM
@@ -1405,12 +1752,25 @@ cCiTransportConnection::cCiTransportConnection(cCamSlot *CamSlot, uint8_t Tcid)
   alive.Set(TC_ALIVE_TIMEOUT);
   for (int i = 0; i <= MAX_SESSIONS_PER_TC; i++) // sessions[0] is not used, but initialized anyway
       sessions[i] = NULL;
+  tsPostProcessor = NULL;
 }
 
 cCiTransportConnection::~cCiTransportConnection()
 {
   for (int i = 1; i <= MAX_SESSIONS_PER_TC; i++)
       delete sessions[i];
+}
+
+void cCiTransportConnection::SetTsPostProcessor(cCiSession *CiSession)
+{
+  tsPostProcessor = CiSession;
+}
+
+bool cCiTransportConnection::TsPostProcess(uint8_t *TsPacket)
+{
+  if (tsPostProcessor)
+     return tsPostProcessor->TsPostProcess(TsPacket);
+  return false;
 }
 
 bool cCiTransportConnection::Ready(void)
@@ -1479,11 +1839,16 @@ cCiSession *cCiTransportConnection::GetSessionBySessionId(uint16_t SessionId)
 
 cCiSession *cCiTransportConnection::GetSessionByResourceId(uint32_t ResourceId)
 {
+  cCiSession *CiSession = NULL;
   for (int i = 1; i <= MAX_SESSIONS_PER_TC; i++) {
-      if (sessions[i] && sessions[i]->ResourceId() == ResourceId)
-         return sessions[i];
+      if (cCiSession *s = sessions[i]) {
+         if (s->ResourceId() == ResourceId)
+            return s; // prefer exact match
+         if ((s->ResourceId() & RESOURCE_CLASS_MASK) == (ResourceId & RESOURCE_CLASS_MASK))
+            CiSession = s;
+         }
       }
-  return NULL;
+  return CiSession;
 }
 
 void cCiTransportConnection::OpenSession(int Length, const uint8_t *Data)
@@ -1494,17 +1859,11 @@ void cCiTransportConnection::OpenSession(int Length, const uint8_t *Data)
      if (!GetSessionByResourceId(ResourceId)) {
         for (int i = 1; i <= MAX_SESSIONS_PER_TC; i++) {
             if (!sessions[i]) {
-               switch (ResourceId) {
-                 case RI_RESOURCE_MANAGER:           sessions[i] = new cCiResourceManager(i, this); break;
-                 case RI_APPLICATION_INFORMATION:    sessions[i] = new cCiApplicationInformation(i, this); break;
-                 case RI_CONDITIONAL_ACCESS_SUPPORT: sessions[i] = new cCiConditionalAccessSupport(i, this); break;
-                 case RI_DATE_TIME:                  sessions[i] = new cCiDateTime(i, this); break;
-                 case RI_MMI:                        sessions[i] = new cCiMMI(i, this); break;
-                 case RI_HOST_CONTROL:               // not implemented
-                 default: esyslog("ERROR: CAM %d: unknown resource identifier: %08X (%d/%d)", camSlot->SlotNumber(), ResourceId, camSlot->SlotIndex(), tcid);
-                 }
+               sessions[i] = CiResourceHandlers.GetNewCiSession(ResourceId, i, this);
                if (sessions[i])
                   SendTag(ST_OPEN_SESSION_RESPONSE, sessions[i]->SessionId(), sessions[i]->ResourceId(), SS_OK);
+               else
+                  esyslog("ERROR: CAM %d: unknown resource identifier: %08X (%d/%d)", camSlot->SlotNumber(), ResourceId, camSlot->SlotIndex(), tcid);
                return;
                }
             }
@@ -1672,6 +2031,14 @@ public:
     programNumber = ProgramNumber;
     modified = false;
   }
+  bool Active(void)
+  {
+    for (cCiCaPidData *p = pidList.First(); p; p = pidList.Next(p)) {
+        if (p->active)
+           return true;
+        }
+    return false;
+  }
   };
 
 // --- cCiAdapter ------------------------------------------------------------
@@ -1739,55 +2106,79 @@ void cCiAdapter::Action(void)
 #define MODULE_CHECK_INTERVAL 500 // ms
 #define MODULE_RESET_TIMEOUT    2 // s
 
-cCamSlot::cCamSlot(cCiAdapter *CiAdapter, bool ReceiveCaPids)
+cCamSlot::cCamSlot(cCiAdapter *CiAdapter, bool WantsTsData, cCamSlot *MasterSlot)
 {
   ciAdapter = CiAdapter;
+  masterSlot = MasterSlot;
   assignedDevice = NULL;
-  caPidReceiver = ReceiveCaPids ? new cCaPidReceiver : NULL;
+  caPidReceiver = WantsTsData ? new cCaPidReceiver : NULL;
   caActivationReceiver = NULL;
   slotIndex = -1;
+  mtdAvailable = false;
+  mtdHandler = NULL;
   lastModuleStatus = msReset; // avoids initial reset log message
   resetTime = 0;
   resendPmt = false;
-  source = transponder = 0;
   for (int i = 0; i <= MAX_CONNECTIONS_PER_CAM_SLOT; i++) // tc[0] is not used, but initialized anyway
       tc[i] = NULL;
-  CamSlots.Add(this);
-  slotNumber = Index() + 1;
-  if (ciAdapter)
+  if (MasterSlot)
+     slotNumber = MasterSlot->SlotNumber();
+  if (ciAdapter) {
+     CamSlots.Add(this);
+     slotNumber = Index() + 1;
      ciAdapter->AddCamSlot(this);
-  Reset();
+     Reset();
+     }
 }
 
 cCamSlot::~cCamSlot()
 {
-  if (assignedDevice)
-     assignedDevice->SetCamSlot(NULL);
+  Assign(NULL);
   delete caPidReceiver;
   delete caActivationReceiver;
   CamSlots.Del(this, false);
   DeleteAllConnections();
+  delete mtdHandler;
+}
+
+cCamSlot *cCamSlot::MtdSpawn(void)
+{
+  cMutexLock MutexLock(&mutex);
+  if (mtdHandler)
+     return mtdHandler->GetMtdCamSlot(this);
+  return this;
 }
 
 bool cCamSlot::Assign(cDevice *Device, bool Query)
 {
   cMutexLock MutexLock(&mutex);
+  if (Device == assignedDevice)
+     return true;
   if (ciAdapter) {
+     int OldDeviceNumber = 0;
+     if (assignedDevice && !Query) {
+        OldDeviceNumber = assignedDevice->DeviceNumber() + 1;
+        if (caPidReceiver)
+           assignedDevice->Detach(caPidReceiver);
+        assignedDevice->SetCamSlot(NULL);
+        assignedDevice = NULL;
+        }
      if (ciAdapter->Assign(Device, true)) {
-        if (!Device && assignedDevice)
-           assignedDevice->SetCamSlot(NULL);
-        if (!Query || !Device) {
+        if (!Query) {
            StopDecrypting();
-           source = transponder = 0;
            if (ciAdapter->Assign(Device)) {
-              assignedDevice = Device;
               if (Device) {
                  Device->SetCamSlot(this);
-                 dsyslog("CAM %d: assigned to device %d", slotNumber, Device->DeviceNumber() + 1);
+                 assignedDevice = Device;
+                 if (caPidReceiver) {
+                    caPidReceiver->Reset();
+                    Device->AttachReceiver(caPidReceiver);
+                    }
+                 dsyslog("CAM %d: assigned to device %d", MasterSlotNumber(), Device->DeviceNumber() + 1);
                  }
               else {
                  CancelActivation();
-                 dsyslog("CAM %d: unassigned", slotNumber);
+                 dsyslog("CAM %d: unassigned from device %d", MasterSlotNumber(), OldDeviceNumber);
                  }
               }
            else
@@ -1797,6 +2188,16 @@ bool cCamSlot::Assign(cDevice *Device, bool Query)
         }
      }
   return false;
+}
+
+bool cCamSlot::Devices(cVector<int> &CardIndexes)
+{
+  cMutexLock MutexLock(&mutex);
+  if (mtdHandler)
+     return mtdHandler->Devices(CardIndexes);
+  if (assignedDevice)
+     CardIndexes.Append(assignedDevice->CardIndex());
+  return CardIndexes.Size() > 0;
 }
 
 void cCamSlot::NewConnection(void)
@@ -1824,8 +2225,6 @@ void cCamSlot::DeleteAllConnections(void)
 void cCamSlot::Process(cTPDU *TPDU)
 {
   cMutexLock MutexLock(&mutex);
-  if (caActivationReceiver && !caActivationReceiver->IsAttached())
-     CancelActivation();
   if (TPDU) {
      int n = TPDU->Tcid();
      if (1 <= n && n <= MAX_CONNECTIONS_PER_CAM_SLOT) {
@@ -1836,9 +2235,9 @@ void cCamSlot::Process(cTPDU *TPDU)
   for (int i = 1; i <= MAX_CONNECTIONS_PER_CAM_SLOT; i++) {
       if (tc[i]) {
          if (!tc[i]->Process()) {
-           Reset();
-           return;
-           }
+            Reset();
+            return;
+            }
          }
       }
   if (moduleCheckTimer.TimedOut()) {
@@ -1848,8 +2247,13 @@ void cCamSlot::Process(cTPDU *TPDU)
           case msNone:
                dbgprotocol("Slot %d: no module present\n", slotNumber);
                isyslog("CAM %d: no module present", slotNumber);
+               StopDecrypting();
                DeleteAllConnections();
                CancelActivation();
+               if (mtdHandler)
+                  mtdHandler->UnAssignAll();
+               else
+                  Assign(NULL);
                break;
           case msReset:
                dbgprotocol("Slot %d: module reset\n", slotNumber);
@@ -1864,7 +2268,7 @@ void cCamSlot::Process(cTPDU *TPDU)
                dbgprotocol("Slot %d: module ready\n", slotNumber);
                isyslog("CAM %d: module ready", slotNumber);
                NewConnection();
-               resendPmt = caProgramList.Count() > 0;
+               resendPmt = true;
                break;
           default:
                esyslog("ERROR: unknown module status %d (%s)", ms, __FUNCTION__);
@@ -1873,8 +2277,14 @@ void cCamSlot::Process(cTPDU *TPDU)
         }
      moduleCheckTimer.Set(MODULE_CHECK_INTERVAL);
      }
-  if (resendPmt)
-     SendCaPmt(CPCI_OK_DESCRAMBLING);
+  if (resendPmt && Ready()) {
+     if (mtdHandler) {
+        mtdHandler->StartDecrypting();
+        resendPmt = false;
+        }
+     else if (caProgramList.Count())
+        StartDecrypting();
+     }
   processed.Broadcast();
 }
 
@@ -1921,7 +2331,8 @@ void cCamSlot::StartActivation(void)
   cMutexLock MutexLock(&mutex);
   if (!caActivationReceiver) {
      if (cDevice *d = Device()) {
-        if (cChannel *Channel = Channels.GetByNumber(cDevice::CurrentChannel())) {
+        LOCK_CHANNELS_READ;
+        if (const cChannel *Channel = Channels->GetByNumber(cDevice::CurrentChannel())) {
            caActivationReceiver = new cCaActivationReceiver(Channel, this);
            d->AttachReceiver(caActivationReceiver);
            dsyslog("CAM %d: activating on device %d with channel %d (%s)", SlotNumber(), d->DeviceNumber() + 1, Channel->Number(), Channel->Name());
@@ -1933,12 +2344,18 @@ void cCamSlot::StartActivation(void)
 void cCamSlot::CancelActivation(void)
 {
   cMutexLock MutexLock(&mutex);
-  delete caActivationReceiver;
-  caActivationReceiver = NULL;
+  if (mtdHandler)
+     mtdHandler->CancelActivation();
+  else {
+     delete caActivationReceiver;
+     caActivationReceiver = NULL;
+     }
 }
 
 bool cCamSlot::IsActivating(void)
 {
+  if (mtdHandler)
+     return mtdHandler->IsActivating();
   return caActivationReceiver;
 }
 
@@ -2012,65 +2429,113 @@ cCiEnquiry *cCamSlot::GetEnquiry(void)
   return NULL;
 }
 
-void cCamSlot::SendCaPmt(uint8_t CmdId)
+cCiCaPmtList::~cCiCaPmtList()
+{
+  for (int i = 0; i < caPmts.Size(); i++)
+      delete caPmts[i];
+}
+
+cCiCaPmt *cCiCaPmtList::Add(uint8_t CmdId, int Source, int Transponder, int ProgramNumber, const int *CaSystemIds)
+{
+  cCiCaPmt *p = new cCiCaPmt(CmdId, Source, Transponder, ProgramNumber, CaSystemIds);
+  caPmts.Append(p);
+  return p;
+}
+
+void cCiCaPmtList::Del(cCiCaPmt *CaPmt)
+{
+  if (caPmts.RemoveElement(CaPmt))
+     delete CaPmt;
+}
+
+bool cCamSlot::RepliesToQuery(void)
+{
+  cMutexLock MutexLock(&mutex);
+  cCiConditionalAccessSupport *cas = (cCiConditionalAccessSupport *)GetSessionByResourceId(RI_CONDITIONAL_ACCESS_SUPPORT);
+  return cas && cas->RepliesToQuery();
+}
+
+void cCamSlot::BuildCaPmts(uint8_t CmdId, cCiCaPmtList &CaPmtList, cMtdMapper *MtdMapper)
+{
+  cMutexLock MutexLock(&mutex);
+  CaPmtList.caPmts.Clear();
+  const int *CaSystemIds = GetCaSystemIds();
+  if (CaSystemIds && *CaSystemIds) {
+     if (caProgramList.Count()) {
+        for (cCiCaProgramData *p = caProgramList.First(); p; p = caProgramList.Next(p)) {
+            if (p->modified || resendPmt) {
+               bool Active = p->Active();
+               cCiCaPmt *CaPmt = CaPmtList.Add(Active ? CmdId : CPCI_NOT_SELECTED, source, transponder, p->programNumber, CaSystemIds);
+               for (cCiCaPidData *q = p->pidList.First(); q; q = p->pidList.Next(q)) {
+                   if (q->active)
+                      CaPmt->AddPid(q->pid, q->streamType);
+                   }
+               if (caPidReceiver) {
+                  int CaPids[MAXRECEIVEPIDS + 1];
+                  if (GetCaPids(source, transponder, p->programNumber, CaSystemIds, MAXRECEIVEPIDS + 1, CaPids) > 0) {
+                     if (Active)
+                        caPidReceiver->AddPids(CaPids);
+                     else
+                        caPidReceiver->DelPids(CaPids);
+                     }
+                  }
+               if (RepliesToQuery())
+                  CaPmt->SetListManagement(Active ? CPLM_ADD : CPLM_UPDATE);
+               if (MtdMapper)
+                  CaPmt->MtdMapPids(MtdMapper);
+               p->modified = false;
+               }
+            }
+        }
+     else if (CmdId == CPCI_NOT_SELECTED)
+        CaPmtList.Add(CmdId, 0, 0, 0, NULL);
+     }
+}
+
+void cCamSlot::SendCaPmts(cCiCaPmtList &CaPmtList)
 {
   cMutexLock MutexLock(&mutex);
   cCiConditionalAccessSupport *cas = (cCiConditionalAccessSupport *)GetSessionByResourceId(RI_CONDITIONAL_ACCESS_SUPPORT);
   if (cas) {
-     const int *CaSystemIds = cas->GetCaSystemIds();
-     if (CaSystemIds && *CaSystemIds) {
-        if (caProgramList.Count()) {
-           if (caPidReceiver && caPidReceiver->HasCaPids()) {
-              if (cDevice *d = Device())
-                 d->Detach(caPidReceiver);
-              }
-           for (int Loop = 1; Loop <= 2; Loop++) {
-               for (cCiCaProgramData *p = caProgramList.First(); p; p = caProgramList.Next(p)) {
-                   if (p->modified || resendPmt) {
-                      bool Active = false;
-                      cCiCaPmt CaPmt(CmdId, source, transponder, p->programNumber, CaSystemIds);
-                      for (cCiCaPidData *q = p->pidList.First(); q; q = p->pidList.Next(q)) {
-                          if (q->active) {
-                             CaPmt.AddPid(q->pid, q->streamType);
-                             Active = true;
-                             }
-                          }
-                      if ((Loop == 1) != Active) { // first remove, then add
-                         if (caPidReceiver) {
-                            int CaPids[MAXRECEIVEPIDS + 1];
-                            if (GetCaPids(source, transponder, p->programNumber, CaSystemIds, MAXRECEIVEPIDS + 1, CaPids) > 0) {
-                               if (Loop == 1)
-                                  caPidReceiver->DelPids(CaPids);
-                               else
-                                  caPidReceiver->AddPids(CaPids);
-                               }
-                            }
-                         if (cas->RepliesToQuery())
-                            CaPmt.SetListManagement(Active ? CPLM_ADD : CPLM_UPDATE);
-                         if (Active || cas->RepliesToQuery())
-                            cas->SendPMT(&CaPmt);
-                         p->modified = false;
-                         }
-                      }
-                   }
-               }
-           if (caPidReceiver && caPidReceiver->HasCaPids()) {
-              if (cDevice *d = Device())
-                 d->AttachReceiver(caPidReceiver);
-              }
-           resendPmt = false;
-           }
-        else {
-           cCiCaPmt CaPmt(CmdId, 0, 0, 0, NULL);
-           cas->SendPMT(&CaPmt);
-           if (caPidReceiver) {
-              if (cDevice *d = Device())
-                 d->Detach(caPidReceiver);
-              caPidReceiver->Reset();
-              }
+     for (int i = 0; i < CaPmtList.caPmts.Size(); i++)
+         cas->SendPMT(CaPmtList.caPmts[i]);
+     }
+  resendPmt = false;
+}
+
+void cCamSlot::SendCaPmt(uint8_t CmdId)
+{
+  cMutexLock MutexLock(&mutex);
+  cCiCaPmtList CaPmtList;
+  BuildCaPmts(CmdId, CaPmtList);
+  SendCaPmts(CaPmtList);
+}
+
+void cCamSlot::MtdEnable(void)
+{
+  mtdAvailable = true;
+}
+
+void cCamSlot::MtdActivate(bool On)
+{
+  if (McdAvailable() && MtdAvailable()) {
+     if (On) {
+        if (!mtdHandler) {
+           dsyslog("CAM %d: activating MTD support", SlotNumber());
+           mtdHandler = new cMtdHandler;
            }
         }
+     else if (mtdHandler) {
+        dsyslog("CAM %d: deactivating MTD support", SlotNumber());
+        delete mtdHandler;
+        mtdHandler = NULL;
+        }
      }
+}
+
+int cCamSlot::MtdPutData(uchar *Data, int Count)
+{
+  return mtdHandler->Put(Data, Count);
 }
 
 const int *cCamSlot::GetCaSystemIds(void)
@@ -2082,6 +2547,8 @@ const int *cCamSlot::GetCaSystemIds(void)
 
 int cCamSlot::Priority(void)
 {
+  if (mtdHandler)
+     return mtdHandler->Priority();
   cDevice *d = Device();
   return d ? d->Priority() : IDLEPRIORITY;
 }
@@ -2131,7 +2598,7 @@ void cCamSlot::SetPid(int Pid, bool Active)
                 }
              return;
              }
-         }
+          }
       }
 }
 
@@ -2160,7 +2627,7 @@ void cCamSlot::AddChannel(const cChannel *Channel)
 
 #define QUERY_REPLY_WAIT  100 // ms to wait between checks for a reply
 
-bool cCamSlot::CanDecrypt(const cChannel *Channel)
+bool cCamSlot::CanDecrypt(const cChannel *Channel, cMtdMapper *MtdMapper)
 {
   if (Channel->Ca() < CA_ENCRYPTED_MIN)
      return true; // channel not encrypted
@@ -2178,6 +2645,8 @@ bool cCamSlot::CanDecrypt(const cChannel *Channel)
          CaPmt.AddPid(*Dpid, STREAM_TYPE_PRIVATE);
      for (const int *Spid = Channel->Spids(); *Spid; Spid++)
          CaPmt.AddPid(*Spid, STREAM_TYPE_PRIVATE);
+     if (MtdMapper)
+        CaPmt.MtdMapPids(MtdMapper);
      cas->SendPMT(&CaPmt);
      cTimeMs Timeout(QUERY_REPLY_TIMEOUT);
      do {
@@ -2204,13 +2673,16 @@ void cCamSlot::StopDecrypting(void)
   cMutexLock MutexLock(&mutex);
   if (caProgramList.Count()) {
      caProgramList.Clear();
-     SendCaPmt(CPCI_NOT_SELECTED);
+     if (!dynamic_cast<cMtdCamSlot *>(this))
+        SendCaPmt(CPCI_NOT_SELECTED);
      }
 }
 
 bool cCamSlot::IsDecrypting(void)
 {
   cMutexLock MutexLock(&mutex);
+  if (mtdHandler)
+     return mtdHandler->IsDecrypting();
   if (caProgramList.Count()) {
      for (cCiCaProgramData *p = caProgramList.First(); p; p = caProgramList.Next(p)) {
          if (p->modified)
@@ -2226,18 +2698,46 @@ bool cCamSlot::IsDecrypting(void)
 
 uchar *cCamSlot::Decrypt(uchar *Data, int &Count)
 {
-  Count = TS_SIZE;
+  if (Data)
+     Count = TS_SIZE;
   return Data;
+}
+
+bool cCamSlot::TsPostProcess(uchar *Data)
+{
+  return tc[1] ? tc[1]->TsPostProcess(Data) : false;
+}
+
+bool cCamSlot::Inject(uchar *Data, int Count)
+{
+  return true;
+}
+
+void cCamSlot::InjectEit(int Sid)
+{
+  cEitGenerator Eit(Sid);
+  Inject(Eit.Data(), Eit.Length());
 }
 
 // --- cCamSlots -------------------------------------------------------------
 
 cCamSlots CamSlots;
 
+int cCamSlots::NumReadyMasterSlots(void)
+{
+  int n = 0;
+  for (cCamSlot *CamSlot = CamSlots.First(); CamSlot; CamSlot = CamSlots.Next(CamSlot)) {
+      if (CamSlot->IsMasterSlot() && CamSlot->ModuleStatus() == msReady)
+         n++;
+      }
+  return n;
+}
+
 bool cCamSlots::WaitForAllCamSlotsReady(int Timeout)
 {
+  bool ready = true;
   for (time_t t0 = time(NULL); time(NULL) - t0 < Timeout; ) {
-      bool ready = true;
+      ready = true;
       for (cCamSlot *CamSlot = CamSlots.First(); CamSlot; CamSlot = CamSlots.Next(CamSlot)) {
           if (!CamSlot->Ready()) {
              ready = false;
@@ -2245,9 +2745,11 @@ bool cCamSlots::WaitForAllCamSlotsReady(int Timeout)
              }
           }
       if (ready)
-         return true;
+         break;
       }
-  return false;
+  for (cCamSlot *CamSlot = CamSlots.First(); CamSlot; CamSlot = CamSlots.Next(CamSlot))
+      dsyslog("CAM %d: %sready, %s", CamSlot->SlotNumber(), CamSlot->Ready() ? "" : "not ", CamSlot->IsMasterSlot() ? *cString::sprintf("master (%s)", CamSlot->GetCamName() ? CamSlot->GetCamName() : "empty") : *cString::sprintf("slave of CAM %d", CamSlot->MasterSlotNumber()));
+  return ready;
 }
 
 // --- cChannelCamRelation ---------------------------------------------------
@@ -2325,6 +2827,7 @@ void cChannelCamRelation::ClrDecrypt(int CamSlotNumber)
 
 // --- cChannelCamRelations --------------------------------------------------
 
+#define MAX_CAM_NUMBER 32
 #define CHANNEL_CAM_RELATIONS_CLEANUP_INTERVAL 3600 // seconds between cleanups
 
 cChannelCamRelations ChannelCamRelations;
@@ -2421,4 +2924,68 @@ void cChannelCamRelations::ClrDecrypt(tChannelID ChannelID, int CamSlotNumber)
   cChannelCamRelation *ccr = GetEntry(ChannelID);
   if (ccr)
      ccr->ClrDecrypt(CamSlotNumber);
+}
+
+void cChannelCamRelations::Load(const char *FileName)
+{
+  cMutexLock MutexLock(&mutex);
+  fileName = FileName;
+  if (access(fileName, R_OK) == 0) {
+     dsyslog("loading %s", *fileName);
+     if (FILE *f = fopen(fileName, "r")) {
+        cReadLine ReadLine;
+        char *s;
+        while ((s = ReadLine.Read(f)) != NULL) {
+              if (char *p = strchr(s, ' ')) {
+                 *p = 0;
+                 if (*++p) {
+                    tChannelID ChannelID = tChannelID::FromString(s);
+                    if (ChannelID.Valid()) {
+                       char *q;
+                       char *strtok_next;
+                       while ((q = strtok_r(p, " ", &strtok_next)) != NULL) {
+                             int CamSlotNumber = atoi(q);
+                             if (CamSlotNumber >= 1 && CamSlotNumber <= MAX_CAM_NUMBER)
+                                SetDecrypt(ChannelID, CamSlotNumber);
+                             p = NULL;
+                             }
+                       }
+                    }
+                 }
+              }
+        fclose(f);
+        }
+     else
+        LOG_ERROR_STR(*fileName);
+     }
+}
+
+void cChannelCamRelations::Save(void)
+{
+  cMutexLock MutexLock(&mutex);
+  struct stat st;
+  if (stat(fileName, &st) == 0) {
+     if ((st.st_mode & S_IWUSR) == 0) {
+        dsyslog("not saving %s (file is read-only)", *fileName);
+        return;
+        }
+     }
+  dsyslog("saving %s", *fileName);
+  cSafeFile f(fileName);
+  if (f.Open()) {
+     for (cChannelCamRelation *ccr = First(); ccr; ccr = Next(ccr)) {
+         if (ccr->ChannelID().Valid()) {
+            cString s;
+            for (int i = 1; i <= MAX_CAM_NUMBER; i++) {
+                if (ccr->CamDecrypt(i))
+                   s = cString::sprintf("%s%s%d", *s ? *s : "", *s ? " " : "", i);
+                }
+            if (*s)
+               fprintf(f, "%s %s\n", *ccr->ChannelID().ToString(), *s);
+            }
+         }
+     f.Close();
+     }
+  else
+     LOG_ERROR_STR(*fileName);
 }

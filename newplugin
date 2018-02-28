@@ -12,7 +12,7 @@
 # See the main source file 'vdr.c' for copyright information and
 # how to reach the author.
 #
-# $Id: newplugin 3.2 2014/01/01 13:29:54 kls Exp $
+# $Id: newplugin 4.3 2017/05/29 08:55:21 kls Exp $
 
 $PLUGIN_NAME = $ARGV[0] || die "Usage: newplugin <name>\n";
 
@@ -121,7 +121,8 @@ all: \$(SOFILE) i18n
 ### Implicit rules:
 
 %.o: %.c
-	\$(CXX) \$(CXXFLAGS) -c \$(DEFINES) \$(INCLUDES) -o \$\@ \$<
+	\@echo CC \$\@
+	\$(Q)\$(CXX) \$(CXXFLAGS) -c \$(DEFINES) \$(INCLUDES) -o \$\@ \$<
 
 ### Dependencies:
 
@@ -141,13 +142,16 @@ I18Nmsgs  = \$(addprefix \$(DESTDIR)\$(LOCDIR)/, \$(addsuffix /LC_MESSAGES/vdr-\
 I18Npot   = \$(PODIR)/\$(PLUGIN).pot
 
 %.mo: %.po
-	msgfmt -c -o \$\@ \$<
+	\@echo MO \$\@
+	\$(Q)msgfmt -c -o \$\@ \$<
 
 \$(I18Npot): \$(wildcard *.c)
-	xgettext -C -cTRANSLATORS --no-wrap --no-location -k -ktr -ktrNOOP --package-name=vdr-\$(PLUGIN) --package-version=\$(VERSION) --msgid-bugs-address='<see README>' -o \$\@ `ls \$^`
+	\@echo GT \$\@
+	\$(Q)xgettext -C -cTRANSLATORS --no-wrap --no-location -k -ktr -ktrNOOP --package-name=vdr-\$(PLUGIN) --package-version=\$(VERSION) --msgid-bugs-address='<see README>' -o \$\@ `ls \$^`
 
 %.po: \$(I18Npot)
-	msgmerge -U --no-wrap --no-location --backup=none -q -N \$\@ \$<
+	\@echo PO \$\@
+	\$(Q)msgmerge -U --no-wrap --no-location --backup=none -q -N \$\@ \$<
 	\@touch \$\@
 
 \$(I18Nmsgs): \$(DESTDIR)\$(LOCDIR)/%/LC_MESSAGES/vdr-\$(PLUGIN).mo: \$(PODIR)/%.mo
@@ -161,7 +165,8 @@ install-i18n: \$(I18Nmsgs)
 ### Targets:
 
 \$(SOFILE): \$(OBJS)
-	\$(CXX) \$(CXXFLAGS) \$(LDFLAGS) -shared \$(OBJS) -o \$\@
+	\@echo LD \$\@
+	\$(Q)\$(CXX) \$(CXXFLAGS) \$(LDFLAGS) -shared \$(OBJS) -o \$\@
 
 install-lib: \$(SOFILE)
 	install -D \$^ \$(DESTDIR)\$(LIBDIR)/\$^.\$(APIVERSION)
@@ -330,6 +335,7 @@ $PLUGINDIR = "$PLUGINS_SRC/$PLUGIN_NAME";
 die "The directory $PLUGINS_SRC doesn't exist!\n" unless (-d "$PLUGINS_SRC");
 die "A plugin named '$PLUGIN_NAME' already exists in $PLUGINS_SRC!\n" if (-e "$PLUGINDIR");
 mkdir("$PLUGINDIR") || die "$!";
+mkdir("$PLUGINDIR/po") || die "$!";
 
 CreateFile("README", $README);
 CreateFile("HISTORY", $HISTORY);

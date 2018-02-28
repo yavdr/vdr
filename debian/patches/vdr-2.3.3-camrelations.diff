@@ -1,0 +1,174 @@
+Description: Fix for CAM access problems
+Author: Klaus Schmidinger
+--- a/device.c
++++ b/device.c
+@@ -99,8 +99,6 @@
+   nitFilter = NULL;
+ 
+   camSlot = NULL;
+-  startScrambleDetection = 0;
+-  scramblingTimeout = 0;
+ 
+   occupiedTimeout = 0;
+ 
+@@ -292,7 +290,7 @@
+          if (CamSlot->ModuleStatus() == msReady) {
+             if (CamSlot->ProvidesCa(Channel->Caids())) {
+                if (!ChannelCamRelations.CamChecked(Channel->GetChannelID(), CamSlot->MasterSlotNumber())) {
+-                  SlotPriority[CamSlot->Index()] = CamSlot->Priority();
++                  SlotPriority[CamSlot->Index()] = CamSlot->MtdActive() ? IDLEPRIORITY : CamSlot->Priority(); // we don't need to take the priority into account here for MTD CAM slots, because they can be used with several devices in parallel
+                   NumUsableSlots++;
+                   }
+                }
+@@ -1733,50 +1731,47 @@
+ 
+ void cDevice::Action(void)
+ {
+-  time_t LastScrambledPacket = 0;
+   if (Running() && OpenDvr()) {
+      while (Running()) {
+            // Read data from the DVR device:
+            uchar *b = NULL;
+            if (GetTSPacket(b)) {
+               if (b) {
+-                 int Pid = TsPid(b);
+-                 // Check whether the TS packets are scrambled:
+-                 bool DetachReceivers = false;
+-                 bool DescramblingOk = false;
+-                 int CamSlotNumber = 0;
+-                 cCamSlot *cs = NULL;
+-                 if (startScrambleDetection) {
+-                    cs = CamSlot();
+-                    CamSlotNumber = cs ? cs->MasterSlotNumber() : 0;
+-                    if (CamSlotNumber) {
+-                       if (LastScrambledPacket < startScrambleDetection)
+-                          LastScrambledPacket = startScrambleDetection;
+-                       time_t Now = time(NULL);
+-                       if (TsIsScrambled(b)) {
+-                          LastScrambledPacket = Now;
+-                          if (Now - startScrambleDetection > scramblingTimeout)
+-                             DetachReceivers = true;
+-                          }
+-                       if (Now - LastScrambledPacket > TS_SCRAMBLING_TIME_OK)
+-                          DescramblingOk = true;
+-                       }
+-                    }
+                  // Distribute the packet to all attached receivers:
+                  Lock();
++                 int Pid = TsPid(b);
++                 bool IsScrambled = TsIsScrambled(b);
+                  for (int i = 0; i < MAXRECEIVERS; i++) {
+-                     if (receiver[i] && receiver[i]->WantsPid(Pid)) {
+-                        if (DetachReceivers && cs && (!cs->IsActivating() || receiver[i]->Priority() >= LIVEPRIORITY)) {
+-                           dsyslog("CAM %d: won't decrypt channel %s, detaching receiver", CamSlotNumber, *receiver[i]->ChannelID().ToString());
+-                           ChannelCamRelations.SetChecked(receiver[i]->ChannelID(), CamSlotNumber);
+-                           Detach(receiver[i]);
+-                           }
+-                        else
+-                           receiver[i]->Receive(b, TS_SIZE);
+-                        if (DescramblingOk && receiver[i]->ChannelID().Valid()) {
+-                           dsyslog("CAM %d: decrypts channel %s", CamSlotNumber, *receiver[i]->ChannelID().ToString());
+-                           ChannelCamRelations.SetDecrypt(receiver[i]->ChannelID(), CamSlotNumber);
+-                           startScrambleDetection = 0;
++                     cReceiver *Receiver = receiver[i];
++                     if (Receiver && Receiver->WantsPid(Pid)) {
++                        Receiver->Receive(b, TS_SIZE);
++                        // Check whether the TS packet is scrambled:
++                        if (Receiver->startScrambleDetection) {
++                           if (cCamSlot *cs = CamSlot()) {
++                              int CamSlotNumber = cs->MasterSlotNumber();
++                              if (Receiver->lastScrambledPacket < Receiver->startScrambleDetection)
++                                 Receiver->lastScrambledPacket = Receiver->startScrambleDetection;
++                              time_t Now = time(NULL);
++                              if (IsScrambled) {
++                                 Receiver->lastScrambledPacket = Now;
++                                 if (Now - Receiver->startScrambleDetection > Receiver->scramblingTimeout) {
++                                    if (!cs->IsActivating() || Receiver->Priority() >= LIVEPRIORITY) {
++                                       if (Receiver->ChannelID().Valid()) {
++                                          dsyslog("CAM %d: won't decrypt channel %s, detaching receiver", CamSlotNumber, *Receiver->ChannelID().ToString());
++                                          ChannelCamRelations.SetChecked(Receiver->ChannelID(), CamSlotNumber);
++                                          }
++                                       Detach(Receiver);
++                                       }
++                                    }
++                                 }
++                              else if (Now - Receiver->lastScrambledPacket > TS_SCRAMBLING_TIME_OK) {
++                                 if (Receiver->ChannelID().Valid()) {
++                                    dsyslog("CAM %d: decrypts channel %s", CamSlotNumber, *Receiver->ChannelID().ToString());
++                                    ChannelCamRelations.SetDecrypt(Receiver->ChannelID(), CamSlotNumber);
++                                    }
++                                 Receiver->startScrambleDetection = 0;
++                                 }
++                              }
+                            }
+                         }
+                      }
+@@ -1840,12 +1835,13 @@
+          if (camSlot && Receiver->priority > MINPRIORITY) { // priority check to avoid an infinite loop with the CAM slot's caPidReceiver
+             camSlot->StartDecrypting();
+             if (CamSlots.NumReadyMasterSlots() > 1) { // don't try different CAMs if there is only one
+-               startScrambleDetection = time(NULL);
+-               scramblingTimeout = TS_SCRAMBLING_TIMEOUT;
++               Receiver->startScrambleDetection = time(NULL);
++               Receiver->scramblingTimeout = TS_SCRAMBLING_TIMEOUT;
+                bool KnownToDecrypt = ChannelCamRelations.CamDecrypt(Receiver->ChannelID(), camSlot->MasterSlotNumber());
+                if (KnownToDecrypt)
+-                  scramblingTimeout *= 10; // give it time to receive ECM/EMM
+-               dsyslog("CAM %d: %sknown to decrypt channel %s (scramblingTimeout = %ds)", camSlot->SlotNumber(), KnownToDecrypt ? "" : "not ", *Receiver->ChannelID().ToString(), scramblingTimeout);
++                  Receiver->scramblingTimeout *= 10; // give it time to receive ECM/EMM
++               if (Receiver->ChannelID().Valid())
++                  dsyslog("CAM %d: %sknown to decrypt channel %s (scramblingTimeout = %ds)", camSlot->MasterSlotNumber(), KnownToDecrypt ? "" : "not ", *Receiver->ChannelID().ToString(), Receiver->scramblingTimeout);
+                }
+             }
+          Start();
+--- a/device.h
++++ b/device.h
+@@ -423,8 +423,6 @@
+ // Common Interface facilities:
+ 
+ private:
+-  time_t startScrambleDetection;
+-  int scramblingTimeout;
+   cCamSlot *camSlot;
+ public:
+   virtual bool HasCi(void);
+--- a/receiver.c
++++ b/receiver.c
+@@ -16,6 +16,9 @@
+   device = NULL;
+   SetPriority(Priority);
+   numPids = 0;
++  lastScrambledPacket = 0;
++  startScrambleDetection = 0;
++  scramblingTimeout = 0;
+   SetPids(Channel);
+ }
+ 
+--- a/receiver.h
++++ b/receiver.h
+@@ -22,6 +22,9 @@
+   int priority;
+   int pids[MAXRECEIVEPIDS];
+   int numPids;
++  time_t lastScrambledPacket;
++  time_t startScrambleDetection;
++  int scramblingTimeout;
+   bool WantsPid(int Pid);
+ protected:
+   cDevice *Device(void) { return device; }
+--- a/ci.c
++++ b/ci.c
+@@ -2663,6 +2663,13 @@
+ void cChannelCamRelations::Save(void)
+ {
+   cMutexLock MutexLock(&mutex);
++  struct stat st;
++  if (stat(fileName, &st) == 0) {
++     if ((st.st_mode & S_IWUSR) == 0) {
++        dsyslog("not saving %s (file is read-only)", *fileName);
++        return;
++        }
++     }
+   dsyslog("saving %s", *fileName);
+   cSafeFile f(fileName);
+   if (f.Open()) {

@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: remux.c 3.9 2015/01/14 09:57:09 kls Exp $
+ * $Id: remux.c 4.7 2017/04/29 12:25:09 kls Exp $
  */
 
 #include "remux.h"
@@ -142,6 +142,19 @@ void TsSetPcr(uchar *p, int64_t Pcr)
         p[11] =  e;
         }
      }
+}
+
+int TsSync(const uchar *Data, int Length, const char *File, const char *Function, int Line)
+{
+  int Skipped = 0;
+  while (Length > 0 && (*Data != TS_SYNC_BYTE || Length > TS_SIZE && Data[TS_SIZE] != TS_SYNC_BYTE)) {
+        Data++;
+        Length--;
+        Skipped++;
+        }
+  if (Skipped && File && Function && Line)
+     esyslog("ERROR: skipped %d bytes to sync on start of TS packet at %s/%s(%d)", Skipped, File, Function, Line);
+  return Skipped;
 }
 
 int64_t TsGetPts(const uchar *p, int l)
@@ -489,7 +502,7 @@ void cPatPmtGenerator::GeneratePat(void)
   p[i++] = pmtPid & 0xFF; // program number lo
   p[i++] = 0xE0 | (pmtPid >> 8); // dummy (3), PMT pid hi (5)
   p[i++] = pmtPid & 0xFF; // PMT pid lo
-  pat[SectionLength] = i - SectionLength - 1 + 4; // -2 = SectionLength storage, +4 = length of CRC
+  pat[SectionLength] = i - SectionLength - 1 + 4; // -1 = SectionLength storage, +4 = length of CRC
   MakeCRC(pat + i, pat + PayloadStart, i - PayloadStart);
   IncVersion(patVersion);
 }
@@ -603,6 +616,7 @@ cPatPmtParser::cPatPmtParser(bool UpdatePrimaryDevice)
 
 void cPatPmtParser::Reset(void)
 {
+  completed = false;
   pmtSize = 0;
   patVersion = pmtVersion = -1;
   pmtPids[0] = 0;
@@ -708,6 +722,7 @@ void cPatPmtParser::ParsePmt(const uchar *Data, int Length)
            case 0x01: // STREAMTYPE_11172_VIDEO
            case 0x02: // STREAMTYPE_13818_VIDEO
            case 0x1B: // H.264
+           case 0x24: // H.265
                       vpid = stream.getPid();
                       vtype = stream.getStreamType();
                       ppid = Pmt.getPCRPid();
@@ -892,6 +907,7 @@ void cPatPmtParser::ParsePmt(const uchar *Data, int Length)
             }
          }
      pmtVersion = Pmt.getVersionNumber();
+     completed = true;
      }
   else
      esyslog("ERROR: can't parse PMT");
@@ -922,6 +938,93 @@ bool cPatPmtParser::GetVersions(int &PatVersion, int &PmtVersion) const
   PatVersion = patVersion;
   PmtVersion = pmtVersion;
   return patVersion >= 0 && pmtVersion >= 0;
+}
+
+// --- cEitGenerator ---------------------------------------------------------
+
+cEitGenerator::cEitGenerator(int Sid)
+{
+  counter = 0;
+  version = 0;
+  if (Sid)
+     Generate(Sid);
+}
+
+uint16_t cEitGenerator::YMDtoMJD(int Y, int M, int D)
+{
+  int L = (M < 3) ? 1 : 0;
+  return 14956 + D + int((Y - L) * 365.25) + int((M + 1 + L * 12) * 30.6001);
+}
+
+uchar *cEitGenerator::AddParentalRatingDescriptor(uchar *p, uchar ParentalRating)
+{
+  *p++ = SI::ParentalRatingDescriptorTag;
+  *p++ = 0x04; // descriptor length
+  *p++ = 'D';  // country code
+  *p++ = 'E';
+  *p++ = 'U';
+  *p++ = ParentalRating;
+  return p;
+}
+
+uchar *cEitGenerator::Generate(int Sid)
+{
+  uchar *PayloadStart;
+  uchar *SectionStart;
+  uchar *DescriptorsStart;
+  memset(eit, 0xFF, sizeof(eit));
+  struct tm tm_r;
+  time_t t = time(NULL) - 3600; // let's have the event start one hour in the past
+  tm *tm = localtime_r(&t, &tm_r);
+  uint16_t MJD = YMDtoMJD(tm->tm_year, tm->tm_mon + 1, tm->tm_mday);
+  uchar *p = eit;
+  // TS header:
+  *p++ = TS_SYNC_BYTE;
+  *p++ = TS_PAYLOAD_START;
+  *p++ = EITPID;
+  *p++ = 0x10 | (counter++ & 0x0F); // continuity counter
+  *p++ = 0x00; // pointer field (payload unit start indicator is set)
+  // payload:
+  PayloadStart = p;
+  *p++ = 0x4E; // TID present/following event on this transponder
+  *p++ = 0xF0;
+  *p++ = 0x00; // section length
+  SectionStart = p;
+  *p++ = Sid >> 8;
+  *p++ = Sid & 0xFF;
+  *p++ = 0xC1 | (version << 1);
+  *p++ = 0x00; // section number
+  *p++ = 0x00; // last section number
+  *p++ = 0x00; // transport stream id
+  *p++ = 0x00; // ...
+  *p++ = 0x00; // original network id
+  *p++ = 0x00; // ...
+  *p++ = 0x00; // segment last section number
+  *p++ = 0x4E; // last table id
+  *p++ = 0x00; // event id
+  *p++ = 0x01; // ...
+  *p++ = MJD >> 8; // start time
+  *p++ = MJD & 0xFF;  // ...
+  *p++ = tm->tm_hour; // ...
+  *p++ = tm->tm_min;  // ...
+  *p++ = tm->tm_sec;  // ...
+  *p++ = 0x24; // duration (one day, should cover everything)
+  *p++ = 0x00; // ...
+  *p++ = 0x00; // ...
+  *p++ = 0x90; // running status, free/CA mode
+  *p++ = 0x00; // descriptors loop length
+  DescriptorsStart = p;
+  p = AddParentalRatingDescriptor(p);
+  // fill in lengths:
+  *(SectionStart - 1) = p - SectionStart + 4; // +4 = length of CRC
+  *(DescriptorsStart - 1) = p - DescriptorsStart;
+  // checksum
+  int crc = SI::CRC32::crc32((char *)PayloadStart, p - PayloadStart, 0xFFFFFFFF);
+  *p++ = crc >> 24;
+  *p++ = crc >> 16;
+  *p++ = crc >> 8;
+  *p++ = crc;
+  return eit;
 }
 
 // --- cTsToPes --------------------------------------------------------------
@@ -1204,16 +1307,16 @@ private:
     nutSequenceParameterSet = 7,
     nutAccessUnitDelimiter  = 9,
     };
-  cTsPayload tsPayload;
   uchar byte; // holds the current byte value in case of bitwise access
   int bit; // the bit index into the current byte (-1 if we're not in bit reading mode)
   int zeroBytes; // the number of consecutive zero bytes (to detect 0x000003)
-  uint32_t scanner;
   // Identifiers written in '_' notation as in "ITU-T H.264":
   bool separate_colour_plane_flag;
   int log2_max_frame_num;
   bool frame_mbs_only_flag;
-  //
+protected:
+  cTsPayload tsPayload;
+  uint32_t scanner;
   bool gotAccessUnitDelimiter;
   bool gotSequenceParameterSet;
   uchar GetByte(bool Raw = false);
@@ -1430,6 +1533,81 @@ void cH264Parser::ParseSliceHeader(void)
      }
 }
 
+// --- cH265Parser -----------------------------------------------------------
+
+class cH265Parser : public cH264Parser {
+private:
+  enum eNalUnitType {
+    nutSliceSegmentTrailingN =  0,
+    nutSliceSegmentTrailingR =  1,
+    nutSliceSegmentTSAN      =  2,
+    nutSliceSegmentTSAR      =  3,
+    nutSliceSegmentSTSAN     =  4,
+    nutSliceSegmentSTSAR     =  5,
+    nutSliceSegmentRADLN     =  6,
+    nutSliceSegmentRADLR     =  7,
+    nutSliceSegmentRASLN     =  8,
+    nutSliceSegmentRASLR     =  9,
+    nutSliceSegmentBLAWLP    = 16,
+    nutSliceSegmentBLAWRADL  = 17,
+    nutSliceSegmentBLANLP    = 18,
+    nutSliceSegmentIDRWRADL  = 19,
+    nutSliceSegmentIDRNLP    = 20,
+    nutSliceSegmentCRANUT    = 21,
+    nutVideoParameterSet     = 32,
+    nutSequenceParameterSet  = 33,
+    nutPictureParameterSet   = 34,
+    nutAccessUnitDelimiter   = 35,
+    nutEndOfSequence         = 36,
+    nutEndOfBitstream        = 37,
+    nutFillerData            = 38,
+    nutPrefixSEI             = 39,
+    nutSuffixSEI             = 40,
+    nutNonVCLRes0            = 41,
+    nutNonVCLRes3            = 44,
+    nutUnspecified0          = 48,
+    nutUnspecified7          = 55,
+    };
+public:
+  cH265Parser(void);
+  virtual int Parse(const uchar *Data, int Length, int Pid);
+  };
+
+cH265Parser::cH265Parser(void)
+:cH264Parser()
+{
+}
+
+int cH265Parser::Parse(const uchar *Data, int Length, int Pid)
+{
+  newFrame = independentFrame = false;
+  tsPayload.Setup(const_cast<uchar *>(Data), Length, Pid);
+  if (TsPayloadStart(Data)) {
+     tsPayload.SkipPesHeader();
+     scanner = EMPTY_SCANNER;
+     }
+  for (;;) {
+      scanner = (scanner << 8) | GetByte(true);
+      if ((scanner & 0xFFFFFF00) == 0x00000100) { // NAL unit start
+         uchar NalUnitType = (scanner >> 1) & 0x3F;
+         GetByte(); // nuh_layer_id + nuh_temporal_id_plus1
+         if (NalUnitType <= nutSliceSegmentRASLR || (NalUnitType >= nutSliceSegmentBLAWLP && NalUnitType <= nutSliceSegmentCRANUT)) {
+            if (NalUnitType == nutSliceSegmentIDRWRADL || NalUnitType == nutSliceSegmentIDRNLP || NalUnitType == nutSliceSegmentCRANUT)
+               independentFrame = true;
+            if (GetBit()) { // first_slice_segment_in_pic_flag
+               newFrame = true;
+               tsPayload.Statistics();
+               }
+            break;
+            }
+         }
+      if (tsPayload.AtPayloadStart() // stop at any new payload start to have the buffer refilled if necessary
+         || tsPayload.Eof()) // or if we're out of data
+         break;
+      }
+  return tsPayload.Used();
+}
+
 // --- cFrameDetector --------------------------------------------------------
 
 cFrameDetector::cFrameDetector(int Pid, int Type)
@@ -1456,14 +1634,16 @@ void cFrameDetector::SetPid(int Pid, int Type)
 {
   pid = Pid;
   type = Type;
-  isVideo = type == 0x01 || type == 0x02 || type == 0x1B; // MPEG 1, 2 or H.264
+  isVideo = type == 0x01 || type == 0x02 || type == 0x1B || type == 0x24; // MPEG 1, 2, H.264 or H.265
   delete parser;
   parser = NULL;
   if (type == 0x01 || type == 0x02)
      parser = new cMpeg2Parser;
   else if (type == 0x1B)
      parser = new cH264Parser;
-  else if (type == 0x04 || type == 0x06) // MPEG audio or AC3 audio
+  else if (type == 0x24)
+     parser = new cH265Parser;
+  else if (type == 0x03 || type == 0x04 || type == 0x06) // MPEG audio or AC3 audio
      parser = new cAudioParser;
   else if (type != 0)
      esyslog("ERROR: unknown stream type %d (PID %d) in frame detector", type, pid);
@@ -1477,13 +1657,8 @@ int cFrameDetector::Analyze(const uchar *Data, int Length)
   newFrame = independentFrame = false;
   while (Length >= MIN_TS_PACKETS_FOR_FRAME_DETECTOR * TS_SIZE) { // makes sure we are looking at enough data, in case the frame type is not stored in the first TS packet
         // Sync on TS packet borders:
-        if (Data[0] != TS_SYNC_BYTE) {
-           int Skipped = 1;
-           while (Skipped < Length && (Data[Skipped] != TS_SYNC_BYTE || Length - Skipped > TS_SIZE && Data[Skipped + TS_SIZE] != TS_SYNC_BYTE))
-                 Skipped++;
-           esyslog("ERROR: skipped %d bytes to sync on start of TS packet", Skipped);
+        if (int Skipped = TS_SYNC(Data, Length))
            return Processed + Skipped;
-           }
         // Handle one TS packet:
         int Handled = TS_SIZE;
         if (TsHasPayload(Data) && !TsIsScrambled(Data)) {
@@ -1549,10 +1724,12 @@ int cFrameDetector::Analyze(const uchar *Data, int Length)
                           Div += parser->IFrameTemporalReferenceOffset();
                        if (Div <= 0)
                           Div = 1;
-                       uint32_t Delta = ptsValues[0] / Div;
+                       int Delta = ptsValues[0] / Div;
                        // determine frame info:
                        if (isVideo) {
-                          if (abs(Delta - 3600) <= 1)
+                          if (Delta == 3753)
+                             framesPerSecond = 24.0 / 1.001;
+                          else if (abs(Delta - 3600) <= 1)
                              framesPerSecond = 25.0;
                           else if (Delta % 3003 == 0)
                              framesPerSecond = 30.0 / 1.001;

@@ -1,0 +1,152 @@
+Description: Patch required for the GraphTFT plugin.
+Author: Jörg Wendel (Horchi)
+
+--- a/menu.c
++++ b/menu.c
+@@ -1429,6 +1429,7 @@
+ {
+   cOsdMenu::Display();
+   DisplayMenu()->SetEvent(event);
++  cStatus::MsgOsdSetEvent(event);
+   if (event->Description())
+      cStatus::MsgOsdTextItem(event->Description());
+ }
+@@ -1558,6 +1559,7 @@
+   static void SetCurrentChannel(int ChannelNr) { currentChannel = ChannelNr; }
+   static const cEvent *ScheduleEvent(void);
+   virtual eOSState ProcessKey(eKeys Key);
++  virtual void Display(void);
+   };
+ 
+ int cMenuWhatsOn::currentChannel = 0;
+@@ -1583,6 +1585,18 @@
+   SetHelpKeys();
+ }
+ 
++void cMenuWhatsOn::Display(void)
++{
++   cOsdMenu::Display();
++   
++   if (Count() > 0) {
++      int ni = 0;
++      for (cOsdItem *item = First(); item; item = Next(item)) {
++         cStatus::MsgOsdEventItem(((cMenuScheduleItem*)item)->event, item->Text(), ni++, Count());
++      }
++   }
++}
++
+ bool cMenuWhatsOn::Update(void)
+ {
+   bool result = false;
+@@ -1752,6 +1766,7 @@
+   cMenuSchedule(void);
+   virtual ~cMenuSchedule();
+   virtual eOSState ProcessKey(eKeys Key);
++  virtual void Display(void);
+   };
+ 
+ cMenuSchedule::cMenuSchedule(void)
+@@ -1810,6 +1825,18 @@
+      }
+ }
+ 
++void cMenuSchedule::Display(void)
++{
++   cOsdMenu::Display();
++   
++   if (Count() > 0) {
++      int ni = 0;
++      for (cOsdItem *item = First(); item; item = Next(item)) {
++         cStatus::MsgOsdEventItem(((cMenuScheduleItem*)item)->event, item->Text(), ni++, Count());
++      }
++   }
++}
++
+ bool cMenuSchedule::PrepareScheduleAllThis(const cTimers *Timers, const cSchedules *Schedules, const cEvent *Event, const cChannel *Channel)
+ {
+   if (const cSchedule *Schedule = Schedules->GetSchedule(Channel)) {
+--- a/osdbase.c
++++ b/osdbase.c
+@@ -110,6 +110,7 @@
+   free(status);
+   displayMenu->Clear();
+   cStatus::MsgOsdClear();
++  cStatus::MsgOsdMenuDestroy();
+   if (!--displayMenuCount)
+      DELETENULL(displayMenu);
+ }
+@@ -241,6 +242,7 @@
+   displayMenuItems = displayMenu->MaxItems();
+   displayMenu->SetTabs(cols[0], cols[1], cols[2], cols[3], cols[4]);//XXX
+   displayMenu->SetTitle(title);
++  cStatus::MsgOsdMenuDisplay(menuCategory);
+   cStatus::MsgOsdTitle(title);
+   DisplayHelp(true);
+   int count = Count();
+--- a/status.c
++++ b/status.c
+@@ -130,3 +130,32 @@
+   for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
+       sm->OsdProgramme(PresentTime, PresentTitle, PresentSubtitle, FollowingTime, FollowingTitle, FollowingSubtitle);
+ }
++
++void cStatus::MsgOsdSetEvent(const cEvent* event)
++{
++  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
++      sm->OsdSetEvent(event);
++}
++
++void cStatus::MsgOsdSetRecording(const cRecording* recording)
++{
++  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
++      sm->OsdSetRecording(recording);
++}
++
++void cStatus::MsgOsdMenuDisplay(eMenuCategory menuCategory)
++{
++  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
++      sm->OsdMenuDisplay(menuCategory);
++}
++
++void cStatus::MsgOsdMenuDestroy()
++{
++  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
++      sm->OsdMenuDestroy();
++}
++void cStatus::MsgOsdEventItem(const cEvent* Event, const char *Text, int Index, int Count)
++{
++  for (cStatus *sm = statusMonitors.First(); sm; sm = statusMonitors.Next(sm))
++     sm->OsdEventItem(Event, Text, Index, Count);
++}
+--- a/status.h
++++ b/status.h
+@@ -81,6 +81,17 @@
+                // The OSD displays the single line Text with the current channel information.
+   virtual void OsdProgramme(time_t PresentTime, const char *PresentTitle, const char *PresentSubtitle, time_t FollowingTime, const char *FollowingTitle, const char *FollowingSubtitle) {}
+                // The OSD displays the given programme information.
++  virtual void OsdSetRecording(const cRecording* recording) {}
++               // The OSD displays the recording information.
++  virtual void OsdSetEvent(const cEvent* event) {}
++               // The OSD displays the event information.
++  virtual void OsdMenuDisplay(eMenuCategory menuCategory) {}
++               // report menu creation
++  virtual void OsdMenuDestroy() {}
++               // report menu destruvtion
++  virtual void OsdEventItem(const cEvent* Event, const char *Text, int Index, int Count) {}
++               // The OSD displays the given single line Event as menu item at Index.
++
+ public:
+   cStatus(void);
+   virtual ~cStatus();
+@@ -103,6 +114,11 @@
+   static void MsgOsdTextItem(const char *Text,  bool Scroll = false);
+   static void MsgOsdChannel(const char *Text);
+   static void MsgOsdProgramme(time_t PresentTime, const char *PresentTitle, const char *PresentSubtitle, time_t FollowingTime, const char *FollowingTitle, const char *FollowingSubtitle);
++  static void MsgOsdSetEvent(const cEvent* event);
++  static void MsgOsdSetRecording(const cRecording* recording);
++  static void MsgOsdMenuDisplay(eMenuCategory menuCategory);
++  static void MsgOsdMenuDestroy();
++  static void MsgOsdEventItem(const cEvent* Event, const char *Text, int Index, int Count);
+   };
+ 
+ #endif //__STATUS_H

@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: dvbplayer.c 3.6 2015/02/13 15:12:57 kls Exp $
+ * $Id: dvbplayer.c 4.4 2016/12/22 11:34:31 kls Exp $
  */
 
 #include "dvbplayer.h"
@@ -17,13 +17,14 @@
 
 // --- cPtsIndex -------------------------------------------------------------
 
-#define PTSINDEX_ENTRIES 500
+#define PTSINDEX_ENTRIES 1024
 
 class cPtsIndex {
 private:
   struct tPtsIndex {
     uint32_t pts; // no need for 33 bit - some devices don't even supply the msb
     int index;
+    bool independent;
     };
   tPtsIndex pi[PTSINDEX_ENTRIES];
   int w, r;
@@ -33,8 +34,9 @@ public:
   cPtsIndex(void);
   void Clear(void);
   bool IsEmpty(void);
-  void Put(uint32_t Pts, int Index);
+  void Put(uint32_t Pts, int Index, bool Independent);
   int FindIndex(uint32_t Pts);
+  int FindFrameNumber(uint32_t Pts);
   };
 
 cPtsIndex::cPtsIndex(void)
@@ -55,10 +57,11 @@ bool cPtsIndex::IsEmpty(void)
   return w == r;
 }
 
-void cPtsIndex::Put(uint32_t Pts, int Index)
+void cPtsIndex::Put(uint32_t Pts, int Index, bool Independent)
 {
   cMutexLock MutexLock(&mutex);
   pi[w].pts = Pts;
+  pi[w].independent = Independent;
   pi[w].index = Index;
   w = (w + 1) % PTSINDEX_ENTRIES;
   if (w == r)
@@ -85,6 +88,36 @@ int cPtsIndex::FindIndex(uint32_t Pts)
       }
   lastFound = Index;
   return Index;
+}
+
+int cPtsIndex::FindFrameNumber(uint32_t Pts)
+{
+  cMutexLock MutexLock(&mutex);
+  if (w == r)
+     return lastFound; // replay always starts at an I frame
+  bool Valid = false;
+  int d;
+  int FrameNumber = 0;
+  int UnplayedIFrame = 2; // GOPs may intersect, so we're looping until we found two unplayed I frames
+  for (int i = r; i != w && UnplayedIFrame; ) {
+      d = Pts - pi[i].pts;
+      if (d > 0x7FFFFFFF)
+         d = 0xFFFFFFFF - d; // handle rollover
+      if (d > 0) {
+         if (pi[i].independent) {
+            FrameNumber = pi[i].index; // an I frame's index represents its frame number
+            Valid = true;
+            }
+         else
+            FrameNumber++; // for every played non-I frame, increase frame number
+         }
+      else
+        if (pi[i].independent)
+           --UnplayedIFrame;
+      if (++i >= PTSINDEX_ENTRIES)
+         i = 0;
+      }
+  return Valid ? FrameNumber : FindIndex(Pts); // fall back during trick speeds
 }
 
 // --- cNonBlockingFileReader ------------------------------------------------
@@ -210,7 +243,7 @@ private:
   cNonBlockingFileReader *nonBlockingFileReader;
   cRingBufferFrame *ringBuffer;
   cPtsIndex ptsIndex;
-  cMarks *marks;
+  const cMarks *marks;
   cFileName *fileName;
   cIndexFile *index;
   cUnbufferedFile *replayFile;
@@ -239,7 +272,7 @@ protected:
 public:
   cDvbPlayer(const char *FileName, bool PauseLive);
   virtual ~cDvbPlayer();
-  void SetMarks(cMarks *Marks);
+  void SetMarks(const cMarks *Marks);
   bool Active(void) { return cThread::Running(); }
   void Pause(void);
   void Play(void);
@@ -251,6 +284,7 @@ public:
   virtual double FramesPerSecond(void) { return framesPerSecond; }
   virtual void SetAudioTrack(eTrackType Type, const tTrackId *TrackId);
   virtual bool GetIndex(int &Current, int &Total, bool SnapToIFrame = false);
+  virtual bool GetFrameNumber(int &Current, int &Total);
   virtual bool GetReplayMode(bool &Play, bool &Forward, int &Speed);
   };
 
@@ -311,7 +345,7 @@ cDvbPlayer::~cDvbPlayer()
   // don't delete marks here, we don't own them!
 }
 
-void cDvbPlayer::SetMarks(cMarks *Marks)
+void cDvbPlayer::SetMarks(const cMarks *Marks)
 {
   marks = Marks;
 }
@@ -383,10 +417,11 @@ bool cDvbPlayer::Save(void)
      int Index = ptsIndex.FindIndex(DeviceGetSTC());
      if (Index >= 0) {
         if (Setup.SkipEdited && marks) {
-           marks->Lock();
+           cStateKey StateKey;
+           marks->Lock(StateKey);
            if (marks->First() && abs(Index - marks->First()->Position()) <= int(round(RESUMEBACKUP * framesPerSecond)))
               Index = 0; // when stopping within RESUMEBACKUP seconds of the first mark the recording shall still be considered unviewed
-           marks->Unlock();
+           StateKey.Remove();
            }
         Index -= int(round(RESUMEBACKUP * framesPerSecond));
         if (Index > 0)
@@ -419,7 +454,8 @@ void cDvbPlayer::Action(void)
   if (readIndex > 0)
      isyslog("resuming replay at index %d (%s)", readIndex, *IndexToHMSF(readIndex, true, framesPerSecond));
   else if (Setup.SkipEdited && marks) {
-     marks->Lock();
+     cStateKey StateKey;
+     marks->Lock(StateKey);
      if (marks->First() && index) {
         int Index = marks->First()->Position();
         uint16_t FileNumber;
@@ -429,8 +465,10 @@ void cDvbPlayer::Action(void)
            readIndex = Index;
            }
         }
-     marks->Unlock();
+     StateKey.Remove();
      }
+  if (readIndex > 0) // will first be incremented in the loop!
+     --readIndex;
 
   nonBlockingFileReader = new cNonBlockingFileReader;
   int Length = 0;
@@ -438,7 +476,7 @@ void cDvbPlayer::Action(void)
   bool WaitingForData = false;
   time_t StuckAtEof = 0;
   uint32_t LastStc = 0;
-  int LastReadIFrame = -1;
+  int LastReadFrame = -1;
   int SwitchToPlayFrame = 0;
   bool CutIn = false;
   bool AtLastMark = false;
@@ -500,8 +538,9 @@ void cDvbPlayer::Action(void)
                       if (index->Get(readIndex + 1, &FileNumber, &FileOffset, &readIndependent, &Length) && NextFile(FileNumber, FileOffset)) {
                          readIndex++;
                          if ((Setup.SkipEdited || Setup.PauseAtLastMark) && marks) {
-                            marks->Lock();
-                            cMark *m = marks->Get(readIndex);
+                            cStateKey StateKey;
+                            marks->Lock(StateKey);
+                            const cMark *m = marks->Get(readIndex);
                             if (m && (m->Index() & 0x01) != 0) { // we're at an end mark
                                m = marks->GetNextBegin(m);
                                int Index = -1;
@@ -519,7 +558,7 @@ void cDvbPlayer::Action(void)
                                   CutIn = true;
                                   }
                                }
-                            marks->Unlock();
+                            StateKey.Remove();
                             }
                          }
                       else
@@ -541,12 +580,9 @@ void cDvbPlayer::Action(void)
                    int r = nonBlockingFileReader->Result(&b);
                    if (r > 0) {
                       WaitingForData = false;
-                      uint32_t Pts = 0;
-                      if (readIndependent) {
-                         Pts = isPesRecording ? PesGetPts(b) : TsGetPts(b, r);
-                         LastReadIFrame = readIndex;
-                         }
-                      readFrame = new cFrame(b, -r, ftUnknown, readIndex, Pts); // hands over b to the ringBuffer
+                      LastReadFrame = readIndex;
+                      uint32_t Pts = isPesRecording ? (PesHasPts(b) ? PesGetPts(b) : -1) : TsGetPts(b, r);
+                      readFrame = new cFrame(b, -r, ftUnknown, readIndex, Pts, readIndependent); // hands over b to the ringBuffer
                       }
                    else if (r < 0) {
                       if (errno == EAGAIN)
@@ -601,7 +637,7 @@ void cDvbPlayer::Action(void)
                 pc = playFrame->Count();
                 if (p) {
                    if (playFrame->Index() >= 0 && playFrame->Pts() != 0)
-                      ptsIndex.Put(playFrame->Pts(), playFrame->Index());
+                      ptsIndex.Put(playFrame->Pts(), playFrame->Index(), playFrame->Independent());
                    if (firstPacket) {
                       if (isPesRecording) {
                          PlayPes(NULL, 0);
@@ -664,7 +700,7 @@ void cDvbPlayer::Action(void)
              LastStc = Stc;
              int Index = ptsIndex.FindIndex(Stc);
              if (playDir == pdForward && !SwitchToPlayFrame) {
-                if (Index >= LastReadIFrame)
+                if (Index >= LastReadFrame)
                    break; // automatically stop at end of recording
                 }
              else if (Index <= 0 || SwitchToPlayFrame && Index >= SwitchToPlayFrame)
@@ -875,7 +911,7 @@ void cDvbPlayer::Goto(int Index, bool Still)
                  if (playMode == pmPause)
                     DevicePlay();
                  DeviceStillPicture(b, r);
-                 ptsIndex.Put(isPesRecording ? PesGetPts(b) : TsGetPts(b, r), Index);
+                 ptsIndex.Put(isPesRecording ? PesGetPts(b) : TsGetPts(b, r), Index, true);
                  }
               playMode = pmStill;
               readIndex = Index;
@@ -920,6 +956,17 @@ bool cDvbPlayer::GetIndex(int &Current, int &Total, bool SnapToIFrame)
   return false;
 }
 
+bool cDvbPlayer::GetFrameNumber(int &Current, int &Total)
+{
+  if (index) {
+     Current = ptsIndex.FindFrameNumber(DeviceGetSTC());
+     Total = index->Last();
+     return true;
+     }
+  Current = Total = -1;
+  return false;
+}
+
 bool cDvbPlayer::GetReplayMode(bool &Play, bool &Forward, int &Speed)
 {
   Play = (playMode == pmPlay || playMode == pmFast);
@@ -943,7 +990,7 @@ cDvbPlayerControl::~cDvbPlayerControl()
   Stop();
 }
 
-void cDvbPlayerControl::SetMarks(cMarks *Marks)
+void cDvbPlayerControl::SetMarks(const cMarks *Marks)
 {
   if (player)
      player->SetMarks(Marks);
@@ -1001,6 +1048,15 @@ bool cDvbPlayerControl::GetIndex(int &Current, int &Total, bool SnapToIFrame)
 {
   if (player) {
      player->GetIndex(Current, Total, SnapToIFrame);
+     return true;
+     }
+  return false;
+}
+
+bool cDvbPlayerControl::GetFrameNumber(int &Current, int &Total)
+{
+  if (player) {
+     player->GetFrameNumber(Current, Total);
      return true;
      }
   return false;

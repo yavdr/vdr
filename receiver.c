@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: receiver.c 3.3 2015/01/12 14:04:31 kls Exp $
+ * $Id: receiver.c 4.4 2017/05/01 08:49:20 kls Exp $
  */
 
 #include "receiver.h"
@@ -16,6 +16,11 @@ cReceiver::cReceiver(const cChannel *Channel, int Priority)
   device = NULL;
   SetPriority(Priority);
   numPids = 0;
+  lastScrambledPacket = 0;
+  startScrambleDetection = 0;
+  scramblingTimeout = 0;
+  startEitInjection = 0;
+  lastEitInjection = 0;
   SetPids(Channel);
 }
 
@@ -37,8 +42,13 @@ void cReceiver::SetPriority(int Priority)
 bool cReceiver::AddPid(int Pid)
 {
   if (Pid) {
-     if (numPids < MAXRECEIVEPIDS)
-        pids[numPids++] = Pid;
+     if (numPids < MAXRECEIVEPIDS) {
+        if (!WantsPid(Pid)) {
+           pids[numPids++] = Pid;
+           if (device)
+              device->AddPid(Pid);
+           }
+        }
      else {
         dsyslog("too many PIDs in cReceiver (Pid = %d)", Pid);
         return false;
@@ -85,6 +95,8 @@ void cReceiver::DelPid(int Pid)
             for ( ; i < numPids; i++) // we also copy the terminating 0!
                 pids[i] = pids[i + 1];
             numPids--;
+            if (device)
+               device->DelPid(Pid);
             return;
             }
          }

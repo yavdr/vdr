@@ -1,3 +1,7 @@
+vdr (2.3.3-1) unstable; urgency=medium
+
+  * dropped plugins dvbsddevice, hddevice and rcu from vdr source package
+
 vdr (2.2.0-1) unstable; urgency=medium
 
   * Now using /etc/vdr/conf.d for loading plugins

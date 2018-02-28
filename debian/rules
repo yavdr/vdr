@@ -34,7 +34,7 @@ override_dh_install:
 	install -D -m 755 newplugin debian/vdr-dev/usr/bin/vdr-newplugin
 	echo -n "vdr:Provides=" >> debian/vdr.substvars
 	cat debian/abi-version >> debian/vdr.substvars
-	for example in hello osddemo pictures servicedemo skincurses status svdrpdemo rcu; do \
+	for example in hello osddemo pictures servicedemo skincurses status svdrpdemo; do \
 	    install -D PLUGINS/src/$$example/README debian/vdr-plugin-examples/usr/share/doc/vdr-plugin-examples/README.$$example; \
 	done
 	DH_AUTOSCRIPTDIR=debian/dh-addon-vdrplugin debian/dh-addon-vdrplugin/dh_vdrplugin_enable
@@ -44,14 +44,10 @@ override_dh_installinit:
 
 override_dh_strip:
 	dh_strip -p vdr --dbg-package=vdr-dbg
-	dh_strip -p vdr-plugin-dvbsddevice --dbg-package=vdr-plugin-dvbsddevice-dbg
-	dh_strip -p vdr-plugin-dvbhddevice --dbg-package=vdr-plugin-dvbhddevice-dbg
 	dh_strip
 
 override_dh_installchangelogs:
 	dh_installchangelogs -pvdr HISTORY
-	dh_installchangelogs -pvdr-plugin-dvbsddevice PLUGINS/src/dvbsddevice/HISTORY
-	dh_installchangelogs -pvdr-plugin-dvbhddevice PLUGINS/src/dvbhddevice/HISTORY
 	dh_installchangelogs -pvdr-plugin-examples
 	dh_installchangelogs
 

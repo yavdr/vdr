@@ -1,0 +1,50 @@
+--- a/svdrp.c
++++ b/svdrp.c
+@@ -1051,26 +1051,33 @@
+ {
+   if (file.IsOpen()) {
+      if (Code != 0) {
++        char *buffer = NULL;
+         va_list ap;
+         va_start(ap, fmt);
+-        cString buffer = cString::vsprintf(fmt, ap);
++        if (vasprintf(&buffer, fmt, ap) >= 0) {
++           char *s = buffer;
++           while (s && *s) {
++                 char *n = strchr(s, '\n');
++                 if (n)
++                    *n = 0;
++                 char cont = ' ';
++                 if (Code < 0 || n && *(n + 1)) // trailing newlines don't count!
++                    cont = '-';
++                 if (!Send(cString::sprintf("%03d%c%s\r\n", abs(Code), cont, s)))
++                    break;
++                 s = n ? n + 1 : NULL;
++                 }
++           }
++        else {
++           Reply(451, "Bad format - looks like a programming error!");
++           esyslog("SVDRP %s < %s bad format!", Setup.SVDRPHostName, *connection);
++           }
+         va_end(ap);
+-        const char *s = buffer;
+-        while (s && *s) {
+-              const char *n = strchr(s, '\n');
+-              char cont = ' ';
+-              if (Code < 0 || n && *(n + 1)) // trailing newlines don't count!
+-                 cont = '-';
+-              char number[16];
+-              sprintf(number, "%03d%c", abs(Code), cont);
+-              if (!(Send(number) && Send(s, n ? n - s : -1) && Send("\r\n")))
+-                 break;
+-              s = n ? n + 1 : NULL;
+-              }
++        free(buffer);
+         }
+      else {
+         Reply(451, "Zero return code - looks like a programming error!");
+-        esyslog("SVDRP < %s zero return code!", *connection);
++        esyslog("SVDRP %s < %s zero return code!", Setup.SVDRPHostName, *connection);
+         }
+      }
+ }

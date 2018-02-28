@@ -1,0 +1,60 @@
+Description: Patch needed for vdr-plugin-epg2vdr
+Author: Jörg Wendel
+Origin: https://projects.vdr-developer.org/git/vdr-plugin-epg2vdr.git/tree/patches/vdr-2.3.2-aux.patch
+
+--- a/epg.c
++++ b/epg.c
+@@ -1552,12 +1552,13 @@
+   Schedule->DropOutdated(SegmentStart, SegmentEnd, TableID, Version);
+ }
+ 
+-void cEpgHandlers::BeginSegmentTransfer(const cChannel *Channel)
++bool cEpgHandlers::BeginSegmentTransfer(const cChannel *Channel)
+ {
+   for (cEpgHandler *eh = First(); eh; eh = Next(eh)) {
+-      if (eh->BeginSegmentTransfer(Channel, false))
+-         return;
++      if (!eh->BeginSegmentTransfer(Channel, false))
++         return false;
+       }
++  return true;
+ }
+ 
+ void cEpgHandlers::EndSegmentTransfer(bool Modified)
+--- a/eit.c
++++ b/eit.c
+@@ -67,8 +67,13 @@
+      return;
+      }
+ 
++  if (!EpgHandlers.BeginSegmentTransfer(Channel)) {
++     SchedulesStateKey.Remove(false);
++     ChannelsStateKey.Remove(false);
++     return;
++     }
++
+   bool ChannelsModified = false;
+-  EpgHandlers.BeginSegmentTransfer(Channel);
+   bool handledExternally = EpgHandlers.HandledExternally(Channel);
+   cSchedule *pSchedule = (cSchedule *)Schedules->GetSchedule(Channel, true);
+ 
+--- a/epg.h
++++ b/epg.h
+@@ -74,7 +74,7 @@
+ 
+ class cSchedule;
+ 
+-typedef u_int16_t tEventID;
++typedef u_int32_t tEventID;
+ 
+ class cEvent : public cListObject {
+   friend class cSchedule;
+@@ -324,7 +324,7 @@
+   void HandleEvent(cEvent *Event);
+   void SortSchedule(cSchedule *Schedule);
+   void DropOutdated(cSchedule *Schedule, time_t SegmentStart, time_t SegmentEnd, uchar TableID, uchar Version);
+-  void BeginSegmentTransfer(const cChannel *Channel);
++  bool BeginSegmentTransfer(const cChannel *Channel);
+   void EndSegmentTransfer(bool Modified);
+   };
+ 

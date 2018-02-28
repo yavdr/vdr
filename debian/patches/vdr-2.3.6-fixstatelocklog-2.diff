@@ -1,0 +1,52 @@
+Description: Fix (un)locking locks within the same thread
+Author: Klaus Schmidinger
+Origin: http://www.vdr-portal.de/board1-news/board2-vdr-news/p1293036-announce-vdr-developer-version-2-3-6/#post1293036
+--- a/thread.c	2017/06/03 12:43:22	4.4
++++ b/thread.c	2017/06/07 12:31:31
+@@ -568,6 +568,7 @@
+   cVector<int> flags;
+   tThreadId logThreadIds[SLL_SIZE];
+   int logFlags[SLL_SIZE];
++  uint8_t logCounter[SLL_SIZE][SLL_MAX_LIST];
+   char logCaller[SLL_SIZE][SLL_LENGTH];
+   int logIndex;
+   bool dumped;
+@@ -581,6 +582,7 @@
+ {
+   memset(logThreadIds, 0, sizeof(logThreadIds));
+   memset(logFlags, 0, sizeof(logFlags));
++  memset(logCounter, 0, sizeof(logCounter));
+   memset(logCaller, 0, sizeof(logCaller));
+   logIndex = 0;
+   dumped = false;
+@@ -630,9 +632,9 @@
+ void cStateLockLog::Check(const char *Name, bool Lock, bool Write)
+ {
+   if (!dumped && Name) {
+-     int n = *Name - '0';
+-     if (1 <= n && n <= SLL_MAX_LIST) {
+-        int b = 1 << (n - 1);
++     int n = *Name - '0' - 1;
++     if (0 <= n && n < SLL_MAX_LIST) {
++        int b = 1 << n;
+         cMutexLock MutexLock(&mutex);
+         tThreadId ThreadId = cThread::ThreadId();
+         int Index = threadIds.IndexOf(ThreadId);
+@@ -651,14 +653,15 @@
+               ;
+            else if ((flags[Index] & b) == 0) // thread already holds "bigger" locks, so it may only re-lock one that it already has!
+               DoDump = true;
++           logCounter[Index][n]++;
+            flags[Index] |= b;
+            }
+-        else
++        else if (--logCounter[Index][n] == 0)
+            flags[Index] &= ~b;
+         logThreadIds[logIndex] = ThreadId;
+         logFlags[logIndex] = flags[Index] | (Write ? SLL_WRITE_FLAG : 0);
+ #ifdef DEBUG_LOCKCALL
+-        strn0cpy(logCaller[logIndex], cBackTrace::GetCaller(Lock ? 5 : 3, true), SLL_LENGTH);
++        strn0cpy(logCaller[logIndex], cBackTrace::GetCaller(Lock ? 3 : 5, true), SLL_LENGTH);
+ #endif
+         if (++logIndex >= SLL_SIZE)
+            logIndex = 0;

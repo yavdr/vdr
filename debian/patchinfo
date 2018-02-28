@@ -37,20 +37,10 @@ opt-42-x_MainMenuHooks-v1.0.1.patch
     This patch allows plugins to replace the VDR mainmenus "Schedule",
     "Channels", "Timers" and "Recordings" by a different implementation.
 
-opt-50_graphtftng.patch
-    Jörg Wendel (Horchi)
-
-    Patch required for the GraphTFTng plugin.
-
 opt-56_eventdetails_v3.patch
     Michael Eiler <eiler.mike@gmail.com>      
 
     Patch for vdr-plugin-restfulapi
-
-opt-57_vdr-remote_instant_recordings.patch
-    Frank Schmirler <vdrdev@schmirler.de> 
-
-    Patch for vdr-plugin-remotetimers
 
 opt-61_dynamite.patch
     Lars Hanisch <dvb@flensrocker.de>
@@ -62,44 +52,19 @@ opt-65_pin.patch
 
     patch for the pin plugin
 
-vdr-2.2.0-hide-first-recording-level-v5.patch
+vdr-2.3.1-hide-first-recording-level-v1.patch
     Lars Hanisch <dvb@flensrocker.de>
 
     Hide the first level of directories in the recordings menu, all recordings
     are stored at the "local" directory
-
-vdr-2.2.0-permashift.patch
-    Eike Sauer <eike@ein-eike.de>
-
-    Patch for permashift plugin
 
 vdr-2.2.0-missing-plugin.patch
     Ville Skyttä <ville.skytta@iki.fi>
 
     Don't exit with an error if a plugin can't be loaded
 
-vdr-2.2.0-toomanypids.patch
-    Zabrimus @ vdr-portal
+vdr-2.3-patch-for-permashift.diff
+    Eike Sauer
 
-    Don't add same pid multiple times
-
-vdr-2.2.0-caid_buffer-v3.patch
-    Lars Hanisch <dvb@flensrocker.de>
-
-    dynamically resize buffer for caids
-
-vdr-2.2.0-h265-frame-parser.patch
-    Thomas Reufer <thomas@reufer.ch>
-
-    Add h265 frame parser to VDR 2.2.0
-
-vdr-2.2.0-mutex-deadlock.patch
-    jrie (vdr-portal.de)
-
-    prevent deadlocks caused by wrong mutex order
-
-systemd.patch
-    Tobias Grimm <etobi@debian.org>
-
-    Use libsystemd instead of transitional libsystemd-daemon
+    Patch required for the permashift plugin
 

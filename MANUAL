@@ -264,7 +264,7 @@ Version 2.2
 
 * Pausing live video
 
-  If you want to pause the live programme you are just watching, simple press
+  If you want to pause the live programme you are just watching, simply press
   "Menu/Yellow" or "Pause" on your remote control. VDR will start an instant
   recording of the current channel (just as if you had pressed "Menu/Red" or
   "Record") and immediately begin replaying that recording. Replay will be
@@ -276,6 +276,9 @@ Version 2.2
   in the "Setup/Recording" menu. Recording time will be the same as for
   any other instant recording, so by default it will record 3 hours (which
   should be enough for any normal broadcast).
+  Note that the timer that is created for recording the paused live video will
+  always record on the local VDR, even if an "SVDRP default host" has been
+  set for normal timer recordings.
 
 * Replaying a Recording
 
@@ -498,6 +501,9 @@ Version 2.2
              the name of the recording.
   First day: The date of the first day when this timer shall start recording
              (only available for repeating timers).
+  Record on: The name of the remote VDR this timer shall record on (only available
+             if there are any remote VDRs connected to this VDR). If this field
+             is empty, the timer will record on the local VDR.
 
   A timer can also be programmed by pressing the "Red" key on the "Schedule",
   "Now", "Next" or "Event" menus.
@@ -653,6 +659,11 @@ Version 2.2
                          In the "Recordings" menu folders are always listed before
                          plain recordings. Set this option to "no" if you want folders
                          to be interspersed with recordings when sorted alphabetically.
+
+  Default sort mode for recordings = by time
+                         Controls whether recordings are sorted by time or by name.
+                         If a particular sort mode has been selected for a folder by
+                         pressing '0', the default no longer applies to that folder.
 
   Number keys for characters = yes
                          Controls whether the number keys can be used to enter
@@ -882,8 +893,13 @@ Version 2.2
                          means that this recording will never be deleted
                          automatically.
 
-  Pause priority = 10    The Priority and Lifetime values used when pausing live
-  Pause lifetime = 1     video.
+  Record key handling = 2
+                         Defines what happens if the Record key on the remote control
+                         is pressed during live tv.
+                         0 = no instant recording
+                         1 = confirm instant recording
+                         2 = record instantly
+                         The default is 2.
 
   Pause key handling = 2 Defines what happens if the Pause key on the remote control
                          is pressed during live tv.
@@ -891,6 +907,9 @@ Version 2.2
                          1 = confirm pause live video
                          2 = pause live video
                          The default is 2.
+
+  Pause priority = 10    The Priority and Lifetime values used when pausing live
+  Pause lifetime = 1     video.
 
   Use episode name = yes Repeating timers use the EPG's 'Episode name' information
                          to create recording file names in a hierarchical structure
@@ -1066,6 +1085,23 @@ Version 2.2
                          connection after which the connection is automatically
                          closed. Default is 300, a value of 0 means no timeout.
 
+  SVDRP peering = off    Activates automatic connections between VDRs in the same
+                         network. If set to "any hosts" this VDR will establish
+                         connections with any available hosts. If set to "only
+                         default host" this VDR will only connect to the VDR with
+                         the name defined in "SVDRP default host". If no default
+                         host has been defined, the behavior is the same as with
+                         "any hosts". To switch from "off" to "only default host",
+                         you may need to select "any hosts" first and confirm the
+                         dialog by pressing "Ok" in order to be able to select a
+                         default host.
+
+  SVDRP host name        The name of this VDR, which is used when connecting VDRs
+                         via SVDRP. By default, the machine's host name is used.
+
+  SVDRP default host     The name of the VDR to be used by default when creating a
+                         new timer.
+
   Zap timeout = 3        The time (in seconds) until a channel counts as "previous"
                          for switching with '0'
 
@@ -1115,10 +1151,11 @@ Version 2.2
                          wrap around the beginning or end of the channel list if
                          this parameter is set to 'yes'.
 
-  Show channel names with source = no
+  Show channel names with source = off
                          If this option is turned on, channel names will be displayed
-                         with the source appended to them, as in "ZDF (S)", where
-                         'S' stands for "Satellite".
+                         with the source appended to them, as in "ZDF (S)" (if the
+                         option is set to "type), or "ZDF (S19.2E)" (if it is set to
+                         "full"), where 'S' stands for "Satellite".
 
   Emergency exit = yes   If, for some reason, a recording fails because the video
                          data stream is broken, or the CAM doesn't decrypt etc.,

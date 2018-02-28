@@ -4,7 +4,7 @@
  * See the main source file 'vdr.c' for copyright information and
  * how to reach the author.
  *
- * $Id: cutter.c 3.4 2013/10/02 13:18:02 kls Exp $
+ * $Id: cutter.c 4.3 2017/05/21 09:45:06 kls Exp $
  */
 
 #include "cutter.h"
@@ -500,7 +500,7 @@ bool cCuttingThread::FixFrame(uchar *Data, int &Length, bool Independent, int In
          TsSetContinuityCounter(p, counter[Pid]);
          }
       else
-         counter[Pid] = TsGetContinuityCounter(p); // collect initial counters
+         counter[Pid] = TsContinuityCounter(p); // collect initial counters
       // Adjust PTS:
       int64_t Pts = TsGetPts(p, TS_SIZE);
       if (Pts >= 0) {
@@ -634,7 +634,6 @@ void cCuttingThread::Action(void)
                  }
               }
            }
-     Recordings.TouchUpdate();
      }
   else
      esyslog("no editing marks found!");
@@ -675,9 +674,11 @@ bool cCutter::Start(void)
         editedVersionName = EditedFileName(originalVersionName);
         if (*editedVersionName) {
            if (strcmp(originalVersionName, editedVersionName) != 0) { // names must be different!
+              cRecordingUserCommand::InvokeCommand(RUC_EDITINGRECORDING, editedVersionName, originalVersionName);
               if (cVideoDirectory::RemoveVideoFile(editedVersionName) && MakeDirs(editedVersionName, true)) {
                  Recording.WriteInfo(editedVersionName);
-                 Recordings.AddByName(editedVersionName, false);
+                 LOCK_RECORDINGS_WRITE;
+                 Recordings->AddByName(editedVersionName, false);
                  cuttingThread = new cCuttingThread(originalVersionName, editedVersionName);
                  return true;
                  }
@@ -702,7 +703,8 @@ void cCutter::Stop(void)
      if (cReplayControl::NowReplaying() && strcmp(cReplayControl::NowReplaying(), editedVersionName) == 0)
         cControl::Shutdown();
      cVideoDirectory::RemoveVideoFile(editedVersionName);
-     Recordings.DelByName(editedVersionName);
+     LOCK_RECORDINGS_WRITE;
+     Recordings->DelByName(editedVersionName);
      }
 }
 

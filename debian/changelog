@@ -1,8 +1,182 @@
+vdr (2.3.8-7yavdr0~bionic) bionic; urgency=medium
+
+  * update opt-37-x_menuorg.patch  for new menorg plugin version
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Wed, 28 Feb 2018 18:30:06 +0000
+
+vdr (2.3.8-6yavdr0~bionic) bionic; urgency=medium
+
+  * add fix_svdrpreply.diff by Klaus Schmidinger to fix a deadlock on SVDRP
+    peer-to-peer communication 
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Thu, 15 Feb 2018 15:30:12 +0000
+
+vdr (2.3.8-5yavdr0~bionic) bionic; urgency=medium
+
+  * removed obsolete 06_vdr_svdrp_port_0.patch
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Tue, 13 Feb 2018 18:04:11 +0000
+
+vdr (2.3.8-4yavdr0~bionic) bionic; urgency=medium
+
+  * use same SVDRP TCP and UDP port
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Tue, 13 Feb 2018 15:52:47 +0000
+
+vdr (2.3.8-3yavdr0~bionic) bionic; urgency=medium
+
+  * add vdr-2.3.8-fixdevicedetachlock-2.diff Patch by Klaus Schmidinger
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Wed, 20 Dec 2017 16:41:32 +0000
+
+vdr (2.3.8-2yavdr0~bionic) bionic; urgency=medium
+
+  * make vdr-dev architecture dependend
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Thu, 30 Nov 2017 13:48:41 +0000
+
+vdr (2.3.8-1yavdr0~bionic) bionic; urgency=medium
+
+  * rebuild for bionic
+  * disable DEBUG_LOCKSEQ 
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Thu, 30 Nov 2017 13:22:38 +0000
+
+vdr (2.3.8-0yavdr0~xenial) xenial; urgency=medium
+
+  * new upstream release
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Fri, 30 Jun 2017 16:14:44 +0200
+
+vdr (2.3.7-2yavdr0~xenial) xenial; urgency=medium
+
+  * add patch to fix state lock logging
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Thu, 22 Jun 2017 08:43:48 +0200
+
+vdr (2.3.7-1yavdr0~xenial) xenial; urgency=medium
+
+  * reenable accidentally deactivated permashift patch
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Mon, 12 Jun 2017 11:24:28 +0200
+
+vdr (2.3.7-0yavdr0~xenial) xenial; urgency=medium
+
+  * new release
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Sun, 11 Jun 2017 21:37:56 +0200
+
+vdr (2.3.6-2yavdr0~xenial) xenial; urgency=medium
+
+  * use fixed version of patch for thread locking (and logging)
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Wed, 07 Jun 2017 19:53:02 +0200
+
+vdr (2.3.6-1yavdr0~xenial) xenial; urgency=medium
+
+  * add patch to improve thread locking
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Tue, 06 Jun 2017 11:33:23 +0200
+
+vdr (2.3.6-0yavdr0~xenial) xenial; urgency=medium
+
+  * new upstream version
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Sun, 04 Jun 2017 13:02:04 +0200
+
+vdr (2.3.5-3yavdr0~xenial) xenial; urgency=medium
+
+  * increase abi version
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Sun, 28 May 2017 11:14:04 +0200
+
+vdr (2.3.5-2yavdr0~xenial) xenial; urgency=medium
+
+  * remove patch for osd2web
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Sun, 28 May 2017 10:20:21 +0200
+
+vdr (2.3.5-1yavdr0~xenial) xenial; urgency=medium
+
+  * remove graphtftng from debian/plugins.mk
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Thu, 25 May 2017 22:22:16 +0200
+
+vdr (2.3.5-0yavdr0~xenial) xenial; urgency=medium
+
+  * new upstream release, update pin patch, remove obsolete Patches
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Thu, 25 May 2017 21:22:01 +0200
+
+vdr (2.3.4-2yavdr0~xenial) xenial; urgency=medium
+
+  * fix BeginSegmentTransfer
+    (http://www.vdr-portal.de/board1-news/board2-vdr-news/p1291598-announce-vdr-developer-version-2-3-4/#post1291598) 
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Mon, 08 May 2017 09:28:09 +0200
+
+vdr (2.3.4-1yavdr0~xenial) xenial; urgency=medium
+
+  * update ABI version to 2.3.4-0yavdr0
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Mon, 01 May 2017 08:22:36 +0200
+
+vdr (2.3.4-0yavdr0~xenial) xenial; urgency=medium
+
+  * update patches for eventdetails, dynamite and hide-first-recording-level
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Sun, 30 Apr 2017 19:19:51 +0200
+
+vdr (2.3.3-5yavdr0~xenial) xenial; urgency=medium
+
+  * add vdr-2.3.3-camrelations.patch
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Fri, 14 Apr 2017 10:49:40 +0200
+
+vdr (2.3.3-4yavdr0~xenial) xenial; urgency=medium
+
+  * add fixsvdrpplaylock.diff (can be removed for 2.3.4)
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Tue, 04 Apr 2017 13:17:44 +0200
+
+vdr (2.3.3-3yavdr0~xenial) xenial; urgency=medium
+
+  * set correct abi version
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Fri, 31 Mar 2017 10:53:14 +0200
+
+vdr (2.3.3-2yavdr0~xenial) xenial; urgency=medium
+
+  * add vdr-2.3.2_osd2web.diff
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Thu, 30 Mar 2017 15:43:43 +0200
+
+vdr (2.3.3-1yavdr0~xenial) xenial; urgency=medium
+
+  * added permashift patch
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Wed, 29 Mar 2017 23:47:20 +0200
+
+vdr (2.3.3-0yavdr0~xenial) xenial; urgency=medium
+
+  * new vdr version 2.3.3
+    - vdr-plugin-dvbsddevice has been removed from vdr package
+    - vdr-plugin-dvbhddevice has been removed from vdr package
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Wed, 29 Mar 2017 22:36:14 +0200
+
 vdr (2.2.0-18yavdr0~xenial) xenial; urgency=medium
 
-  * bump version for Launchpad
+  * add patch for basic x265 support
+  * add patch to fix deadlock when switching channels
 
- -- Lars Hanisch <dvb@flensrocker.de>  Wed, 17 Aug 2016 23:17:22 +0200
+ -- Alexander Grothe <seahawk1986@gmx.de>  Sun, 29 May 2016 22:12:54 +0200
+
+vdr (2.2.0-17yavdr0~xenial) xenial; urgency=medium
+
+  * add systemd runtime order "After=network.target"
+
+ -- Alexander Grothe <seahawk1986@gmx.de>  Wed, 20 Apr 2016 16:37:03 +0200
 
 vdr (2.2.0-17yavdr0~xenial) xenial; urgency=medium
 
@@ -21,13 +195,6 @@ vdr (2.2.0-13yavdr0~xenial) xenial; urgency=medium
   * update package for xenial
 
  -- Alexander Grothe <seahawk1986@gmx.de>  Sat, 06 Feb 2016 21:12:37 +0100
-
-vdr (2.2.0-13yavdr0~trusty) trusty; urgency=medium
-
-  * add patch for h.265 parser
-  * add patch against mutex deadlock
-
- -- Lars Hanisch <dvb@flensrocker.de>  Sun, 05 Jun 2016 15:21:24 +0200
 
 vdr (2.2.0-12yavdr0~trusty) trusty; urgency=medium
 

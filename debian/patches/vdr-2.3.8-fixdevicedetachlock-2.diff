@@ -1,0 +1,44 @@
+--- a/device.c
++++ b/device.c
+@@ -1754,6 +1754,7 @@
+                  int Pid = TsPid(b);
+                  bool IsScrambled = TsIsScrambled(b);
+                  for (int i = 0; i < MAXRECEIVERS; i++) {
++                     cMutexLock MutexLock(&mutexReceiver);
+                      cReceiver *Receiver = receiver[i];
+                      if (Receiver && Receiver->WantsPid(Pid)) {
+                         Receiver->Receive(b, TS_SIZE);
+@@ -1852,10 +1853,8 @@
+                 }
+              }
+          Receiver->Activate(true);
+-         Lock();
+          Receiver->device = this;
+          receiver[i] = Receiver;
+-         Unlock();
+          if (camSlot && Receiver->priority > MINPRIORITY) { // priority check to avoid an infinite loop with the CAM slot's caPidReceiver
+             camSlot->StartDecrypting();
+             if (camSlot->WantsTsData()) {
+@@ -1887,13 +1886,11 @@
+   if (!Receiver || Receiver->device != this)
+      return;
+   bool receiversLeft = false;
+-  cMutexLock MutexLock(&mutexReceiver);
++  mutexReceiver.Lock();
+   for (int i = 0; i < MAXRECEIVERS; i++) {
+       if (receiver[i] == Receiver) {
+-         Lock();
+          receiver[i] = NULL;
+          Receiver->device = NULL;
+-         Unlock();
+          Receiver->Activate(false);
+          for (int n = 0; n < Receiver->numPids; n++)
+              DelPid(Receiver->pids[n]);
+@@ -1901,6 +1898,7 @@
+       else if (receiver[i])
+          receiversLeft = true;
+       }
++  mutexReceiver.Unlock();
+   if (camSlot) {
+      if (Receiver->priority > MINPRIORITY) { // priority check to avoid an infinite loop with the CAM slot's caPidReceiver
+         camSlot->StartDecrypting();
