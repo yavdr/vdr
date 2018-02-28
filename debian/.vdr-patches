@@ -2,7 +2,7 @@
 06_default_svdrp_port_0.patch:98fc8d7a9f450374de5e5690ad4c98c7
 81_Make_config.patch:7ddffabce7ed19c7d253b61223d20ebb
 99_ncursesw-include.patch:98a6f4705b312dc9de9775e867e95d54
-opt-37-x_menuorg.patch:35fcf552ee33618af5fcc547ebadb727
+opt-37-x_menuorg.patch:f5e99d3bed1a93e9e10f1320c2fab6a2
 opt-42-x_MainMenuHooks-v1.0.1.patch:5f3d09d70974e85923b8cd4c59e4c75b
 opt-50_graphtftng.patch:c2755d2861dd0ca465964c2c3282174b
 opt-56_eventdetails_v3.patch:e2ff963982af0673b0436d3f7f6c2048
@@ -14,4 +14,6 @@ vdr-2.2.0-permashift.patch:9964ad8284fb1b82873bc946bf541328
 vdr-2.2.0-missing-plugin.patch:4dcd9323530dcd19f45eea608fb34955
 vdr-2.2.0-toomanypids.patch:3b30f63e69828db6a9a97e3e2d984c25
 vdr-2.2.0-caid_buffer-v3.patch:f77319f74ec62af61562e120ae8e3236
+vdr-2.2.0-h265-frame-parser.patch:178cb169d51bcec8198b22c4e8d4831e
+vdr-2.2.0-mutex-deadlock.patch:26ea09314ffd71bb1896cd25877d0cf9
 systemd.patch:263b8db8a6cb952fe9157dbf4c76aaa5

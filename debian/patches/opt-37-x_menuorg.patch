@@ -149,7 +149,7 @@ Author: Tobias Grimm <tg@e-tobi.net>
 +                          }
 +                       }
 +                       break;
-+    case osUser7:      {
++    case osUser3:      {
 +                          if (MenuOrgPatch::IsCustomMenuAvailable()) {
 +                            MenuOrgPatch::EnterSubMenu(Get(Current()));
 +                            Set();
@@ -157,7 +157,7 @@ Author: Tobias Grimm <tg@e-tobi.net>
 +                          }
 +                       }
 +                       break;
-+    case osUser8:      {
++    case osUser4:      {
 +                          if (MenuOrgPatch::IsCustomMenuAvailable()) {
 +                            cOsdMenu* osdMenu = MenuOrgPatch::Execute(Get(Current()));
 +                            if (osdMenu)
