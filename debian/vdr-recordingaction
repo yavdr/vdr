@@ -41,12 +41,12 @@ for rec_hook in "${REC_HOOKS_DIR}"/R[0-9][0-9].* ; do  # Only match 'R<XX>.<iden
       action="after cutting recording $2 from $3"
       ;;
     esac
-    if [[ -x $rec_hook ]] ; then
+    if [[ -x "$rec_hook" ]] ; then
       logger -t "$SELF_NAME" "Executing $rec_hook $action"
-      $rec_hook "$@"
+      "$rec_hook" "$@"
     else
       logger -t "$SELF_NAME" "Executing $rec_hook $action as shell script"
-      /usr/bin/sh $rec_hook "$@"
+      /usr/bin/sh "$rec_hook" "$@"
     fi
     [[ $? -ne 0 ]] && logger -t "$SELF_NAME" "Error when executing $rec_hook"
 done
