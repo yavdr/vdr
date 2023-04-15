@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 # VDR Recording Action Script  - Tobias Grimm <tg@e-tobi.net>
 # ---------------------------
@@ -24,26 +24,29 @@
 # Parameter 2 is the directory of the recording. Be aware, that this directory
 # doesn't exist before the recording starts.
 #
+# VERSION=230415
 
-REC_HOOKS_DIR=/usr/share/vdr/recording-hooks
+SELF="$(readlink /proc/$$/fd/255)" || SELF="$0"  # Path ($0)
+SELF_NAME="${SELF##*/}"                          # Scriptname
+REC_HOOKS_DIR='/usr/share/vdr/recording-hooks'
 
-recordinghooks=`find $REC_HOOKS_DIR -maxdepth 1 -xtype f | sort`
+shopt -s nullglob  # In case of no matches
 
-for recordinghook in $recordinghooks; do
-    case $1 in
-        before|after)
-            action="$1 recording $2"
-            ;;
-        edited)
-            action="after cutting recording $2 from $3"
-            ;;
+for rec_hook in "${REC_HOOKS_DIR}"/R[0-9][0-9].* ; do  # Only match 'R<XX>.<identifier>'
+  case $1 in
+    before|after)
+      action="$1 recording $2"
+      ;;
+    edited)
+      action="after cutting recording $2 from $3"
+      ;;
     esac
-    if [ -x $recordinghook ]; then
-        logger -t recordingaction "executing $recordinghook $action"
-        $recordinghook "$@"
+    if [[ -x $rec_hook ]] ; then
+      logger -t "$SELF_NAME" "Executing $rec_hook $action"
+      $rec_hook "$@"
     else
-        logger -t recordingaction "executing $recordinghook $action as shell script"
-        /bin/sh $recordinghook "$@"
+      logger -t "$SELF_NAME" "Executing $rec_hook $action as shell script"
+      /usr/bin/sh $rec_hook "$@"
     fi
-    [ $? -ne 0 ] && logger -t recordingaction "error when executing $recordinghook"
+    [[ $? -ne 0 ]} && logger -t "$SELF_NAME" "Error when executing $rec_hook"
 done
