@@ -24,6 +24,5 @@ f_writewarning "$cmdtype" "$cmdfile"
 
 shopt -s nullglob  # In case of no matches
 
-for cmd in "${CMDHOOKSDIR}/${cmdtype}".*.conf ; do  # Only match '<cmdtype>.<name>.conf'
-  cat "$cmd" >> "$cmdfile"
-done
+# Only match '<cmdtype>.<name>.conf'
+cat "${CMDHOOKSDIR}/${cmdtype}".*.conf > "$cmdfile"
