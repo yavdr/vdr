@@ -18,7 +18,7 @@ EOF
 }
 
 cmdtype="$1"
-cmdfile="/var/cache/vdr/$cmdtype.conf"
+cmdfile="/var/cache/vdr/${cmdtype}.conf"
 
 f_writewarning "$cmdtype" "$cmdfile"
 
