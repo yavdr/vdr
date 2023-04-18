@@ -55,7 +55,7 @@ for shutdown_hook in "${SHUTDOWN_HOOKS_DIR}"/S[0-9][0-9].* ; do  # Only match 'S
   if [[ $TRY_AGAIN -gt 0 ]] ; then
     f_log "$shutdown_hook requests to try again in $TRY_AGAIN minutes" 
     nohup sh -c "(sleep $((TRY_AGAIN * 60)) && $svdrpsend \"HITK Power\")" &>/dev/null & 
-    f_osdmsg "Shutdown abgebruchen! Neuer Versuch in $TRY_AGAIN Minuten" &
+    f_osdmsg "Shutdown abgebrochen! Neuer Versuch in $TRY_AGAIN Minuten" &
     exit 0
   fi
 done 
