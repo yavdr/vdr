@@ -1,54 +1,64 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 # VDR Shutdown Script  - Tobias Grimm <tg@e-tobi.net>
 # -------------------
 #
 # see README.Debian
 #
+# These hooks are called in their alphabetical order and should follow 
+# this naming scheme:
+#
+# S<XX>.<identifier>
+#
+# Where <XX> is a two digit number, that mainly specifies the execution order
+# and <identifier> is a unique descriptor.
+#
+# VERSION=230416
 
-. /usr/lib/vdr/config-loader.sh
+source /usr/lib/vdr/config-loader.sh
 
-SHUTDOWN_HOOKS_DIR=/usr/share/vdr/shutdown-hooks/
+SHUTDOWN_HOOKS_DIR='/usr/share/vdr/shutdown-hooks'
+svdrpsend='/usr/bin/svdrpsend'
 
-log="logger -t vdr-shutdown"
-svdrpsend="/usr/bin/svdrpsend"
-
-osdmsg()
-{
-    # OSD message must be deferred, to let VDR display it AFTER the
-    # shutdown script has been executed
-    sleep 2
-    $svdrpsend MESG "$1"
+f_log() {
+  logger -t 'vdr-shutdown' "$*"
 }
 
-shutdownhooks=`find $SHUTDOWN_HOOKS_DIR -maxdepth 1 -xtype f | sort`
+f_osdmsg() {
+  # OSD message must be deferred, to let VDR display it AFTER the
+  # shutdown script has been executed
+  sleep 2
+  "$svdrpsend" MESG "$1"
+}
 
-for shutdownhook in $shutdownhooks; do
-    TRY_AGAIN=0
+shopt -s nullglob  # In case of no matches
 
-    if [ -x $shutdownhook ]; then
-        $log "executing $shutdownhook"
-        result_data=`$shutdownhook "$@"`
-    else
-        $log "executing $shutdownhook as shell script"
-        result_data=`/bin/sh $shutdownhook "$@"`
-    fi
-    result=$?
-    eval $result_data
-    if [ $result -ne 0 ] ; then 
-        $log "Shutdown aborted by $shutdownhook with exitcode $result"
-        osdmsg "Shutdown abgebrochen / Shutdown aborted!" &
-        [ -z "$ABORT_MESSAGE" ] || osdmsg "$ABORT_MESSAGE" &
-        exit $result
-    fi
+for shutdown_hook in "${SHUTDOWN_HOOKS_DIR}"/S[0-9][0-9].* ; do  # Only match 'S<XX>.<identifier>'
+  TRY_AGAIN=0
 
-    if [ $TRY_AGAIN -gt 0 ]
-    then
-        $log "$shutdownhook requests to try again in $TRY_AGAIN minutes" 
-        nohup sh -c "( sleep $(( $TRY_AGAIN * 60 )) && $svdrpsend \"HITK Power\" )" >/dev/null 2>&1 & 
-        osdmsg "Shutdown aborted. Retry in $TRY_AGAIN minutes." &
-        exit 0
-    fi
+  if [[ -x "$shutdown_hook" ]] ; then
+    f_log "Executing $shutdown_hook"
+    result_data=$("$shutdown_hook" "$@")
+  else
+    f_log "Executing $shutdown_hook as shell script"
+    result_data=$(/usr/bin/sh "$shutdown_hook" "$@")
+  fi
+  result=$?
+  eval "$result_data"
+  if [[ $result -ne 0 ]] ; then 
+    f_log "Shutdown aborted by $shutdown_hook with exitcode $result"
+    f_osdmsg "Shutdown abgebrochen!" &
+    [[ -n "$ABORT_MESSAGE" ]] && f_osdmsg "$ABORT_MESSAGE" &
+    exit $result
+  fi
+
+  if [[ $TRY_AGAIN -gt 0 ]] ; then
+    f_log "$shutdown_hook requests to try again in $TRY_AGAIN minutes" 
+    nohup sh -c "(sleep $((TRY_AGAIN * 60)) && $svdrpsend \"HITK Power\")" &>/dev/null & 
+    f_osdmsg "Shutdown abgebrochen! Neuer Versuch in $TRY_AGAIN Minuten" &
+    exit 0
+  fi
 done 
 
-eval $SHUTDOWNCMD &
+eval "$SHUTDOWNCMD" &
+
